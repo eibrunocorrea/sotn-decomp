@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+
 #include "bo7.h"
+#include <sfx.h>
 
-/*
- * BO7's breakable entity is stage-specific and roughly twice the size of the
- * shared candle implementation (0x290 versus 0x134 bytes).
- */
-INCLUDE_ASM("boss/bo7/nonmatchings/e_breakable", EntityBreakable);
+#define CANDLE_HIT_SFX_EXTRA SFX_WALL_DEBRIS_B
+#define BREAKABLE_ZPRIORITY 112
+#define PAL_BREAKABLE_DEBRIS 0x159
 
-INCLUDE_ASM("boss/bo7/nonmatchings/e_breakable", EntityBreakableDebris);
+#include "../../st/e_breakable_with_lighting.h"

@@ -79,6 +79,9 @@ void EntityBreakable(Entity* self) {
 
     if (self->hitParams) {
         g_api.PlaySfx(CANDLE_HIT_SFX);
+#ifdef CANDLE_HIT_SFX_EXTRA
+        g_api.PlaySfx(CANDLE_HIT_SFX_EXTRA);
+#endif
         entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
         if (entity != NULL) {
             CreateEntityFromCurrentEntity(E_EXPLOSION, entity);
