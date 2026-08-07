@@ -46,6 +46,8 @@ segments:
       - [0x6C8, data]
       - [0x6F8, .data, e_lock_camera]
       - [0x778, data]
+      - [0x7EC, .data, e_demon_switch_wall]
+      - [0x81C, data]
       - [0x8FC, .data, st_update]
       - [0x948, .data, collision]
       - [0xD08, .data, e_red_door]
