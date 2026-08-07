@@ -14,4 +14,3 @@ INCLUDE_ASM("st/rnz1/nonmatchings/unk_276A8", EntityGearSidewaysSmall);
 INCLUDE_ASM("st/rnz1/nonmatchings/unk_276A8", EntityWallGear);
 
 INCLUDE_ASM("st/rnz1/nonmatchings/unk_276A8", EntitySecretAreaDoor);
-

@@ -18,9 +18,8 @@ static u8 D_us_80180D94[] = {0x05, 0x16, 0x00, 0x00};
 static u8 D_us_80180D98[] = {
     0x05, 0x14, 0xFF, 0xFF, 0x05, 0x15, 0x05, 0x15, 0xFF, 0x00, 0x00, 0x00};
 static u8* anims[] = {
-    D_us_80180D50, D_us_80180D58, D_us_80180D60, D_us_80180D6C,
-    D_us_80180D78, D_us_80180D7C, D_us_80180D88, D_us_80180D90,
-    D_us_80180D94, D_us_80180D98};
+    D_us_80180D50, D_us_80180D58, D_us_80180D60, D_us_80180D6C, D_us_80180D78,
+    D_us_80180D7C, D_us_80180D88, D_us_80180D90, D_us_80180D94, D_us_80180D98};
 
 static u8 hitbox_heights[] = {
     0x08, 0x08, 0x28, 0x18, 0x10, 0x10, 0x08, 0x08, 0x08, 0x08, 0x08, 0x00};

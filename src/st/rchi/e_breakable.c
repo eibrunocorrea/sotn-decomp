@@ -200,7 +200,8 @@ void EntityBreakableDebris(Entity* self) {
         MoveEntity();
         self->rotate += self->ext.breakableDebris.angle;
         self->velocityY += FIX(0.25);
-        g_api.CheckCollision(self->posX.i.hi, self->posY.i.hi + 6, &collider, 0);
+        g_api.CheckCollision(
+            self->posX.i.hi, self->posY.i.hi + 6, &collider, 0);
         if (collider.effects & EFFECT_SOLID) {
             self->posY.i.hi += collider.unk18;
             self->velocityY = -self->velocityY / 2;

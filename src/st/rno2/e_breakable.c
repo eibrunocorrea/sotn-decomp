@@ -72,7 +72,7 @@ void EntityBreakable(Entity* self) {
         }
         switch (breakableType) {
         case CANDELABRA_WALL_DOUBLE:
-            self->drawFlags = 0;
+            self->drawFlags = ENTITY_DEFAULT;
             self->rotate = 0;
             g_api.PlaySfx(SFX_CANDLE_HIT);
             break;

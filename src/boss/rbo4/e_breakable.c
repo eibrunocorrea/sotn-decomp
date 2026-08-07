@@ -14,25 +14,15 @@ static u8* g_eBreakableAnimations[8] = {
 static u8 g_eBreakableHitboxes[8] = {8, 8, 8, 8, 8, 8, 8, 8};
 static u8 g_eBreakableExplosionTypes[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static u16 g_eBreakableanimSets[8] = {
-    ANIMSET_DRA(3),
-    ANIMSET_OVL(1),
-    ANIMSET_OVL(1),
-    ANIMSET_DRA(3),
-    ANIMSET_DRA(3),
-    ANIMSET_DRA(3),
-    ANIMSET_DRA(3),
-    ANIMSET_DRA(3),
+    ANIMSET_DRA(3), ANIMSET_OVL(1), ANIMSET_OVL(1), ANIMSET_DRA(3),
+    ANIMSET_DRA(3), ANIMSET_DRA(3), ANIMSET_DRA(3), ANIMSET_DRA(3),
 };
 
 static u8 blend_modes[8] = {
-    BLEND_TRANSP | BLEND_QUARTER,
-    BLEND_TRANSP | BLEND_ADD,
-    BLEND_TRANSP | BLEND_ADD,
-    BLEND_TRANSP | BLEND_ADD,
-    BLEND_TRANSP | BLEND_ADD,
-    BLEND_TRANSP | BLEND_ADD,
-    BLEND_TRANSP | BLEND_ADD,
-    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_QUARTER, BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,     BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,     BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,     BLEND_TRANSP | BLEND_ADD,
 };
 
 static u8 unused[] = {0, 0, 0, 0, 0, 0, 0, 0};
