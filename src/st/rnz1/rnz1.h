@@ -8,6 +8,10 @@
 
 enum Palettes {
     PAL_NONE,
+    PAL_WALL_CANDELABRA_A = 0x228,
+    PAL_WALL_CANDELABRA_B = 0x229,
+    PAL_BREAKABLE = 0x22A,
+    PAL_BREAKABLE_DEBRIS = 0x22E,
     PAL_PUFF_OPAQUE_OFFSET = 0x2E0,
     // puff params 2 (not used directly, PAL_PUFF_OPAQUE_OFFSET + 3)
     PAL_PUFF_OPAQUE_2 = 0x2E3,
