@@ -355,6 +355,9 @@ void EntityHammer(Entity* self) {
         self->animCurFrame = 3;
         self->hitboxWidth = 6;
         self->hitboxHeight = 6;
+#ifdef HAMMER_ZPRIORITY_OFFSET
+        self->zPriority += HAMMER_ZPRIORITY_OFFSET;
+#endif
         /* fallthrough */
     case HAMMER_STEP_1:
         if (UnkCollisionFunc3(sensors1) & 1) {

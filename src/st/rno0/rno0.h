@@ -96,4 +96,11 @@ enum EntityID {
     NUM_ENTITIES,
 };
 
+extern EInit g_EInitHammer;
+extern EInit g_EInitHammerWeapon;
+extern EInit g_EInitGurkha;
+extern EInit g_EInitGurkhaWeapon;
+extern EInit g_EInitBlade;
+extern EInit g_EInitBladeWeapon;
+
 #endif // RNO0_H

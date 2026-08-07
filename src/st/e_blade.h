@@ -328,6 +328,9 @@ void EntityBlade(Entity* self) {
         self->facingLeft = self->params;
         self->hitboxWidth = 6;
         self->hitboxHeight = 6;
+#ifdef BLADE_ZPRIORITY_OFFSET
+        self->zPriority += BLADE_ZPRIORITY_OFFSET;
+#endif
         /* fallthrough */
     case 1:
         if (UnkCollisionFunc3(D_801833E4) & 1) {

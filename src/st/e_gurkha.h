@@ -226,6 +226,9 @@ void EntityGurkha(Entity* self) {
         self->facingLeft = self->params;
         self->hitboxWidth = 6;
         self->hitboxHeight = 6;
+#ifdef GURKHA_ZPRIORITY_OFFSET
+        self->zPriority += GURKHA_ZPRIORITY_OFFSET;
+#endif
         /* fallthrough */
     case 1:
         if (UnkCollisionFunc3(D_80182EF4) & 1) {
