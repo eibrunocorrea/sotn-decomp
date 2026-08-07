@@ -58,6 +58,7 @@ segments:
       - [0x13AC, .data, e_room_fg]
       - [0x1438, .data, e_slogra]
       - [0x1628, data]
+      - [0x162C, .data, e_gaibon]
       - [0x1780, .data, e_thornweed]
       - [0x1838, data]
       - [0x18F10, .rodata, e_demon_switch_wall]
