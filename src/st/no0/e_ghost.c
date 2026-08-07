@@ -76,7 +76,7 @@ void EntityGhostEnemySpawner(Entity* self) {
     s16* minMaxPositions;
 
     if (!self->step) {
-        InitializeEntity(D_us_80180A88);
+        InitializeEntity(g_EInitSpawner);
         self->flags &= ~FLAG_UNK_2000;
         self->ext.ghostEnemySpawner.timer = 1;
     }

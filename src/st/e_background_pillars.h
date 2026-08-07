@@ -1,12 +1,34 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include "no0.h"
+#include <stage.h>
+
+extern EInit g_EInitCommon;
+
+// The reverse castle mirrors the pillar texture and flips it vertically.
+#ifndef BG_PILLARS_U_LEFT
+#define BG_PILLARS_U_LEFT 0xC0
+#endif
+#ifndef BG_PILLARS_U_RIGHT
+#define BG_PILLARS_U_RIGHT 0xE0
+#endif
+#ifndef BG_PILLARS_Y_TOP
+#define BG_PILLARS_Y_TOP 0x91
+#endif
+#ifndef BG_PILLARS_Y_BOTTOM
+#define BG_PILLARS_Y_BOTTOM 0xC1
+#endif
+#ifndef BG_PILLARS_SPAWN_Y
+#define BG_PILLARS_SPAWN_Y 0x8E
+#endif
+#ifndef BG_PILLARS_ANIMSET
+#define BG_PILLARS_ANIMSET ANIMSET_OVL(1)
+#endif
 
 static s16 D_us_80181C14[] = {0x50, 0x68, 0x70, 0x68, 0x50, 0x38, 0x30, 0x38};
 static s16 D_us_80181C24[] = {0x90, 0x93, 0x9C, 0xA5, 0xA8, 0xA5, 0x9C, 0x93};
 
 void func_us_801CC8F8(Entity*);
 
-void func_us_801CC750(Entity* self) {
+void EntityBackgroundPillars(Entity* self) {
     Entity* entityPtr;
     s16 i;
     Primitive* prim;
@@ -16,7 +38,7 @@ void func_us_801CC750(Entity* self) {
         return;
     }
 
-    InitializeEntity(D_us_80180A88);
+    InitializeEntity(g_EInitSpawner);
     primIndex = g_api.AllocPrimitives(PRIM_GT4, 9);
     if (primIndex != -1) {
         self->primIndex = primIndex;
@@ -25,14 +47,14 @@ void func_us_801CC750(Entity* self) {
         for (i = -0x10; prim != NULL; i += 0x1E) {
             prim->tpage = 0xF;
             prim->clut = 0x2A;
-            prim->u0 = prim->u2 = 0xC0;
-            prim->u1 = prim->u3 = 0xE0;
+            prim->u0 = prim->u2 = BG_PILLARS_U_LEFT;
+            prim->u1 = prim->u3 = BG_PILLARS_U_RIGHT;
             prim->v0 = prim->v1 = 0x80;
             prim->v2 = prim->v3 = 0xB0;
             prim->x0 = prim->x2 = i;
             prim->x1 = prim->x3 = i + 0x20;
-            prim->y0 = prim->y1 = 0x91;
-            prim->y2 = prim->y3 = 0xC1;
+            prim->y0 = prim->y1 = BG_PILLARS_Y_TOP;
+            prim->y2 = prim->y3 = BG_PILLARS_Y_BOTTOM;
             prim->priority = 0;
             prim->drawMode = DRAW_DEFAULT;
             prim = prim->next;
@@ -45,7 +67,7 @@ void func_us_801CC750(Entity* self) {
         DestroyEntity(entityPtr);
         entityPtr->entityId = E_ID_16;
         entityPtr->pfnUpdate = func_us_801CC8F8;
-        entityPtr->posY.i.hi = 0x8E;
+        entityPtr->posY.i.hi = BG_PILLARS_SPAWN_Y;
         entityPtr->posX.i.hi = i;
         entityPtr++;
     }
@@ -54,7 +76,7 @@ void func_us_801CC750(Entity* self) {
 void func_us_801CC8F8(Entity* self) {
     if (!self->step) {
         InitializeEntity(g_EInitCommon);
-        self->animSet = ANIMSET_OVL(1);
+        self->animSet = BG_PILLARS_ANIMSET;
         self->animCurFrame = 3;
         self->zPriority = g_unkGraphicsStruct.g_zEntityCenter - 0x54;
         self->unk68 = 0xC0;

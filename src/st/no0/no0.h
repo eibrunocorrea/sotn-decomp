@@ -112,7 +112,7 @@ extern Primitive* FindFirstUnkPrim(Primitive* poly);
 extern EInit g_EInitBreakable;
 extern EInit g_EInitObtainable;
 extern EInit g_EInitParticle;
-extern EInit D_us_80180A88;
+extern EInit g_EInitSpawner;
 extern EInit g_EInitInteractable;
 extern EInit D_us_80180AA0;
 extern EInit D_us_80180AAC;

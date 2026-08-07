@@ -23,7 +23,7 @@ void EntityUnkId13(Entity*);
 void EntityExplosionVariants(Entity*);
 void EntityGreyPuff(Entity*);
 void func_us_801CC8F8(Entity*);
-void func_us_801CC750(Entity*);
+void EntityBackgroundPillars(Entity*);
 void func_us_801CC9B4(Entity*);
 void EntityClockRoomController(Entity*);
 void EntityClockHands(Entity*);
@@ -106,7 +106,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityExplosionVariants,
     EntityGreyPuff,
     func_us_801CC8F8,
-    func_us_801CC750,
+    EntityBackgroundPillars,
     func_us_801CC9B4,
     EntityClockRoomController,
     EntityClockHands,
@@ -170,7 +170,7 @@ PfnEntityUpdate EntityUpdates[] = {
 EInit g_EInitBreakable = {ANIMSET_DRA(3), 0x00, 0x00, 0x000, 0x000};
 EInit g_EInitObtainable = {ANIMSET_DRA(3), 0x00, 0x00, 0x000, 0x001};
 EInit g_EInitParticle = {ANIMSET_DRA(3), 0x00, 0x00, 0x000, 0x002};
-EInit D_us_80180A88 = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x004};
+EInit g_EInitSpawner = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x004};
 EInit g_EInitInteractable = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x005};
 EInit D_us_80180AA0 = {ANIMSET_DRA(0x02), 0x00, 0x00, 0x000, 0x02C}; // unused
 EInit D_us_80180AAC = {ANIMSET_OVL(0x05), 0x00, 0x24, 0x000, 0x003}; // unused
