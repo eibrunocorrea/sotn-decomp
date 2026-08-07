@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rno4.h"
 
-INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityBreakable);
-
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", func_us_801C123C_from_no4);
 
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", func_us_801C12B0_from_no4);
@@ -84,7 +82,3 @@ INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityGreyPuff);
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityIntenseExplosion);
 
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", PlaySfxPositional);
-
-INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityBreakableCrystalFloor);
-
-INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityBreakableWall);
