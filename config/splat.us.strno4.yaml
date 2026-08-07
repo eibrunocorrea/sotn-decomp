@@ -77,7 +77,6 @@ segments:
       - [0x44B0C, c, e_breakable]
       - [0x44D5C, c, unk_44B0C]
       - [0x496AC, c, e_secrets]
-      - [0x49C54, c, e_breakable_wall]
       - [0x49DDC, c, e_killer_fish]
       - [0x4A1E4, c, st_update]
       - [0x4A618, c, collision]
