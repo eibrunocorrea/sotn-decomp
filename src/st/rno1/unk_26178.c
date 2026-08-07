@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rno1.h"
 
-INCLUDE_ASM("st/rno1/nonmatchings/unk_26178", EntityBreakable);
-
-INCLUDE_ASM("st/rno1/nonmatchings/unk_26178", EntityBreakableDebris);
-
 INCLUDE_ASM("st/rno1/nonmatchings/unk_26178", RNO1_DebugShowWaitInfo);
 
 INCLUDE_ASM("st/rno1/nonmatchings/unk_26178", RNO1_DebugInputWait);
