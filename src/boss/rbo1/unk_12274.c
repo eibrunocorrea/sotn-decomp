@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rbo1.h"
 
-INCLUDE_ASM("boss/rbo1/nonmatchings/unk_12274", EntityBreakable);
-
 INCLUDE_ASM("boss/rbo1/nonmatchings/unk_12274", func_us_801923A8);
 
 INCLUDE_ASM("boss/rbo1/nonmatchings/unk_12274", func_us_80192C5C);

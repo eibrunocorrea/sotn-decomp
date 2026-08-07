@@ -73,7 +73,7 @@ segments:
       - [0x12FA0, .rodata, e_life_up]
       - [0x12FBC, c, unk_12FBC]
       - [0x1309C, c, e_lock_camera]
-      - [0x13258, c, unk_13258]
+      - [0x13258, c, e_breakable]
       - [0x138E0, c, e_demon_switch_wall]
       - [0x13EF0, c, e_breakable_wall]
       - [0x1477C, c, e_debug_cerberus_gate]
