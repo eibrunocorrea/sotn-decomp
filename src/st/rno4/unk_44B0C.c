@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rno4.h"
 
+extern EInit g_EInitParticle;
+
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", func_us_801C123C_from_no4);
 
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", func_us_801C12B0_from_no4);
@@ -79,6 +81,62 @@ INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityExplosionVariants);
 
 INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityGreyPuff);
 
-INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", EntityIntenseExplosion);
+// params: (& 0xF0) Use an alternate set of hardcoded palette and drawMode
+//         (& 0xFF00) if non-zero, uses ((& 0xFF00) >> 8) as the zPriority
+void EntityIntenseExplosion(Entity* self) {
+    if (!self->step) {
+        InitializeEntity(g_EInitParticle);
+        self->palette = PAL_FLAG(PAL_UNK_170);
+        self->animSet = ANIMSET_DRA(5);
+        self->animCurFrame = 1;
+        self->blendMode = BLEND_TRANSP | BLEND_ADD;
+        if (self->params & 0xF0) {
+            self->palette = PAL_FLAG(PAL_UNK_195);
+            self->blendMode = BLEND_TRANSP;
+        }
 
-INCLUDE_ASM("st/rno4/nonmatchings/unk_44B0C", PlaySfxPositional);
+        if (self->params & 0xFF00) {
+            self->zPriority = (self->params & 0xFF00) >> 8;
+        }
+        self->zPriority += 8;
+    } else {
+        self->poseTimer++;
+        self->posY.val -= FIX(0.25);
+        if ((self->poseTimer % 2) == 0) {
+            self->animCurFrame++;
+        }
+
+        if (self->poseTimer > 36) {
+            DestroyEntity(self);
+        }
+    }
+}
+
+void PlaySfxPositional(s16 sfxId) {
+    s32 posX, posY;
+    s16 sfxPan;
+    s16 sfxVol;
+
+    posX = g_CurrentEntity->posX.i.hi - 128;
+    sfxPan = (abs(posX) - 32) >> 5;
+    if (sfxPan > 8) {
+        sfxPan = 8;
+    } else if (sfxPan < 0) {
+        sfxPan = 0;
+    }
+    if (posX < 0) {
+        sfxPan = -sfxPan;
+    }
+    sfxVol = abs(posX) - 96;
+    posY = abs(g_CurrentEntity->posY.i.hi - 128) - 112;
+    if (posY > 0) {
+        sfxVol += posY;
+    }
+    if (sfxVol < 0) {
+        sfxVol = 0;
+    }
+    sfxVol = 127 - (sfxVol >> 1);
+    if (sfxVol > 0) {
+        g_api.PlaySfxVolPan(sfxId, sfxVol, sfxPan);
+    }
+}
