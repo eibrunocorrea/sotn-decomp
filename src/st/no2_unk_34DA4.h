@@ -6,6 +6,26 @@
 #define TPAGE_FLAG 0
 #endif
 
+#ifndef FLAME_BG_R0
+#define FLAME_BG_R0 0x40
+#define FLAME_BG_G0 0x38
+#define FLAME_BG_B0 0x38
+#endif
+
+#ifndef FLAME_ICON_U0
+#define FLAME_ICON_U0 0x8B
+#define FLAME_ICON_U1 0xB3
+#define FLAME_ICON_V0 0x37
+#define FLAME_ICON_V2 0x5F
+#endif
+
+#ifndef FLAME_ICON_X0
+#define FLAME_ICON_X0 0x7B
+#define FLAME_ICON_X1 0xC3
+#define FLAME_ICON_Y0 0x27
+#define FLAME_ICON_Y2 0x6F
+#endif
+
 void func_us_801B4DA4(Entity* self) {
     DRAWENV draw;
     DR_ENV* dr_env;
@@ -106,9 +126,9 @@ void func_us_801B4DA4(Entity* self) {
         prim->x1 = prim->x3 = 0x28;
         prim->y0 = prim->y1 = 0;
         prim->y2 = prim->y3 = 0x28;
-        prim->r0 = 0x40;
-        prim->g0 = 0x38;
-        prim->b0 = 0x38;
+        prim->r0 = FLAME_BG_R0;
+        prim->g0 = FLAME_BG_G0;
+        prim->b0 = FLAME_BG_B0;
         LOW(prim->r1) = LOW(prim->r0);
         LOW(prim->r2) = LOW(prim->r0);
         LOW(prim->r3) = LOW(prim->r0);
@@ -125,10 +145,10 @@ void func_us_801B4DA4(Entity* self) {
             prim->tpage = 0x100;
         }
 #endif
-        prim->u0 = prim->u2 = 0x8B;
-        prim->u1 = prim->u3 = 0xB3;
-        prim->v0 = prim->v1 = 0x37;
-        prim->v2 = prim->v3 = 0x5F;
+        prim->u0 = prim->u2 = FLAME_ICON_U0;
+        prim->u1 = prim->u3 = FLAME_ICON_U1;
+        prim->v0 = prim->v1 = FLAME_ICON_V0;
+        prim->v2 = prim->v3 = FLAME_ICON_V2;
         prim->x0 = prim->x2 = 0;
         prim->x1 = prim->x3 = 0x28;
         prim->y0 = prim->y1 = 0;
@@ -142,10 +162,10 @@ void func_us_801B4DA4(Entity* self) {
         prim->u1 = prim->u3 = 0x4C;
         prim->v0 = prim->v1 = 0x44;
         prim->v2 = prim->v3 = 0x8C;
-        prim->x0 = prim->x2 = 0x7B;
-        prim->x1 = prim->x3 = 0xC3;
-        prim->y0 = prim->y1 = 0x27;
-        prim->y2 = prim->y3 = 0x6F;
+        prim->x0 = prim->x2 = FLAME_ICON_X0;
+        prim->x1 = prim->x3 = FLAME_ICON_X1;
+        prim->y0 = prim->y1 = FLAME_ICON_Y0;
+        prim->y2 = prim->y3 = FLAME_ICON_Y2;
 #if defined(VERSION_PSP) && !defined(BOSS_IS_BO0)
         prim->r0 = 0x20;
         prim->g0 = 0x10;
