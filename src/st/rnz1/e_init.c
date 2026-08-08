@@ -63,8 +63,8 @@ void EntityMedusaHeadBlue(Entity* self);
 void EntityMedusaHeadYellow(Entity* self);
 void EntityBreakableDebris(Entity* self);
 void EntityValhallaKnight(Entity* self);
-void func_us_801C8954_from_are(Entity* self);
-void func_us_801C8AAC_from_are(Entity* self);
+void func_us_801C8954(Entity* self);
+void func_us_801C8AAC(Entity* self);
 void func_us_801BBE58(Entity* self);
 void func_us_801BC650(Entity* self);
 void func_us_801BCE4C(Entity* self);
@@ -139,8 +139,8 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityMedusaHeadYellow,
     EntityBreakableDebris,
     EntityValhallaKnight,
-    func_us_801C8954_from_are,
-    func_us_801C8AAC_from_are,
+    func_us_801C8954,
+    func_us_801C8AAC,
     func_us_801BBE58,
     func_us_801BC650,
     func_us_801BCE4C,
