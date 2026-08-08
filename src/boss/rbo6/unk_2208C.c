@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rbo6.h"
+#include <cutscene.h>
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_2208C", SetCutsceneEvents);
+extern Dialogue g_Dialogue;
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_2208C", RunCutsceneEvents);
+#include "../../st/set_cutscene_events.h"
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_2208C", CutsceneSkip);
+#define CUTSCENE_TILEMAP_SCROLL
+#include "../../st/cutscene_events.h"
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_2208C", ScaleCutsceneAvatar);
+#include "../../st/cutscene_skip.h"
+
+#include "../../st/cutscene_scale_avatar.h"
 
 INCLUDE_RODATA("boss/rbo6/nonmatchings/unk_2208C", D_us_8019CE94);
 

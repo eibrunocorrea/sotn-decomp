@@ -57,10 +57,23 @@ INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", func_us_801A11DC);
 
 INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", func_us_801A1B38);
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", func_us_801A1BE0);
+#include <cutscene.h>
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", SetCutsceneScript);
+// helpers are called from raw-asm functions in sibling objects
+#define CUTSCENE_GLOBAL
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", CutsceneUnk3);
+extern Dialogue g_Dialogue;
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", CutsceneUnk4);
+// matches CutsceneUnk1 (see ../../st/cutscene_unk1.h), but this overlay never
+// named it that -- func_us_801A1BE0 is a raw asm label referenced directly by
+// EntityCutscene (out of scope), so it keeps its original name here.
+#define CutsceneUnk1 func_us_801A1BE0
+#define CUTSCENE_UNK1_NEXT_X 0
+#include "../../st/cutscene_unk1.h"
+
+#include "../../st/set_cutscene_script.h"
+#undef CutsceneUnk1
+
+#include "../../st/cutscene_unk3.h"
+
+#include "../../st/cutscene_unk4.h"

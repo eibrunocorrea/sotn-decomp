@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rbo2.h"
+#include <cutscene.h>
 
-INCLUDE_ASM("boss/rbo2/nonmatchings/unk_20220", SetCutsceneEvents);
+extern Dialogue g_Dialogue;
 
-INCLUDE_ASM("boss/rbo2/nonmatchings/unk_20220", RunCutsceneEvents);
+#include "../../st/set_cutscene_events.h"
 
-INCLUDE_ASM("boss/rbo2/nonmatchings/unk_20220", ScaleCutsceneAvatar);
+#define CUTSCENE_TILEMAP_SCROLL
+#include "../../st/cutscene_events.h"
+
+#include "../../st/cutscene_scale_avatar.h"
 
 INCLUDE_RODATA("boss/rbo2/nonmatchings/unk_20220", D_us_8019AE04);
 
