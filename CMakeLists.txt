@@ -285,6 +285,56 @@ set(SOURCE_FILES_STAGE_SEL
     src/st/sel/cutscene_data.c
 )
 
+set(SOURCE_FILES_STAGE_NO0
+    src/pc/stages/stage_no0.c
+    src/st/no0/header.c
+    src/st/no0/gen/e_laydef.c
+    src/st/no0/gen/e_layout.c
+    src/st/no0/gen/rooms.c
+    src/st/no0/gen/sprites.c
+    src/st/no0/e_init.c
+    src/st/no0/stage_data.c
+    src/st/no0/42A34.c
+    src/st/no0/4E2E0.c
+    src/st/no0/clock_room.c
+    src/st/no0/collision.c
+    src/st/no0/create_entity.c
+    src/st/no0/d_prize_drops.c
+    src/st/no0/e_axe_knight.c
+    src/st/no0/e_background_pillars.c
+    src/st/no0/e_breakable.c
+    src/st/no0/e_collect.c
+    src/st/no0/e_ctulhu.c
+    src/st/no0/e_ctulhu_uvs.c
+    src/st/no0/e_diplocephalus.c
+    src/st/no0/e_diplocephalus_tail.c
+    src/st/no0/e_elevator.c
+    src/st/no0/e_explosion_puff_opaque.c
+    src/st/no0/e_flea_man.c
+    src/st/no0/e_ghost.c
+    src/st/no0/e_lock_camera.c
+    src/st/no0/e_marionette.c
+    src/st/no0/e_misc.c
+    src/st/no0/e_ouija_table.c
+    src/st/no0/e_particles.c
+    src/st/no0/e_plate_lord.c
+    src/st/no0/e_plate_lord_2.c
+    src/st/no0/e_red_door.c
+    src/st/no0/e_red_door_tiles.c
+    src/st/no0/e_room_bg.c
+    src/st/no0/e_room_fg.c
+    src/st/no0/e_sealed_door.c
+    src/st/no0/e_skelerang.c
+    src/st/no0/e_skeleton.c
+    src/st/no0/e_slinger.c
+    src/st/no0/e_stage_name.c
+    src/st/no0/e_stone_rose.c
+    src/st/no0/popup.c
+    src/st/no0/prim_helpers.c
+    src/st/no0/st_common.c
+    src/st/no0/st_update.c
+)
+
 set(SOURCE_FILES_STAGE_NO2
     src/pc/stages/stage_no2.c
     src/st/no2/header.c
@@ -1066,6 +1116,7 @@ function(add_overlay name)
 endfunction()
 
 add_overlay(sel ${SOURCE_FILES_STAGE_SEL})
+add_overlay(no0 ${SOURCE_FILES_STAGE_NO0})
 add_overlay(no2 ${SOURCE_FILES_STAGE_NO2})
 add_overlay(chi ${SOURCE_FILES_STAGE_CHI})
 add_overlay(dai ${SOURCE_FILES_STAGE_DAI})
