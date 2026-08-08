@@ -2,6 +2,7 @@
 // In-game debug menu ("GameShark") rendered with Dear ImGui on top of the
 // PSY-Z SDL3+SDL_GPU backend. Toggle with F1 or the gamepad Create button.
 #include <game.h>
+#include <items.h>
 
 #include <SDL3/SDL.h>
 #include <psyz/overlay.h>
@@ -10,6 +11,8 @@
 
 #include "cimgui.h"
 #include "cimgui_impl.h"
+
+#include "debug_item_names.h"
 
 // imgui_impl_sdlgpu3 is compiled with IMGUI_IMPL_API=extern "C" but has no
 // generated cimgui binding, so its C-linkage API is declared by hand here.
@@ -67,8 +70,50 @@ static void InputU32(const char* label, u32* value) {
     }
 }
 
+static void InputItem(
+    const char* label, u32* value, const char** names, int numNames) {
+    InputU32(label, value);
+    igSameLine(0.0f, -1.0f);
+    igTextDisabled(
+        "%s", *value < (u32)numNames ? names[*value] : "???");
+}
+
+static void GiveKitDoBruno(void) {
+    g_Status.equipment[LEFT_HAND_SLOT] = ITEM_ALUCARD_SWORD;
+    g_Status.equipment[RIGHT_HAND_SLOT] = ITEM_ALUCARD_SHIELD;
+    g_Status.wornEquipment[0] = ITEM_WIZARD_HAT;
+    g_Status.wornEquipment[1] = ITEM_GODS_GARB;
+    g_Status.wornEquipment[2] = ITEM_TWILIGHT_CLOAK;
+    g_Status.wornEquipment[3] = ITEM_RING_OF_VARDA;
+    g_Status.wornEquipment[4] = ITEM_DUPLICATOR;
+    g_Status.equipHandCount[ITEM_ALUCARD_SWORD]++;
+    g_Status.equipHandCount[ITEM_ALUCARD_SHIELD]++;
+    g_Status.equipBodyCount[ITEM_WIZARD_HAT]++;
+    g_Status.equipBodyCount[ITEM_GODS_GARB]++;
+    g_Status.equipBodyCount[ITEM_TWILIGHT_CLOAK]++;
+    g_Status.equipBodyCount[ITEM_RING_OF_VARDA]++;
+    g_Status.equipBodyCount[ITEM_DUPLICATOR]++;
+}
+
+static void GiveAllItems99(void) {
+    int i;
+
+    for (i = 1; i < LEN(g_Status.equipHandCount); i++) {
+        g_Status.equipHandCount[i] = 99;
+    }
+    for (i = 1; i < LEN(g_Status.equipBodyCount); i++) {
+        g_Status.equipBodyCount[i] = 99;
+    }
+    for (i = 0; i < LEN(g_Status.equipHandOrder); i++) {
+        g_Status.equipHandOrder[i] = (u8)i;
+    }
+    for (i = 0; i < LEN(g_Status.equipBodyOrder); i++) {
+        g_Status.equipBodyOrder[i] = (u8)i;
+    }
+}
+
 static void DrawPanel(void) {
-    ImVec2 initSize = {380.0f, 560.0f};
+    ImVec2 initSize = {560.0f, 980.0f};
     ImVec2 zero = {0.0f, 0.0f};
     int i;
 
@@ -96,7 +141,8 @@ static void DrawPanel(void) {
         igCheckbox("God Mode", &s_godMode);
     }
 
-    if (igCollapsingHeader_TreeNodeFlags("Stats e progresso", 0)) {
+    if (igCollapsingHeader_TreeNodeFlags(
+            "Stats e progresso", ImGuiTreeNodeFlags_DefaultOpen)) {
         for (i = 0; i < 4; i++) {
             InputS32(s_statNames[i], &g_Status.statsBase[i]);
         }
@@ -112,7 +158,8 @@ static void DrawPanel(void) {
         }
     }
 
-    if (igCollapsingHeader_TreeNodeFlags("Reliquias", 0)) {
+    if (igCollapsingHeader_TreeNodeFlags(
+            "Reliquias", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (igButton("Todas", zero)) {
             for (i = 0; i < NUM_RELICS; i++) {
                 g_Status.relics[i] = RELIC_FLAG_FOUND | RELIC_FLAG_ACTIVE;
@@ -133,15 +180,29 @@ static void DrawPanel(void) {
         }
     }
 
-    if (igCollapsingHeader_TreeNodeFlags("Equipamento (IDs)", 0)) {
-        igTextDisabled("IDs numericos das tabelas do jogo");
-        InputU32("Mao direita", &g_Status.equipment[0]);
-        InputU32("Mao esquerda", &g_Status.equipment[1]);
-        InputU32("Cabeca", &g_Status.wornEquipment[0]);
-        InputU32("Corpo", &g_Status.wornEquipment[1]);
-        InputU32("Capa", &g_Status.wornEquipment[2]);
-        InputU32("Acessorio 1", &g_Status.wornEquipment[3]);
-        InputU32("Acessorio 2", &g_Status.wornEquipment[4]);
+    if (igCollapsingHeader_TreeNodeFlags(
+            "Equipamento", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (igButton("Kit do Bruno", zero)) {
+            GiveKitDoBruno();
+        }
+        igSameLine(0.0f, -1.0f);
+        if (igButton("99 de todos os itens", zero)) {
+            GiveAllItems99();
+        }
+        InputItem("Mao 1", &g_Status.equipment[0], s_handItemNames,
+            LEN(s_handItemNames));
+        InputItem("Mao 2", &g_Status.equipment[1], s_handItemNames,
+            LEN(s_handItemNames));
+        InputItem("Cabeca", &g_Status.wornEquipment[0], s_bodyItemNames,
+            LEN(s_bodyItemNames));
+        InputItem("Corpo", &g_Status.wornEquipment[1], s_bodyItemNames,
+            LEN(s_bodyItemNames));
+        InputItem("Capa", &g_Status.wornEquipment[2], s_bodyItemNames,
+            LEN(s_bodyItemNames));
+        InputItem("Acessorio 1", &g_Status.wornEquipment[3], s_bodyItemNames,
+            LEN(s_bodyItemNames));
+        InputItem("Acessorio 2", &g_Status.wornEquipment[4], s_bodyItemNames,
+            LEN(s_bodyItemNames));
         InputU32("Subweapon", &g_Status.subWeapon);
     }
 
