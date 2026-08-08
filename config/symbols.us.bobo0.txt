@@ -48,7 +48,9 @@ EntitySpikes = 0x801AB778; // source=match
 EntitySpikesDamage = 0x801AB970; // source=match
 EntityPrisoner = 0x801ACDC8;
 EntityOlroxAfterImage = 0x801AFF78;
+func_801CDC80 = 0x801B15BC;
 func_us_801B72E8 = 0x801BA880; // source=match
+SealedDoorIsNearPlayer = 0x801BB014;
 EntityChair = 0x801BBD84;
 Random = 0x801BC0DC; // source=match
 Update = 0x801BC10C; // source=match
