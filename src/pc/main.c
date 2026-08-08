@@ -151,8 +151,11 @@ static bool parseArgs(
     return true;
 }
 
+void DebugMenu_Install(void);
+
 int Main(int argc, char* argv[]) {
     struct InitGameParams params;
+    DebugMenu_Install();
     if (!parseArgs(&params, argc, argv)) {
         printHelp();
         return -1;

@@ -946,6 +946,27 @@ endif()
 
 add_subdirectory(tools/psyz/psyz)
 
+# Dear ImGui (vendored with psyz) for the in-game debug menu
+set(CIMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/psyz/external/cimgui)
+add_library(cimgui_backend STATIC
+    ${CIMGUI_DIR}/cimgui.cpp
+    ${CIMGUI_DIR}/imgui/imgui.cpp
+    ${CIMGUI_DIR}/imgui/imgui_demo.cpp
+    ${CIMGUI_DIR}/imgui/imgui_draw.cpp
+    ${CIMGUI_DIR}/imgui/imgui_widgets.cpp
+    ${CIMGUI_DIR}/imgui/imgui_tables.cpp
+    ${CIMGUI_DIR}/imgui/backends/imgui_impl_sdl3.cpp
+    ${CIMGUI_DIR}/imgui/backends/imgui_impl_sdlgpu3.cpp)
+target_include_directories(cimgui_backend PUBLIC ${CIMGUI_DIR})
+target_include_directories(cimgui_backend PRIVATE
+    ${CIMGUI_DIR}/imgui ${CIMGUI_DIR}/imgui/backends)
+target_compile_definitions(cimgui_backend PUBLIC
+    "IMGUI_USER_CONFIG=\"../cimconfig.h\""
+    "IMGUI_DISABLE_OBSOLETE_FUNCTIONS=1"
+    "IMGUI_IMPL_API=extern \"C\" ")
+target_link_libraries(cimgui_backend PRIVATE SDL3::SDL3)
+target_compile_features(cimgui_backend PRIVATE cxx_std_11)
+
 add_executable(${PROJECT_NAME}
     ${SOURCE_FILES_PC}
     ${SOURCE_FILES_3RD}
@@ -997,6 +1018,17 @@ elseif (APPLE)
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE psyz m ${CMAKE_DL_LIBS})
     target_link_options(${PROJECT_NAME} PRIVATE -rdynamic)
+endif()
+
+# In-game debug menu (GameShark) rendered with ImGui
+target_sources(${PROJECT_NAME} PRIVATE src/pc/debug_menu.c)
+set_source_files_properties(src/pc/debug_menu.c PROPERTIES
+    COMPILE_DEFINITIONS "CIMGUI_DEFINE_ENUMS_AND_STRUCTS=1;CIMGUI_USE_SDL3=1")
+target_link_libraries(${PROJECT_NAME} PRIVATE cimgui_backend)
+if (APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE c++)
+elseif (NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE stdc++)
 endif()
 
 function(add_overlay name)
