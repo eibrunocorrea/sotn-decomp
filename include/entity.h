@@ -1559,6 +1559,14 @@ typedef struct {
 } ET_8016D9C4;
 
 typedef struct {
+    /* 0x7C */ u8 unk7C[8];
+    /* 0x84 */ s16 unk84;
+    /* 0x86 */ s16 unk86;
+    /* 0x88 */ u8 unk88;
+    /* 0x89 */ u8 unk89;
+} ET_8019D330;
+
+typedef struct {
     struct Primitive* prim1;
     struct Primitive* prim2;
     struct Primitive* prim3;
@@ -4156,6 +4164,7 @@ typedef union { // offset=0x7C
     ET_801CC9B4 et_801CC9B4;
     ET_HellfireHandler hellfireHandler;
     ET_8016D9C4 et_8016D9C4;
+    ET_8019D330 et_8019D330;
     ET_ReboundStoneCrashExplosion reboundStoneCrashExplosion;
     ET_CrossBoomerang crossBoomerang;
     ET_Subweapon subweapon;
