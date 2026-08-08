@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rcen.h"
 
-extern EInit D_us_801805A0;
+extern EInit g_EInitElevator;
 u8 GetPlayerCollisionWith(Entity* self, u16 w, u16 h, u16 flags);
 
 // Unused on PSP, see UnusedPrimFunction in CEN
@@ -52,7 +52,7 @@ void EntityUnkId1B(Entity* self) {
 
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_801805A0);
+        InitializeEntity(g_EInitElevator);
         if (self->params & 0x10) {
             self->animCurFrame = self->params & 15;
             self->zPriority = 0x6A;

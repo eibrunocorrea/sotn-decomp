@@ -5,7 +5,7 @@
 // renamed E_FLOORTRAP -> E_FLOOR_TRAP to match RNO0's enum, and its
 // g_EInitFloorTrap/anim[] tables point at RNO0's own already-placed
 // data (found via the %hi/%lo symbols in the target asm).
-extern EInit D_us_80180AEC; // g_EInitFloorTrap
+extern EInit g_EInitFloorTrap;
 extern u8 D_us_80181DC4[];  // anim
 
 typedef enum {
@@ -29,7 +29,7 @@ void EntityFloorTrap(Entity* self) {
 
     switch (self->step) {
     case FLOORTRAP_INIT:
-        InitializeEntity(D_us_80180AEC);
+        InitializeEntity(g_EInitFloorTrap);
         if (self->params & PARAMS_IS_WHEEL) {
             self->animCurFrame = 3;
             self->step = IM_A_WHEEL;
@@ -176,6 +176,6 @@ void EntityFloorTrap(Entity* self) {
         self->ext.floorTrap.paletteTimer--;
     }
     self->palette =
-        D_us_80180AEC[3] + (self->ext.floorTrap.paletteTimer >> 3);
+        g_EInitFloorTrap[3] + (self->ext.floorTrap.paletteTimer >> 3);
     self->ext.floorTrap.unk90 = self->posX.i.hi + g_Tilemap.scrollX.i.hi;
 }

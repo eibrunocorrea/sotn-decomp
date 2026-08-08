@@ -174,7 +174,7 @@ void EntityDiplocephalusLeg(Entity* self) {
 
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_80180B3C);
+        InitializeEntity(g_EInitDiplocephalusLeg);
         if (self->facingLeft) {
             self->ext.diploBody.unkA8 = FIX(6);
             self->ext.diploBody.unkAC = FIX(18);

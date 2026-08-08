@@ -127,7 +127,7 @@ extern EInit D_us_80180B0C;
 extern EInit g_EInitDamageNum;
 extern EInit g_EInitDiplocephalus;
 extern EInit g_EInitDiplocephalusFoot;
-extern EInit D_us_80180B3C;
+extern EInit g_EInitDiplocephalusLeg;
 extern EInit g_EInitDiplocephalusTail;
 extern EInit g_EInitDiplocephalusFireball;
 extern EInit g_EInitElevator;
