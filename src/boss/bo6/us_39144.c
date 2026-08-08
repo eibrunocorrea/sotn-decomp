@@ -171,7 +171,31 @@ void RicSetAnimation(AnimationFrame* anim) {
 
 #include "../../decelerate.h"
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicCheckFacing);
+s32 RicCheckFacing(void) {
+    if (g_Ric.unk44 & 2) {
+        return 0;
+    }
+
+    if (RIC.facingLeft == 1) {
+        if (g_Ric.padPressed & PAD_RIGHT) {
+            RIC.facingLeft = 0;
+            g_Ric.unk4C = 1;
+            return -1;
+        } else if (g_Ric.padPressed & PAD_LEFT) {
+            return 1;
+        }
+    } else {
+        if (g_Ric.padPressed & PAD_RIGHT) {
+            return 1;
+        }
+        if (g_Ric.padPressed & PAD_LEFT) {
+            RIC.facingLeft = 1;
+            g_Ric.unk4C = 1;
+            return -1;
+        }
+    }
+    return 0;
+}
 
 void RicSetSpeedX(s32 speed) {
     if (g_CurrentEntity->facingLeft == 1)
@@ -186,7 +210,17 @@ void func_us_801B9ACC(s32 speed) {
     RIC.velocityX = speed;
 }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicSetInvincibilityFrames);
+void RicSetInvincibilityFrames(s32 kind, s16 invincibilityFrames) {
+    if (!kind) {
+        RicCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_CRASH_DAGGER, 0x15), 0);
+        if (g_Ric.timers[PL_T_INVINCIBLE_SCENE] <= invincibilityFrames) {
+            g_Ric.timers[PL_T_INVINCIBLE_SCENE] = invincibilityFrames;
+        }
+    } else if (g_Ric.timers[PL_T_INVINCIBLE] <= invincibilityFrames) {
+        g_Ric.timers[PL_T_INVINCIBLE] = invincibilityFrames;
+    }
+}
 
 // similar to func_8010DFF0 in DRA or func_us_801C5354 in BO4
 void DisableAfterImage(s32 resetAnims, s32 time) {
@@ -218,7 +252,29 @@ void func_us_801B9C14() {
 
 void RicSetDebug() { RicSetStep(PL_S_DEBUG); }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicSetCrouch);
+extern AnimationFrame D_us_80182048[];
+extern AnimationFrame D_us_80182038[];
+extern AnimationFrame D_us_80182058[];
+extern AnimationFrame D_us_80182050[];
+
+void RicSetCrouch(s32 kind, s32 velocityX) {
+    RicSetStep(PL_S_CROUCH);
+    RicSetAnimation(D_us_80182048);
+    RIC.velocityX = velocityX;
+    RIC.velocityY = 0;
+    if (kind == 1) {
+        RIC.anim = D_us_80182038;
+        RIC.step_s = 4;
+    }
+    if (kind == 2) {
+        RIC.anim = D_us_80182058;
+        RIC.step_s = 1;
+    }
+    if (kind == 3) {
+        RIC.anim = D_us_80182050;
+        RIC.step_s = 4;
+    }
+}
 
 extern AnimationFrame ric_anim_stand[];
 
@@ -280,7 +336,31 @@ void func_us_801B9E70(void) {
     RIC.velocityY = FIX(-4.6875);
 }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicSetFall);
+extern AnimationFrame D_us_801820BC[];
+
+void RicSetFall(void) {
+    if (g_Ric.prev_step != PL_S_RUN && g_Ric.prev_step != PL_S_SLIDE) {
+        RIC.velocityX = 0;
+    }
+    if (g_Ric.prev_step != PL_S_WALK && g_Ric.prev_step != PL_S_RUN) {
+        RicSetAnimation(D_us_801820BC);
+    }
+    if (g_Ric.prev_step == PL_S_RUN) {
+        g_Ric.unk44 = 0x10;
+    }
+    RicSetStep(PL_S_FALL);
+    RIC.velocityY = FIX(2);
+    g_Ric.timers[PL_T_5] = 8;
+    g_Ric.timers[PL_T_6] = 8;
+    g_Ric.timers[PL_T_CURSE] = 0;
+    g_Ric.timers[PL_T_8] = 0;
+    if (g_Ric.prev_step == PL_S_SLIDE) {
+        g_Ric.timers[PL_T_5] = g_Ric.timers[PL_T_6] = 0;
+        RIC.pose = 2;
+        RIC.poseTimer = 0x10;
+        RIC.velocityX /= 2;
+    }
+}
 
 extern s16 D_us_80182324[];
 
@@ -377,9 +457,34 @@ INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicDoCrash);
 
 void RicSetDeadPrologue() { RicSetStep(PL_S_DEAD_PROLOGUE); }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicSetSlide);
+extern AnimationFrame D_us_801822D8[];
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicSetSlideKick);
+void RicSetSlide(void) {
+    RicCheckFacing();
+    RicSetStep(PL_S_SLIDE);
+    RicSetAnimation(D_us_801822D8);
+    g_CurrentEntity->velocityY = 0;
+    RicSetSpeedX(FIX(5.5));
+    func_us_801B9C14();
+    RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_25, 0);
+    g_api.PlaySfx(SFX_BOSS_RIC_SLIDE_SKID);
+    g_Ric.timers[PL_T_12] = 4;
+}
+
+extern AnimationFrame D_us_80182304[];
+
+void RicSetSlideKick(void) {
+    g_Ric.unk44 = 0;
+    RicSetStep(PL_S_SLIDE_KICK);
+    RicSetAnimation(D_us_80182304);
+    g_CurrentEntity->velocityY = FIX(-2);
+    RicSetSpeedX(FIX(5.5));
+    func_us_801B9C14();
+    RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_25, 0);
+    g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_A);
+    g_Ric.timers[PL_T_12] = 4;
+    RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_31, 0);
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", func_us_801BA9D0);
 
@@ -399,9 +504,29 @@ Entity* RicGetFreeEntity(s16 start, s16 end) {
 
 // pl_blueprints?
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicGetFreeEntityReverse);
+Entity* RicGetFreeEntityReverse(s16 start, s16 end) {
+    Entity* entity = &g_Entities[end - 1];
+    s16 i;
+    for (i = end - 1; i >= start; i--, entity--) {
+        if (entity->entityId == E_NONE) {
+            return entity;
+        }
+    }
+    return NULL;
+}
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", func_us_801BB314);
+extern u8 D_us_801812B8[][4];
+extern u8 D_us_801D07FC;
+extern u8 D_us_801D0800;
+extern u8 D_us_801D0804;
+extern u8 D_us_801D0808;
+
+void func_us_801BB314(s32 arg0) {
+    D_us_801D07FC = D_us_801812B8[arg0][0];
+    D_us_801D0800 = D_us_801812B8[arg0][1];
+    D_us_801D0804 = D_us_801812B8[arg0][2];
+    D_us_801D0808 = D_us_801812B8[arg0][3];
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", func_us_801BB370);
 
@@ -456,11 +581,96 @@ s32 RicCheckSubweapon(
     return subweaponId;
 }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", func_us_801BB5BC);
+extern u8 D_us_80181524[6][8];
+
+s32 func_us_801BB5BC(Primitive* prim, s16 posX, s16 posY) {
+    s16 offset;
+    s32 ret;
+    u8* uvAnim;
+
+    ret = 0;
+    uvAnim = D_us_80181524[0];
+    if (prim->b0 >= 6) {
+        prim->b0 = 0;
+        ret = -1;
+    }
+
+    uvAnim = &uvAnim[prim->b0 * 8];
+
+    if (prim->b0 >= 3) {
+        offset = 4;
+    } else {
+        offset = 6;
+    }
+
+    prim->x0 = posX - offset;
+    prim->y0 = posY - offset;
+    prim->x1 = posX + offset;
+    prim->y1 = posY - offset;
+    prim->x2 = posX - offset;
+    prim->y2 = posY + offset;
+    prim->x3 = posX + offset;
+    prim->y3 = posY + offset;
+    prim->u0 = *uvAnim++;
+    prim->v0 = *uvAnim++;
+    prim->u1 = *uvAnim++;
+    prim->v1 = *uvAnim++;
+    prim->u2 = *uvAnim++;
+    prim->v2 = *uvAnim++;
+    prim->u3 = *uvAnim++;
+    prim->v3 = *uvAnim;
+
+    prim->b1++;
+    if (!(prim->b1 & 1)) {
+        prim->b0++;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicEntityHitByHoly);
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", RicEntityHitByDark);
+extern u32 D_us_801D084C;
+extern AnimationFrame D_us_80181554[];
+
+void RicEntityHitByDark(Entity* entity) {
+    s16 x, y;
+
+    switch (entity->step) {
+    case 0:
+        entity->flags = 0x28000000;
+        entity->unk5A = 0x79;
+        entity->animSet = 0xE;
+        entity->zPriority = RIC.zPriority + 2;
+        entity->palette = PAL_FLAG(PAL_UNK_19F);
+        if (D_us_801D084C & 1) {
+            entity->blendMode = BLEND_TRANSP | BLEND_QUARTER;
+        } else {
+            entity->blendMode = BLEND_TRANSP;
+        }
+        D_us_801D084C++;
+        entity->opacity = 0xFF;
+        entity->drawFlags =
+            ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_MASK_R | ENTITY_MASK_G;
+        entity->scaleX = entity->scaleY = 0x40;
+        entity->anim = D_us_80181554;
+        entity->posY.i.hi += (rand() % 35) - 15;
+        entity->posX.i.hi += (rand() % 20) - 10;
+        entity->velocityY = -0x6000 - (rand() & 0x3FFF);
+        entity->step++;
+        break;
+    case 1:
+        if (entity->opacity > 16) {
+            entity->opacity -= 8;
+        }
+        entity->posY.val += entity->velocityY;
+        entity->scaleX += 8;
+        entity->scaleY += 8;
+        if (entity->poseTimer < 0) {
+            DestroyEntity(entity);
+        }
+        break;
+    }
+}
 
 void func_us_801BBBC0(void) {}
 
@@ -655,9 +865,47 @@ void func_us_801BD0B8(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", func_us_801BD384);
+extern AnimationFrame D_us_80181A40[];
 
-INCLUDE_ASM("boss/bo6/nonmatchings/us_39144", func_us_801BD47C);
+void func_us_801BD384(Entity* self) {
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_DRA(2);
+        self->anim = D_us_80181A40;
+        self->flags = 0x28000000;
+        self->zPriority = RIC.zPriority + 4;
+        self->velocityY = (rand() & 0x3FFF) - 0x10000;
+        self->step++;
+        break;
+    case 1:
+        if (self->pose == 6) {
+            if (self->poseTimer == 1 && (rand() & 1)) {
+                RicCreateEntFactoryFromEntity(self, BP_EMBERS, 0);
+            }
+        }
+        self->posY.val += self->velocityY;
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
+
+bool func_us_801BD47C(Entity* entity) {
+    Entity* e;
+    s32 i;
+    s16 objId;
+    s16 params;
+
+    objId = entity->entityId;
+    params = entity->params;
+    for (e = &g_Entities[0x50], i = 0x50; i < 0x90; e++, i++) {
+        if (objId == e->entityId && params == e->params && e != entity) {
+            return true;
+        }
+    }
+    return false;
+}
 
 extern s32 D_us_80181A64[];
 extern s16 D_us_80181AA4[][10];

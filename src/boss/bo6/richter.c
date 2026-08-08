@@ -1089,17 +1089,80 @@ void EntityRichter(Entity* self) {
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepStand);
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepWalk);
+void RicStepWalk(void) {
+    if (!RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
+                       CHECK_ATTACK | CHECK_CROUCH)) {
+        DecelerateX(FIX(0.125));
+        if (RicCheckFacing() == 0) {
+            RicSetStand(0);
+            return;
+        }
+        if (RIC.step_s != 0) {
+            if (RIC.step_s) {
+            }
+        } else {
+            RicSetSpeedX(FIX(1.25));
+        }
+    }
+}
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepRun);
+extern AnimationFrame D_us_80181F24[];
+
+void RicStepRun(void) {
+    g_Ric.timers[PL_T_8] = 8;
+    g_Ric.timers[PL_T_CURSE] = 8;
+    if (!RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
+                       CHECK_ATTACK | CHECK_CROUCH)) {
+        DecelerateX(FIX(0.125));
+        if (RicCheckFacing() == 0) {
+            RicSetStand(0);
+            if (g_Ric.timers[PL_T_RUN] == 0) {
+                if (!(g_Ric.vram_flag & (TOUCHING_L_WALL | TOUCHING_R_WALL))) {
+                    RicSetAnimation(D_us_80181F24);
+                    RicCreateEntFactoryFromEntity(
+                        g_CurrentEntity, BP_SKID_SMOKE, 0);
+                }
+            } else {
+                RIC.velocityX = 0;
+            }
+            return;
+        }
+        if (RIC.step_s != 0) {
+            if (RIC.step_s) {
+            }
+        } else {
+            RicSetSpeedX(FIX(2.25));
+        }
+    }
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepJump);
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepFall);
+void RicStepFall(void) {
+    if (RicCheckInput(
+            CHECK_GROUND | CHECK_FACING | CHECK_ATTACK | CHECK_GRAVITY_FALL)) {
+        return;
+    }
+    DecelerateX(FIX(1. / 16));
+    switch (RIC.step_s) {
+    case 0:
+        if (g_Ric.timers[PL_T_5] && g_Ric.padTapped & PAD_CROSS) {
+            func_us_801B9E70();
+        } else if (RicCheckFacing()) {
+            RicSetSpeedX(FIX(0.75));
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepCrouch);
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicResetPose);
+void RicResetPose(void) {
+    RIC.pose = RIC.poseTimer = 0;
+    g_Ric.unk44 = 0;
+    g_Ric.unk46 = 0;
+    RIC.drawFlags &= ~ENTITY_ROTATE;
+}
 
 void func_us_801B77D8(void) {
     if ((RIC.posX.i.hi - PLAYER.posX.i.hi) <= 0) {
@@ -1113,7 +1176,22 @@ INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepHit);
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepDead);
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepStandInAir);
+extern AnimationFrame D_us_801820B0[];
+
+void RicStepStandInAir(void) {
+    if (RIC.step_s == 0) {
+        RIC.velocityY += 0x3800;
+        if (RIC.velocityY > 0) {
+            RIC.velocityY = 0;
+            RIC.step_s = 1;
+        }
+    } else if (g_Ric.unk4E) {
+        g_Ric.unk46 = 0;
+        RicSetStep(PL_S_JUMP);
+        RicSetAnimation(D_us_801820B0);
+        g_Ric.unk44 = 0;
+    }
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepEnableFlameWhip);
 
@@ -1128,12 +1206,171 @@ INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepGenericSubwpnCrash);
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepThrowDaggers);
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepSlide);
+void RicStepSlide(void) {
+    Collider collider;
+    s32 isTouchingGround = 0;
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepSlideKick);
+    if (RIC.facingLeft == 0 && g_Ric.vram_flag & TOUCHING_R_WALL) {
+        isTouchingGround = 1;
+    }
+    if (RIC.facingLeft && g_Ric.vram_flag & TOUCHING_L_WALL) {
+        isTouchingGround = 1;
+    }
+    if (RIC.posX.i.hi >= STAGE_WIDTH - 4 && RIC.facingLeft == 0) {
+        isTouchingGround = 1;
+    }
+    if (RIC.posX.i.hi <= 4 && RIC.facingLeft) {
+        isTouchingGround = 1;
+    }
+    if ((RIC.facingLeft == 0 &&
+         g_Player.colFloor[2].effects & EFFECT_UNK_8000) ||
+        (RIC.facingLeft && g_Player.colFloor[3].effects & EFFECT_UNK_8000)) {
+        isTouchingGround = 1;
+    }
+    if (isTouchingGround && RIC.pose < 6) {
+        RIC.pose = 6;
+        if (RIC.velocityX > FIX(1)) {
+            RIC.velocityX = FIX(2);
+        }
+        if (RIC.velocityX < FIX(-1)) {
+            RIC.velocityX = FIX(-2);
+        }
+        RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_SKID_SMOKE, 0);
+    }
+    if (RIC.pose < 5) {
+        if (RicCheckInput(CHECK_FALL | CHECK_CRASH)) {
+            return;
+        }
+        if (g_Ric.padTapped & PAD_CROSS) {
+            RIC.posY.i.hi -= 4;
+            RicSetSlideKick();
+            return;
+        }
+    } else if (RIC.pose < 7) {
+        if (RicCheckInput(CHECK_FALL | CHECK_CRASH | CHECK_SLIDE)) {
+            return;
+        }
+    } else if (
+        RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_CRASH | CHECK_SLIDE)) {
+        return;
+    }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepBladeDash);
+    DecelerateX(FIX(0.125));
+    switch (RIC.step_s) {
+    case 0:
+        if (!(g_GameTimer & 3) && RIC.pose < 6 && RIC.pose > 2) {
+            RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_SLIDE, 2), 0);
+        }
+        if (RIC.pose == 6 && RIC.poseTimer == 1) {
+            RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_SKID_SMOKE, 0);
+        }
+        if (RIC.poseTimer < 0) {
+            RicSetCrouch(0, RIC.velocityX);
+        }
+        break;
+    }
+}
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", func_us_801B8E80);
+extern AnimationFrame D_us_801820E4[];
+extern AnimationFrame D_us_80182310[];
+
+void RicStepSlideKick(void) {
+    if (g_Ric.padPressed & PAD_SQUARE && g_Ric.unk44 & 0x80) {
+        RIC.step = PL_S_JUMP;
+        RicSetAnimation(D_us_801820E4);
+        RicSetSpeedX(FIX(-1.5));
+        RIC.velocityY = FIX(-3.5);
+        g_Ric.unk44 |= (8 + 2);
+        g_Ric.unk44 &= ~4;
+        RIC.step_s = 2;
+        return;
+    }
+    DecelerateX(FIX(0.0625));
+    RIC.velocityY += 0x1000;
+
+    if (g_Ric.vram_flag & TOUCHING_GROUND) {
+        g_CurrentEntity->velocityX /= 2;
+        RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_SKID_SMOKE, 0);
+        RIC.facingLeft++;
+        RIC.facingLeft &= 1;
+        RicSetCrouch(3, RIC.velocityX);
+        g_api.PlaySfx(SFX_STOMP_SOFT_A);
+        return;
+    }
+    if (RIC.velocityX < 0) {
+        if (g_Ric.padPressed & PAD_RIGHT) {
+            DecelerateX(FIX(0.125));
+        }
+        if (RIC.velocityX > FIX(-3) || (g_Ric.vram_flag & TOUCHING_L_WALL)) {
+            RIC.facingLeft++;
+            RIC.facingLeft &= 1;
+            RIC.velocityX /= 2;
+            RicSetAnimation(D_us_80182310);
+            g_Ric.unk44 = 0xA;
+            RIC.step_s = 2;
+            RIC.step = PL_S_JUMP;
+        }
+    }
+    if (RIC.velocityX > 0) {
+        if (g_Ric.padPressed & PAD_LEFT) {
+            DecelerateX(FIX(0.125));
+        }
+        if (RIC.velocityX < FIX(3) || (g_Ric.vram_flag & TOUCHING_R_WALL)) {
+            RIC.facingLeft++;
+            RIC.facingLeft &= 1;
+            RIC.velocityX /= 2;
+            RicSetAnimation(D_us_80182310);
+            g_Ric.unk44 = 0xA;
+            RIC.step_s = 2;
+            RIC.step = PL_S_JUMP;
+        }
+    }
+}
+
+void RicStepBladeDash(void) {
+    DecelerateX(0x1C00);
+
+    if (RIC.poseTimer < 0) {
+        g_Ric.unk46 = 0;
+        RicSetStand(0);
+    } else if (RIC.pose >= 0x12 && !(g_Ric.vram_flag & TOUCHING_GROUND)) {
+        g_Ric.unk46 = 0;
+        RicSetFall();
+    } else {
+        if (!(g_GameTimer & 3) && RIC.pose < 0x12 &&
+            g_Ric.vram_flag & TOUCHING_GROUND) {
+            RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_SLIDE, 2), 0);
+        }
+
+        if (RIC.pose == 18 && RIC.poseTimer == 1 &&
+            (g_Ric.vram_flag & TOUCHING_GROUND)) {
+            RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_SKID_SMOKE, 0);
+        }
+    }
+}
+
+static void func_us_801B8E80(u16 arg0) {
+    s16 xMod = 3;
+    if (RIC.facingLeft) {
+        xMod = -xMod;
+    }
+
+    RIC.posY.i.hi -= 16;
+    RIC.posX.i.hi += xMod;
+    RicCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_EMBERS, 1), 0);
+    RIC.posY.i.hi += 16;
+    RIC.posX.i.hi -= xMod;
+
+    if (arg0 & 1) {
+        g_api.func_80102CD8(3);
+        g_api.PlaySfx(SFX_WALL_DEBRIS_B);
+    }
+    if (arg0 & 2) {
+        RIC.velocityX = 0;
+        RIC.velocityY = 0;
+    }
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepHighJump);

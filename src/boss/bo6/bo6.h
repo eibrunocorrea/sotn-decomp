@@ -92,4 +92,21 @@ typedef enum RicSteps {
 
 extern PlayerState g_Ric;
 
+// same bit flags as `RicInputChecks` in src/ric/ric.h (Richter player overlay)
+enum BO6_RicInputChecks {
+    CHECK_GROUND = 1,
+    CHECK_FALL = 4,
+    CHECK_FACING = 8,
+    CHECK_JUMP = 0x10,
+    CHECK_CRASH = 0x40,
+    CHECK_80 = 0x80,
+    CHECK_GRAVITY_HIT = 0x200,
+    CHECK_ATTACK = 0x1000,
+    CHECK_CROUCH = 0x2000,
+    CHECK_GRAVITY_FALL = 0x8000,
+    CHECK_GRAVITY_JUMP = 0x10000,
+    CHECK_GROUND_AFTER_HIT = 0x20000,
+    CHECK_SLIDE = 0x40000,
+};
+
 #endif // BO6_H
