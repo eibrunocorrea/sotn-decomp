@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rnz1.h"
 
-INCLUDE_ASM("st/rnz1/nonmatchings/unk_29914", func_801CDC80);
+#include "../approach_s16.h"
 
 INCLUDE_ASM("st/rnz1/nonmatchings/unk_29914", func_us_801A9994);
 
