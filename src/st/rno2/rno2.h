@@ -8,6 +8,12 @@
 
 enum Palettes {
     PAL_NONE,
+    PAL_CTULHU_DEATH = 0x2EE,
+    PAL_AZAGHAL_BODY_A = 0x220,
+    PAL_AZAGHAL_BODY_B = 0x221,
+    PAL_AZAGHAL_COMBO_A = 0x222,
+    PAL_AZAGHAL_COMBO_B = 0x223,
+    PAL_SPIKES_DUST = 0x161,
 };
 
 enum Entities {
@@ -38,7 +44,7 @@ enum Entities {
     E_UNK_18,                   // func_us_801B4148_from_bo0
     E_UNK_19,                   // func_us_801B41A4_from_bo0
     E_UNK_1A,                   // func_us_801B4210_from_bo0
-    E3D_BACKGROUND_HOUSE,       // Entity3DBackgroundHouse
+    E_3D_BACKGROUND_HOUSE,      // Entity3DBackgroundHouse
     E3D_HOUSE_SPAWNER,          // Entity3DHouseSpawner
     E_UNK_1D,                   // func_us_801B4DA4_from_bo0
     E_SPIKES,                   // EntitySpikes
