@@ -127,6 +127,7 @@ EntityGorgon = 0x801CFEA0;
 EntityMedusaHeadSpawner = 0x801D24C8;
 EntityMedusaHeadYellow = 0x801D2694;
 EntityMedusaHeadBlue = 0x801D26B8;
+SealedDoorIsNearPlayer = 0x801D289C;
 EntitySealedDoor = 0x801D2914;
 UnkPrimHelper = 0x801D3688;
 FindFirstUnkPrim2 = 0x801D3BF0;
