@@ -61,7 +61,7 @@ segments:
       - [0xDC60, c, bo2/prim_helpers]
       - [0xE4B0, c, bo2_psp/st_init]
       - [0xE818, c, bo2_psp/unk_E818]
-      - [0x12108, c, bo2_psp/e_cutscene_dialogue]
+      - [0x12108, c, bo2/e_cutscene_dialogue]
       - [0x12880, c, bo2_psp/unk_12880]
       - [0x156A0, c, bo2/e_lock_camera]
       - [0x15900, c, bo2_psp/unk_15900]
