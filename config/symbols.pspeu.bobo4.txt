@@ -135,6 +135,7 @@ g_EInitObtainable = 0x09263338;
 g_EInitParticle = 0x09263348;
 g_EInitInteractable = 0x09263358;
 g_EInitUnkId13 = 0x09263368;
+BO4EInitLockCamera = 0x09263378;
 BO4EInitCommon = 0x09263388;
 g_EInitDamageNum = 0x09263398;
 g_EInitDoppleganger10 = 0x092633A8;
