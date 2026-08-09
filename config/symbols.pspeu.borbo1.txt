@@ -56,4 +56,5 @@ D_us_801804DC = 0x0924B848;
 rooms = 0x0924B858;
 g_BossOverlay = 0x09256980;
 BackgroundBlockInit = 0x092569D8;
+g_BossFlag = 0x09256DC8;
 PrizeDrops = 0x09256DD8;
