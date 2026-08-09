@@ -150,6 +150,7 @@ spriteBanks = 0x092665C8;
 rooms_layers = 0x09266978;
 cluts = 0x09266B28;
 gfxBanks = 0x09266CC0;
+g_RedDoorTiles = 0x09266D00;
 g_EInitObtainable = 0x09266E80;
 g_EInitParticle = 0x09266E90;
 RNO0_EInitSpawner = 0x09266EA0;
