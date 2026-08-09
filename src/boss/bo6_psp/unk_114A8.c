@@ -184,7 +184,12 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarSetBladeDash);
 
 #include "../../mar_set_speed_x.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924EA50_from_rbo5);
+void func_pspeu_0924EA50_from_rbo5(s32 velocityX) {
+    if (MARIA.entityRoomIndex == 1) {
+        velocityX = -velocityX;
+    }
+    MARIA.velocityX = velocityX;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925B4E0);
 
@@ -194,9 +199,25 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925B4E0);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925B680);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092508C0_from_rbo5);
+// local copy of ReboundStoneBounce1 (see rebound_stone.h)
+void func_pspeu_092508C0_from_rbo5(s16 bounceAngle) {
+    g_CurrentEntity->ext.reboundStone.stoneAngle =
+        (bounceAngle * 2) - g_CurrentEntity->ext.reboundStone.stoneAngle;
+    if (g_CurrentEntity->ext.reboundStone.unk82 == 0) {
+        g_CurrentEntity->ext.reboundStone.unk80++;
+        g_CurrentEntity->ext.reboundStone.unk82++;
+    }
+}
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09250948_from_rbo5);
+// local copy of ReboundStoneBounce2 (see rebound_stone.h)
+void func_pspeu_09250948_from_rbo5(s16 bounceAngle) {
+    if (g_CurrentEntity->ext.reboundStone.unk82 == 0) {
+        g_CurrentEntity->ext.reboundStone.stoneAngle =
+            (bounceAngle * 2) - g_CurrentEntity->ext.reboundStone.stoneAngle;
+        g_CurrentEntity->ext.reboundStone.unk80++;
+        g_CurrentEntity->ext.reboundStone.unk82++;
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092509D0_from_rbo5);
 
