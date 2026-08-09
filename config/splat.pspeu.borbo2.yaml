@@ -64,7 +64,7 @@ segments:
       - [0xE860, c, rbo2_psp/unk_E860]
       - [0x12A48, c, rbo2/e_cutscene_actors]
       - [0x12AE8, c, rbo2_psp/unk_12AE8]
-      - [0x14988, c, rbo2_psp/e_cutscene_dialogue]
+      - [0x14988, c, rbo2/e_cutscene_dialogue]
       - [0x15100, c, rbo2_psp/unk_15100]
       - [0x175A8, c, rbo2/e_lock_camera]
       - [0x17808, c, rbo2_psp/func_us_8019f260]
