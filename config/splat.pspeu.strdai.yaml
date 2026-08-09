@@ -53,7 +53,7 @@ segments:
       - [0x7EC8, c, rdai/e_particles]
       - [0x9458, c, rdai/e_imp]
       - [0xA640, c, rdai_psp/e_imp_smoke]
-      - [0xA748, c, rdai_psp/unk_9458]
+      - [0xA748, c, rdai/e_collect]
       - [0xA820, c, rdai/e_collect]
       - [0xE998, c, rdai/e_misc]
       - [0xF1E8, c, rdai/collision]
