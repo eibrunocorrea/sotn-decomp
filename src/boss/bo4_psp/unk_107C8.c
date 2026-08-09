@@ -110,7 +110,29 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09248F50_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09248FA8_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_80158B04);
+// cen's func_80158B04 with the Doppleganger's taller ember origin (22 vs 16)
+void func_80158B04(u16 arg0) {
+    s16 xMod = 3;
+    if (MARIA.facingLeft) {
+        xMod = -xMod;
+    }
+
+    MARIA.posY.i.hi -= 22;
+    MARIA.posX.i.hi += xMod;
+    MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_4, 1), 0);
+    MARIA.posY.i.hi += 22;
+    MARIA.posX.i.hi -= xMod;
+
+    if (arg0 & 1) {
+        g_api.func_80102CD8(3);
+        g_api.PlaySfx(SFX_WALL_DEBRIS_B);
+    }
+
+    if (arg0 & 2) {
+        MARIA.velocityX = 0;
+        MARIA.velocityY = 0;
+    }
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09249460_from_rbo5);
 
@@ -198,7 +220,12 @@ void func_pspeu_0924E770_from_rbo5(void) {
         0;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924E788_from_rbo5);
+// reduced variant of func_us_801C5430 (see bo4/unk_45354.c): a0 is ignored
+void func_pspeu_0924E788_from_rbo5(s16 a0, s16 minTime) {
+    if (g_Dop.timers[ALU_T_INVINCIBLE_CONSUMABLES] <= minTime) {
+        g_Dop.timers[ALU_T_INVINCIBLE_CONSUMABLES] = minTime;
+    }
+}
 
 // local copy of DecelerateX (see decelerate.h)
 void MarDecelerateX_0925B090(s32 speed) {
