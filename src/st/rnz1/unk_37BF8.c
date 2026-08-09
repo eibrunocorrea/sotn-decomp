@@ -5,13 +5,8 @@ extern s32 D_us_80181EB4[];
 extern EInit g_EInitCommon;
 extern EInit g_EInitSpawner;
 
-#define g_WaterSounds D_us_8018105C
 extern u16 g_WaterSounds[];
-
-#define g_WaterXTbl D_us_80181060
 extern s16 g_WaterXTbl[];
-
-#define g_splashAspects D_us_80181E68
 extern s16 g_splashAspects[];
 
 static u16 func_pspeu_0924B480(s16 arg0, s16 arg1, s16 arg2, s16* arg3) {
@@ -318,7 +313,6 @@ void EntityAlucardWaterEffect(Entity* self) {
     self->ext.aluwater.unk8E = sp10[1];
 }
 
-#define g_SplashYMovement D_us_80181E88
 extern s32 g_SplashYMovement[];
 
 void EntitySplashWater(Entity* self) {
@@ -512,7 +506,6 @@ void EntitySplashWater(Entity* self) {
     }
 }
 
-#define g_SurfacingYTbl D_us_80181EA8
 extern s16 g_SurfacingYTbl[];
 
 void EntitySurfacingWater(Entity* self) {
@@ -642,7 +635,6 @@ void EntitySurfacingWater(Entity* self) {
     self->ext.waterEffects.unk82 = self->posY.i.hi + tilemap->scrollY.i.hi;
 }
 
-#define g_SideWaterAngles D_us_80181EF4
 extern s16 g_SideWaterAngles[];
 
 void EntitySideWaterSplash(Entity* self) {
@@ -732,7 +724,6 @@ void EntitySideWaterSplash(Entity* self) {
     }
 }
 
-#define g_SmallWaterDropVel D_us_80181F04
 extern s32 g_SmallWaterDropVel[];
 
 void EntitySmallWaterDrop(Entity* self) {
