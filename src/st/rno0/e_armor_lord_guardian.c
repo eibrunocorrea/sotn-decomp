@@ -12,29 +12,33 @@
 
 extern EInit OVL_EXPORT(EInitInteractable);
 extern EInit g_EInitGuardian;
-extern EInit D_us_80180AD4; // ARE's D_us_80180AE8 equivalent (func_us_801D348C_from_are)
-extern EInit D_us_80180AE0; // ARE's D_us_80180AF4 equivalent (func_us_801D3700_from_are)
+extern EInit g_EInitGuardianUnk1; // ARE's D_us_80180AE8 equivalent (func_us_801D348C_from_are)
+extern EInit g_EInitGuardianUnk2; // ARE's D_us_80180AF4 equivalent (func_us_801D3700_from_are)
 
 extern Primitive* FindFirstUnkPrim2(Primitive* prim, u8 index);
 
-extern u8 D_us_80181B00[];     // ARE's D_us_80182D50 equivalent (SetStep random table)
-extern s16 D_us_80181B08[];    // ARE's D_us_80182D58 equivalent (UnkCollisionFunc3 table)
-extern s16 D_us_80181B18[];    // ARE's D_us_80182D68 equivalent (UnkCollisionFunc2 table)
-extern s16 D_us_80181B20[];    // ARE's D_us_80182D70 equivalent (unk80 countdown table)
-extern u8 D_us_80181B28[];     // anim0
-extern u8 D_us_80181B34[];     // anim1
-extern u8 D_us_80181B4C[];     // anim2
-extern u8 D_us_80181B54[];     // anim3
-extern u8 D_us_80181B5C[];     // anim4
-extern u8 D_us_80181B74[];     // anim5
-extern u8 D_us_80181B90[];     // anim6
-extern u8 D_us_80181B9C[];     // anim7
-extern MATRIX D_us_80181BA4;   // armorLordColorMatrix
-extern SVECTOR D_us_80181BC4;  // armorLordColNormVec1
-extern SVECTOR D_us_80181BCC;  // armorLordColNormVec2
-extern SVECTOR D_us_80181BD4;  // armorLordRotVec
-extern s16 D_us_80181BDC[][2]; // hitboxWidthHeights
-extern u16 D_us_80181C48[][2]; // hitboxOffXYs
+// Verbatim transplant from ARE (src/st/are/e_armor_lord.c); ARE hasn't named
+// its own equivalents either (still D_us_80182Dxx there), so these keep the
+// Guardian/ArmorLord branding already established in this file (g_EInitGuardian,
+// EntityGuardianFireWave, ...).
+extern u8 g_GuardianSetStepTbl[];         // ARE's D_us_80182D50 equivalent
+extern s16 g_GuardianCollisionFunc3Tbl[]; // ARE's D_us_80182D58 equivalent
+extern s16 g_GuardianCollisionFunc2Tbl[]; // ARE's D_us_80182D68 equivalent
+extern s16 g_GuardianUnk80CountdownTbl[]; // ARE's D_us_80182D70 equivalent
+extern u8 g_GuardianAnim0[];
+extern u8 g_GuardianAnim1[];
+extern u8 g_GuardianAnim2[];
+extern u8 g_GuardianAnim3[];
+extern u8 g_GuardianAnim4[];
+extern u8 g_GuardianAnim5[];
+extern u8 g_GuardianAnim6[];
+extern u8 g_GuardianAnim7[];
+extern MATRIX g_ArmorLordColorMatrix;
+extern SVECTOR g_ArmorLordColNormVec1;
+extern SVECTOR g_ArmorLordColNormVec2;
+extern SVECTOR g_ArmorLordRotVec;
+extern s16 g_ArmorLordHitboxWidthHeights[][2];
+extern u16 g_ArmorLordHitboxOffXYs[][2];
 
 // Guardian fire wave helper
 static void func_us_801D1184_from_are(Primitive* prim) {
@@ -671,7 +675,7 @@ static s32 func_us_801D1DAC_from_are(void) {
             rotC.vx = 0;
             rotC.vy = (i * 512) + g_CurrentEntity->ext.armorLord.unk8A;
             rotC.vz = 0;
-            RotMatrix(&D_us_80181BD4, &m);
+            RotMatrix(&g_ArmorLordRotVec, &m);
             RotMatrixY(rotC.vy, &m);
             SetRotMatrix(&m);
             trans.vx = 0;
@@ -685,7 +689,7 @@ static s32 func_us_801D1DAC_from_are(void) {
             color.b = 0x60;
             color.cd = prim->type;
             RotMatrix(&rotC, &lightMatrix);
-            SetColorMatrix(&D_us_80181BA4);
+            SetColorMatrix(&g_ArmorLordColorMatrix);
             SetLightMatrix(&lightMatrix);
             if (g_CurrentEntity->facingLeft) {
                 posX = g_CurrentEntity->posX.i.hi - 5;
@@ -714,9 +718,9 @@ static s32 func_us_801D1DAC_from_are(void) {
             z += RotTransPers(&rotB, (long*)(&prim->x1), &unusedA, &unusedB);
             z /= 2;
             NormalColorCol(
-                &D_us_80181BC4, &color, (CVECTOR*)(&prim->r3));
+                &g_ArmorLordColNormVec1, &color, (CVECTOR*)(&prim->r3));
             NormalColorCol(
-                &D_us_80181BCC, &color, (CVECTOR*)(&prim->r1));
+                &g_ArmorLordColNormVec2, &color, (CVECTOR*)(&prim->r1));
             prim->priority = g_CurrentEntity->zPriority + (0x101 - z);
             prim2 = prim;
             prim = prim->next;
@@ -777,8 +781,8 @@ static s32 func_us_801D1DAC_from_are(void) {
 
 // NOTE: EntityGuardian is NOT a verbatim transplant of ARE's EntityArmorLord.
 // Its case 3 uses a different xDistance threshold (0x40 vs ARE's 0x50) and,
-// right after the "if (!--unk80) SetStep(D_us_80181B00[Random()&7])" block,
-// the target has an *extra* ~30-instruction chunk (starting around
+// right after the "if (!--unk80) SetStep(g_GuardianSetStepTbl[Random()&7])"
+// block, the target has an *extra* ~30-instruction chunk (starting around
 // 0x801C4108, a GetSideToPlayer() call feeding a comparison against the
 // entity's current facingLeft, guarding a g_Player + 0x35C status check
 // with mask 0x1C00) that has no counterpart at all in are/e_armor_lord.h.
@@ -800,7 +804,7 @@ void func_us_801D348C_from_are(Entity* self) {
 
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_80180AD4);
+        InitializeEntity(g_EInitGuardianUnk1);
         self->blendMode |= BLEND_TRANSP | BLEND_ADD;
         self->drawFlags |= ENTITY_OPACITY;
         self->animCurFrame = 0;
@@ -859,10 +863,10 @@ void func_us_801D348C_from_are(Entity* self) {
         animCurFrame -= 4;
     }
 
-    self->hitboxOffX = D_us_80181C48[animCurFrame][0];
-    self->hitboxOffY = D_us_80181C48[animCurFrame][1];
-    self->hitboxWidth = D_us_80181BDC[animCurFrame][0];
-    self->hitboxHeight = D_us_80181BDC[animCurFrame][1];
+    self->hitboxOffX = g_ArmorLordHitboxOffXYs[animCurFrame][0];
+    self->hitboxOffY = g_ArmorLordHitboxOffXYs[animCurFrame][1];
+    self->hitboxWidth = g_ArmorLordHitboxWidthHeights[animCurFrame][0];
+    self->hitboxHeight = g_ArmorLordHitboxWidthHeights[animCurFrame][1];
 
     if (parent->entityId != E_GUARDIAN) {
         DestroyEntity(self);
@@ -878,7 +882,7 @@ void func_us_801D3700_from_are(Entity* self) {
     if (!self->step) {
         height = self->hitboxHeight;
         offsetY = self->hitboxOffY;
-        InitializeEntity(D_us_80180AE0);
+        InitializeEntity(g_EInitGuardianUnk2);
         self->hitboxWidth = 8;
         self->hitboxOffX = 8;
         self->hitboxHeight = height;
