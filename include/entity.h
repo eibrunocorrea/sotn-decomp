@@ -3727,7 +3727,8 @@ typedef struct {
     /* 0x7E */ u16 : 16;
     /* 0x80 */ u8 walkDirection;
     /* 0x81 */ u8 : 8;
-    /* 0x82 */ u16 : 16;
+    /* 0x82 */ u8 : 8;
+    /* 0x83 */ u8 deathPartFallDurationAlt;
     /* 0x84 */ u8 attackCount;
     /* 0x85 */ u8 : 8;
     /* 0x86 */ u16 : 16;

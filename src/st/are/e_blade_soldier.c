@@ -369,33 +369,8 @@ void EntityBladeSoldier(Entity* self) {
     }
 }
 
-void EntityBladeSoldierDeathParts(Entity* self) {
-    if (self->step) {
-        if (--self->ext.bladeSoldier.deathPartFallDuration) {
-            self->rotate += death_parts_rotation[self->params];
-            FallEntity();
-            MoveEntity();
-            return;
-        }
-
-        self->entityId = E_EXPLOSION;
-        self->pfnUpdate = EntityExplosion;
-        self->params = EXPLOSION_SMALL;
-        self->step = 0;
-        return;
-    }
-
-    InitializeEntity(g_EInitBladeSoldier);
-    self->hitboxState = 0;
-    self->flags |=
-        FLAG_DESTROY_IF_OUT_OF_CAMERA | FLAG_DESTROY_IF_BARELY_OUT_OF_CAMERA |
-        FLAG_UNK_00200000 | FLAG_UNK_2000;
-    self->animCurFrame = self->params + 0x23;
-    self->drawFlags = ENTITY_ROTATE;
-    if (self->facingLeft) {
-        self->velocityX = -self->velocityX;
-    }
-}
+#define BLADE_DEATH_PARTS_NO_ROTATION_TABLE
+#include "../e_blade_soldier_death_parts.h"
 
 void EntityBladeSoldierAttackHitbox(Entity* self) {
     s32 index;

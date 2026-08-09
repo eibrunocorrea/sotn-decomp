@@ -290,6 +290,10 @@ void EntityNovaSkeleton(Entity* self) {
     }
 }
 
+#ifdef NOVA_DEATH_PARTS_FROM_BLADE_SOLDIER
+// rno1/rno4 psp: the nova skeleton spawns blade-soldier death parts
+#include "e_blade_soldier_death_parts.h"
+#else
 void EntityNovaSkeletonDeathParts(Entity* self) {
     if (self->step) {
         if (--self->ext.nova.deathPartLife) {
@@ -315,6 +319,7 @@ void EntityNovaSkeletonDeathParts(Entity* self) {
         self->velocityX = -self->velocityX;
     }
 }
+#endif
 
 typedef enum { LASER_INIT, LASER_1, LASER_2, LASER_3, LASER_4 } NovaLaserSteps;
 
