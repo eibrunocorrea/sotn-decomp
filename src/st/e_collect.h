@@ -103,7 +103,14 @@ static AnimateEntityFrame D_80180DD0[] = {POSE(1, 0x8F, 0), POSE_LOOP(0)};
 #endif
 static s8 unusedStuff[] = {-4, -4, 4, -4, -4, 4, 4, 4, 0x80, 0x00};
 static u16 aluric_subweapons_idx[] = {1, 2, 4, 3, 6, 5, 7, 8, 9};
-static u16 aluric_subweapons_id[] = {0, 14, 15, 17, 16, 19, 18, 20, 21, 22};
+static u16 aluric_subweapons_id[] = {
+    0, 14, 15, 17, 16, 19, 18, 20, 21, 22,
+#if defined(VERSION_PSP) && defined(STAGE_IS_RNZ1)
+    // RNZ1 pads this table with two unused entries, which keeps the
+    // animation tables below at their original addresses.
+    0, 0,
+#endif
+};
 
 // Gold appears up here on PSX, down lower on VERSION_PSP
 #if !defined(VERSION_PSP) && (STAGE != STAGE_ST0)
@@ -149,7 +156,13 @@ static AnimateEntityFrame D_psp_092463C8[] = {
 static AnimateEntityFrame D_psp_092463E0[] = {
     POSE(5, 0xB9, 0), POSE(5, 0xBA, 0), POSE(5, 0xBB, 0),
     POSE(5, 0xBC, 0), POSE(5, 0xBD, 0), POSE(5, 0xBE, 0),
-    POSE(5, 0xBF, 0), POSE(5, 0xC0, 0), POSE_LOOP(0)};
+    POSE(5, 0xBF, 0), POSE(5, 0xC0, 0), POSE_LOOP(0),
+#ifdef STAGE_IS_RNZ1
+    // RNZ1 pads this animation with two unused frames, which keeps
+    // g_MariaSubweaponAnimPrizeDrop at its original address.
+    POSE_LOOP(0), POSE_LOOP(0),
+#endif
+};
 AnimateEntityFrame* g_MariaSubweaponAnimPrizeDrop[] = {
     D_80180C94,     D_80180C98,     D_80180CC4,     D_80180CD4, D_80180CD8,
     D_80180CDC,     D_80180CE0,     D_80180CE4,     D_80180CE8, D_80180CEC,
