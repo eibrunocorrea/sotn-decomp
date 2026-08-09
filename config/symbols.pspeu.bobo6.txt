@@ -94,6 +94,7 @@ EntityUpdates = 0x0926EA48;
 g_EInitObtainable = 0x0926EAC8;
 g_EInitParticle = 0x0926EAD8;
 g_EInitInteractable = 0x0926EAE8;
+BO6EInitLockCamera = 0x0926EB08;
 g_EInitCommon = 0x0926EB18;
 g_EInitRichterBelmont = 0x0926EB38;
 rooms = 0x0926EC58;
