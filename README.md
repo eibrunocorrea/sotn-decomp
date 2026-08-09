@@ -1,3 +1,8 @@
+> [!NOTE]
+> **This is a staging fork of [xeeynamo/sotn-decomp](https://github.com/Xeeynamo/sotn-decomp)** — the official project, where all credit belongs.
+> This branch accumulates fast-moving PSP decompilation work (currently **211 functions net over upstream master, across 19 overlays**, `us`/`hd`/`pspeu` checksums green on every commit) and flows it upstream in small, reviewable PRs.
+> Read **[FORK.md](FORK.md)** for why this fork exists, how the work is validated, and the full credits to the original project and its contributors.
+
 # Castlevania: Symphony of the Night Decompilation
 
 A work-in-progress decompilation of Castlevania Symphony of the Night for Sony PlayStation 1, Sony PlayStation Portable and Sega Saturn. It aims to recreate the source code from the existing binaries using static and/or dynamic analysis. The code compiles byte-for-byte to the same binaries of the game, effectively being a matching decompilation.
