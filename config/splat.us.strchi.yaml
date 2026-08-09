@@ -49,7 +49,7 @@ segments:
       - [0x7CC, data]
       - [0x7EC, .data, e_demon_switch_wall]
       - [0x81C, .data, e_breakable_wall]
-      - [0x8C4, data]
+      - [0x8C4, .data, e_bat]
       - [0x8FC, .data, st_update]
       - [0x948, .data, collision]
       - [0xD08, .data, e_red_door]
