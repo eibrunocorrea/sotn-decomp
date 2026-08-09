@@ -54,6 +54,7 @@ spriteBanks = 0x0924BCD8;
 rooms_layers = 0x0924BD58;
 cluts = 0x0924BD90;
 gfxBanks = 0x0924BDC0;
+g_RedDoorTiles = 0x0924BE10;
 EntityUpdates = 0x0924BE30;
 RBO3EInitCommon = 0x0924BF20;
 rooms = 0x0924BF40;
