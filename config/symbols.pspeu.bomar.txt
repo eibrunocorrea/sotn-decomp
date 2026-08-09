@@ -56,6 +56,7 @@ cluts = 0x0924BD90;
 gfxBanks = 0x0924BDC0;
 g_RedDoorTiles = 0x0924BE10;
 EntityUpdates = 0x0924BE30;
+MAREInitLockCamera = 0x0924BF10;
 RBO3EInitCommon = 0x0924BF20;
 rooms = 0x0924BF40;
 g_BossOverlay = 0x09254868;
