@@ -108,9 +108,35 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924E770)
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924E788);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", MarDecelerateX_0924E7C8);
+// local copy of DecelerateX (see decelerate.h)
+void MarDecelerateX_0924E7C8(s32 speed) {
+    if (g_CurrentEntity->velocityX < 0) {
+        g_CurrentEntity->velocityX += speed;
+        if (g_CurrentEntity->velocityX > 0) {
+            g_CurrentEntity->velocityX = 0;
+        }
+    } else {
+        g_CurrentEntity->velocityX -= speed;
+        if (g_CurrentEntity->velocityX < 0) {
+            g_CurrentEntity->velocityX = 0;
+        }
+    }
+}
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", MarDecelerateX_0924E868);
+// local copy of DecelerateY (see decelerate.h)
+void MarDecelerateX_0924E868(s32 speed) {
+    if (g_CurrentEntity->velocityY < 0) {
+        g_CurrentEntity->velocityY += speed;
+        if (g_CurrentEntity->velocityY > 0) {
+            g_CurrentEntity->velocityY = 0;
+        }
+    } else {
+        g_CurrentEntity->velocityY -= speed;
+        if (g_CurrentEntity->velocityY < 0) {
+            g_CurrentEntity->velocityY = 0;
+        }
+    }
+}
 
 #include "../../mar_check_facing.h"
 
