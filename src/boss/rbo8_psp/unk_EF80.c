@@ -5,7 +5,12 @@ INCLUDE_ASM("boss/rbo8_psp/nonmatchings/rbo8_psp/unk_EF80", func_801CE3FC);
 
 INCLUDE_ASM("boss/rbo8_psp/nonmatchings/rbo8_psp/unk_EF80", func_pspeu_09246708);
 
-INCLUDE_ASM("boss/rbo8_psp/nonmatchings/rbo8_psp/unk_EF80", func_801D0B40);
+// rbo8 syncs different body parts with per-part offsets
+#define BLADE_SYNC_PART_A 7
+#define BLADE_SYNC_PART_B 11
+#define BLADE_SYNC_OFFSET_A 0x100
+#define BLADE_SYNC_OFFSET_B 0x180
+#include "../../st/e_blade_sync_parts.h"
 
 INCLUDE_ASM("boss/rbo8_psp/nonmatchings/rbo8_psp/unk_EF80", func_pspeu_09246948);
 
