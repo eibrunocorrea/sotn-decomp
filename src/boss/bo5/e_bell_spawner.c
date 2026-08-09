@@ -4,7 +4,8 @@
 extern EInit g_EInitInteractable;
 
 // Two sets of x, y, bell_params index
-static s16 bell_spawner_params[][3] = {{512, 456, 0}, {512, 589, 1}};
+#define bell_spawner_params D_us_801806C0
+extern s16 bell_spawner_params[][3];
 
 void EntityBellSpawner(Entity* self) {
     Entity* bell;

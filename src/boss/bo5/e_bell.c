@@ -24,22 +24,12 @@ typedef struct {
 
 extern EInit g_EInitInteractable;
 
-static SVECTOR vector_one_0 = {-16, 0, 0};
-static SVECTOR vector_one_1 = {16, 0, 0};
-static SVECTOR vector_one_2 = {-16, 26, 0};
-static SVECTOR vector_one_4 = {16, 26, 0};
-static SVECTOR vector_two_0 = {-50, 26, 0};
-static SVECTOR vector_two_1 = {0, 26, 0};
-static SVECTOR vector_two_2 = {-50, 128, 0};
-static SVECTOR vector_two_3 = {0, 128, 0};
-static SVECTOR vector_two_alt_0 = {50, 26, 0};
-static SVECTOR vector_two_alt_2 = {50, 128, 0};
-static SVEC4 points[] = {
-    {&vector_one_0, &vector_one_1, &vector_one_2, &vector_one_4},
-    {&vector_two_0, &vector_two_1, &vector_two_2, &vector_two_3},
-    {&vector_two_alt_0, &vector_two_1, &vector_two_alt_2, &vector_two_3}};
-static BellParams bell_params[] = {{2, 12, 171}, {4, 29, 169}};
-static VECTOR trans_vector = {0, 0, 1024, 0};
+#define points D_us_80180684
+extern SVEC4 points[];
+#define bell_params D_us_801806B4
+extern BellParams bell_params[];
+#define trans_vector D_us_801806CC
+extern VECTOR trans_vector;
 
 void EntityBell(Entity* self) {
     s16 angle;

@@ -13,26 +13,10 @@ extern EInit g_EInitParticle;
 // { velocity, angle } - table lives in bo2's own raw .data, extern only.
 extern s32 D_us_80180A5C[][2];
 
-static AnimateEntityFrame anim_spit[] = {
-    {.duration = 1, .pose = 0x01},
-    {.duration = 6, .pose = 0x13},
-    {.duration = 5, .pose = 0x14},
-    {.duration = 1, .pose = 0x31},
-    {.duration = 28, .pose = 0x38},
-    {.duration = 3, .pose = 0x32},
-    {.duration = 3, .pose = 0x15},
-    {.duration = 1, .pose = 0x33},
-    POSE_END,
-};
-static AnimateEntityFrame anim_death_puff[] = {
-    {.duration = 3, .pose = 0x01}, {.duration = 3, .pose = 0x02},
-    {.duration = 3, .pose = 0x03}, {.duration = 3, .pose = 0x04},
-    {.duration = 3, .pose = 0x05}, {.duration = 3, .pose = 0x06},
-    {.duration = 3, .pose = 0x07}, {.duration = 3, .pose = 0x08},
-    {.duration = 3, .pose = 0x09}, {.duration = 3, .pose = 0x0A},
-    {.duration = 3, .pose = 0x0B}, {.duration = 3, .pose = 0x0C},
-    {.duration = 3, .pose = 0x0D}, POSE_END,
-};
+#define anim_spit D_us_80180834
+extern AnimateEntityFrame anim_spit[];
+#define anim_death_puff D_us_80180864
+extern AnimateEntityFrame anim_death_puff[];
 
 INCLUDE_ASM("boss/bo2/nonmatchings/unk_224DC", func_us_801A2610);
 
@@ -139,11 +123,8 @@ INCLUDE_ASM("boss/bo2/nonmatchings/unk_224DC", func_us_801A460C);
 
 INCLUDE_ASM("boss/bo2/nonmatchings/unk_224DC", func_us_801A4BA4);
 
-static AnimateEntityFrame anim_boss_torch[] = {
-    {.duration = 5, .pose = 0x04}, {.duration = 5, .pose = 0x05},
-    {.duration = 5, .pose = 0x06}, {.duration = 5, .pose = 0x07},
-    {.duration = 5, .pose = 0x08}, POSE_LOOP(0),
-};
+#define anim_boss_torch D_us_80180B60
+extern AnimateEntityFrame anim_boss_torch[];
 // Torches are scaled slightly smaller based on params
 // to appear further in the background.
 extern s16 D_us_80180B6C[];
