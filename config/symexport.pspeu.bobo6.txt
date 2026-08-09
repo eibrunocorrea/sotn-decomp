@@ -5,5 +5,6 @@ g_EInitLockCamera = 0x092666A8;
 g_EInitCommon = 0x0926EB18;
 g_EInitBreakable = 0x0926EAB8;
 g_eBreakableExplosionTypes = 0x0927BB30;
+g_Maria = 0x0927C390;
 g_EInitUnkId13 = 0x0926EAF8;
 g_EInitDamageNum = 0x0926EB28;

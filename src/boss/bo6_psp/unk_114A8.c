@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../bo6/bo6.h"
 
+// Maria fights alongside the player in this overlay; her state mirrors cen.h
+#define MARIA g_Entities[STAGE_ENTITY_START]
+#define MARIA_AFTERIMAGE_1 g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
+#define MARIA_AFTERIMAGE_2 g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_2]
+#define MARIA_AFTERIMAGE_3 g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_3]
+
+extern PlayerState g_Maria;
+
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarGetFreeEntity);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarGetFreeEntityReverse);
@@ -165,23 +173,23 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", InitMariaAfterImage);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", DrawMariaAfterImage);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarSetStep);
+#include "../../mar_set_step.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarSetAnimation);
+#include "../../mar_set_animation.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarDecelerateX);
+#include "../../mar_decelerate_x.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarCheckFacing);
+#include "../../mar_check_facing.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarSetSpeedX);
+#include "../../mar_set_speed_x.h"
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924EA50_from_rbo5);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925B4E0);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarDisableAfterImage);
+#include "../../mar_disable_after_image.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_maria_8015CC28);
+#include "../../mar_reset_after_image.h"
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925B680);
 
