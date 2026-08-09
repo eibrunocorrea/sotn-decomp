@@ -62,7 +62,7 @@ segments:
       - [0xD4E8, c, rbo6_psp/unk_D4E8]
       - [0x15930, c, rbo6_psp/e_cutscene_dialogue]
       - [0x160A8, c, rbo6_psp/unk_160A8]
-      - [0x19E38, c, rbo6_psp/e_lock_camera]
+      - [0x19E38, c, rbo6/e_lock_camera]
       - [0x1A5B8, c, rbo6_psp/unk_1A5B8]
       - [0x1B880, .data, rbo6/e_red_door]
       - [0x1B898, .data, rbo6/st_update]
