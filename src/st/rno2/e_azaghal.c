@@ -4,6 +4,175 @@
 
 extern EInit g_EInitAzaghal;
 
+typedef struct {
+    SVECTOR* targetPosition;
+    s16* lerpVals;
+} AzaghalPosition;
+
+#ifdef VERSION_PSP
+// psp: this data is static in the TU (mirrors rare/e_azaghal.c layout,
+// same declaration order); names follow the rno2 US data addresses
+static s16 D_us_80181FF4[] = {0, 72, 0, 4, 4, -4, -8, 0};
+
+// { u, v, x1, y1, x2, y2 }
+static s16 D_us_80182004[][6] = {
+    // idle
+    {64, 0, 63, 127, -8, -30},
+    // combo attack
+    {128, 0, 87, 127, -8, -24},
+    // hit by player or dead
+    {0, 128, 95, 111, -64, -16},
+    // sword overhead
+    {128, 0, 87, 127, -24, -29},
+};
+static SVECTOR D_us_80182034 = {.vx = -16, .vy = 8, .vz = 0};
+static SVECTOR D_us_8018203C = {.vx = 16, .vy = 8, .vz = 0};
+static SVECTOR D_us_80182044 = {.vx = -16, .vy = 120, .vz = 0};
+static SVECTOR D_us_8018204C = {.vx = 16, .vy = 120, .vz = 0};
+static SVECTOR D_us_80182054 = {.vx = 0, .vy = 8, .vz = -8};
+static SVECTOR D_us_8018205C = {.vx = 0, .vy = 8, .vz = 8};
+static SVECTOR D_us_80182064 = {.vx = 0, .vy = 120, .vz = -8};
+static SVECTOR D_us_8018206C = {.vx = 0, .vy = 120, .vz = 8};
+static SVECTOR D_us_80182074 = {.vx = 0, .vy = 120, .vz = 0};
+static s16 lerp_a[][2] = {
+    {0, 0},     {12, 256},  {12, 512},  {12, 1024}, {12, 2048},
+    {12, 3072}, {12, 3584}, {12, 3840}, {12, 4096},
+};
+
+static s16 lerp_b[][2] = {
+    {0, 0}, {32, 1024}, {8, 2048}, {4, 3584}, {16, 4096},
+};
+
+static s16 lerp_c[][2] = {
+    {0, 0}, {32, 1024}, {8, 2048}, {8, 3840}, {48, 4096},
+};
+
+static s16 lerp_d[][2] = {
+    {0, 0}, {8, 256}, {6, 2048}, {4, 3584}, {4, 3968}, {32, 4096},
+};
+
+static s16 lerp_e[][2] = {
+    {0, 0}, {14, 256}, {10, 2048}, {8, 3584}, {8, 3968}, {32, 4096},
+};
+
+static s16 lerp_f[][2] = {
+    {0, 0}, {6, 256}, {6, 1024}, {6, 2048}, {4, 3584}, {4, 3968}, {8, 4096},
+};
+
+static s16 lerp_g[][2] = {
+    {0, 0}, {3, 256}, {3, 1024}, {3, 2048}, {2, 3584}, {2, 3968}, {4, 4096},
+};
+
+static SVECTOR D_us_801819EC = {.vx = 0, .vy = 0, .vz = 224};
+static SVECTOR D_us_801819F4 = {.vx = 0, .vy = 0, .vz = 48};
+static AzaghalPosition D_us_80182140[] = {
+    {.targetPosition = &D_us_801819EC, .lerpVals = *lerp_a},
+    {.targetPosition = &D_us_801819F4, .lerpVals = *lerp_a},
+};
+
+static SVECTOR D_us_80181A0C = {.vx = -1056, .vy = 816, .vz = 3296};
+static SVECTOR D_us_80181A14 = {.vx = 0, .vy = 1024, .vz = 2048};
+static SVECTOR D_us_80181A1C = {.vx = 0, .vy = 0, .vz = 1344};
+static AzaghalPosition D_us_80182168 = {
+    .targetPosition = &D_us_80181A0C,
+    .lerpVals = *lerp_a,
+};
+static AzaghalPosition D_us_80182170 = {
+    .targetPosition = &D_us_80181A14,
+    .lerpVals = *lerp_g,
+};
+static AzaghalPosition D_us_80182178 = {
+    .targetPosition = &D_us_80181A1C,
+    .lerpVals = *lerp_b,
+};
+
+static SVECTOR D_us_80181A3C = {.vx = -480, .vy = 32, .vz = 2000};
+static SVECTOR D_us_80181A44 = {.vx = -480, .vy = 32, .vz = -224};
+static AzaghalPosition D_us_80182190 = {
+    .targetPosition = &D_us_80181A3C,
+    .lerpVals = *lerp_c,
+};
+static AzaghalPosition D_us_80182198 = {
+    .targetPosition = &D_us_80181A44,
+    .lerpVals = *lerp_e,
+};
+
+static SVECTOR D_us_80181A5C = {.vx = -896, .vy = -32, .vz = 1792};
+static SVECTOR D_us_80181A64 = {.vx = -888, .vy = -32, .vz = -400};
+static AzaghalPosition D_us_801821B0 = {
+    .targetPosition = &D_us_80181A5C,
+    .lerpVals = *lerp_d,
+};
+static AzaghalPosition D_us_801821B8 = {
+    .targetPosition = &D_us_80181A64,
+    .lerpVals = *lerp_c,
+};
+static AzaghalPosition D_us_801821C0 = {
+    .targetPosition = &D_us_80181A5C,
+    .lerpVals = *lerp_a,
+};
+static AzaghalPosition D_us_801821C8 = {
+    .targetPosition = &D_us_80181A64,
+    .lerpVals = *lerp_d,
+};
+
+static SVECTOR D_us_80181A8C = {.vx = -464, .vy = -416, .vz = -112};
+static SVECTOR D_us_80181A94 = {.vx = -464, .vy = -160, .vz = 1744};
+static AzaghalPosition D_us_801821E0 = {
+    .targetPosition = &D_us_80181A8C,
+    .lerpVals = *lerp_c,
+};
+static AzaghalPosition D_us_801821E8 = {
+    .targetPosition = &D_us_80181A94,
+    .lerpVals = *lerp_d,
+};
+
+static SVECTOR D_us_80181AAC = {.vx = 0, .vy = 0, .vz = 2352};
+static SVECTOR D_us_80181AB4 = {.vx = 0, .vy = 0, .vz = 512};
+// This is unused, but the positions and lerps are integrated into
+// the combo attack. Possible this portion was originally intended
+// to be its own small attack.
+static AzaghalPosition D_us_80181ABC[] = {
+    {
+        .targetPosition = &D_us_80181AAC,
+        .lerpVals = *lerp_a,
+    },
+    {
+        .targetPosition = &D_us_80181AB4,
+        .lerpVals = *lerp_a,
+    },
+};
+
+static SVECTOR D_us_80181ACC = {.vx = 0, .vy = 0, .vz = 512};
+static AzaghalPosition D_us_80182218 = {
+    .targetPosition = &D_us_80181ACC,
+    .lerpVals = *lerp_d,
+};
+
+static SVECTOR D_us_80181ADC = {.vx = 0, .vy = 0, .vz = -1088};
+static SVECTOR D_us_80181AE4 = {.vx = 0, .vy = 0, .vz = 1024};
+static AzaghalPosition D_us_80182230 = {
+    .targetPosition = &D_us_80181ADC,
+    .lerpVals = *lerp_d,
+};
+
+static SVECTOR D_us_80181AF4 = {.vx = -1088, .vy = 0, .vz = -1088};
+static SVECTOR D_us_80181AFC = {.vx = -1088, .vy = 0, .vz = -1088};
+static SVECTOR D_us_80181B04 = {.vx = -1088, .vy = 0, .vz = 2560};
+static AzaghalPosition D_us_80182250[] = {
+    {.targetPosition = &D_us_80181AF4, .lerpVals = *lerp_f},
+    {.targetPosition = &D_us_80181AFC, .lerpVals = *lerp_f},
+    {.targetPosition = &D_us_80181B04, .lerpVals = *lerp_f},
+    {.targetPosition = &D_us_80181AAC, .lerpVals = *lerp_g},
+    {.targetPosition = &D_us_80181AB4, .lerpVals = *lerp_g},
+    {.targetPosition = &D_us_80181A8C, .lerpVals = *lerp_g},
+    {.targetPosition = &D_us_80181A94, .lerpVals = *lerp_g},
+    {.targetPosition = &D_us_80181AAC, .lerpVals = *lerp_g},
+    {.targetPosition = &D_us_80181AE4, .lerpVals = *lerp_g},
+};
+static s16 D_us_80182298[] = {0, 2, 3, 5, 3, 5, 6, 8};
+#endif
+
 extern s16 D_us_80181FF4[];
 extern s16 D_us_80182298[];
 
@@ -322,10 +491,6 @@ static void func_us_801B33F4_from_rare(void) {
     }
 }
 
-typedef struct {
-    SVECTOR* targetPosition;
-    s16* lerpVals;
-} AzaghalPosition;
 
 static void InitPositionLerp(SVECTOR* vector) {
     SVECTOR* base = &g_CurrentEntity->ext.azaghal.base;
