@@ -6,6 +6,7 @@
 #define MARIA_AFTERIMAGE_1 g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
 #define MARIA_AFTERIMAGE_2 g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_2]
 #define MARIA_AFTERIMAGE_3 g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_3]
+#define MAR_DRAW_AFTER_IMAGE_SLOT 9
 
 extern PlayerState g_Maria;
 
@@ -169,9 +170,9 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925AA50);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarSetBladeDash);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", InitMariaAfterImage);
+#include "../../mar_init_after_image.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", DrawMariaAfterImage);
+#include "../../mar_draw_after_image.h"
 
 #include "../../mar_set_step.h"
 
