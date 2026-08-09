@@ -99,6 +99,7 @@ spriteBanks = 0x092605C0;
 rooms_layers = 0x09260840;
 cluts = 0x09260978;
 gfxBanks = 0x09260AE0;
+D_us_801809C4 = 0x09260B28;
 EntityUpdates = 0x09260B48;
 g_EInitBreakable = 0x09260C48;
 g_EInitObtainable = 0x09260C58;
