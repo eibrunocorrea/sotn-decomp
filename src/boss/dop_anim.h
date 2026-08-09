@@ -104,6 +104,19 @@ void DrawPlayerAfterImage(void) {
     u8 temp_t1;
     u8 temp_t2;
 
+#if defined(VERSION_PSP)
+    // PSP zeroes the index right after fetching prim
+    temp_t2 = g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
+                  .ext.afterImage.resetFlag;
+    prim =
+        &g_PrimBuf[g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].primIndex];
+    i = 0;
+    plDraw = &g_PlayerDraw[9];
+    temp_t1 = g_shadowOpacityReductionTable
+        [g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.afterImage.index];
+    temp_t0 = g_D_800ACF3C[g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
+                               .ext.afterImage.index];
+#else
     temp_t2 = g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
                   .ext.afterImage.resetFlag;
     prim =
@@ -113,8 +126,10 @@ void DrawPlayerAfterImage(void) {
         [g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.afterImage.index];
     temp_t0 = g_D_800ACF3C[g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
                                .ext.afterImage.index];
+    i = 0;
+#endif
 
-    for (i = 0; prim != NULL; i++, prim = prim->next) {
+    for (; prim != NULL; i++, prim = prim->next) {
         if (prim->b0 > temp_t0) {
             prim->b0 -= temp_t1;
         }
@@ -160,11 +175,14 @@ void DrawPlayerAfterImage(void) {
     }
 }
 
+// not present in the PSP builds of this block
+#ifndef VERSION_PSP
 void func_8010DA2C(AnimationFrame* frames) {
     g_CurrentEntity->anim = frames;
     g_CurrentEntity->poseTimer = 0;
     g_CurrentEntity->pose = 0;
 }
+#endif
 
 void SetDopplegangerAnim(u8 anim) {
     g_CurrentEntity->ext.player.anim = anim;
@@ -296,7 +314,7 @@ u32 UpdateAnim(s8* hitboxes, AnimationFrame** anims) {
     s32 ret;
 #endif
 
-#if defined(VERSION_PSP)
+#if defined(VERSION_PSP) && !defined(DOP_ANIM_NO_NULL_CHECK)
     if (!g_CurrentEntity->anim) {
         return -1;
     }

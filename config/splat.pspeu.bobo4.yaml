@@ -84,6 +84,8 @@ segments:
       - [0x30A28, data]
       - [0x30A68, .data, bo4/e_lock_camera]
       - [0x30AE0, data, 30AE0]
+      - [0x33B50, .data, bo4_psp/unk_107C8]
+      - [0x33B88, data, 33B88]
       - [0x33E80, .rodata, bo4/e_life_up]
       - [0x33EA0, .rodata, bo4/e_red_door]
       - [0x33EB8, .rodata, bo4/e_collect]

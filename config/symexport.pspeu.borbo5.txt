@@ -8,6 +8,7 @@ g_EInitCommon = 0x092666B8;
 g_EInitBreakable = 0x09266658;
 g_eBreakableExplosionTypes = 0x0926CEB0;
 g_Maria = 0x0926BCB8;
+g_DopAnimationFrames = 0x09262EE0;
 D_pspeu_0926BB70 = 0x0926BB70;
 D_pspeu_0926BB78 = 0x0926BB78;
 D_pspeu_0926BB80 = 0x0926BB80;

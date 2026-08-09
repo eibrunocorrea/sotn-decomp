@@ -1,8 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../bo4/bo4.h"
 
-// Maria fights alongside the player in this overlay; her state mirrors cen.h
+// The Doppleganger boss reuses the shared player-anim block (dop_anim.h);
+// splat's pre-split names (Mar*/func_pspeu_*) are kept until a rename pass
 #define MARIA g_Entities[STAGE_ENTITY_START]
+#define g_Dop g_Maria
+#define SetDopplegangerStep MarSetStep
+#define InitPlayerAfterImage InitMariaAfterImage
+#define DrawPlayerAfterImage DrawMariaAfterImage
+#define SetDopplegangerAnim func_pspeu_0924DCB8_from_rbo5
+#define UpdateUnarmedAnim func_pspeu_0924DE50_from_rbo5
+#define PlayAnimation func_pspeu_0924DFB0_from_rbo5
+#define UpdateAnim func_pspeu_0924E260_from_rbo5
+#define DOP_ANIM_NO_NULL_CHECK
 
 extern PlayerState g_Maria;
 
@@ -132,21 +142,7 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924D4E8_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924D528_from_rbo5);
 
-#include "../../mar_set_step.h"
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", InitMariaAfterImage);
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", DrawMariaAfterImage);
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924DCB8_from_rbo5);
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924DCF8_from_rbo5);
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924DE50_from_rbo5);
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924DFB0_from_rbo5);
-
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924E260_from_rbo5);
+#include "../dop_anim.h"
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarDisableAfterImage);
 
