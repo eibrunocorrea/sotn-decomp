@@ -8,7 +8,3 @@ INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_9940", EntityJackOBones);
 INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_9940", EntityJackOBonesDeathParts);
 
 INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_9940", EntityJackOBonesJack);
-
-INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_9940", func_psp_0923AD68);
-
-INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_9940", func_psp_0923B2F0);
