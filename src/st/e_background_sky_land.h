@@ -2,6 +2,13 @@
 
 extern EInit g_EInitInteractable;
 
+#ifndef SKY_LAND_Y_TOP
+#define SKY_LAND_Y_TOP 192
+#endif
+#ifndef SKY_LAND_Y_BOTTOM
+#define SKY_LAND_Y_BOTTOM 228
+#endif
+
 // Row of blue "land" tiles at the bottom of the sky background.
 void EntityBackgroundSkyLand(Entity* self) {
     Primitive* prim;
@@ -32,8 +39,8 @@ void EntityBackgroundSkyLand(Entity* self) {
             prim->y0 = prim->y1 = 64;
             prim->y2 = prim->y3 = 18;
 #else
-            prim->y0 = prim->y1 = 192;
-            prim->y2 = prim->y3 = 228;
+            prim->y0 = prim->y1 = SKY_LAND_Y_TOP;
+            prim->y2 = prim->y3 = SKY_LAND_Y_BOTTOM;
 #endif
             prim->priority = 16;
             prim->drawMode = DRAW_DEFAULT;

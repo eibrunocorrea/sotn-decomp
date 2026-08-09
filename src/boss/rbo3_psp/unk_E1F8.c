@@ -5,7 +5,11 @@ INCLUDE_ASM("boss/rbo3_psp/nonmatchings/rbo3_psp/unk_E1F8", EntityBreakable);
 
 INCLUDE_ASM("boss/rbo3_psp/nonmatchings/rbo3_psp/unk_E1F8", func_801A8620);
 
-INCLUDE_ASM("boss/rbo3_psp/nonmatchings/rbo3_psp/unk_E1F8", EntityBackgroundSkyLand);
+// reverse castle draws the sky band at the top of the screen
+#define SKY_LAND_Y_TOP 64
+#define SKY_LAND_Y_BOTTOM 18
+#define PAL_BACKGROUND_SKY_LAND 0xC5
+#include "../../st/e_background_sky_land.h"
 
 INCLUDE_ASM("boss/rbo3_psp/nonmatchings/rbo3_psp/unk_E1F8", func_pspeu_092460E0);
 
