@@ -31,29 +31,19 @@ typedef enum Statues {
     /* 1 */ LEFT_STATUE,
 } Statues;
 
-extern s16 D_us_80181A94[]; // bird_cage_pos_x
-extern s16 D_us_80181A98[]; // bird_cage_pos_y
-extern s16 D_us_80181A9C[]; // statue_pos_x
-extern s16 D_us_80181AA4[]; // gear_pos_x
-extern s16 D_us_80181AA8[]; // stone_door_pos_x
-extern u32 D_us_80181AB4[]; // statue_pos_x_3
-extern u16 D_us_80181ABC[]; // anim_bird_cage
-extern u8 D_us_80181AD8[];  // anim_gear_1
-extern u8 D_us_80181AE4[];  // anim_gear_2
-extern u16 D_us_80181AF0[]; // g_StoneDoorTiles
-extern u16 D_us_801D4B48[]; // g_Statues (bss)
-
-#define bird_cage_pos_x D_us_80181A94
-#define bird_cage_pos_y D_us_80181A98
-#define statue_pos_x D_us_80181A9C
-#define gear_pos_x D_us_80181AA4
-#define stone_door_pos_x D_us_80181AA8
-#define statue_pos_x_3 D_us_80181AB4
-#define anim_bird_cage D_us_80181ABC
-#define anim_gear_1 D_us_80181AD8
-#define anim_gear_2 D_us_80181AE4
-#define g_StoneDoorTiles D_us_80181AF0
-#define g_Statues D_us_801D4B48
+// Names mirror NO0's static clock_room.c tables (src/st/no0/clock_room.c) --
+// same donor, RNO0 just needs its own extern copies at RNO0's addresses.
+extern s16 bird_cage_pos_x[];
+extern s16 bird_cage_pos_y[];
+extern s16 statue_pos_x[];
+extern s16 gear_pos_x[];
+extern s16 stone_door_pos_x[];
+extern u32 statue_pos_x_3[];
+extern u16 anim_bird_cage[];
+extern u8 anim_gear_1[];
+extern u8 anim_gear_2[];
+extern u16 g_StoneDoorTiles[];
+extern u16 g_Statues[]; // bss
 
 void func_us_801CCAAC_from_no0(Entity* self) {
     Entity* tempEntity;
