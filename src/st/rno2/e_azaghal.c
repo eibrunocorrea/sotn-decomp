@@ -457,8 +457,13 @@ void EntityAzaghal(Entity* self) {
     switch (self->step) {
     case INIT:
         InitializeEntity(g_EInitAzaghal);
+#ifdef VERSION_PSP
+        self->hitboxState = 0;
+        self->hitboxWidth = self->hitboxHeight = 0xC;
+#else
         self->hitboxWidth = self->hitboxHeight = 0xC;
         self->hitboxState = 0;
+#endif
         self->zPriority = 0xB8;
         primIndex = g_api.AllocPrimitives(PRIM_GT4, 0x20);
         if (primIndex == -1) {
