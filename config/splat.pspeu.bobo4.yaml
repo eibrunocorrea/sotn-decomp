@@ -62,6 +62,7 @@ segments:
       - [0xDC70, c, bo4_psp/unk_DC70]
       - [0x101C0, c, bo4_psp/st_init]
       - [0x10308, c, bo4_psp/unk_10308]
+      - [0x10488, c, bo4/e_room_bg]
       - [0x10568, c, bo4/e_lock_camera]
       - [0x107C8, c, bo4_psp/unk_107C8]
       - [0x27580, .data, bo4/e_life_up]

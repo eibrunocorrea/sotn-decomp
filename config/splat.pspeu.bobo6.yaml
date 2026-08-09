@@ -62,6 +62,8 @@ segments:
       - [0xD380, c, bo6/e_breakable]
       - [0xD500, c, bo6_psp/e_cutscene_dialogue]
       - [0xDC80, c, bo6_psp/unk_DC80]
+      - [0x10340, c, bo6/e_room_bg]
+      - [0x10420, c, bo6_psp/unk_10420]
       - [0x11248, c, bo6/e_lock_camera]
       - [0x114A8, c, bo6_psp/unk_114A8]
       - [0x25BC0, c, bo6_psp/e_spike_room]
