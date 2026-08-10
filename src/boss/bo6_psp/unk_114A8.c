@@ -10,9 +10,12 @@
 
 extern PlayerState g_Maria;
 
+extern EInit D_pspeu_0926EB98;            // slide kick hitbox entity init
+extern AnimationFrame D_pspeu_0927A418[]; // rising sparkle anim
 extern AnimationFrame D_pspeu_0927A5C0[]; // Maria's stop-run anim
 
 Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 arg1, s32 arg2);
+void MarSetBladeDash(void);
 void MarSetAnimation(AnimationFrame* anim);
 void MarDecelerateX(s32 speed);
 void MarSetSpeedX(s32 speed);
@@ -51,9 +54,30 @@ extern AnimationFrame D_pspeu_0927A9E0[]; // high jump
 extern AnimationFrame D_pspeu_0927AA20[]; // blade dash
 extern s32 D_pspeu_0927C760; // throw dagger timer (raw bss)
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarGetFreeEntity);
+// local copy of RicGetFreeEntity (see us_39144.c)
+Entity* MarGetFreeEntity(s16 start, s16 end) {
+    Entity* entity = &g_Entities[start];
+    s16 i;
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarGetFreeEntityReverse);
+    for (i = start; i < end; i++, entity++) {
+        if (entity->entityId == E_NONE) {
+            return entity;
+        }
+    }
+    return NULL;
+}
+
+// local copy of RicGetFreeEntityReverse (see us_39144.c)
+Entity* MarGetFreeEntityReverse(s16 start, s16 end) {
+    Entity* entity = &g_Entities[end - 1];
+    s16 i;
+    for (i = end - 1; i >= start; i--, entity--) {
+        if (entity->entityId == E_NONE) {
+            return entity;
+        }
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252480_from_rbo5);
 
@@ -65,17 +89,67 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252768_f
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253EA0_from_rbo5);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", Unused09249778);
+void Unused09249778(void) {}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252B48_from_rbo5);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarCreateEntFactoryFromEntity);
+// local copy of RicCreateEntFactoryFromEntity (see us_39144.c); note the
+// (68, 80) slot range — cen's Maria uses (72, 80)
+Entity* MarCreateEntFactoryFromEntity(
+    Entity* source, u32 factoryParams, s32 arg2) {
+    Entity* entity = MarGetFreeEntity(68, 80);
+    if (!entity) {
+        return NULL;
+    }
+    DestroyEntity(entity);
+    entity->entityId = E_FACTORY;
+    // the parent pointer must align for anything the factory creates
+    entity->ext.factory.parent = source;
+    entity->posX.val = source->posX.val;
+    entity->posY.val = source->posY.val;
+    entity->facingLeft = source->facingLeft;
+    entity->zPriority = source->zPriority;
+    entity->params = factoryParams & 0xFFF;
+    entity->ext.factory.paramsBase = (factoryParams & 0xFF0000) >> 8;
+    return entity;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityFactory);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntitySlideKick);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924A2E0);
+// local copy of func_us_801BC3E0 (see us_39144.c) — slide kick hitbox
+void func_pspeu_0924A2E0(Entity* self) {
+    if (MARIA.step != PL_S_SLIDE_KICK) {
+        DestroyEntity(self);
+        return;
+    }
+    self->posX.i.hi = MARIA.posX.i.hi;
+    self->posY.i.hi = MARIA.posY.i.hi;
+    self->facingLeft = MARIA.facingLeft;
+    if (self->step == 0) {
+        InitializeEntity(D_pspeu_0926EB98);
+        self->flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+        self->hitboxOffX = 0x14;
+        self->hitboxWidth = self->hitboxHeight = 9;
+        self->step = 1;
+    }
+
+    if (MARIA.animCurFrame == 140) {
+        self->hitboxOffY = 0;
+    }
+
+    if (MARIA.animCurFrame == 141) {
+        self->hitboxOffY = 12;
+    }
+
+    if (self->hitFlags) {
+        g_Maria.unk44 |= 0x80;
+    } else {
+        g_Maria.unk44 &= ~0x80;
+    }
+    self->hitFlags = 0;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924A448);
 
@@ -89,7 +163,23 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_maria_80161C2C);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924B8D0);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_maria_80162E9C);
+// local copy of func_us_801BD47C (see us_39144.c) — true when another
+// live entity shares this id and params
+bool func_maria_80162E9C(Entity* entity) {
+    Entity* e;
+    s32 i;
+    s16 objId;
+    s16 params;
+
+    objId = entity->entityId;
+    params = entity->params;
+    for (e = &g_Entities[0x50], i = 0x50; i < 0x90; e++, i++) {
+        if (objId == e->entityId && params == e->params && e != entity) {
+            return true;
+        }
+    }
+    return false;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityPlayerBlinkWhite);
 
@@ -107,7 +197,36 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09250DA8);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09251100);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092516D0);
+// local copy of func_us_801C13A8 (see us_3E79C.c) — rising sparkle
+void func_pspeu_092516D0(Entity* self) {
+    s16 params = self->params & 0x7F00;
+    switch (self->step) {
+    case 0:
+        self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        self->unk5A = 0x79;
+        self->animSet = ANIMSET_DRA(14);
+        self->zPriority = MARIA.zPriority + 6;
+        self->palette = PAL_FLAG(0x25E);
+        self->blendMode = BLEND_TRANSP | BLEND_QUARTER;
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+        self->scaleX = self->scaleY = 0xC0;
+        self->anim = D_pspeu_0927A418;
+        if (params) {
+            self->scaleX = self->scaleY = 0x80;
+            self->anim = D_pspeu_0927A418;
+        }
+        self->velocityY = -FIX(0.25);
+        self->step++;
+        break;
+
+    case 1:
+        self->posY.val += self->velocityY;
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09251850);
 
@@ -117,9 +236,43 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09251748_f
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253AA8);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253E08);
+// local copy of func_us_801B4EAC (see richter.c) — integrate velocity
+// and clamp to the arena walls
+void func_pspeu_09253E08(void) {
+    g_Maria.unk04 = g_Maria.vram_flag;
+    g_Maria.vram_flag = 0;
+    MARIA.posY.val += MARIA.velocityY;
+    MARIA.posX.val += MARIA.velocityX;
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253F48);
+    if (MARIA.posY.val >= 0xB30000) {
+        MARIA.posY.val = 0xB30000;
+        g_Maria.vram_flag |= TOUCHING_GROUND;
+    }
+    if (MARIA.posY.val <= 0x280000) {
+        MARIA.posY.val = 0x280000;
+        g_Maria.vram_flag |= TOUCHING_CEILING;
+    }
+    if (MARIA.posX.val >= 0xF80000) {
+        MARIA.posX.val = 0xF80000;
+        g_Maria.vram_flag |= TOUCHING_R_WALL;
+    }
+    if (MARIA.posX.val <= 0x80000) {
+        MARIA.posX.val = 0x80000;
+        g_Maria.vram_flag |= TOUCHING_L_WALL;
+    }
+}
+
+// local copy of static CheckBladeDashInput (see richter.c); non-static
+// so the remaining INCLUDE_ASM stubs can reference the symbol
+void func_pspeu_09253F48(void) {
+    u16 step = MARIA.step;
+
+    if ((step == 1 || step == 2 || MARIA.step == 3 || step == 4 ||
+            step == 5) &&
+        (g_Maria.unk46 == 0) && (g_Maria.padTapped & 8)) {
+        MarSetBladeDash();
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09254008);
 

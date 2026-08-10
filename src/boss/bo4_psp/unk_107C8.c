@@ -24,9 +24,31 @@ void func_pspeu_0924CA58_from_rbo5(s32 arg0);
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_us_801C0B9C_from_no1);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarGetFreeEntity);
+// local copy of RicGetFreeEntity (see bo6/us_39144.c); byte-identical
+// across the three boss walls
+Entity* MarGetFreeEntity(s16 start, s16 end) {
+    Entity* entity = &g_Entities[start];
+    s16 i;
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarGetFreeEntityReverse);
+    for (i = start; i < end; i++, entity++) {
+        if (entity->entityId == E_NONE) {
+            return entity;
+        }
+    }
+    return NULL;
+}
+
+// local copy of RicGetFreeEntityReverse (see bo6/us_39144.c)
+Entity* MarGetFreeEntityReverse(s16 start, s16 end) {
+    Entity* entity = &g_Entities[end - 1];
+    s16 i;
+    for (i = end - 1; i >= start; i--, entity--) {
+        if (entity->entityId == E_NONE) {
+            return entity;
+        }
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09252480_from_rbo5);
 
@@ -38,7 +60,26 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09252B20_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09252B48_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarCreateEntFactoryFromEntity);
+// local copy of RicCreateEntFactoryFromEntity (see bo6/us_39144.c);
+// same (68, 80) slot range as bo6
+Entity* MarCreateEntFactoryFromEntity(
+    Entity* source, u32 factoryParams, s32 arg2) {
+    Entity* entity = MarGetFreeEntity(68, 80);
+    if (!entity) {
+        return NULL;
+    }
+    DestroyEntity(entity);
+    entity->entityId = E_FACTORY;
+    // the parent pointer must align for anything the factory creates
+    entity->ext.factory.parent = source;
+    entity->posX.val = source->posX.val;
+    entity->posY.val = source->posY.val;
+    entity->facingLeft = source->facingLeft;
+    entity->zPriority = source->zPriority;
+    entity->params = factoryParams & 0xFFF;
+    entity->ext.factory.paramsBase = (factoryParams & 0xFF0000) >> 8;
+    return entity;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09252E78_from_rbo5);
 
@@ -48,7 +89,23 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253620_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253EA0_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_maria_80162E9C);
+// local copy of func_us_801BD47C (see bo6/us_39144.c) — true when
+// another live entity shares this id and params
+bool func_maria_80162E9C(Entity* entity) {
+    Entity* e;
+    s32 i;
+    s16 objId;
+    s16 params;
+
+    objId = entity->entityId;
+    params = entity->params;
+    for (e = &g_Entities[0x50], i = 0x50; i < 0x90; e++, i++) {
+        if (objId == e->entityId && params == e->params && e != entity) {
+            return true;
+        }
+    }
+    return false;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09254180_from_rbo5);
 
