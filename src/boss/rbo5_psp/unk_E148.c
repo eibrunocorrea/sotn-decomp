@@ -224,7 +224,63 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924AAF0)
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924AB20);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924B918);
+extern s16 D_pspeu_09263098[];
+extern s16 D_pspeu_092630A0[];
+void MarDecelerateX_0924E868(s32 speed);
+void func_pspeu_0924CD20(void);
+void func_pspeu_09248828(void);
+// local copy of DopplegangerStepUnmorphBat (see bo4/unk_46E7C.c)
+void func_pspeu_0924B918(void) {
+    s32 i;
+    s32 count;
+
+    MARIA.drawFlags = ENTITY_ROTATE;
+    MarDecelerateX_0924E7C8(FIX(1.0 / 8.0));
+    if (g_Maria.vram_flag & (TOUCHING_CEILING | TOUCHING_GROUND)) {
+        MARIA.velocityY = 0;
+    }
+    MarDecelerateX_0924E868(FIX(1.0 / 8.0));
+    func_pspeu_0924AA18(0);
+    count = 0;
+
+    switch (MARIA.step_s) {
+    case 0:
+        for (i = 0; i < 4; i++) {
+            if (g_MarSensorsFloor[i].y < D_pspeu_092630A0[i]) {
+                g_MarSensorsFloor[i].y++;
+            } else {
+                count++;
+            }
+            if (g_MarSensorsCeiling[i].y > D_pspeu_09263098[i]) {
+                g_MarSensorsCeiling[i].y--;
+            } else {
+                count++;
+            }
+            if (i == 0 && (g_Maria.vram_flag & TOUCHING_ANY_SLOPE)) {
+                MARIA.posY.i.hi--;
+            }
+        }
+        if (count == 8) {
+            MARIA.animSet = ANIMSET_OVL(1);
+            MARIA.drawFlags = ENTITY_DEFAULT;
+            MARIA.rotate = 0;
+            g_Maria.unk66 = 1;
+            MARIA.step_s = 1;
+            D_pspeu_092629BA = 0x5F;
+        }
+        break;
+    case 1:
+        if (g_Maria.unk66 == 3) {
+            func_pspeu_0924CD20();
+            if (!(g_Maria.vram_flag & TOUCHING_ANY_SLOPE)) {
+                MARIA.velocityY = FIX(-1);
+            }
+            MARIA.palette = PAL_FLAG(0x200);
+            func_pspeu_09248828();
+        }
+        break;
+    }
+}
 
 // local copy of func_us_801C8EE4 (see bo4/unk_46E7C.c): leave mist form
 s32 func_pspeu_0924BB78(void) {
@@ -241,7 +297,62 @@ s32 func_pspeu_0924BB78(void) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924BBE8);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924C200);
+// local copy of DopplegangerStepUnmorphMist (see bo4/unk_46E7C.c)
+void func_pspeu_0924C200(void) {
+    s32 i;
+    s32 count;
+
+    if ((g_Maria.vram_flag & TOUCHING_GROUND) && MARIA.velocityY > 0) {
+        MARIA.velocityY = 0;
+    }
+    if ((g_Maria.vram_flag & TOUCHING_CEILING) && MARIA.velocityY < 0) {
+        MARIA.velocityY = 0;
+    }
+
+    MarDecelerateX_0924E7C8(FIX(1.0 / 128.0));
+    MarDecelerateX_0924E868(FIX(1.0 / 128.0));
+    count = 0;
+
+    for (i = 0; i < 4; i++) {
+        if (g_MarSensorsFloor[i].y < D_pspeu_092630A0[i]) {
+            g_MarSensorsFloor[i].y++;
+        } else {
+            count++;
+        }
+        if (g_MarSensorsCeiling[i].y > D_pspeu_09263098[i]) {
+            g_MarSensorsCeiling[i].y--;
+        } else {
+            count++;
+        }
+        if (i == 0 && (g_Maria.vram_flag & TOUCHING_ANY_SLOPE)) {
+            MARIA.posY.i.hi--;
+        }
+    }
+
+    if (count == 8) {
+        MARIA.animSet = ANIMSET_OVL(1);
+        SetDopplegangerAnim(0xCB);
+        if (MARIA.step_s) {
+            SetDopplegangerAnim(0xCC);
+        }
+
+        if (g_Entities[E_BOSS_WEAPON].step < 3) {
+            g_Entities[E_BOSS_WEAPON].step = 3;
+            return;
+        }
+        if (g_Entities[E_BOSS_WEAPON].step == 5) {
+            MARIA.palette = PAL_FLAG(0x200);
+            func_pspeu_0924D4E8();
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x5B), 0);
+            func_pspeu_0924CD20();
+            if (!(g_Maria.vram_flag & TOUCHING_ANY_SLOPE)) {
+                MARIA.velocityY = FIX(-1);
+            }
+            func_pspeu_09248828();
+        }
+    }
+}
 
 extern s32 D_pspeu_0926C090;
 // local copy of DopplegangerStepSwordWarp (see bo4/unk_46E7C.c)
