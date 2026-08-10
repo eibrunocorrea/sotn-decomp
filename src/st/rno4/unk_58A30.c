@@ -47,13 +47,12 @@ INCLUDE_ASM("st/rno4/nonmatchings/unk_58A30", func_us_801BCFC8_from_rnz1);
 // would ripple into rno3, so the body is copied locally with the id names
 // swapped to rno4's.
 extern EInit g_EInitJackOBones;
-// g_EInitJackOBones2 / g_EInitJackOBones3 in the donor are the death-parts
-// and jack-projectile init structs. rno4/e_init.c hasn't named those yet;
-// they're the still-raw D_us_80180BFC / D_us_80180C08 globals sitting right
-// after g_EInitJackOBones in the same ANIMSET_OVL(10) group (same bank,
-// enemyID pattern 0x074/0x002/0x075 matches main/particle/projectile).
-extern EInit D_us_80180BFC;
-extern EInit D_us_80180C08;
+// g_EInitJackOBones2 / g_EInitJackOBones3 are the death-parts and
+// jack-projectile init structs, right after g_EInitJackOBones in the same
+// ANIMSET_OVL(10) group (same bank, enemyID pattern 0x074/0x002/0x075
+// matches main/particle/projectile).
+extern EInit g_EInitJackOBones2;
+extern EInit g_EInitJackOBones3;
 
 
 typedef enum {
@@ -100,7 +99,7 @@ void EntityJackOBonesJack(Entity* self) {
     s32 xVar;
 
     if (!self->step) {
-        InitializeEntity(D_us_80180C08);
+        InitializeEntity(g_EInitJackOBones3);
         if (self->params) {
             self->palette += 1;
         }
@@ -201,10 +200,9 @@ void EntityJackOBonesJack(Entity* self) {
 // the header's CreateEntityFromEntity(E_NOVA_PULSE, ...) needs to become
 // E_NOVA_LASER_PULSE for rno4.h's enum, so the body is copied locally.
 extern EInit g_EInitNovaSkeleton;
-// g_EInitNovaSkeleton2 in the donor is the laser/pulse init struct. Same
-// situation as the jacko pair above: it's the still-raw D_us_80180C20
-// sitting right after g_EInitNovaSkeleton in the ANIMSET_OVL(11) group.
-extern EInit D_us_80180C20;
+// g_EInitNovaSkeleton2 is the laser/pulse init struct, right after
+// g_EInitNovaSkeleton in the ANIMSET_OVL(11) group.
+extern EInit g_EInitNovaSkeleton2;
 
 // Not the laser itself - just nova skeleton standing there, holding arms up
 // menacingly
@@ -352,7 +350,7 @@ void EntityNovaLaser(Entity* self) {
 
     switch (self->step) {
     case LASER_INIT:
-        InitializeEntity(D_us_80180C20);
+        InitializeEntity(g_EInitNovaSkeleton2);
         primIndex = g_api.AllocPrimitives(PRIM_GT4, 3);
         if (primIndex == -1) {
             DestroyEntity(self);
@@ -487,7 +485,7 @@ void EntityNovaLaserPulse(Entity* self) {
 
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_80180C20);
+        InitializeEntity(g_EInitNovaSkeleton2);
         self->hitboxState = 0;
         self->animCurFrame = 0x24;
         self->drawFlags |= ENTITY_SCALEY | ENTITY_SCALEX;

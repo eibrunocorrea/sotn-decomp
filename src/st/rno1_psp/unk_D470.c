@@ -11,7 +11,6 @@
 #define BLADE_DEATH_PARTS_NO_ROTATION_TABLE
 #define BLADE_DEATH_ROTATION_TABLE death_parts_rotspeeds
 #define g_EInitBladeSoldier g_EInitNovaSkeleton
-#define g_EInitNovaSkeleton2 D_us_80180730
 
 #include "../e_nova_skeleton.h"
 
