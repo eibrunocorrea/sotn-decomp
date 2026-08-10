@@ -85,7 +85,87 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09248D20);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_8015FDB0);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252768_from_rbo5);
+s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY);
+extern Point16 D_pspeu_0927C1D8[16];
+// local copy of RicEntityHitByHoly (see ric/pl_blueprints.c); the boss
+// walls track the doppleganger in slot 64 and camera-lock the effect
+void func_pspeu_09252768_from_rbo5(Entity* entity) {
+    Primitive* prim;
+    s32 i;
+    s32 temp;
+    s16 hitboxX;
+    s16 hitboxY;
+    s16 temp_xRand;
+    s16 temp_yRand;
+
+    switch (entity->step) {
+    case 0:
+        entity->primIndex =
+            (s16)g_api.AllocPrimitives(PRIM_GT4, LEN(D_pspeu_0927C1D8));
+        if (entity->primIndex == -1) {
+            DestroyEntity(entity);
+            return;
+        }
+        entity->flags = FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+        hitboxX = MARIA.posX.i.hi + MARIA.hitboxOffX;
+        hitboxY = MARIA.posY.i.hi + MARIA.hitboxOffY;
+        prim = &g_PrimBuf[entity->primIndex];
+        for (i = 0; i < LEN(D_pspeu_0927C1D8); i++) {
+            temp_xRand = hitboxX + rand() % 24 - 12;
+            temp_yRand = hitboxY + rand() % 48 - 24;
+            D_pspeu_0927C1D8[i].x = temp_xRand;
+            D_pspeu_0927C1D8[i].y = temp_yRand;
+            prim->clut = PAL_UNK_1B2;
+            prim->tpage = 0x1A;
+            prim->b0 = 0;
+            prim->b1 = 0;
+            prim->g0 = 0;
+            prim->g1 = (rand() & 7) + 1;
+            prim->g2 = 0;
+            prim->priority = MARIA.zPriority + 4;
+            prim->drawMode = DRAW_UNK_100 | DRAW_TPAGE | DRAW_HIDE |
+                             DRAW_UNK02 | DRAW_TRANSP;
+            if (rand() & 1) {
+                prim->drawMode =
+                    DRAW_UNK_100 | DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE |
+                    DRAW_HIDE | DRAW_UNK02 | DRAW_TRANSP;
+            }
+            prim = prim->next;
+        }
+        entity->step++;
+        break;
+    case 1:
+        if (!(g_Maria.status & PLAYER_STATUS_UNK10000)) {
+            DestroyEntity(entity);
+            return;
+        }
+        break;
+    }
+
+    prim = &g_PrimBuf[entity->primIndex];
+    for (i = 0; i < 16; i++) {
+        switch (prim->g0) {
+        case 0:
+            if (--prim->g1 == 0) {
+                prim->g0++;
+            }
+            break;
+        case 1:
+            hitboxX = D_pspeu_0927C1D8[i].x;
+            hitboxY = D_pspeu_0927C1D8[i].y;
+            temp = func_8015FDB0(prim, hitboxX, hitboxY);
+            D_pspeu_0927C1D8[i].y--;
+            if (temp < 0) {
+                prim->drawMode |= DRAW_HIDE;
+                prim->g0++;
+            } else {
+                prim->drawMode &= ~DRAW_HIDE;
+            }
+            break;
+        }
+        prim = prim->next;
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253EA0_from_rbo5);
 
