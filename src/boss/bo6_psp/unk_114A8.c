@@ -89,12 +89,13 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252768_f
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253EA0_from_rbo5);
 
-void Unused09249778(void) {}
+// declaring the ignored arg reproduces mwcc's 0x10 stack frame
+void Unused09249778(s32 arg0) {}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252B48_from_rbo5);
 
 // local copy of RicCreateEntFactoryFromEntity (see us_39144.c); note the
-// (68, 80) slot range — cen's Maria uses (72, 80)
+// (68, 80) slot range - cen's Maria uses (72, 80)
 Entity* MarCreateEntFactoryFromEntity(
     Entity* source, u32 factoryParams, s32 arg2) {
     Entity* entity = MarGetFreeEntity(68, 80);
@@ -118,7 +119,7 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityFactory);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntitySlideKick);
 
-// local copy of func_us_801BC3E0 (see us_39144.c) — slide kick hitbox
+// local copy of func_us_801BC3E0 (see us_39144.c) - slide kick hitbox
 void func_pspeu_0924A2E0(Entity* self) {
     if (MARIA.step != PL_S_SLIDE_KICK) {
         DestroyEntity(self);
@@ -163,7 +164,7 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_maria_80161C2C);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924B8D0);
 
-// local copy of func_us_801BD47C (see us_39144.c) — true when another
+// local copy of func_us_801BD47C (see us_39144.c) - true when another
 // live entity shares this id and params
 bool func_maria_80162E9C(Entity* entity) {
     Entity* e;
@@ -197,7 +198,7 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09250DA8);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09251100);
 
-// local copy of func_us_801C13A8 (see us_3E79C.c) — rising sparkle
+// local copy of func_us_801C13A8 (see us_3E79C.c) - rising sparkle
 void func_pspeu_092516D0(Entity* self) {
     s16 params = self->params & 0x7F00;
     switch (self->step) {
@@ -236,7 +237,7 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09251748_f
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253AA8);
 
-// local copy of func_us_801B4EAC (see richter.c) — integrate velocity
+// local copy of func_us_801B4EAC (see richter.c) - integrate velocity
 // and clamp to the arena walls
 void func_pspeu_09253E08(void) {
     g_Maria.unk04 = g_Maria.vram_flag;
@@ -265,11 +266,9 @@ void func_pspeu_09253E08(void) {
 // local copy of static CheckBladeDashInput (see richter.c); non-static
 // so the remaining INCLUDE_ASM stubs can reference the symbol
 void func_pspeu_09253F48(void) {
-    u16 step = MARIA.step;
-
-    if ((step == 1 || step == 2 || MARIA.step == 3 || step == 4 ||
-            step == 5) &&
-        (g_Maria.unk46 == 0) && (g_Maria.padTapped & 8)) {
+    if ((MARIA.step == 1 || MARIA.step == 2 || MARIA.step == 3 ||
+         MARIA.step == 5 || MARIA.step == 4) &&
+        !g_Maria.unk46 && (g_Maria.padTapped & PAD_R1)) {
         MarSetBladeDash();
     }
 }
