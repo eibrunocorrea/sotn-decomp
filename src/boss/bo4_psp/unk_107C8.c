@@ -339,7 +339,30 @@ void func_pspeu_09252E78_from_rbo5(Entity* self) {
     self->ext.factory.delay = self->ext.factory.tCycle;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253500_from_rbo5);
+extern u16 D_pspeu_092633D8[];
+// local copy of func_us_801CA748 (see bo4/unk_46E7C.c); contact damage
+// entity that tracks the doppleganger during the bat-form slide
+void func_pspeu_09253500_from_rbo5(Entity* self) {
+    if (MARIA.step_s != Dop_Crouch || MARIA.step != Dop_MorphBat) {
+        DestroyEntity(self);
+        return;
+    }
+
+    if (self->step == 0) {
+        InitializeEntity(D_pspeu_092633D8);
+        if (g_Maria.status & PLAYER_STATUS_POISON) {
+            self->attack = self->attack / 2;
+        }
+        self->hitboxOffX = 4;
+        self->step++;
+    }
+
+    self->flags =
+        FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_NOT_AN_ENEMY;
+    self->facingLeft = MARIA.facingLeft;
+    self->posY.i.hi = MARIA.posY.i.hi;
+    self->posX.i.hi = MARIA.posX.i.hi;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253620_from_rbo5);
 
@@ -539,7 +562,21 @@ s32 func_pspeu_092497C0_from_rbo5(void) {
     return rnd % 16;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09249838_from_rbo5);
+// local copy of func_us_801C72BC (see bo4/unk_46E7C.c): reset the boss
+// visual state; the PSP build reorders the stores and chains pose/poseTimer
+void func_pspeu_09249838_from_rbo5(void) {
+    MARIA.pose = MARIA.poseTimer = 0;
+    MARIA.animSet = ANIMSET_OVL(1);
+    MARIA.blendMode = BLEND_NO;
+    g_Maria.unk44 = 0;
+    g_Maria.unk46 = 0;
+    MARIA.drawFlags &= ENTITY_BLINK | ENTITY_MASK_B | ENTITY_MASK_G |
+                       ENTITY_MASK_R | ENTITY_SCALEY | ENTITY_SCALEX;
+    MARIA.rotate = 0;
+    if (g_Entities[80].entityId == E_MIST) {
+        func_pspeu_0924D4E8_from_rbo5();
+    }
+}
 
 void func_80159C04(void) {
     if (MARIA.posX.i.hi <= PLAYER.posX.i.hi) {
@@ -553,7 +590,27 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09249910_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09249FE8_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924A948_from_rbo5);
+extern u16 D_pspeu_0926AB12;
+// local copy of BatFormFinished (see bo4/unk_46E7C.c); the u16 is the
+// bat morph animation's [0].pose field
+s32 func_pspeu_0924A948_from_rbo5(void) {
+    if (MARIA.step_s == 0) {
+        return 0;
+    }
+    if (g_Maria.padTapped & PAD_R1) {
+        MarSetStep(Dop_UnmorphBat);
+        SetDopplegangerAnim(202);
+        D_pspeu_0926AB12 = 6;
+        MARIA.palette = PAL_FLAG(0x20D);
+        g_Maria.unk66 = 0;
+        g_Maria.unk68 = 0;
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x21), 0);
+        MARIA.velocityY >>= 1;
+        return 1;
+    }
+    return 0;
+}
 
 void func_pspeu_0924AA18_from_rbo5(s16 arg0) {
     if (MARIA.rotate < arg0) {
