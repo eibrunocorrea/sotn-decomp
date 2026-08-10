@@ -46,7 +46,7 @@ segments:
       - [0xD2C, .data, e_red_door_tiles]
       - [0xD5C, .data, e_lock_camera]
       - [0xDDC, .data, e_breakable]
-      - [0xECC, data] # additional water_effects data
+      - [0xECC, .data, d_water]
       - [0x1108, .data, first_c_file]
       - [0x1678, .data, e_ferryman]
       - [0x1804, .data, 482B8]

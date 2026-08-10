@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "no4.h"
 
-// This is part of a different water effects data segment
-extern s16 D_us_80180F1A[];
+// This is part of a different water effects data segment; 0x80180F1A
+// is D_us_80180EEC + 0x2E (see d_water.c)
+extern s16 D_us_80180EEC[];
 
 #ifdef VERSION_PSP
 extern s32 E_ID(SURFACING_WATER);
@@ -29,7 +30,7 @@ void GenerateBowWave(Entity* self, s16 xOffset) {
         }
 
         newEntity->params = 0x8000;
-        newEntity->params |= D_us_80180F1A[0] << 8;
+        newEntity->params |= D_us_80180EEC[23] << 8;
         newEntity->ext.et_surfacingWater.origPosX = 0x17;
         newEntity->zPriority = 0x9B;
         self->ext.et_surfacingWater.unk8C = 8;
