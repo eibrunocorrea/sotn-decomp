@@ -37,3 +37,7 @@ static u8 blend_modes[8] = {
 static u8 unused[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 #include "../../st/e_breakable.h"
+
+INCLUDE_ASM("boss/rbo8/nonmatchings/e_breakable", func_us_801955A0);
+
+INCLUDE_ASM("boss/rbo8/nonmatchings/e_breakable", func_us_801955F8);

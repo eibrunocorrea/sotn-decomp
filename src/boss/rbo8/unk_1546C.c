@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rbo8.h"
 
-INCLUDE_ASM("boss/rbo8/nonmatchings/unk_1546C", func_us_801955A0);
-
-INCLUDE_ASM("boss/rbo8/nonmatchings/unk_1546C", func_us_801955F8);
-
 void func_801CE1E8(s32 step) {
     s32 i;
 
