@@ -28,7 +28,15 @@ Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 arg1, s32 arg2);
 void MarSetSpeedX(s32 speed);
 s32 MarCheckFacing(void);
 s32 func_pspeu_0924EA98_from_rbo5(s32 arg0);
+void func_pspeu_0924C9C8_from_rbo5(s32 arg0, s32 arg1);
 void func_pspeu_0924CA58_from_rbo5(s32 arg0);
+void func_pspeu_0924CBF0_from_rbo5(s32 arg0);
+void func_pspeu_0924CD20_from_rbo5(void);
+void func_pspeu_0924CDE0_from_rbo5(void);
+void func_pspeu_0924CE30_from_rbo5(void);
+s32 func_pspeu_0924D108_from_rbo5(void);
+void func_pspeu_0924D4E8_from_rbo5(void);
+void func_pspeu_0924D528_from_rbo5(void);
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_us_801C0B9C_from_no1);
 
@@ -333,7 +341,132 @@ void func_pspeu_0924EA50_from_rbo5(s32 velocityX) {
     MARIA.velocityX = velocityX;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924EA98_from_rbo5);
+// local variant of MarCheckInput (see maria/pl_collision.c): same CHECK_*
+// bit layout, but each gravity block writes velocityY directly (no
+// accumulator) and the boss falls at 22/128 per frame instead of 28/128
+s32 func_pspeu_0924EA98_from_rbo5(s32 checks) {
+    if ((checks & 8) && g_Maria.unk46 == 0) {
+        MarCheckFacing();
+    }
+    if (checks & 0x8000) {
+        MARIA.velocityY += FIX(22.0 / 128);
+        if (MARIA.velocityY > FIX(7)) {
+            MARIA.velocityY = FIX(7);
+        }
+    }
+    if (checks & 0x10000) {
+        if (MARIA.velocityY < FIX(3.0 / 8) &&
+            MARIA.velocityY > FIX(-1.0 / 8) && !(g_Maria.unk44 & 0x20) &&
+            (g_Maria.padPressed & PAD_CROSS)) {
+            // 4.4 is precisely 1/5 of 22, like maria's 5.6 is of 28
+            MARIA.velocityY += FIX(4.4 / 128);
+        } else {
+            MARIA.velocityY += FIX(22.0 / 128);
+            if (MARIA.velocityY > FIX(7)) {
+                MARIA.velocityY = FIX(7);
+            }
+        }
+    }
+    if ((checks & 0x80) && (g_Maria.vram_flag & TOUCHING_CEILING) &&
+        (MARIA.velocityY < FIX(-1))) {
+        MARIA.velocityY = FIX(-1);
+    }
+    if (checks & 0x200) {
+        if (MARIA.velocityY < FIX(3.0 / 8) &&
+            MARIA.velocityY > FIX(-1.0 / 8)) {
+            MARIA.velocityY += FIX(11.0 / 128);
+        } else {
+            MARIA.velocityY += FIX(22.0 / 128);
+            if (MARIA.velocityY > FIX(7)) {
+                MARIA.velocityY = FIX(7);
+            }
+        }
+    }
+    if (MARIA.velocityY >= 0) {
+        if ((checks & 1) && (g_Maria.vram_flag & TOUCHING_GROUND)) {
+            if (g_Maria.unk46) {
+                if ((g_Maria.unk46 & 0x7FFF) == 0xFF) {
+                    func_pspeu_0924CA58_from_rbo5(0);
+                    func_pspeu_0924D4E8_from_rbo5();
+                    g_api.PlaySfx(SFX_STOMP_SOFT_B);
+                    return 1;
+                }
+                if (MARIA.velocityY > FIX(6.875)) {
+                    func_pspeu_0924C9C8_from_rbo5(1, 0);
+                    g_api.PlaySfx(SFX_STOMP_HARD_B);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+                } else {
+                    if (g_Maria.unk44 & 0x10) {
+                        func_pspeu_0924CBF0_from_rbo5(1);
+                    } else {
+                        func_pspeu_0924CA58_from_rbo5(0);
+                    }
+                    g_api.PlaySfx(SFX_STOMP_SOFT_B);
+                }
+                func_pspeu_0924D4E8_from_rbo5();
+                return 1;
+            } else {
+                if (MARIA.velocityY > FIX(6.875)) {
+                    if (MARIA.step_s == 0x70 || MARIA.step == 5) {
+                        func_pspeu_0924C9C8_from_rbo5(3, MARIA.velocityX / 2);
+                    } else {
+                        func_pspeu_0924C9C8_from_rbo5(1, 0);
+                    }
+                    g_api.PlaySfx(SFX_STOMP_HARD_B);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+                } else if (g_Maria.unk44 & 0x10) {
+                    func_pspeu_0924CBF0_from_rbo5(1);
+                    g_api.PlaySfx(SFX_STOMP_SOFT_B);
+                } else if (abs(MARIA.velocityX) > FIX(2)) {
+                    g_api.PlaySfx(SFX_STOMP_HARD_B);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+                    func_pspeu_0924CA58_from_rbo5(MARIA.velocityX);
+                } else {
+                    g_api.PlaySfx(SFX_STOMP_SOFT_B);
+                    func_pspeu_0924CA58_from_rbo5(0);
+                }
+                return 1;
+            }
+        } else if ((checks & 0x20000) &&
+                   (g_Maria.vram_flag & TOUCHING_GROUND)) {
+            func_pspeu_0924C9C8_from_rbo5(3, MARIA.velocityX);
+            g_api.PlaySfx(SFX_STOMP_HARD_B);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+            return 1;
+        }
+    }
+    if ((checks & 4) && !(g_Maria.vram_flag & TOUCHING_GROUND)) {
+        func_pspeu_0924CE30_from_rbo5();
+        return 1;
+    }
+    if ((checks & 0x1000) &&
+        (g_Maria.padTapped & (PAD_SQUARE | PAD_CIRCLE))) {
+        if (func_pspeu_0924D108_from_rbo5()) {
+            return 1;
+        }
+    }
+    if (!(g_Maria.unk46 & 0x8000)) {
+        if ((checks & 0x10) && (g_Maria.padTapped & PAD_CROSS)) {
+            func_pspeu_0924CD20_from_rbo5();
+            return 1;
+        }
+        if ((checks & 0x20) && (g_Maria.padTapped & PAD_CROSS) &&
+            !(g_Maria.unk44 & 1)) {
+            func_pspeu_0924CDE0_from_rbo5();
+            return 1;
+        }
+        if ((checks & 0x2000) && (g_Maria.padPressed & PAD_DOWN)) {
+            func_pspeu_0924C9C8_from_rbo5(2, 0);
+            return 1;
+        }
+        if ((checks & 0x40000) && (g_Maria.padTapped & PAD_TRIANGLE) &&
+            (MARIA.ext.player.anim != 0xDB)) {
+            func_pspeu_0924D528_from_rbo5();
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // local variant of MarCheckFloor (see maria/pl_collision.c); the boss
 // walls drop the g_unkGraphicsStruct gate and the quicksand/water tail
