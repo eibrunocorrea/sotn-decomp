@@ -35,6 +35,8 @@ extern Point16 g_MarSensorsWall[];
 #define Dop_MorphBat 6
 #define Dop_UnmorphBat 10
 #define Dop_Hit 11
+#define Dop_StatusStone 12
+#define Dop_Kill 17
 #define Dop_UnmorphMist 15
 #define E_MIST 0x22
 #define B_ORIGIN_DEFAULT 0
@@ -54,6 +56,10 @@ void MarDecelerateX_0924E868(s32 speed);
 void MarDisableAfterImage(s32 arg0, s32 arg1);
 void func_pspeu_0924CD20(void);
 void func_pspeu_09248828(void);
+void func_80159C04(void);
+s32 func_pspeu_092497C0(void);
+void func_pspeu_0924EA50(s32 arg0);
+void func_pspeu_0924E788(s16 a0, s16 minTime);
 // crouch pose/anim pairs and stand anim table (.rodata shared with bo4)
 extern u8 D_pspeu_09263028[];
 extern u8 D_pspeu_09263030[];
@@ -545,7 +551,14 @@ void func_pspeu_0924AA18(s16 arg0) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924AAF0);
+// unlike bo4, the rbo5 wall checks padPressed (see the US bo4 note
+// about Dop40)
+s32 func_pspeu_0924AAF0(void) {
+    if (g_Maria.padPressed & PAD_SQUARE) {
+        return true;
+    }
+    return false;
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924AB20);
 
@@ -693,7 +706,101 @@ void func_pspeu_0924C498(void) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924C550);
+// rotation angle table for the stone wobble (US D_us_8018134C)
+extern s16 D_pspeu_09263008[];
+extern s32 D_pspeu_0926C088;
+// local copy of DopplegangerStepStone (see bo4/unk_46E7C.c)
+void func_pspeu_0924C550(s32 arg0) {
+    switch (MARIA.step_s) {
+    case 0:
+        func_pspeu_09249838();
+        func_80159C04();
+        MARIA.velocityY = FIX(-4);
+        func_pspeu_0924EA50(FIX(-0.625));
+        func_pspeu_092497C0();
+        MARIA.palette = PAL_FLAG(PAL_CC_STONE_EFFECT);
+        g_api.PlaySfx(SFX_VO_DOP_PAIN_F);
+        g_Maria.timers[ALU_T_HITEFFECT] = 0;
+        g_Maria.unk5E = 8;
+        MARIA.step_s = 1;
+        break;
+
+    case 1:
+        func_pspeu_0924E788(1, 4);
+        MARIA.palette = PAL_FLAG(PAL_CC_STONE_EFFECT);
+        if (func_pspeu_0924EA98(0x20280) != 0) {
+            MARIA.step = Dop_StatusStone;
+            MARIA.velocityX = MARIA.velocityY = 0;
+            g_api.func_80102CD8(1);
+            g_api.PlaySfx(SFX_WALL_DEBRIS_B);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(39, 0), 0);
+            if (g_Maria.unk6A <= 0) {
+                D_pspeu_0926C088 = 0x20;
+            }
+            MARIA.palette = PAL_FLAG(PAL_UNK_19E);
+            SetDopplegangerAnim(0x38);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(16, 3), 0);
+            MARIA.step_s = 2;
+        }
+        break;
+
+    case 2:
+        if (g_Maria.unk6A <= 0) {
+            if (--D_pspeu_0926C088 == 0) {
+                MARIA.step = Dop_Kill;
+                g_api.PlaySfx(SFX_VO_DOP_DEATH);
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, FACTORY(16, 3), 0);
+                MARIA.step_s = 16;
+            }
+            func_pspeu_0924E788(1, 4);
+            break;
+        }
+
+        if ((g_Maria.padTapped & PAD_DIRECTION_MASK) || arg0 != 0) {
+            g_Maria.padTapped |= PAD_DIRECTION_MASK;
+            g_Maria.unk5E--;
+            MARIA.poseTimer = 16;
+            g_api.PlaySfx(SFX_STONE_MOVE_B);
+
+            if (g_Maria.unk5E == 0) {
+                SetDopplegangerAnim(0x3B);
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, FACTORY(16, 3), 0);
+                g_api.PlaySfx(SFX_VO_DOP_YELL);
+                MARIA.step = Dop_Hit;
+                MARIA.step_s = 8;
+                MARIA.palette = PAL_FLAG(0x200);
+                break;
+            }
+            func_pspeu_0924E788(1, 4);
+            MARIA.step_s = 3;
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(13, 3), 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(31, 3), 0);
+        }
+        MARIA.palette = PAL_FLAG(PAL_UNK_19E);
+        break;
+
+    case 3:
+        if (MARIA.poseTimer < 0) {
+            MARIA.step_s = 2;
+            MARIA.drawFlags &=
+                ENTITY_BLINK | ENTITY_MASK_B | ENTITY_MASK_G | ENTITY_MASK_R |
+                ENTITY_OPACITY | ENTITY_SCALEY | ENTITY_SCALEX;
+        } else {
+            MARIA.rotPivotX = 0;
+            MARIA.drawFlags |= ENTITY_ROTATE;
+            MARIA.rotate = D_pspeu_09263008[MARIA.poseTimer] >> 0x4;
+            if (MARIA.rotate) {
+                MARIA.rotPivotY = 20;
+            } else {
+                MARIA.rotPivotY = 24;
+            }
+        }
+        MARIA.palette = PAL_FLAG(PAL_UNK_19E);
+        break;
+    }
+}
 
 // local variant of the crouch setter (see bo4/unk_45354.c func_8010E470)
 void func_pspeu_0924C9C8(s32 arg0, s32 velocityX) {
