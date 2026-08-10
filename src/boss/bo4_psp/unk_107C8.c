@@ -1337,7 +1337,60 @@ void func_pspeu_0924CE30_from_rbo5(void) {
     g_Maria.unk44 = 0x10;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CF50_from_rbo5);
+// local variant of the up-throw subweapon check (see bo4/unk_45354.c
+// func_us_801C5B68): counts live knives before spawning another
+s32 func_pspeu_0924CF50_from_rbo5(void) {
+    Entity* entity;
+    s32 i;
+    s32 entityCount;
+    s32 targetCount;
+    s32 animBase;
+    s32 playerAnimOffset;
+    s32 animOffset;
+
+    playerAnimOffset = 0;
+    if (!(g_Maria.padPressed & PAD_UP)) {
+        return 1;
+    }
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        playerAnimOffset = 1;
+    }
+
+    targetCount = 3;
+    for (entity = &g_Entities[96], i = 0, entityCount = 0; i < 16; i++,
+        entity++) {
+        if (entity->entityId == E_EXPLOSION_VARIANTS) {
+            entityCount++;
+        }
+        if (entityCount >= targetCount) {
+            return -1;
+        }
+    }
+
+    MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_KNIFE, 0), 0);
+
+    g_Maria.timers[ALU_T_USE_SUBWPN] = 4;
+    if (MARIA.step_s >= 0x40) {
+        return 0;
+    }
+
+    animBase = 0x5D;
+    switch (MARIA.step) {
+    case Dop_Stand:
+        animOffset = playerAnimOffset;
+        SetDopplegangerAnim(animBase + animOffset);
+        break;
+    case Dop_Crouch:
+        animOffset = 2;
+        if (MARIA.step_s == 2) {
+            animOffset = playerAnimOffset;
+            SetDopplegangerStep(1);
+        }
+        SetDopplegangerAnim(animBase + animOffset);
+        break;
+    }
+    return 0;
+}
 
 // local variant of the subweapon handler (see bo4/unk_45354.c
 // func_us_801C5B68); the ammo counter returns the base anim

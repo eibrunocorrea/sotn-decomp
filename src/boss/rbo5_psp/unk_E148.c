@@ -25,6 +25,7 @@ extern Point16 g_MarSensorsWall[];
 
 #define BP_BLINK_WHITE 44
 #define BP_4 4
+#define BP_REBOUND_STONE 24
 // entity id and steps from the doppleganger.h enum, not pulled in on PSP
 #define E_FACTORY 1
 #define Dop_Stand 1
@@ -935,7 +936,60 @@ void func_pspeu_0924CE30(void) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924CEB0);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924CF50);
+// local variant of the up-throw subweapon check (see rbo5/unk_44954.c
+// func_us_801C5168): counts live rebound stones before spawning another
+s32 func_pspeu_0924CF50(void) {
+    Entity* entity;
+    s32 i;
+    s32 entityCount;
+    s32 targetCount;
+    s32 animBase;
+    s32 playerAnimOffset;
+    s32 animOffset;
+
+    playerAnimOffset = 0;
+    if (!(g_Maria.padPressed & PAD_UP)) {
+        return 1;
+    }
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        playerAnimOffset = 1;
+    }
+
+    targetCount = 3;
+    for (entity = &g_Entities[96], i = 0, entityCount = 0; i < 16; i++,
+        entity++) {
+        if (entity->entityId == E_EXPLOSION_VARIANTS) {
+            entityCount++;
+        }
+        if (entityCount >= targetCount) {
+            return -1;
+        }
+    }
+
+    MarCreateEntFactoryFromEntity(g_CurrentEntity, BP_REBOUND_STONE, 0);
+
+    g_Maria.timers[ALU_T_USE_SUBWPN] = 4;
+    if (MARIA.step_s >= 0x40) {
+        return 0;
+    }
+
+    animBase = 0x5D;
+    switch (MARIA.step) {
+    case Dop_Stand:
+        animOffset = playerAnimOffset;
+        SetDopplegangerAnim(animBase + animOffset);
+        break;
+    case Dop_Crouch:
+        animOffset = 2;
+        if (MARIA.step_s == 2) {
+            animOffset = playerAnimOffset;
+            SetDopplegangerStep(1);
+        }
+        SetDopplegangerAnim(animBase + animOffset);
+        break;
+    }
+    return 0;
+}
 
 // local variant of the subweapon handler (see bo4/unk_45354.c
 // func_us_801C5B68); unlike bo4, the throw needs distance to the real
