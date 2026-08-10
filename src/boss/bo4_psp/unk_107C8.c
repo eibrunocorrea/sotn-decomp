@@ -181,7 +181,152 @@ Entity* MarCreateEntFactoryFromEntity(
     return entity;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09252E78_from_rbo5);
+extern FactoryBlueprint D_pspeu_092682F0[];
+extern u8 D_pspeu_092685A8[][2];
+// local copy of the doppleganger entity factory (see func_us_801CA2AC in
+// bo4/unk_46E7C.c); aka MarEntityFactory in the bo6 wall
+void func_pspeu_09252E78_from_rbo5(Entity* self) {
+    Entity* newEntity;
+    s16 i;
+    s16 n;
+    s16 endIndex;
+    s16 startIndex;
+    u8* data;
+
+    if (self->step == 0) {
+        data = (u8*)&D_pspeu_092682F0[self->params];
+        self->ext.factory.newEntityId = *data++;
+        self->ext.factory.amount = *data++;
+        self->ext.factory.nPerCycle = *data & 0x3F;
+        self->ext.factory.isNonCritical = (s16)(*data >> 7) & 1;
+        self->ext.factory.incParamsKind = (s16)(*data++ >> 6) & 1;
+        self->ext.factory.tCycle = *data++;
+        self->ext.factory.kind = *data & 0xF;
+        self->ext.factory.origin = (s16)(*data++ >> 4) & 0xF;
+        self->ext.factory.delay = *data;
+        self->flags |= FLAG_UNK_10000000;
+
+        self->step++;
+
+        switch (self->ext.factory.origin) {
+        case B_ORIGIN_DEFAULT:
+        case B_ORIGIN_6:
+            self->flags |= FLAG_POS_CAMERA_LOCKED;
+            break;
+        case B_ORIGIN_2:
+        case B_ORIGIN_4:
+        case B_ORIGIN_5:
+        case B_ORIGIN_7:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            break;
+        }
+    } else {
+        switch (self->ext.factory.origin) {
+        case B_ORIGIN_DEFAULT:
+        case B_ORIGIN_1:
+        case B_ORIGIN_3:
+        case B_ORIGIN_5:
+        case B_ORIGIN_6:
+            break;
+        case B_ORIGIN_2:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            break;
+        case B_ORIGIN_4:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            if (MARIA.step != Dop_Walk) {
+                self->entityId = 0;
+                return;
+            }
+            break;
+        case B_ORIGIN_7:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            if (MARIA.step != Dop_Hit) {
+                self->entityId = 0;
+                return;
+            }
+            break;
+        }
+    }
+
+    if (self->ext.factory.delay) {
+        if (--self->ext.factory.delay) {
+            return;
+        }
+        self->ext.factory.delay = self->ext.factory.tCycle;
+    }
+
+    // Save this value so we don't have to re-fetch on every for-loop cycle
+    n = self->ext.factory.nPerCycle;
+    for (i = 0; i < n; i++) {
+        // !FAKE, this should probably be &entity_ranges[unk9C] or similar,
+        // instead of doing &entity_ranges followed by +=
+        data = (u8*)&D_pspeu_092685A8[0];
+        data += self->ext.factory.kind * 2;
+
+        startIndex = *data++;
+        endIndex = *data;
+
+        if (self->ext.factory.kind == 3) {
+            DestroyEntity(&g_Entities[startIndex]);
+            newEntity = &g_Entities[startIndex];
+            g_Maria.unk48 = 0;
+        } else if (self->ext.factory.kind == 0) {
+            newEntity = MarGetFreeEntityReverse(startIndex, endIndex + 1);
+        } else if (self->ext.factory.kind == 8) {
+            if ((self->ext.factory.spawnIndex % 3) == 0) {
+                newEntity = MarGetFreeEntity(81, 96);
+            }
+            if ((self->ext.factory.spawnIndex % 3) == 1) {
+                newEntity = MarGetFreeEntity(96, 112);
+            }
+            if ((self->ext.factory.spawnIndex % 3) == 2) {
+                newEntity = MarGetFreeEntity(112, 128);
+            }
+        } else {
+            newEntity = MarGetFreeEntity(startIndex, endIndex + 1);
+        }
+
+        if (newEntity == NULL) {
+            if (self->ext.factory.isNonCritical == 1) {
+                self->entityId = 0;
+            } else {
+                self->ext.factory.delay = self->ext.factory.tCycle;
+            }
+            return;
+        }
+
+        DestroyEntity(newEntity);
+        newEntity->entityId = self->ext.factory.newEntityId;
+        newEntity->params = self->ext.factory.paramsBase;
+        // The child (newEntity) is not an ent factory, but because the
+        // factory creates many entities, we can't pick a particular
+        // extension. But we're not allowed to use generic, so i'll just
+        // reuse entFactory.
+        newEntity->ext.factory.parent = self->ext.factory.parent;
+        newEntity->posX.val = self->posX.val;
+        newEntity->posY.val = self->posY.val;
+        newEntity->facingLeft = self->facingLeft;
+        newEntity->zPriority = self->zPriority;
+
+        if (self->ext.factory.incParamsKind) {
+            newEntity->params += self->ext.factory.spawnIndex;
+        } else {
+            newEntity->params += i;
+        }
+
+        self->ext.factory.spawnIndex++;
+
+        if (self->ext.factory.spawnIndex == self->ext.factory.amount) {
+            self->entityId = 0;
+            return;
+        }
+    }
+    self->ext.factory.delay = self->ext.factory.tCycle;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253500_from_rbo5);
 
