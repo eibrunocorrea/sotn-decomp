@@ -16,6 +16,14 @@
 
 extern PlayerState g_Maria;
 
+// collision sensor tables (.rodata block shared with rbo5, different VMAs)
+extern Point16 D_pspeu_0926B248[];
+extern Point16 D_pspeu_0926B258[];
+extern Point16 D_pspeu_0926B268[];
+#define g_MarSensorsCeiling D_pspeu_0926B248
+#define g_MarSensorsFloor D_pspeu_0926B258
+#define g_MarSensorsWall D_pspeu_0926B268
+
 Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 arg1, s32 arg2);
 void MarSetSpeedX(s32 speed);
 s32 MarCheckFacing(void);
@@ -89,7 +97,7 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253620_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253EA0_from_rbo5);
 
-// local copy of func_us_801BD47C (see bo6/us_39144.c) — true when
+// local copy of func_us_801BD47C (see bo6/us_39144.c); true when
 // another live entity shares this id and params
 bool func_maria_80162E9C(Entity* entity) {
     Entity* e;
@@ -327,13 +335,469 @@ void func_pspeu_0924EA50_from_rbo5(s32 velocityX) {
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924EA98_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarCheckFloor);
+// local variant of MarCheckFloor (see maria/pl_collision.c); the boss
+// walls drop the g_unkGraphicsStruct gate and the quicksand/water tail
+// blocks and add g_Maria.status guards around the sensor probes
+void MarCheckFloor(void) {
+    Collider col;
+    s32 i;
+    s32 effects2;
+    s32 effects;
+    s16 yCheck;
+    s16 xCheck;
+    s16* x;
+    s16* y;
+    s32* vramFlag;
+    s32 vramApply;
+    s16 xMod;
+    s32 xMax;
+    s16 yMod;
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarCheckCeiling);
+    yMod = 0;
+    i = 0;
+    y = &MARIA.posY.i.hi;
+    x = &MARIA.posX.i.hi;
+    vramFlag = &g_Maria.vram_flag;
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09250260_from_rbo5);
+    if (MARIA.velocityY == 0 && g_Maria.unk04 & 1 &&
+        !(g_Maria.status & 0x40083)) {
+        yMod = 4;
+    } else {
+        i = 1;
+    }
+    for (; i < NUM_HORIZONTAL_SENSORS; i++, yMod = 0) {
+        if (g_Maria.colFloor[i].effects & EFFECT_SOLID_FROM_BELOW) {
+            continue;
+        }
+        if (!(g_Maria.colFloor[i].effects & EFFECT_UNK_0002 ||
+              MARIA.velocityY >= 0 || g_Maria.status & 3 ||
+              abs(MARIA.velocityX) >= FIX(2))) {
+            continue;
+        }
+        effects2 = g_Maria.colFloor[i].effects &
+                   (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SOLID);
+        if ((effects2 == EFFECT_SOLID) || (effects2 & EFFECT_UNK_0800)) {
+            if (g_Maria.status & 3 && !(effects2 & EFFECT_SOLID)) {
+                continue;
+            }
+            xCheck = *x + g_MarSensorsFloor[i].x;
+            yCheck = *y + g_MarSensorsFloor[i].y;
+            yCheck += g_Maria.colFloor[i].unk18 - 1;
+            g_api.CheckCollision(xCheck, yCheck, &col, 0);
+            if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
+                col.effects &= ~(EFFECT_UNK_0002 | EFFECT_SOLID);
+            }
+            effects = col.effects;
+            if (!(effects & EFFECT_SOLID)) {
+                if (g_Maria.colFloor[i].effects != EFFECT_SOLID ||
+                    MARIA.velocityY >= 0) {
+                    if (effects2 & EFFECT_UNK_0800) {
+                        *y += yMod + g_Maria.colFloor[i].unk8;
+                    } else {
+                        *y += yMod + g_Maria.colFloor[i].unk18;
+                    }
+                    *vramFlag |= 1;
+                    return;
+                }
+                continue;
+            }
+            if ((effects &
+                 (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID)) ==
+                (EFFECT_UNK_8000 | EFFECT_SOLID)) {
+                if (i < 2) {
+                    *vramFlag |= (effects & (EFFECT_UNK_4000 | EFFECT_UNK_2000 |
+                                             EFFECT_UNK_1000)) +
+                                 (EFFECT_UNK_8000 | EFFECT_SOLID);
+                    *y += g_Maria.colFloor[i].unk8 + col.unk18 - 1 + yMod;
+                    return;
+                }
+                if (i == 2 && (effects & (EFFECT_UNK_8000 | EFFECT_UNK_4000 |
+                                          EFFECT_SOLID)) ==
+                                  (EFFECT_UNK_8000 | EFFECT_SOLID)) {
+                    g_Maria.colFloor[2].effects = effects;
+                    g_Maria.colFloor[2].unk10 = g_Maria.colFloor[2].unk8;
+                }
+                if (i == 3 &&
+                    (effects &
+                     (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SOLID)) ==
+                        (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SOLID)) {
+                    g_Maria.colFloor[3].effects = effects;
+                    g_Maria.colFloor[3].unk10 = g_Maria.colFloor[3].unk8;
+                }
+            }
+        }
+        if (effects2 == (EFFECT_UNK_8000 | EFFECT_SOLID) && i < 2) {
+            *vramFlag |= g_Maria.colFloor[i].effects &
+                         (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_2000 |
+                          EFFECT_UNK_1000 | EFFECT_SOLID);
+            *y += yMod + g_Maria.colFloor[i].unk18;
+            return;
+        }
+    }
+    if (MARIA.velocityY < 0) {
+        return;
+    }
+    xCheck = *x + g_MarSensorsFloor[0].x;
+    yCheck = *y + g_MarSensorsFloor[0].y + 10;
+    g_api.CheckCollision(xCheck, yCheck, &col, 0);
+    if ((col.effects & (EFFECT_UNK_8000 | EFFECT_SOLID)) != EFFECT_NONE) {
+        return;
+    }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarCheckWallLeft);
+    for (i = 2; i < NUM_HORIZONTAL_SENSORS; i++) {
+        if ((g_Maria.colFloor[3].effects & EFFECT_UNK_8000) &&
+            (g_Maria.colFloor[2].effects & EFFECT_UNK_8000)) {
+            return;
+        }
+        effects2 = g_Maria.colFloor[i].effects;
+        vramApply = ((effects2 &
+                      (EFFECT_UNK_4000 | EFFECT_UNK_2000 | EFFECT_UNK_1000)) +
+                     (EFFECT_UNK_8000 | EFFECT_SOLID));
+        if (!(effects2 & EFFECT_UNK_8000)) {
+            continue;
+        }
+        if (i == 2) {
+            effects = EFFECT_UNK_4000;
+            xMod = g_Maria.colFloor[2].unk4;
+            xMax = xMod + 8;
+        } else {
+            effects = 0;
+            xMod = g_Maria.colFloor[3].unkC;
+            xMax = 8 - xMod;
+        }
+        if ((effects2 & EFFECT_UNK_4000) == effects) {
+            xCheck = xMod + (*x + g_MarSensorsFloor[i].x);
+            yCheck = *y + g_MarSensorsFloor[i].y;
+            g_api.CheckCollision(xCheck, yCheck, &col, 0);
+            if (col.effects & EFFECT_SOLID) {
+                *y += col.unk18;
+                *vramFlag |= vramApply;
+                return;
+            }
+            continue;
+        }
+        if (xMax <= 0) {
+            continue;
+        }
+        if (!(effects2 & 1)) {
+            continue;
+        }
+        xCheck = *x + g_MarSensorsFloor[i].x + xMod;
+        yCheck = *y + g_MarSensorsFloor[i].y + g_Maria.colFloor[i].unk10;
+        g_api.CheckCollision((s16)xCheck, (s16)yCheck, &col, 0);
+        if (col.effects & EFFECT_SOLID) {
+            *y += (col.unk18 + g_Maria.colFloor[i].unk10);
+            *vramFlag |= vramApply;
+            return;
+        }
+    }
+}
+
+// local variant of MarCheckCeiling (see maria/pl_collision.c); same
+// boss-wall edits as MarCheckFloor, including a status adjust on the
+// stale collider at the top of the loop
+void MarCheckCeiling(void) {
+    Collider col;
+    s32 i;
+    u32 effects;
+    u32 effects2;
+    s16 xCheck;
+    s16 yCheck;
+    s16* x;
+    s16* y;
+    s32* vramFlag;
+    s32 vramApply;
+    s16 xMod;
+    s32 xMax;
+
+    i = 1;
+    y = &MARIA.posY.i.hi;
+    x = &MARIA.posX.i.hi;
+    vramFlag = &g_Maria.vram_flag;
+
+    for (; i < NUM_HORIZONTAL_SENSORS; i++) {
+        if (g_Maria.colCeiling[i].effects & EFFECT_SOLID_FROM_ABOVE) {
+            continue;
+        }
+        if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
+            col.effects &= ~(EFFECT_UNK_0002 | EFFECT_SOLID);
+        }
+        effects2 = g_Maria.colCeiling[i].effects &
+                   (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SOLID);
+        if ((effects2 == EFFECT_SOLID) || (effects2 & EFFECT_UNK_8000)) {
+            if (g_Maria.status & 3 && !(effects2 & EFFECT_SOLID)) {
+                continue;
+            }
+            xCheck = *x + g_MarSensorsCeiling[i].x;
+            yCheck = *y + g_MarSensorsCeiling[i].y +
+                     g_Maria.colCeiling[i].unk10 + 1;
+            g_api.CheckCollision((s16)xCheck, (s16)yCheck, &col, 0);
+            if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
+                col.effects &= ~(EFFECT_UNK_0002 | EFFECT_SOLID);
+            }
+            effects = col.effects;
+            if (!(effects & EFFECT_SOLID)) {
+                if (g_Maria.colCeiling[i].effects != EFFECT_SOLID ||
+                    MARIA.velocityY <= 0) {
+                    *vramFlag |= 2;
+                    if (!(*vramFlag & 1)) {
+                        if (g_Maria.colCeiling[i].effects & EFFECT_UNK_8000) {
+                            *y += g_Maria.colCeiling[i].unk10;
+                        } else {
+                            *y += g_Maria.colCeiling[i].unk20;
+                        }
+                    }
+                    return;
+                }
+                continue;
+            }
+            if ((effects &
+                 (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID)) ==
+                (EFFECT_UNK_0800 | EFFECT_SOLID)) {
+                if (i < 2) {
+                    *vramFlag |=
+                        (EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                         ((effects >> 4) & (EFFECT_UNK_0400 | EFFECT_UNK_0200 |
+                                            EFFECT_UNK_0100)));
+                    if (!(*vramFlag & 1)) {
+                        *y += 1 + (g_Maria.colCeiling[i].unk10 + col.unk20);
+                    }
+                    return;
+                }
+                if (i == 2 && (effects & (EFFECT_UNK_4000 | EFFECT_UNK_0800 |
+                                          EFFECT_SOLID)) ==
+                                  (EFFECT_UNK_0800 | EFFECT_SOLID)) {
+                    g_Maria.colFloor[2].effects = effects;
+                    g_Maria.colFloor[2].unk8 = g_Maria.colFloor[2].unk10;
+                }
+                if (i == 3 &&
+                    (effects &
+                     (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_SOLID)) ==
+                        (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_SOLID)) {
+                    g_Maria.colFloor[3].effects = effects;
+                    g_Maria.colFloor[3].unk8 = g_Maria.colFloor[3].unk10;
+                }
+            }
+        }
+        if ((effects2 == (EFFECT_UNK_0800 | EFFECT_SOLID)) && i < 2) {
+            *vramFlag |=
+                (EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                 ((g_Maria.colCeiling[i].effects >> 4) &
+                  (EFFECT_UNK_0400 | EFFECT_UNK_0200 | EFFECT_UNK_0100)));
+            if (!(*vramFlag & 1)) {
+                *y += g_Maria.colCeiling[i].unk20;
+            }
+            return;
+        }
+    }
+    if (MARIA.velocityY > 0) {
+        return;
+    }
+    xCheck = *x + g_MarSensorsCeiling[0].x;
+    yCheck = (*y + g_MarSensorsCeiling[0].y) - 10;
+    g_api.CheckCollision(xCheck, yCheck, &col, 0);
+    if ((col.effects & EFFECT_SOLID) != EFFECT_NONE) {
+        return;
+    }
+    for (i = 2; i < NUM_HORIZONTAL_SENSORS; i++) {
+        if ((g_Maria.colCeiling[3].effects & EFFECT_UNK_0800) &&
+            (g_Maria.colCeiling[2].effects & EFFECT_UNK_0800)) {
+            return;
+        }
+        effects2 = g_Maria.colCeiling[i].effects;
+        vramApply = ((effects2 >> 4) &
+                     (EFFECT_UNK_0400 | EFFECT_UNK_0200 | EFFECT_UNK_0100)) +
+                    (EFFECT_UNK_0800 | EFFECT_UNK_0002);
+        if (!(effects2 & EFFECT_UNK_0800)) {
+            continue;
+        }
+        if (i == 2) {
+            effects = EFFECT_UNK_4000;
+            xMod = g_Maria.colCeiling[2].unk4;
+            xMax = xMod + 8;
+        } else {
+            effects = 0;
+            xMod = g_Maria.colCeiling[3].unkC;
+            xMax = 8 - xMod;
+        }
+        if ((effects2 & EFFECT_UNK_4000) == effects) {
+            xCheck = xMod + (*x + g_MarSensorsCeiling[i].x);
+            yCheck = *y + g_MarSensorsCeiling[i].y;
+            g_api.CheckCollision(xCheck, yCheck, &col, 0);
+            if (col.effects & EFFECT_SOLID) {
+                *vramFlag |= vramApply;
+                if (!(*vramFlag & 1)) {
+                    *y += col.unk20;
+                }
+                return;
+            }
+            continue;
+        }
+        if (xMax <= 0) {
+            continue;
+        }
+        if (!(effects2 & 1)) {
+            continue;
+        }
+        xCheck = *x + g_MarSensorsCeiling[i].x + xMod;
+        yCheck = *y + g_MarSensorsCeiling[i].y + g_Maria.colCeiling[i].unk8;
+        g_api.CheckCollision((s16)xCheck, (s16)yCheck, &col, 0);
+        if (col.effects & EFFECT_SOLID) {
+            if (!(*vramFlag & 1)) {
+                *y += col.unk20 + g_Maria.colCeiling[i].unk8;
+            }
+            *vramFlag |= vramApply;
+            return;
+        }
+    }
+}
+
+// local copy of MarCheckWallRight (see maria/pl_collision.c) minus the
+// g_unkGraphicsStruct gate
+void func_pspeu_09250260_from_rbo5(void) {
+    Collider col;
+    s32 i;
+    s32 effects;
+    s16 xCheck;
+    s16 yCheck;
+    s16* y;
+    s16* x;
+    s32* vramFlag;
+
+    y = &MARIA.posY.i.hi;
+    x = &MARIA.posX.i.hi;
+    vramFlag = &g_Maria.vram_flag;
+
+    effects =
+        g_Maria.unk04 & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
+                         EFFECT_UNK_0400 | EFFECT_UNK_0002 | EFFECT_SOLID);
+    if ((effects == (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
+        (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
+        (effects == (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                     EFFECT_SOLID))) {
+        *vramFlag |= 4;
+        return;
+    }
+
+    for (i = 0; i < NUM_VERTICAL_SENSORS; i++) {
+        effects = g_Maria.colWall[i].effects &
+                  (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
+                   EFFECT_UNK_0002 | EFFECT_SOLID);
+        if (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0002 |
+                        EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                        EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_0002 | EFFECT_SOLID)) {
+            xCheck = *x + g_MarSensorsWall[i].x + g_Maria.colWall[i].unk4 - 1;
+            yCheck = *y + g_MarSensorsWall[i].y;
+            g_api.CheckCollision(xCheck, yCheck, &col, 0);
+            if ((col.effects & EFFECT_SOLID) == EFFECT_NONE) {
+                *vramFlag |= 4;
+                *x += g_Maria.colWall[i].unk4;
+                return;
+            }
+        }
+        if ((effects & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800)) ==
+                EFFECT_UNK_8000 &&
+            (i != 0) &&
+            ((g_Maria.colWall[0].effects & EFFECT_UNK_0800) ||
+             !(g_Maria.colWall[0].effects &
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+            *vramFlag |= 4;
+            *x += g_Maria.colWall[i].unk4;
+            return;
+        }
+        if ((effects & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800)) ==
+                EFFECT_UNK_0800 &&
+            (i != 6) &&
+            ((g_Maria.colWall[6].effects & EFFECT_UNK_8000) ||
+             !(g_Maria.colWall[6].effects &
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+            *vramFlag |= 4;
+            *x += g_Maria.colWall[i].unk4;
+            return;
+        }
+    }
+}
+
+// local copy of MarCheckWallLeft (see maria/pl_collision.c) minus the
+// g_unkGraphicsStruct gate
+void MarCheckWallLeft(void) {
+    Collider col;
+    s32 i;
+    s32 effects;
+    s16 xCheck;
+    s16 yCheck;
+    s16* y;
+    s16* x;
+    s32* vramFlag;
+
+    y = &MARIA.posY.i.hi;
+    x = &MARIA.posX.i.hi;
+    vramFlag = &g_Maria.vram_flag;
+
+    effects =
+        g_Maria.unk04 & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
+                         EFFECT_UNK_0400 | EFFECT_UNK_0002 | EFFECT_SOLID);
+    if ((effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0002 |
+                     EFFECT_SOLID)) ||
+        (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0400 | EFFECT_UNK_0002 |
+                     EFFECT_SOLID)) ||
+        (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
+                     EFFECT_UNK_0400 | EFFECT_UNK_0002 | EFFECT_SOLID))) {
+        *vramFlag |= 8;
+        return;
+    }
+    for (i = NUM_VERTICAL_SENSORS; i < NUM_VERTICAL_SENSORS * 2; i++) {
+        effects = g_Maria.colWall[i].effects &
+                  (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
+                   EFFECT_UNK_0002 | EFFECT_SOLID);
+        if ((effects == (EFFECT_UNK_8000 | EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_0800 | EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0002 |
+                         EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                         EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_0002 | EFFECT_SOLID))) {
+            xCheck = *x + g_MarSensorsWall[i].x + g_Maria.colWall[i].unkC + 1;
+            yCheck = *y + g_MarSensorsWall[i].y;
+            g_api.CheckCollision(xCheck, yCheck, &col, 0);
+            if ((col.effects & EFFECT_SOLID) == EFFECT_NONE) {
+                *vramFlag |= 8;
+                *x += g_Maria.colWall[i].unkC;
+                return;
+            }
+        }
+        if (((effects &
+              (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800)) ==
+             (EFFECT_UNK_8000 | EFFECT_UNK_4000)) &&
+            (i != 7) &&
+            ((g_Maria.colWall[7].effects & EFFECT_UNK_0800) ||
+             !(g_Maria.colWall[7].effects &
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+            *vramFlag |= 8;
+            *x += g_Maria.colWall[i].unkC;
+            return;
+        }
+        if (((effects &
+              (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800)) ==
+             (EFFECT_UNK_4000 | EFFECT_UNK_0800)) &&
+            (i != 13) &&
+            ((g_Maria.colWall[13].effects & EFFECT_UNK_8000) ||
+             !(g_Maria.colWall[13].effects &
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+            *vramFlag |= 8;
+            *x += g_Maria.colWall[i].unkC;
+            return;
+        }
+    }
+}
 
 // local copy of ReboundStoneBounce1 (see rebound_stone.h)
 void func_pspeu_092508C0_from_rbo5(s16 bounceAngle) {
