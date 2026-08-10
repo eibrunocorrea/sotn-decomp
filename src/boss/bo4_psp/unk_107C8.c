@@ -70,7 +70,18 @@ Entity* MarGetFreeEntityReverse(s16 start, s16 end) {
     return NULL;
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09252480_from_rbo5);
+extern u8 D_pspeu_09268188[][4];
+extern u8 D_pspeu_0926C918;
+extern u8 D_pspeu_0926C910;
+extern u8 D_pspeu_0926C908;
+extern u8 D_pspeu_0926C900;
+// local copy of func_us_801BB314 (see bo6/us_39144.c)
+void func_pspeu_09252480_from_rbo5(s32 arg0) {
+    D_pspeu_0926C918 = D_pspeu_09268188[arg0][0];
+    D_pspeu_0926C910 = D_pspeu_09268188[arg0][1];
+    D_pspeu_0926C908 = D_pspeu_09268188[arg0][2];
+    D_pspeu_0926C900 = D_pspeu_09268188[arg0][3];
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_8015FDB0);
 
@@ -332,7 +343,49 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253500_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253620_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09253EA0_from_rbo5);
+extern AnimationFrame D_pspeu_09268680[];
+extern s32 D_pspeu_0926C8B8;
+// local copy of RicEntityHitByDark (see ric/pl_blueprints.c); the boss
+// walls use different flags and track the doppleganger's z-priority
+void func_pspeu_09253EA0_from_rbo5(Entity* entity) {
+    s16 x, y;
+
+    switch (entity->step) {
+    case 0:
+        entity->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        entity->unk5A = 0x79;
+        entity->animSet = ANIMSET_DRA(14);
+        entity->zPriority = MARIA.zPriority + 2;
+        entity->palette = PAL_FLAG(PAL_UNK_19F);
+        if (D_pspeu_0926C8B8 & 1) {
+            entity->blendMode = BLEND_TRANSP | BLEND_QUARTER;
+        } else {
+            entity->blendMode = BLEND_TRANSP;
+        }
+        D_pspeu_0926C8B8++;
+        entity->opacity = 0xFF;
+        entity->drawFlags =
+            ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_MASK_R | ENTITY_MASK_G;
+        entity->scaleX = entity->scaleY = 0x40;
+        entity->anim = D_pspeu_09268680;
+        entity->posY.i.hi += (rand() % 35) - 15;
+        entity->posX.i.hi += (rand() % 20) - 10;
+        entity->velocityY = -0x6000 - (rand() & 0x3FFF);
+        entity->step++;
+        break;
+    case 1:
+        if (entity->opacity > 16) {
+            entity->opacity -= 8;
+        }
+        entity->posY.val += entity->velocityY;
+        entity->scaleX += 8;
+        entity->scaleY += 8;
+        if (entity->poseTimer < 0) {
+            DestroyEntity(entity);
+        }
+        break;
+    }
+}
 
 // local copy of func_us_801BD47C (see bo6/us_39144.c); true when
 // another live entity shares this id and params

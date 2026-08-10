@@ -79,7 +79,18 @@ Entity* MarGetFreeEntityReverse(s16 start, s16 end) {
     return NULL;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09252480_from_rbo5);
+extern u8 D_pspeu_092797D0[][4];
+extern u8 D_pspeu_0927C230;
+extern u8 D_pspeu_0927C228;
+extern u8 D_pspeu_0927C220;
+extern u8 D_pspeu_0927C218;
+// local copy of func_us_801BB314 (see bo6/us_39144.c)
+void func_pspeu_09252480_from_rbo5(s32 arg0) {
+    D_pspeu_0927C230 = D_pspeu_092797D0[arg0][0];
+    D_pspeu_0927C228 = D_pspeu_092797D0[arg0][1];
+    D_pspeu_0927C220 = D_pspeu_092797D0[arg0][2];
+    D_pspeu_0927C218 = D_pspeu_092797D0[arg0][3];
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09248D20);
 
@@ -167,7 +178,49 @@ void func_pspeu_09252768_from_rbo5(Entity* entity) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253EA0_from_rbo5);
+extern AnimationFrame D_pspeu_09279A70[];
+extern s32 D_pspeu_0927C1D0;
+// local copy of RicEntityHitByDark (see ric/pl_blueprints.c); the boss
+// walls use different flags and track the doppleganger's z-priority
+void func_pspeu_09253EA0_from_rbo5(Entity* entity) {
+    s16 x, y;
+
+    switch (entity->step) {
+    case 0:
+        entity->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        entity->unk5A = 0x79;
+        entity->animSet = ANIMSET_DRA(14);
+        entity->zPriority = MARIA.zPriority + 2;
+        entity->palette = PAL_FLAG(PAL_UNK_19F);
+        if (D_pspeu_0927C1D0 & 1) {
+            entity->blendMode = BLEND_TRANSP | BLEND_QUARTER;
+        } else {
+            entity->blendMode = BLEND_TRANSP;
+        }
+        D_pspeu_0927C1D0++;
+        entity->opacity = 0xFF;
+        entity->drawFlags =
+            ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_MASK_R | ENTITY_MASK_G;
+        entity->scaleX = entity->scaleY = 0x40;
+        entity->anim = D_pspeu_09279A70;
+        entity->posY.i.hi += (rand() % 35) - 15;
+        entity->posX.i.hi += (rand() % 20) - 10;
+        entity->velocityY = -0x6000 - (rand() & 0x3FFF);
+        entity->step++;
+        break;
+    case 1:
+        if (entity->opacity > 16) {
+            entity->opacity -= 8;
+        }
+        entity->posY.val += entity->velocityY;
+        entity->scaleX += 8;
+        entity->scaleY += 8;
+        if (entity->poseTimer < 0) {
+            DestroyEntity(entity);
+        }
+        break;
+    }
+}
 
 // declaring the ignored arg reproduces mwcc's 0x10 stack frame
 void Unused09249778(s32 arg0) {}
@@ -357,7 +410,14 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09254008);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092540C8);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09247190_from_rbo5);
+extern s32 D_pspeu_0927C278;
+extern s32 D_pspeu_0927C280;
+// local copy of func_us_801B5A14 (see bo6/richter.c): set the boss
+// think-step and reset its timer
+void func_pspeu_09247190_from_rbo5(s32 step) {
+    D_pspeu_0927C280 = step;
+    D_pspeu_0927C278 = 0;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09254F38);
 
