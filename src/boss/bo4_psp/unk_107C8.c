@@ -24,6 +24,11 @@ extern Point16 g_MarSensorsWall[];
 Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 arg1, s32 arg2);
 void MarSetSpeedX(s32 speed);
 s32 MarCheckFacing(void);
+void MarDecelerateX_0925B090(s32 speed);
+void MarDecelerateX_0925B130(s32 speed);
+void MarDisableAfterImage(s32 arg0, s32 arg1);
+void func_pspeu_0924CD20_from_rbo5(void);
+void func_pspeu_09248828_from_rbo5(void);
 // crouch pose/anim pairs and stand anim table (.rodata shared with rbo5)
 extern u8 D_pspeu_0926B1B8[];
 extern u8 D_pspeu_0926B1C0[];
@@ -35,7 +40,6 @@ s32 func_pspeu_0924CF50_from_rbo5(void);
 void func_pspeu_0924C9C8_from_rbo5(s32 arg0, s32 arg1);
 void func_pspeu_0924CA58_from_rbo5(s32 arg0);
 void func_pspeu_0924CBF0_from_rbo5(s32 arg0);
-void func_pspeu_0924CD20_from_rbo5(void);
 void func_pspeu_0924CDE0_from_rbo5(void);
 void func_pspeu_0924CE30_from_rbo5(void);
 s32 func_pspeu_0924D108_from_rbo5(void);
@@ -515,9 +519,84 @@ void func_pspeu_09248B88_from_rbo5(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09248BE8_from_rbo5);
+extern s16 D_pspeu_0926B160[];
+// local copy of DopplegangerStepJump (see bo4/unk_45354.c)
+void func_pspeu_09248BE8_from_rbo5(void) {
+    s32 moveDirection;
+    s16 index;
 
-void MarDecelerateX_0925B090(s32 speed);
+    MarDecelerateX_0925B090(FIX(1.0 / 16.0));
+    if (MARIA.velocityY < FIX(-1)) {
+        if (!(g_Maria.unk44 & 0x40) && !(g_Maria.padPressed & PAD_CROSS)) {
+            MARIA.velocityY = FIX(-1);
+        }
+        if (g_Maria.vram_flag & TOUCHING_CEILING) {
+            MARIA.velocityY = FIX(-0.25);
+            g_Maria.unk44 |= 0x20;
+        }
+    }
+
+    if (func_pspeu_0924EA98_from_rbo5(0x11029)) {
+        return;
+    }
+
+    switch (MARIA.step_s) {
+    case 0:
+        moveDirection = MarCheckFacing();
+        if (moveDirection) {
+            if (MARIA.ext.player.anim == 22 ||
+                MARIA.ext.player.anim == 25) {
+                SetDopplegangerAnim(24);
+            }
+            MarSetSpeedX(FIX(1.5));
+        } else if (MARIA.ext.player.anim == 26 ||
+                   MARIA.ext.player.anim == 24) {
+            SetDopplegangerAnim(25);
+        }
+        if (moveDirection <= 0) {
+            g_Maria.unk44 &= 0xFFEF;
+        }
+        if (MARIA.velocityY > 0) {
+            if (MARIA.ext.player.anim != 27) {
+                SetDopplegangerAnim(27);
+            }
+            MARIA.step_s = 1;
+        }
+        break;
+    case 1:
+        moveDirection = MarCheckFacing();
+        if (moveDirection != 0) {
+            MarSetSpeedX(FIX(1.5));
+        }
+        if (moveDirection <= 0) {
+            g_Maria.unk44 &= 0xFFEF;
+        }
+        break;
+    case 0x40:
+    case 0x41:
+    case 0x42:
+    case 0x51:
+        MarDisableAfterImage(1, 1);
+        if (g_Maria.padPressed & PAD_LEFT) {
+            MARIA.velocityX = FIX(-1.5);
+        }
+        if (g_Maria.padPressed & PAD_RIGHT) {
+            MARIA.velocityX = FIX(1.5);
+        }
+        if (MARIA.poseTimer < 0) {
+            if (MARIA.velocityY > FIX(1)) {
+                index = 0;
+            } else {
+                index = 2;
+            }
+            MARIA.step_s = D_pspeu_0926B160[index];
+            SetDopplegangerAnim((u8)D_pspeu_0926B160[index + 1]);
+            func_pspeu_0924D4E8_from_rbo5();
+        }
+        break;
+    }
+}
+
 // local copy of DopplegangerStepFall (see bo4/unk_45354.c)
 void func_pspeu_09248F50_from_rbo5(void) {
     if (func_pspeu_0924EA98_from_rbo5(0x9029) == 0) {
@@ -554,7 +633,87 @@ void func_80158B04(u16 arg0) {
     }
 }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09249460_from_rbo5);
+// local copy of DopplegangerStepHighJump (see bo4/unk_46E7C.c); the PSP
+// build reorders the rotation setup and splits the facingLeft flip
+void func_pspeu_09249460_from_rbo5(void) {
+    s16 var_s1;
+
+    var_s1 = 0;
+    g_Maria.gravBootTimer++;
+    if (func_pspeu_0924EA98_from_rbo5(2) != 0) {
+        return;
+    }
+
+    switch (MARIA.step_s) {
+    case 0:
+        if (g_Maria.vram_flag & TOUCHING_CEILING) {
+            func_80158B04(3);
+            if (g_Maria.gravBootTimer > 4) {
+                MARIA.step_s = 2;
+                MARIA.drawFlags |= ENTITY_ROTATE;
+                MARIA.rotate = 0x800;
+                MARIA.rotPivotX = 0;
+                MARIA.rotPivotY = 2;
+                MARIA.facingLeft++;
+                MARIA.facingLeft &= 1;
+                SetDopplegangerAnim(0x2B);
+            } else {
+                MARIA.step_s = 3;
+            }
+        } else if (g_Maria.gravBootTimer > 28) {
+            MARIA.step_s = 1;
+            MARIA.velocityY = -0x60000;
+            SetDopplegangerAnim(0x1B);
+        }
+        break;
+    case 1:
+        if (g_Maria.vram_flag & TOUCHING_CEILING) {
+            MARIA.step_s = 2;
+            func_80158B04(3);
+        } else {
+            MARIA.velocityY = MARIA.velocityY + 0x6000;
+            if (MARIA.velocityY > 0x8000) {
+                var_s1 = 1;
+            }
+        }
+        break;
+    case 2:
+        MARIA.drawFlags |= ENTITY_ROTATE;
+        MARIA.rotPivotX = 0;
+        MARIA.rotPivotY = 2;
+        if (g_Maria.gravBootTimer > 56) {
+            SetDopplegangerAnim(0x2D);
+            MARIA.drawFlags &=
+                ENTITY_BLINK | ENTITY_MASK_B | ENTITY_MASK_G | ENTITY_MASK_R |
+                ENTITY_OPACITY | ENTITY_SCALEY | ENTITY_SCALEX;
+            MARIA.rotate = 0;
+            MARIA.facingLeft++;
+            MARIA.facingLeft &= 1;
+            MARIA.step_s = 4;
+        }
+        break;
+    case 3:
+        if (g_Maria.gravBootTimer > 20) {
+            var_s1 = 1;
+        }
+        break;
+    case 4:
+        MARIA.velocityY += FIX(1.0 / 16.0);
+        if (MARIA.poseTimer < 0) {
+            var_s1 = 2;
+        }
+        break;
+    }
+
+    if (var_s1) {
+        if (--var_s1) {
+            SetDopplegangerAnim(0x1C);
+        }
+        MARIA.palette = PAL_FLAG(0x200);
+        MARIA.step_s = 1;
+        MARIA.step = Dop_Jump;
+    }
+}
 
 s32 func_pspeu_092497C0_from_rbo5(void) {
     s16 rnd = rand() & PSP_RANDMASK;
@@ -633,9 +792,7 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924AB20_f
 
 extern s16 D_pspeu_0926B228[];
 extern s16 D_pspeu_0926B230[];
-void MarDecelerateX_0925B130(s32 speed);
 void func_pspeu_0924CD20_from_rbo5(void);
-void func_pspeu_09248828_from_rbo5(void);
 // local copy of DopplegangerStepUnmorphBat (see bo4/unk_46E7C.c)
 void func_pspeu_0924B918_from_rbo5(void) {
     s32 i;
