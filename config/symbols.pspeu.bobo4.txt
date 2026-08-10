@@ -144,3 +144,6 @@ D_pspeu_09263438 = 0x09263438;
 D_pspeu_09263440 = 0x09263440;
 g_BossOverlay = 0x09268070;
 BackgroundBlockInit = 0x092680C0;
+g_MarSensorsCeiling = 0x0926B248;
+g_MarSensorsFloor = 0x0926B258;
+g_MarSensorsWall = 0x0926B268;

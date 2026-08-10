@@ -18,13 +18,10 @@
 
 extern PlayerState g_Maria;
 
-// collision sensor tables (.rodata block shared with rbo5, different VMAs)
-extern Point16 D_pspeu_092630B8[];
-extern Point16 D_pspeu_092630C8[];
-extern Point16 D_pspeu_092630D8[];
-#define g_MarSensorsCeiling D_pspeu_092630B8
-#define g_MarSensorsFloor D_pspeu_092630C8
-#define g_MarSensorsWall D_pspeu_092630D8
+// collision sensor tables (.rodata block shared with bo4, different VMAs)
+extern Point16 g_MarSensorsCeiling[];
+extern Point16 g_MarSensorsFloor[];
+extern Point16 g_MarSensorsWall[];
 
 #define BP_BLINK_WHITE 44
 #define BP_4 4

@@ -17,12 +17,9 @@
 extern PlayerState g_Maria;
 
 // collision sensor tables (.rodata block shared with rbo5, different VMAs)
-extern Point16 D_pspeu_0926B248[];
-extern Point16 D_pspeu_0926B258[];
-extern Point16 D_pspeu_0926B268[];
-#define g_MarSensorsCeiling D_pspeu_0926B248
-#define g_MarSensorsFloor D_pspeu_0926B258
-#define g_MarSensorsWall D_pspeu_0926B268
+extern Point16 g_MarSensorsCeiling[];
+extern Point16 g_MarSensorsFloor[];
+extern Point16 g_MarSensorsWall[];
 
 Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 arg1, s32 arg2);
 void MarSetSpeedX(s32 speed);
