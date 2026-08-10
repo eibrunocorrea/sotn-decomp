@@ -101,7 +101,81 @@ void func_pspeu_09248828(void) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09248898);
+// local copy of DopplegangerStepStand (see bo4/unk_45354.c); note the PSP
+// build allocates var_s0 before anim (s0/s1)
+void func_pspeu_09248898(void) {
+    u16 var_s0;
+    s32 anim;
+
+    var_s0 = 3;
+    anim = 0;
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        anim = 1;
+    }
+
+    if (func_pspeu_0924EA98(0x4301C) == 0) {
+        MarDecelerateX_0924E7C8(FIX(0.125));
+        switch (MARIA.step_s) {
+        case 0:
+        case 2:
+            break;
+        case 1:
+            var_s0 = 1;
+            if (!(g_Maria.padPressed & PAD_UP)) {
+                var_s0 = 5;
+            }
+            break;
+        case 3:
+            var_s0 = 0;
+            if (MARIA.pose > 3) {
+                var_s0 = 1;
+            }
+            if (MARIA.pose > 6 || MARIA.poseTimer < 0) {
+                var_s0 = 7;
+            }
+            break;
+        case 0x40:
+        case 0x41:
+        case 0x42:
+            MarDisableAfterImage(1, 1);
+            if (MARIA.pose < g_Maria.unk54) {
+                var_s0 = 0;
+            } else {
+                g_Maria.unk46 &= 0x7FFF;
+                var_s0 = 0x1B;
+                if (MARIA.poseTimer < 0) {
+                    var_s0 = 0xF;
+                }
+            }
+            break;
+        case 0x51:
+            MarDisableAfterImage(1, 1);
+            var_s0 = 0;
+            if (MARIA.poseTimer < 0) {
+                var_s0 = 0xF;
+            }
+            break;
+        }
+
+        if (var_s0 & 4) {
+            func_pspeu_0924CA58(0);
+            var_s0 |= 0x8000;
+        }
+        if (var_s0 & 2 && g_Maria.padPressed & PAD_UP && !g_Maria.unk48) {
+            SetDopplegangerAnim(anim);
+            MARIA.step_s = 1;
+            var_s0 |= 0x8000;
+        }
+
+        if (var_s0 & 1 && MarCheckFacing() != 0) {
+            func_pspeu_0924CBF0(0);
+            var_s0 |= 0x8000;
+        }
+        if (var_s0 & 0x8000 && var_s0 & 8) {
+            func_pspeu_0924D4E8();
+        }
+    }
+}
 
 void func_pspeu_09248B88(void) {
     if (func_pspeu_0924EA98(0x4301C) == 0) {
@@ -200,7 +274,99 @@ void func_pspeu_09248F50(void) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09248FA8);
+// local copy of DopplegangerStepCrouch (see bo4/unk_45354.c); same decl
+// swap as StepStand, and the shared case labels flip to 4,3
+void func_pspeu_09248FA8(void) {
+    s16 var_s0;
+    s32 anim;
+
+    var_s0 = 0;
+    anim = 0;
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        anim = 1;
+    }
+
+    if (func_pspeu_0924EA98(0x100C) == 0) {
+        MarDecelerateX_0924E7C8(FIX(0.125));
+        switch (MARIA.step_s) {
+        case 0:
+            var_s0 = 6;
+            break;
+        case 1:
+            if (!(g_Maria.padPressed & PAD_DOWN)) {
+                var_s0 = 1;
+                SetDopplegangerAnim(0x13);
+                MARIA.step_s = 2;
+                MARIA.pose = 1;
+                return;
+            }
+            if (MARIA.ext.player.anim == 0x65) {
+                MARIA.step_s = 0;
+            } else if (MARIA.poseTimer < 0) {
+                var_s0 = 0x20;
+            }
+            break;
+        case 4:
+        case 3:
+            if (MARIA.poseTimer < 0) {
+                var_s0 = 0x20;
+            }
+            break;
+        case 2:
+            var_s0 = 1;
+            if (MARIA.poseTimer < 0) {
+                func_pspeu_0924CA58(0);
+            }
+            break;
+        case 0x40:
+        case 0x41:
+        case 0x42:
+            MarDisableAfterImage(1, 1);
+            if (MARIA.pose < g_Maria.unk54) {
+                var_s0 = 0;
+            } else {
+                g_Maria.unk46 &= 0x7FFF;
+                var_s0 = 0xE;
+                if (MARIA.poseTimer < 0) {
+                    var_s0 = 0x2E;
+                }
+            }
+            break;
+        case 0x51:
+            MarDisableAfterImage(1, 1);
+            if (MARIA.poseTimer < 0) {
+                var_s0 = 0x2E;
+            }
+            break;
+        }
+
+        if (var_s0 & 0x20) {
+            func_pspeu_0924C9C8(0, 0);
+            var_s0 |= 0x8000;
+        }
+
+        if (var_s0 & 2 && g_Maria.unk4C) {
+            SetDopplegangerAnim(0x14);
+            MARIA.step_s = 0;
+            var_s0 |= 0x8000;
+        }
+
+        if (var_s0 & 4 && !(g_Maria.padPressed & PAD_DOWN)) {
+            SetDopplegangerAnim(0x13);
+            MARIA.step_s = 2;
+            var_s0 |= 0x8000;
+        }
+
+        if (var_s0 & 1 && MarCheckFacing()) {
+            func_pspeu_0924CBF0(0);
+            var_s0 |= 0x8000;
+        }
+
+        if (var_s0 & 0x8000 && var_s0 & 8) {
+            func_pspeu_0924D4E8();
+        }
+    }
+}
 
 // cen's func_80158B04 with the Doppleganger's taller ember origin (22 vs 16)
 void func_80158B04(u16 arg0) {
