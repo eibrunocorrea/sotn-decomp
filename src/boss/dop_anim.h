@@ -184,7 +184,15 @@ void func_8010DA2C(AnimationFrame* frames) {
 }
 #endif
 
+#ifdef VERSION_PSP
+// K&R definition: the psp callers predate the prototype and pass
+// promoted ints
+void SetDopplegangerAnim(anim)
+u8 anim;
+{
+#else
 void SetDopplegangerAnim(u8 anim) {
+#endif
     g_CurrentEntity->ext.player.anim = anim;
     g_CurrentEntity->poseTimer = 0;
     g_CurrentEntity->pose = 0;

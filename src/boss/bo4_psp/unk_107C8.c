@@ -24,7 +24,14 @@ extern Point16 g_MarSensorsWall[];
 Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 arg1, s32 arg2);
 void MarSetSpeedX(s32 speed);
 s32 MarCheckFacing(void);
+// crouch pose/anim pairs and stand anim table (.rodata shared with rbo5)
+extern u8 D_pspeu_0926B1B8[];
+extern u8 D_pspeu_0926B1C0[];
+
+void SetDopplegangerStep(s16 step);
+void SetDopplegangerAnim();
 s32 func_pspeu_0924EA98_from_rbo5(s32 arg0);
+s32 func_pspeu_0924CF50_from_rbo5(void);
 void func_pspeu_0924C9C8_from_rbo5(s32 arg0, s32 arg1);
 void func_pspeu_0924CA58_from_rbo5(s32 arg0);
 void func_pspeu_0924CBF0_from_rbo5(s32 arg0);
@@ -259,25 +266,249 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924C498_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924C550_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924C9C8_from_rbo5);
+// local variant of the crouch setter (see bo4/unk_45354.c func_8010E470)
+void func_pspeu_0924C9C8_from_rbo5(s32 arg0, s32 velocityX) {
+    s32 unused_stack[2];
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CA58_from_rbo5);
+    MARIA.velocityX = velocityX;
+    MARIA.velocityY = 0;
+    MARIA.step = Dop_Crouch;
+    MARIA.step_s = (s32)D_pspeu_0926B1B8[arg0 * 2];
+    SetDopplegangerAnim(D_pspeu_0926B1B8[arg0 * 2 + 1]);
+}
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CBF0_from_rbo5);
+// local variant of the stand setter (see bo4/unk_45354.c func_8010E570)
+void func_pspeu_0924CA58_from_rbo5(s32 arg0) {
+    s32 anim = 0;
+    bool atLedge = false;
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CD20_from_rbo5);
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        atLedge = true;
+    }
+    MARIA.velocityX = arg0;
+    MARIA.velocityY = 0;
+    SetDopplegangerStep(Dop_Stand);
+    if (g_Maria.unk48) {
+        MARIA.step_s = 2;
+        atLedge = false;
+    }
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CDE0_from_rbo5);
+    switch (g_Maria.prev_step) {
+    case Dop_UnmorphBat:
+        anim = 4;
+        break;
+    case Dop_Walk:
+        anim = 4;
+        if (MARIA.ext.player.anim == 9) {
+            MARIA.ext.player.anim = D_pspeu_0926B1C0[2 + atLedge];
+            return;
+        }
+        if (MARIA.ext.player.anim == 7) {
+            anim = 0;
+        }
+        break;
+    case Dop_Jump:
+    case Dop_Fall:
+        anim = 6;
+        if (abs(MARIA.velocityX) > FIX(2.5)) {
+            anim = 4;
+        }
+        break;
+    default:
+        anim = 8;
+        break;
+    }
+    anim += atLedge;
+    SetDopplegangerAnim(D_pspeu_0926B1C0[anim]);
+}
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CE30_from_rbo5);
+// local variant of the walk setter (see bo4/unk_45354.c func_8010E6AC)
+void func_pspeu_0924CBF0_from_rbo5(s32 forceAnim13) {
+    bool atLedge;
+
+    atLedge = false;
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        atLedge = true;
+    }
+
+    MarSetSpeedX(FIX(1.5));
+    MARIA.velocityY = 0;
+    SetDopplegangerStep(Dop_Walk);
+
+    if (forceAnim13) {
+        if (MARIA.ext.player.anim != 13) {
+            SetDopplegangerAnim(13);
+        }
+    } else {
+        SetDopplegangerAnim(7);
+        MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(1, 5), 0);
+    }
+
+    if (g_Maria.unk4C) {
+        MARIA.ext.player.anim = 9;
+    }
+
+    if (MARIA.ext.player.anim == 7 && atLedge) {
+        MARIA.pose = 1;
+    }
+
+    if (g_Maria.prev_step == Dop_Crouch) {
+        MARIA.pose = 4;
+    }
+}
+
+// local variant of the jump setter (see bo4/unk_45354.c func_us_801C58E4)
+void func_pspeu_0924CD20_from_rbo5(void) {
+    if (MarCheckFacing() != 0) {
+        SetDopplegangerAnim(0x1A);
+        MarSetSpeedX(FIX(3.0 / 2.0));
+        g_Maria.unk44 = 0;
+    } else {
+        SetDopplegangerAnim(0x16);
+        MARIA.velocityX = 0;
+        g_Maria.unk44 = 4;
+    }
+    MARIA.velocityY = FIX(-4.875);
+    SetDopplegangerStep(Dop_Jump);
+    if (g_Maria.prev_step == Dop_Walk) {
+        g_Maria.unk44 |= 0x10;
+    }
+}
+
+// local variant of the double jump setter (see bo4/unk_45354.c
+// func_us_801C5990)
+void func_pspeu_0924CDE0_from_rbo5(void) {
+    g_Maria.unk44 |= 0x21;
+    MARIA.velocityY = FIX(-4.25);
+    SetDopplegangerAnim(0x20);
+    MARIA.step_s = 0;
+}
+
+// local variant of the fall setter (see bo4/unk_45354.c func_us_801C59DC)
+void func_pspeu_0924CE30_from_rbo5(void) {
+    SetDopplegangerStep(Dop_Fall);
+    if (g_Maria.prev_step != Dop_Walk) {
+        SetDopplegangerAnim(0x1C);
+    }
+    MARIA.velocityX = 0;
+    MARIA.velocityY = FIX(2.0);
+    g_Maria.timers[ALU_T_5] = 8;
+    g_Maria.timers[ALU_T_6] = 8;
+    g_Maria.unk44 = 0x10;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924CF50_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924D108_from_rbo5);
+// local variant of the subweapon handler (see bo4/unk_45354.c
+// func_us_801C5B68); the ammo counter returns the base anim
+s32 func_pspeu_0924D108_from_rbo5(void) {
+    s16 var_s4;
+    s16 animBase;
+    s32 playerAnimOffset;
+    s32 tapped;
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924D4E8_from_rbo5);
+    playerAnimOffset = 0;
+    if (g_Maria.vram_flag & IN_AIR_OR_EDGE) {
+        playerAnimOffset = 1;
+    }
+    tapped = g_Maria.padTapped & (PAD_SQUARE | PAD_CIRCLE);
+    animBase = (s16)func_pspeu_0924CF50_from_rbo5();
+    if (!animBase) {
+        return 1;
+    }
+    if (animBase < 0) {
+        return 0;
+    }
+    if (g_Maria.unk46 & 0x8000) {
+        return 0;
+    }
+    if (g_Maria.timers[ALU_T_CURSE]) {
+        MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(57, 1), 0);
+        switch (MARIA.step) {
+        case Dop_Stand:
+        case Dop_Walk:
+            SetDopplegangerAnim(0xB5);
+            MARIA.step = Dop_Stand;
+            break;
+        case Dop_Crouch:
+            SetDopplegangerAnim(0xB6);
+            MARIA.step = Dop_Crouch;
+            break;
+        case Dop_Fall:
+        case Dop_Jump:
+            SetDopplegangerAnim(0xB7);
+            MARIA.step = Dop_Jump;
+            break;
+        }
+        g_Maria.unk46 = 0x8012;
+        g_Maria.unk54 = 0xFF;
+        MARIA.step_s = 0x51;
+        g_api.PlaySfx(0x7D7);
+        return 1;
+    }
+    if (tapped == PAD_SQUARE) {
+        MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(48, 0), 0);
+        MARIA.step_s = 0x41;
+        g_Maria.unk46 = 0x8002;
+        g_Maria.unk54 = 0xD;
+        animBase = 0x41;
+    } else {
+        g_Maria.unk46 = 0x8003;
+        MARIA.step_s = 0x42;
+        MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(48, 1), 0);
+        g_Maria.unk54 = 8;
+        animBase = 0xA7;
+    }
+    switch (MARIA.step) {
+    case Dop_Stand:
+    case Dop_Walk:
+        g_CurrentEntity->velocityX = g_CurrentEntity->velocityX >> 1;
+        MARIA.step = Dop_Stand;
+        var_s4 = playerAnimOffset;
+        break;
+    case Dop_Crouch:
+        var_s4 = 2;
+        if (g_Maria.padPressed & (PAD_LEFT | PAD_RIGHT)) {
+            var_s4++;
+        }
+        if (MARIA.step_s == 2) {
+            var_s4 = playerAnimOffset;
+            MARIA.step = Dop_Stand;
+        }
+        break;
+    case Dop_Fall:
+    case Dop_Jump:
+        var_s4 = 4;
+        if (MARIA.velocityY > 0) {
+            var_s4++;
+            if (g_Maria.padPressed & PAD_DOWN) {
+                var_s4++;
+            }
+        }
+        break;
+    }
+    SetDopplegangerAnim(animBase + var_s4);
+    g_Maria.timers[ALU_T_9] = 4;
+    return 1;
+}
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924D528_from_rbo5);
+// destroys the subweapon crash entity and clears the attack state
+void func_pspeu_0924D4E8_from_rbo5(void) {
+    Entity* entity = &g_Entities[80];
+
+    DestroyEntity(entity);
+    g_Maria.unk46 = 0;
+}
+
+// backdash; anim 0xDB is the gate the input router checks
+void func_pspeu_0924D528_from_rbo5(void) {
+    MARIA.step = Dop_Stand;
+    MARIA.step_s = 3;
+    MarSetSpeedX(FIX(-3.5));
+    g_CurrentEntity->velocityY = 0;
+    SetDopplegangerAnim(0xDB);
+    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+}
 
 #include "../dop_anim.h"
 
