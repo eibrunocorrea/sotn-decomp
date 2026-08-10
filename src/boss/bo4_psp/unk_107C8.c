@@ -411,7 +411,40 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09256258_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09256D30_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_092570B8_from_rbo5);
+// local copy of EntityWingSmashTrail (see bo4/unk_46E7C.c)
+void func_pspeu_092570B8_from_rbo5(Entity* self) {
+    if (!(MARIA.step_s == 3 && MARIA.step == Dop_MorphBat)) {
+        DestroyEntity(self);
+        return;
+    }
+
+    if (self->step == 0) {
+        self->flags = FLAG_POS_CAMERA_LOCKED;
+        self->animSet = MARIA.animSet;
+        self->animCurFrame = MARIA.animCurFrame | ANIM_FRAME_LOAD;
+        self->unk5A = 8;
+        self->zPriority = MARIA.zPriority - 2;
+        self->drawFlags =
+            MARIA.drawFlags | (ENTITY_OPACITY | ENTITY_SCALEY | ENTITY_SCALEX);
+        self->opacity = 0x80;
+        self->blendMode = BLEND_TRANSP | BLEND_ADD;
+        self->rotate = MARIA.rotate;
+        self->facingLeft = MARIA.facingLeft;
+        self->palette = PAL_FLAG(0x202);
+        self->scaleX = self->scaleY = 0x100;
+        self->step++;
+        return;
+    }
+    // This actually makes the wing smashes shrink over time, not rotate.
+    self->scaleX -= 8;
+    self->scaleY -= 8;
+    self->animCurFrame = MARIA.animCurFrame | ANIM_FRAME_LOAD;
+    if (self->opacity >= 5) {
+        self->opacity -= 5;
+    } else {
+        DestroyEntity(self);
+    }
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09257298_from_rbo5);
 
@@ -461,7 +494,16 @@ void func_pspeu_09248B88_from_rbo5(void) {
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09248BE8_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09248F50_from_rbo5);
+void MarDecelerateX_0925B090(s32 speed);
+// local copy of DopplegangerStepFall (see bo4/unk_45354.c)
+void func_pspeu_09248F50_from_rbo5(void) {
+    if (func_pspeu_0924EA98_from_rbo5(0x9029) == 0) {
+        MarDecelerateX_0925B090(FIX(1.0 / 16.0));
+        if (MarCheckFacing() != 0) {
+            MarSetSpeedX(FIX(3.0 / 4.0));
+        }
+    }
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_09248FA8_from_rbo5);
 
@@ -534,13 +576,38 @@ INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924AB20_f
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924B918_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924BB78_from_rbo5);
+// local copy of func_us_801C8EE4 (see bo4/unk_46E7C.c): leave mist form
+s32 func_pspeu_0924BB78_from_rbo5(void) {
+    if (MARIA.step_s == 0) {
+        return 0;
+    }
+    if (g_Maria.padTapped & PAD_R2) {
+        MarCheckFacing();
+        MarSetStep(Dop_UnmorphMist);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924BBE8_from_rbo5);
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924C200_from_rbo5);
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924C498_from_rbo5);
+extern s32 D_pspeu_0926CE18;
+// local copy of DopplegangerStepSwordWarp (see bo4/unk_46E7C.c)
+void func_pspeu_0924C498_from_rbo5(void) {
+    if (MARIA.step_s == 0) {
+        if (g_Entities[E_BOSS_WEAPON].entityId == E_NONE) {
+            D_pspeu_0926CE18 = 0x10;
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(61, 0x15), 0);
+            MARIA.step_s++;
+        }
+    } else if (--D_pspeu_0926CE18 == 0) {
+        MARIA.palette = PAL_FLAG(0x200);
+        func_pspeu_0924CA58_from_rbo5(0);
+    }
+}
 
 INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", func_pspeu_0924C550_from_rbo5);
 
