@@ -2,6 +2,9 @@
 #include "../mar/mar.h"
 #include <cutscene.h>
 
+// helpers are called from raw-asm functions in sibling objects
+#define CUTSCENE_GLOBAL
+
 extern Dialogue g_Dialogue;
 
 #include "../../get_lang.h"
@@ -17,9 +20,3 @@ extern Dialogue g_Dialogue;
 #include "../../st/cutscene_unk1.h"
 
 #include "../../st/set_cutscene_script.h"
-
-INCLUDE_ASM("boss/mar_psp/nonmatchings/mar_psp/e_cutscene_dialogue", SetCutsceneEvents);
-
-INCLUDE_ASM("boss/mar_psp/nonmatchings/mar_psp/e_cutscene_dialogue", RunCutsceneEvents);
-
-INCLUDE_ASM("boss/mar_psp/nonmatchings/mar_psp/e_cutscene_dialogue", EntityCutsceneDialogue);

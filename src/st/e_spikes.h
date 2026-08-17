@@ -33,10 +33,16 @@ enum SpikesPointDirections {
 #define SPIKES_ELEMENT ELEMENT_CUT | ELEMENT_UNK_10
 #endif
 
+#ifndef START_COUNT
 #ifdef STAGE_IS_NZ1
 #define START_COUNT 1
 #else
 #define START_COUNT 0
+#endif
+#endif
+
+#ifndef SPIKES_PARTS_VELOCITY_Y
+#define SPIKES_PARTS_VELOCITY_Y FIX(0.75)
 #endif
 
 extern EInit g_EInitParticle;
@@ -123,7 +129,7 @@ void EntitySpikesParts(Entity* self) {
             self->velocityY -= FIX(2.5);
         }
 #else
-        self->velocityY += FIX(0.75);
+        self->velocityY += SPIKES_PARTS_VELOCITY_Y;
 #endif
         self->velocityX += ((Random() & 3) << 13) - FIX(0.1875);
         self->velocityY += ((Random() & 3) << 13) - FIX(0.1875);
@@ -293,8 +299,10 @@ void EntitySpikes(Entity* self) {
             if (collisionType > 243 && collisionType < 248) {
                 if (g_api.CheckEquipmentItemCount(
                         ITEM_SPIKE_BREAKER, EQUIP_ARMOR)) {
-#ifdef STAGE_IS_NZ1
+#if defined(STAGE_IS_NZ1)
                     g_Tilemap.fg[tileIdx] = 0x58B;
+#elif defined(SPIKES_BROKEN_TILE)
+                    g_Tilemap.fg[tileIdx] = SPIKES_BROKEN_TILE;
 #elif defined(HAS_ORIENTATIONS)
                     g_Tilemap.fg[tileIdx] = 0;
 #else

@@ -1,23 +1,16 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
-#include "../rbo2/rbo2.h"
-#include <cutscene.h>
+#include "common.h"
 
-#define CUTSCENE_UNK1_NEXT_X 0
-#define CUTSCENE_UNK1_UNK17 2
+INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", func_pspeu_0924C008);
 
-extern Dialogue g_Dialogue;
+INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", DrawCutsceneActorName);
 
-#include "../../get_lang.h"
+INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", func_pspeu_0924C3C0);
 
-#include "../../st/cutscene_actor_name.h"
+INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", CutsceneUnk4);
 
-#include "../../st/cutscene_unk3.h"
+INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", CutsceneUnk1);
 
-#include "../../st/cutscene_unk4.h"
-
-#include "../../st/cutscene_unk1.h"
-
-#include "../../st/set_cutscene_script.h"
+INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", SetCutsceneScript);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/e_cutscene_dialogue", SetCutsceneEvents);
 
