@@ -4,7 +4,6 @@
 // this overlay's nova skeleton reuses local ids and the blade soldier
 // death parts; psp keeps the shared donor names via defines
 #define E_NOVA_DEATH_PARTS E_BLADE_SOLDIER_DEATH_PARTS
-#define E_NOVA_PULSE E_NOVA_LASER_PULSE
 #define NOVA_DEATH_PARTS_FROM_BLADE_SOLDIER
 #define BLADE_DEATH_ANIM_FRAME_BASE 0x1D
 #define BLADE_DEATH_FALL_DURATION_FIELD deathPartFallDurationAlt

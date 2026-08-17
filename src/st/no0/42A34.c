@@ -42,7 +42,7 @@ void func_us_801C2B24(Entity* self) {
     s16 distance;
 
     if (!self->step) {
-        InitializeEntity(g_EInitSpawner);
+        InitializeEntity(D_us_80180A88);
     }
     if ((g_Timer % 60) == 0) {
         switch (self->params) {

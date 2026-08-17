@@ -198,7 +198,7 @@ void EntityJackOBonesJack(Entity* self) {
 // Donor: src/st/e_nova_skeleton.h (shared header, used verbatim by
 // src/st/rno3/e_nova_skeleton.c). Same situation as jack-o-bones above:
 // the header's CreateEntityFromEntity(E_NOVA_PULSE, ...) needs to become
-// E_NOVA_LASER_PULSE for rno4.h's enum, so the body is copied locally.
+// E_NOVA_PULSE for rno4.h's enum, so the body is copied locally.
 extern EInit g_EInitNovaSkeleton;
 // g_EInitNovaSkeleton2 is the laser/pulse init struct, right after
 // g_EInitNovaSkeleton in the ANIMSET_OVL(11) group.
@@ -391,7 +391,7 @@ void EntityNovaLaser(Entity* self) {
         if (!(self->ext.nova.laserTimer & 3)) {
             other = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (other != NULL) {
-                CreateEntityFromEntity(E_NOVA_LASER_PULSE, self, other);
+                CreateEntityFromEntity(E_NOVA_PULSE, self, other);
                 other->zPriority = self->zPriority - 1;
                 other->ext.nova.laserLength = self->ext.nova.laserLength;
                 other->facingLeft = self->facingLeft;

@@ -23,7 +23,7 @@ void EntityUnkId13(Entity*);
 void EntityExplosionVariants(Entity*);
 void EntityGreyPuff(Entity*);
 void func_us_801CC8F8(Entity*);
-void EntityBackgroundPillars(Entity*);
+void func_us_801CC750(Entity*);
 void func_us_801CC9B4(Entity*);
 void EntityClockRoomController(Entity*);
 void EntityClockHands(Entity*);
@@ -106,7 +106,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityExplosionVariants,
     EntityGreyPuff,
     func_us_801CC8F8,
-    EntityBackgroundPillars,
+    func_us_801CC750,
     func_us_801CC9B4,
     EntityClockRoomController,
     EntityClockHands,
@@ -170,7 +170,7 @@ PfnEntityUpdate EntityUpdates[] = {
 EInit g_EInitBreakable = {ANIMSET_DRA(3), 0x00, 0x00, 0x000, 0x000};
 EInit g_EInitObtainable = {ANIMSET_DRA(3), 0x00, 0x00, 0x000, 0x001};
 EInit g_EInitParticle = {ANIMSET_DRA(3), 0x00, 0x00, 0x000, 0x002};
-EInit g_EInitSpawner = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x004};
+EInit D_us_80180A88 = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x004};
 EInit g_EInitInteractable = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x005};
 EInit D_us_80180AA0 = {ANIMSET_DRA(0x02), 0x00, 0x00, 0x000, 0x02C}; // unused
 EInit D_us_80180AAC = {ANIMSET_OVL(0x05), 0x00, 0x24, 0x000, 0x003}; // unused
@@ -185,7 +185,7 @@ EInit D_us_80180B0C = {ANIMSET_OVL(0x0C), 0x00, 0x4A, 0x22E, 0x057};
 EInit g_EInitDamageNum = {ANIMSET_DRA(0x00), 0x00, 0x00, 0x000, 0x003};
 EInit g_EInitDiplocephalus = {ANIMSET_OVL(0x09), 0x01, 0x4B, 0x20E, 0x010};
 EInit g_EInitDiplocephalusFoot = {ANIMSET_OVL(0x09), 0x0C, 0x4B, 0x20E, 0x011};
-EInit g_EInitDiplocephalusLeg = {ANIMSET_OVL(0x09), 0x08, 0x4B, 0x20E, 0x005};
+EInit D_us_80180B3C = {ANIMSET_OVL(0x09), 0x08, 0x4B, 0x20E, 0x005};
 EInit g_EInitDiplocephalusTail = {ANIMSET_OVL(0x09), 0x16, 0x4B, 0x20E, 0x012};
 EInit g_EInitDiplocephalusFireball = {
     ANIMSET_OVL(0x0D), 0x00, 0x4E, 0x2C0, 0x013};

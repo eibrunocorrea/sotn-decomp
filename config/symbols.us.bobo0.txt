@@ -49,7 +49,6 @@ EntitySpikes = 0x801AB778; // source=match
 EntitySpikesDamage = 0x801AB970; // source=match
 EntityPrisoner = 0x801ACDC8;
 EntityOlroxAfterImage = 0x801AFF78;
-func_801CDC80 = 0x801B15BC;
 EntityRealOlroxDrool = 0x801BA128;
 func_us_801B72E8 = 0x801BA880; // source=match
 EntityBossDoors = 0x801BAB18;

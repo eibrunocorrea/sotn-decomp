@@ -12,7 +12,6 @@ enum Palettes {
     PAL_AZAGHAL_BODY_B = 0x221,
     PAL_AZAGHAL_COMBO_A = 0x222,
     PAL_AZAGHAL_COMBO_B = 0x223,
-    PAL_SPIKES_DUST = 0x161,
     PAL_CTULHU_DEATH = 0x2EE,
 };
 

@@ -7,16 +7,6 @@ extern s32 E_ID(3D_BACKGROUND_HOUSE);
 
 extern EInit g_EInitInteractable;
 
-#ifndef HOUSE_GEOM_OFFSET_Y
-#define HOUSE_GEOM_OFFSET_Y 192
-#endif
-#ifndef HOUSE_POS_Y_BIAS
-#define HOUSE_POS_Y_BIAS 0xC0
-#endif
-#ifndef HOUSE_ROT_Z
-#define HOUSE_ROT_Z 0
-#endif
-
 static SVECTOR v0 = {-0x3C, -0x9B, -0x78};
 static SVECTOR v1 = {0x3C, -0x9B, -0x78};
 static SVECTOR v2 = {-0x3C, 0x00, -0x78};
@@ -77,25 +67,6 @@ static s16 D_us_80180CF4[] = {
     0x1C0, 0x0E0, 0,
     0x040, 0x0E0, 1,
     0x140, 0x0E0, 1,
-    -1,
-};
-#elif defined(STAGE_IS_RNO2)
-static s16 D_us_80180CD8[] = {
-    0x000, 0x100, 0x046, 0x070, 0x090, 0x045, 0x080,
-    0x400, 0x300, 0x04F, 0x0F0, 0x080, 0x04E, 0x070,
-};
-static s16 D_us_80180CF4[] = {
-    0x5A0, 0x020, 0,
-    0x4C0, 0x020, 0,
-    0x380, 0x020, 0,
-    0x280, 0x020, 0,
-    0x140, 0x020, 0,
-    0x060, 0x020, 0,
-    0x500, 0x020, 1,
-    0x400, 0x020, 1,
-    0x300, 0x020, 1,
-    0x200, 0x020, 1,
-    0x100, 0x020, 1,
     -1,
 };
 #endif
@@ -343,17 +314,17 @@ void Entity3DBackgroundHouse(Entity* self) {
         }
         prim = self->ext.bghouse.prim;
         SetGeomScreen(0x400);
-        SetGeomOffset(128, HOUSE_GEOM_OFFSET_Y);
+        SetGeomOffset(128, 192);
         // this is a 7-by-X array, so params picks a set of 7 values
         modelData = D_us_80180CD8;
         // Params is 0 or 1. 0 if house is straight, 1 if rotated 90 degree.
         modelData += self->params * 7;
         rot.vx = 0;
         rot.vy = *modelData++;
-        rot.vz = HOUSE_ROT_Z;
+        rot.vz = 0;
         RotMatrix(&rot, &m);
         trans.vx = self->posX.i.hi - 0x80;
-        trans.vy = self->posY.i.hi - HOUSE_POS_Y_BIAS;
+        trans.vy = self->posY.i.hi - 0xC0;
         trans.vz = *modelData++ + 0x400;
         TransMatrix(&m, &trans);
         SetRotMatrix(&m);

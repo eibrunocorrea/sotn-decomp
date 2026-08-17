@@ -75,7 +75,6 @@ segments:
       - [0x1FAAC, c, unk_1FAAC]
       - [0x1FB74, c, e_lock_camera]
       - [0x1FD30, c, unk_1FD30]
-      - [0x1FE84, c, unk_1FD30]
       - [0x20184, c, e_dai_no2_shortcut]
       - [0x20490, c, e_bell]
       - [0x21010, c, e_bell_spawner]
