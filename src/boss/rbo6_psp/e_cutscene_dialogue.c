@@ -2,9 +2,6 @@
 #include "../rbo6/rbo6.h"
 #include <cutscene.h>
 
-// helpers are called from raw-asm functions in sibling objects
-#define CUTSCENE_GLOBAL
-
 extern Dialogue g_Dialogue;
 
 #include "../../get_lang.h"
@@ -20,3 +17,11 @@ extern Dialogue g_Dialogue;
 #include "../../st/cutscene_unk1.h"
 
 #include "../../st/set_cutscene_script.h"
+
+INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", SetCutsceneEvents);
+
+INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", RunCutsceneEvents);
+
+INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", CutsceneSkip);
+
+INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", EntityCutscene);

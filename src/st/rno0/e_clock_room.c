@@ -1,51 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rno0.h"
 
-// RNO0's clock room mirrors NO0's (src/st/no0/clock_room.c plus the
-// shared src/st/clock_room_entities.h). NO0 is fully matched, so most
-// of this file is a verbatim transplant of its code with a couple of
-// confirmed reversed-castle differences:
-//   - the clock hands / statues spawn a generic dummy (E_DUMMY_20)
-//     instead of a dedicated shadow entity id (RNO0 has none),
-//     confirmed via the entity id 0x20 argument in the target asm.
-//   - EntityStatue's floor-tile positions are 0xAC/0xA2 here instead
-//     of NO0's 2/12 (different tilemap layout), confirmed via the
-//     UpdateStatueTiles() call-site immediates in the target asm.
-//   - EntityStoneDoor's left/right nudge direction is mirrored
-//     (params branch swapped) and its g_backbufferY toggle always
-//     runs unconditionally (matches NO0's STAGE_IS_NO0 branch, not
-//     the "#else" modulo-gated one -- confirmed via the target asm).
-// EntityClockRoomController is NOT a clean transplant: besides a
-// couple of threshold-immediate differences (128 -> 144) its case 1
-// "does the player have the unlock item" check is a structurally
-// different loop in the target (RCEN_OPEN's condition is "all 5 Vlad
-// relics equipped", not "wearing the gold+silver ring pair" like
-// NO0's CEN_OPEN), so it needs to be decompiled from scratch rather
-// than transplanted. Left as INCLUDE_ASM (travada).
-#define E_CLOCK_ROOM_SHADOW E_DUMMY_20
+static s16 bird_cage_pos_x[] = {0x7C, 0x72};
+static s16 bird_cage_pos_y[] = {0x9C, 0x72};
+static s16 statue_pos_x[] = {-0x51, 0x50, -0x81, 0x80};
+static s16 gear_pos_x[] = {-0x7C, 0x7C};
+static s16 stone_door_pos_x[] = {0x20, -0x20, 0x50, -0x50};
+static s16 unused[] = {-0x51, 0x50};
+static u32 statue_pos_x_3[] = {FIX(-0.5), FIX(0.5)};
+static u16 anim_bird_cage[] = {21, 22};
+static s16 unused2[] = {-14, 14, -8, 8, -23, -14, -8, 8, 14, 23, -8, 8};
+static u8 anim_gear_1[] = {6, 17, 6, 18, 6, 19, 6, 20, 0, 0};
+static u8 anim_gear_2[] = {6, 20, 6, 19, 6, 18, 6, 17, 0, 0};
+static u16 g_StoneDoorTiles[] = {
+    0x597, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x597,
+};
 
-extern EInit g_EInitCommon;
-
-typedef enum Statues {
-    /* 0 */ RIGHT_STATUE,
-    /* 1 */ LEFT_STATUE,
-} Statues;
-
-// Names mirror NO0's static clock_room.c tables (src/st/no0/clock_room.c) --
-// same donor, RNO0 just needs its own extern copies at RNO0's addresses.
-extern s16 bird_cage_pos_x[];
-extern s16 bird_cage_pos_y[];
-extern s16 statue_pos_x[];
-extern s16 gear_pos_x[];
-extern s16 stone_door_pos_x[];
-extern u32 statue_pos_x_3[];
-extern u16 anim_bird_cage[];
-extern u8 anim_gear_1[];
-extern u8 anim_gear_2[];
-extern u16 g_StoneDoorTiles[];
-extern u16 g_Statues[]; // bss
-
-void func_us_801CCAAC_from_no0(Entity* self) {
+void func_us_801CCAAC(Entity* self) {
     Entity* tempEntity;
     s16 angle;
 
@@ -92,388 +63,376 @@ void UpdateBirdcages(Entity* self, u32 timerMinutes) {
 }
 
 #ifdef VERSION_PSP
+extern s32 D_91FC3F8;
+extern s32 D_91FC400;
+extern s32 D_91FC408;
+extern s32 D_91FC410;
+#define timer_frames D_91FC3F8
+#define timer_seconds D_91FC400
+#define timer_minutes D_91FC408
+#define timer_hours D_91FC410
 void UpdateClockHands(Entity* self) {
-    // self + 5 is the minute hand
-    self += 5;
-    self->ext.clockRoom.hand = D_91FC408 * 60;
-
-    // self + 6 is the hour hand
-    self += 1;
-    self->ext.clockRoom.hand = ((D_91FC410 % 12) * 300) + (D_91FC408 * 5);
-}
 #else
+#define timer_frames status->timerFrames
+#define timer_seconds status->timerSeconds
+#define timer_minutes status->timerMinutes
+#define timer_hours status->timerHours
 void UpdateClockHands(Entity* self, PlayerStatus* status) {
+#endif
     // self + 5 is the minute hand
     self += 5;
-    self->ext.clockRoom.hand = status->timerMinutes * 60;
+    self->ext.clockRoom.hand = timer_minutes * 60;
 
     // self + 6 is the hour hand
     self += 1;
-    self->ext.clockRoom.hand =
-        (status->timerHours * 300) + (status->timerMinutes * 5);
+#if defined(VERSION_US) && defined(INVERTED_STAGE)
+#define HOURS (timer_hours)
+#else
+#define HOURS (timer_hours % 12)
+#endif
+    self->ext.clockRoom.hand = (HOURS * 300) + (timer_minutes * 5);
 }
+
+// Two statues. One responds to the stopwatch subweapon.
+// The other leads to colloseum (ARE overlay)
+typedef enum Statues {
+    /* 0 */ WATCH_STATUE,
+    /* 1 */ ARE_STATUE,
+} Statues;
+
+static u16 g_Statues[2];
+#ifdef VERSION_PSP
+static u32 D_pspeu_092A1D08;
+static u32 D_pspeu_092A1D00;
 #endif
 
-// travada: case 1's unlock-item check is a structurally different loop
-// for RCEN_OPEN (all 5 Vlad relics) vs NO0's CEN_OPEN (gold+silver
-// ring pair); the 128->144 statue-open thresholds are also confirmed
-// different but that alone isn't enough to make this transplantable.
-INCLUDE_ASM(
-    "st/rno0/nonmatchings/e_clock_room", EntityClockRoomController);
+extern EInit g_EInitCommon;
 
-void EntityClockHands(Entity* self) {
-    u16 params = self->params;
-    Entity* handShadow = self + 5;
-
-    if (!self->step) {
-        InitializeEntity(g_EInitCommon);
-        self->animSet = ANIMSET_OVL(2);
-        self->animCurFrame = params + 25;
-        self->zPriority = 0x3F - params;
-        self->drawFlags = ENTITY_ROTATE;
-
-        // Create hand shadows
-        CreateEntityFromCurrentEntity(E_CLOCK_ROOM_SHADOW, handShadow);
-        handShadow->animSet = ANIMSET_OVL(2);
-        handShadow->animCurFrame = params + 25;
-        handShadow->zPriority = 0x3F - params;
-        handShadow->drawFlags = ENTITY_OPACITY | ENTITY_ROTATE;
-        handShadow->blendMode = BLEND_TRANSP;
-        handShadow->flags = FLAG_DESTROY_IF_OUT_OF_CAMERA |
-                            FLAG_POS_CAMERA_LOCKED | FLAG_KEEP_ALIVE_OFFCAMERA;
-        handShadow->posY.i.hi += 4;
-    }
-
-    self->rotate = (self->ext.clockRoom.hand * ROT(360)) / (60 * 60);
-    if (params) {
-        self->rotate += ROT(90);
-    }
-
-    self->rotate &= 0xFFF;
-    handShadow->rotate = self->rotate;
-}
-
-// Birdcage doors on the clock
-void EntityBirdcageDoor(Entity* self) {
-    u16 params = self->params;
-
-    switch (self->step) {
-    case 0:
-        InitializeEntity(g_EInitCommon);
-        self->animSet = ANIMSET_OVL(2);
-        self->animCurFrame = anim_bird_cage[self->ext.birdcage.state & 1];
-        self->ext.birdcage.prevState = self->ext.birdcage.state;
-        self->zPriority = 0x3C;
-        self->scaleX = self->scaleY = 0x100;
-        self->opacity = 0x80;
-        self->posX.i.hi = bird_cage_pos_x[params] - g_Tilemap.scrollX.i.hi;
-        self->posY.i.hi = bird_cage_pos_y[params] - g_Tilemap.scrollY.i.hi;
-        break;
-
-    case 1:
-        if (self->ext.birdcage.prevState != self->ext.birdcage.state) {
-            self->ext.birdcage.prevState = self->ext.birdcage.state;
-            self->drawFlags = ENTITY_OPACITY | ENTITY_SCALEX | ENTITY_SCALEY;
-            self->ext.birdcage.timer = 64;
-            self->step++;
-            g_api.PlaySfx(SFX_STONE_MOVE_B);
-        }
-        break;
-
-    case 2:
-        self->scaleX = self->scaleY -= 2;
-        self->opacity -= 1;
-        if (!--self->ext.birdcage.timer) {
-            self->ext.birdcage.timer = 64;
-            self->zPriority = 0;
-            self->step++;
-            g_api.PlaySfx(SFX_STONE_MOVE_B);
-        }
-        break;
-
-    case 3:
-        self->posX.val += FIX(0.125);
-        if (!--self->ext.birdcage.timer) {
-            self->ext.birdcage.timer = 64;
-            self->animCurFrame = anim_bird_cage[self->ext.birdcage.state & 1];
-            self->posX.i.hi -= 8;
-            self->posY.i.hi += 8;
-            self->step++;
-            g_api.PlaySfx(SFX_STONE_MOVE_B);
-        }
-        break;
-
-    case 4:
-        self->posY.val -= FIX(0.125);
-        if (!--self->ext.birdcage.timer) {
-            self->ext.birdcage.timer = 64;
-            self->zPriority = 0x3C;
-            self->step++;
-            g_api.PlaySfx(SFX_STONE_MOVE_B);
-        }
-        break;
-
-    case 5:
-        self->scaleX = self->scaleY += 2;
-        self->opacity += 1;
-        if (!--self->ext.birdcage.timer) {
-            self->drawFlags = ENTITY_DEFAULT;
-            self->step = 1;
-        }
-        break;
-    }
-}
-
-void UpdateStatueTiles(s32 tilePos, u16 tile) {
-    u32 i;
-
-    for (i = 0; i < 6; i++) {
-        g_Tilemap.fg[tilePos] = tile;
-        tilePos++;
-        g_Tilemap.fg[tilePos] = tile;
-        tilePos += 15;
-    }
-}
-
-void EntityStatue(Entity* self) {
-    u16 params = self->params;
-    Entity* entity = self + 2;
-    Entity* statueGear = self + 11;
-
-    switch (self->step) {
-    case 0:
-        InitializeEntity(g_EInitCommon);
-        self->animSet = ANIMSET_OVL(2);
-        self->animCurFrame = params + 10;
-        self->hitboxWidth = 16;
-        self->hitboxHeight = 32;
-        self->zPriority = 0x40;
-
-        if (!g_Statues[params]) {
-            self->posX.i.hi += statue_pos_x[params];
-            if (self->params) {
-                UpdateStatueTiles(0xAC, 0x597);
-            } else {
-                UpdateStatueTiles(0xA2, 0x597);
-            }
-        } else {
-            self->posX.i.hi += statue_pos_x[params + 2];
-            if (self->params) {
-                UpdateStatueTiles(0xAC, 0);
-            } else {
-                UpdateStatueTiles(0xA2, 0);
-            }
-        }
-
-        self->ext.statue.step = g_Statues[params];
-        self->posY.i.hi += 58;
-
-        // Create shadow for the statue
-        CreateEntityFromCurrentEntity(E_CLOCK_ROOM_SHADOW, entity);
-        entity->animSet = ANIMSET_OVL(2);
-        entity->animCurFrame = params + 10;
-        entity->zPriority = 0x3F;
-        entity->drawFlags = ENTITY_OPACITY;
-        entity->blendMode = BLEND_TRANSP;
-        entity->posY.i.hi += 8;
-        break;
-
-    case 1:
-        if (g_Statues[params] != self->ext.statue.step) {
-            self->ext.statue.step = g_Statues[params];
-            if (self->ext.statue.step) {
-                statueGear->ext.statue.step = 1;
-            } else {
-                statueGear->ext.statue.step = 2;
-            }
-            self->hitboxState = 2;
-            self->step++;
-            PlaySfxPositional(SFX_STONE_MOVE_C);
-        }
-        break;
-
-    case 2:
-        GetPlayerCollisionWith(self, 16, 32, 19);
-        if (!self->step_s) {
-            if (self->ext.statue.step) {
-                if (self->params) {
-                    UpdateStatueTiles(0xAC, 0);
-                } else {
-                    UpdateStatueTiles(0xA2, 0);
-                }
-            }
-            self->ext.statue.timer = 96;
-            self->step_s++;
-        }
-
-        if (self->ext.statue.step) {
-            self->posX.val += statue_pos_x_3[params];
-        } else {
-            self->posX.val -= statue_pos_x_3[params];
-        }
-
-        if (!--self->ext.statue.timer) {
-            if (!self->ext.statue.step) {
-                if (self->params) {
-                    UpdateStatueTiles(0xAC, 0x597);
-                } else {
-                    UpdateStatueTiles(0xA2, 0x597);
-                }
-            }
-            statueGear->ext.statue.step = 0;
-            self->hitboxState = 0;
-            self->step_s = 0;
-            self->step--;
-        }
-        break;
-    }
-    entity->posX.i.hi = self->posX.i.hi;
-}
-
-// Gears that spin while the statues are moving
-void EntityStatueGear(Entity* self) {
-    u16 params = self->params;
+void EntityClockRoomController(Entity* self) {
+#ifndef VERSION_PSP
+    PlayerStatus* status = &g_Status;
+#endif
     Primitive* prim;
+    Entity* entity;
     s32 primIndex;
+    u16 i;
+    s16 posX;
+
+    // Plays the clock bell
+    if (self->ext.clockRoom.bellTimer) {
+        if (!self->ext.clockRoom.bellDuration) {
+            g_api.PlaySfx(SFX_CLOCK_ROOM_BELL);
+            if (--self->ext.clockRoom.bellTimer) {
+                self->ext.clockRoom.bellDuration = 64;
+            }
+        } else {
+            self->ext.clockRoom.bellDuration--;
+        }
+    }
+
+    // Controls the statues
+    entity = &PLAYER;
+    if (g_unkGraphicsStruct.D_800973FC == 0) {
+        if (entity->posY.i.hi < 0x90) {
+            g_Statues[WATCH_STATUE] = false;
+        }
+    } else if (!self->ext.clockRoom.unk8A) {
+        g_Statues[WATCH_STATUE] = true;
+    }
+
+    self->ext.clockRoom.unk8A = g_unkGraphicsStruct.D_800973FC;
+
+    // Every other minute the top left statue opens
+    if (timer_minutes & 1) {
+        if (entity->posY.i.hi < 0x90) {
+            g_Statues[ARE_STATUE] = false;
+        }
+    } else {
+        g_Statues[ARE_STATUE] = true;
+    }
 
     switch (self->step) {
     case 0:
-        if (!self->step_s) {
-            InitializeEntity(g_EInitCommon);
-            self->animSet = ANIMSET_OVL(2);
-            self->animCurFrame = 17;
-            self->zPriority = 0x80;
-            self->posX.i.hi += gear_pos_x[params];
-            self->posY.i.hi += 44;
-            self->step = 0;
-            self->step_s++;
+        if ((g_Timer % 60) == 0) {
+            g_api.PlaySfx(SFX_CLOCK_ROOM_TICK);
         }
 
-        primIndex = g_api.AllocPrimitives(PRIM_TILE, 1);
+        primIndex = g_api.AllocPrimitives(PRIM_G4, 1);
         if (primIndex == -1) {
             return;
         }
-        self->primIndex = primIndex;
+#ifndef VERSION_PSP
+        InitializeEntity(g_EInitCommon);
+#endif
         self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
         prim = &g_PrimBuf[primIndex];
+        prim->x0 = prim->x2 = prim->y0 = prim->y1 = 0;
+        prim->x1 = prim->x3 = prim->y2 = prim->y3 = 256;
         prim->r0 = prim->g0 = prim->b0 = 0;
-        prim->x0 = self->posX.i.hi - 6;
-        prim->y0 = self->posY.i.hi - 16;
-        prim->u0 = 12;
-        prim->v0 = 32;
-        prim->priority = 0x7F;
-        prim->drawMode = DRAW_DEFAULT;
-        self->step++;
+        LOW(prim->r1) = LOW(prim->r0);
+        LOW(prim->r2) = LOW(prim->r0);
+        LOW(prim->r3) = LOW(prim->r0);
+        prim->priority = 0x1F0;
+        prim->drawMode = DRAW_HIDE;
+#ifdef VERSION_PSP
+        InitializeEntity(g_EInitCommon);
+#endif
+
+        g_api.PlaySfx(SET_STOP_MUSIC);
+        stopMusicFlag = true;
+        currentMusicId = 0;
+        entity = &PLAYER;
+        g_Statues[WATCH_STATUE] = false;
+
+        if (entity->posY.i.hi > 0xC0) {
+            posX = entity->posX.i.hi;
+            if (posX < 0x40) {
+                g_Statues[WATCH_STATUE] = true;
+            } else if (posX > 0xC0) {
+                g_Statues[ARE_STATUE] = true;
+            }
+        }
+
+        self->animSet = ANIMSET_OVL(2);
+        self->animCurFrame = 23;
+        self->zPriority = 0x40;
+
+        // Create clock hands
+        entity = self + 5;
+        for (i = 0; i < 2; i++, entity++) {
+            CreateEntityFromCurrentEntity(E_CLOCK_HANDS, entity);
+            entity->params = i;
+        }
+#ifdef VERSION_PSP
+        UpdateClockHands(self);
+#else
+        UpdateClockHands(self, status);
+#endif
+
+        // Create Birdcage doors
+        entity = self + 7;
+        for (i = 0; i < 2; i++, entity++) {
+            CreateEntityFromCurrentEntity(E_BIRDCAGE_DOOR, entity);
+            entity->params = i;
+        }
+        UpdateBirdcages(self, timer_minutes);
+
+        // Shadow for the Bighorn sheep head on the center
+        entity = self + 9;
+        CreateEntityFromCurrentEntity(E_CLOCK_ROOM_SHADOW, entity);
+        entity->animSet = ANIMSET_OVL(2);
+        entity->animCurFrame = 23;
+        entity->zPriority = 0x40;
+        entity->palette = PAL_FLAG(0x4B);
+        entity->drawFlags = ENTITY_OPACITY;
+        entity->blendMode = BLEND_TRANSP;
+        entity->posY.i.hi += 4;
+
+        // Create path blocking statues
+        entity = self + 1;
+        for (i = 0; i < 2; i++, entity++) {
+            CreateEntityFromCurrentEntity(E_STATUE, entity);
+            entity->params = i;
+        }
+
+        // Create the gears that drive the statues
+        entity = self + 12;
+        for (i = 0; i < 2; i++, entity++) {
+            CreateEntityFromCurrentEntity(E_STATUE_GEAR, entity);
+            entity->params = i;
+        }
+
+        // Create the stones on the floor
+        entity = self + 14;
+        for (i = 0; i < 2; i++, entity++) {
+            CreateEntityFromCurrentEntity(E_STONE_DOOR, entity);
+            entity->params = i;
+        }
         break;
 
     case 1:
-        if (self->ext.statue.step == 1) {
-            self->pose = self->animCurFrame - 17;
-            self->step = 2;
+        if (!timer_frames) {
+            g_api.PlaySfx(SFX_CLOCK_ROOM_TICK);
         }
-        if (self->ext.statue.step == 2) {
-            self->pose = 20 - self->animCurFrame;
-            self->step = 3;
+
+#ifdef VERSION_PSP
+        UpdateClockHands(self);
+#else
+        UpdateClockHands(self, status);
+#endif
+        if (timer_seconds == 0 && timer_frames == 0) {
+            if (timer_minutes == 0) {
+                self->ext.clockRoom.bellTimer = ((timer_hours + 11) % 12) + 1;
+                if (!self->ext.clockRoom.bellTimer) {
+                    self->ext.clockRoom.bellTimer = 12;
+                }
+            } else if (((timer_minutes != 0) ^ 1) == 30) {
+                self->ext.clockRoom.bellTimer = 1;
+            }
         }
-        self->poseTimer = 0;
+
+        UpdateBirdcages(self, timer_minutes);
+
+        if (!g_CastleFlags[RCEN_OPEN]) {
+            entity = &PLAYER;
+#if defined(VERSION_US) && defined(INVERTED_STAGE)
+#define XLIM 0x60
+#else
+#define XLIM 0x50
+#endif
+            if (entity->posX.i.hi >= XLIM && entity->posX.i.hi <= 0xA0) {
+                for (posX = 0, i = RELIC_HEART_OF_VLAD; i <= RELIC_EYE_OF_VLAD;
+                     i++) {
+                    // If we don't have the relic, set the posX flag.
+                    if (!(g_Status.relics[i] & 1)) {
+                        posX++;
+                    }
+                }
+                // If it's zero (we have all relics) we will open the clock
+                if (!posX) {
+                    SetStep(2);
+                }
+            }
+        }
         break;
 
     case 2:
-        AnimateEntity(anim_gear_1, self);
-        if (!self->ext.statue.step) {
-            self->step = 1;
+        g_Statues[WATCH_STATUE] = false;
+        g_Statues[ARE_STATUE] = false;
+        g_Player.padSim = 0;
+        g_Player.demo_timer = 1;
+        entity = &PLAYER;
+        posX = entity->posX.i.hi;
+#if defined(VERSION_US) && defined(INVERTED_STAGE)
+        entity->posX.i.hi = (posX <= 0x80 ? 0x60 : 0xA0);
+#endif
+        switch (self->step_s) {
+        case 0:
+            self->ext.clockRoom.unk88 = 0;
+            self->step_s++;
+            break;
+        case 1:
+            self->step_s++;
+            break;
+
+        case 2:
+            self->step_s++;
+            break;
+        case 3:
+            self->step_s++;
+            break;
+        case 4:
+            prim = &g_PrimBuf[self->primIndex];
+            prim->r0 = prim->g0 = prim->b0 += 16;
+            LOW(prim->r1) = LOW(prim->r0);
+            LOW(prim->r2) = LOW(prim->r0);
+            LOW(prim->r3) = LOW(prim->r0);
+            prim->drawMode = DRAW_TRANSP | DRAW_TPAGE | DRAW_TPAGE2;
+            if (prim->r0 > 192) {
+                self->step_s++;
+            }
+            break;
+
+        case 5:
+            prim = &g_PrimBuf[self->primIndex];
+            prim->r0 = prim->g0 = prim->b0 -= 4;
+            LOW(prim->r1) = LOW(prim->r0);
+            LOW(prim->r2) = LOW(prim->r0);
+            LOW(prim->r3) = LOW(prim->r0);
+            if (prim->r0 < 8) {
+                prim->drawMode = DRAW_HIDE;
+                self->step_s++;
+            }
+            break;
+
+        case 6:
+            entity = self + 7;
+            LOH(entity->ext.clockRoom.unk80) = 1;
+
+            entity++;
+            LOH(entity->ext.clockRoom.unk80) = 1;
+
+            self->ext.clockRoom.unk88 = 0x80;
+            self->ext.clockRoom.unk88 = 1;
+            self->step_s++;
+            break;
+
+        case 7:
+            if (!--self->ext.clockRoom.unk88) {
+                // Minute hand
+                entity = self + 5;
+                posX = LOW(entity->ext.clockRoom.unk80) =
+                    entity->ext.clockRoom.hand;
+                posX %= (60 * 60);
+                LOW(entity->ext.clockRoom.bellTimer) = 5400 - posX;
+
+                // Hour hand
+                entity++;
+                posX = LOW(entity->ext.clockRoom.unk80) =
+                    entity->ext.clockRoom.hand;
+                posX %= (60 * 60);
+                LOW(entity->ext.clockRoom.bellTimer) = posX + 1800;
+
+                self->ext.clockRoom.unk88 = 0;
+                self->step_s++;
+            }
+            break;
+
+        case 8:
+            func_us_801CCAAC(self);
+            if (self->ext.clockRoom.unk88 >= 0x200) {
+                self->step_s++;
+                self->ext.clockRoom.bellTimer = 13;
+                self->ext.clockRoom.unk88 = 0x380;
+            }
+            break;
+
+        case 9:
+            if (!--self->ext.clockRoom.unk88) {
+                g_CastleFlags[RCEN_OPEN] = 1;
+                g_api.RevealSecretPassageAtPlayerPositionOnMap(RCEN_OPEN);
+                SetStep(3);
+                self->ext.clockRoom.unk88 = 0x140;
+            }
         }
         break;
 
     case 3:
-        AnimateEntity(anim_gear_2, self);
-        if (!self->ext.statue.step) {
-            self->step = 1;
+        g_Statues[WATCH_STATUE] = false;
+        g_Statues[ARE_STATUE] = false;
+        switch (self->step_s) {
+        case 0:
+            if (!--self->ext.clockRoom.unk88) {
+                // Minute hand
+                entity = self + 5;
+                LOW(entity->ext.clockRoom.unk80) = entity->ext.clockRoom.hand;
+                posX = timer_minutes * 60;
+                LOW(entity->ext.clockRoom.bellTimer) = posX + 1800;
+
+                // Hour hand
+                entity++;
+                LOW(entity->ext.clockRoom.unk80) = entity->ext.clockRoom.hand;
+#ifdef VERSION_PSP
+                posX = ((timer_hours % 12) * 300) + (timer_minutes * 5);
+#else
+                posX = (timer_hours * 300) + (timer_minutes * 5);
+#endif
+                LOW(entity->ext.clockRoom.bellTimer) = 5400 - posX;
+
+                self->ext.clockRoom.unk88 = 0;
+                self->step_s++;
+            }
+            break;
+
+        case 1:
+            func_us_801CCAAC(self);
+            if (self->ext.clockRoom.unk88 >= 0x200) {
+                SetStep(1);
+            }
         }
         break;
     }
 }
 
-static void UpdateStoneDoorTiles(bool doorState) {
-    s32 tilePos;
-    s16 i, j;
-
-    for (tilePos = 0x24, i = 0; i < 2; i++) {
-        for (j = 0; j < 8; j++) {
-            if (doorState) {
-                // Open stone doors
-                g_Tilemap.fg[tilePos++] = 0x597;
-            } else {
-                // Close stone doors
-                g_Tilemap.fg[tilePos++] = g_StoneDoorTiles[j];
-            }
-        }
-        tilePos += 8;
-    }
-}
-
-// Stone doors on the floor leading to the reversed CEN room
-void EntityStoneDoor(Entity* self) {
-    u16 params = self->params;
-
-    switch (self->step) {
-    case 0:
-        InitializeEntity(g_EInitCommon);
-        self->animSet = ANIMSET_OVL(2);
-        self->animCurFrame = params + 27;
-        self->zPriority = 0x40;
-        if (!g_CastleFlags[RCEN_OPEN]) {
-            self->posX.i.hi += stone_door_pos_x[params];
-            UpdateStoneDoorTiles(true);
-        } else {
-            self->posX.i.hi += stone_door_pos_x[params + 2];
-            UpdateStoneDoorTiles(false);
-        }
-        self->posY.i.hi -= 88;
-        self->ext.stoneDoor.flag = g_CastleFlags[RCEN_OPEN];
-        break;
-
-    case 1:
-        if (self->ext.stoneDoor.flag == NULL) {
-            if (g_CastleFlags[RCEN_OPEN]) {
-                self->step++;
-                self->ext.stoneDoor.unk80 = 0;
-            }
-        }
-        self->ext.stoneDoor.flag = g_CastleFlags[RCEN_OPEN];
-        break;
-
-    case 2:
-        if ((self->ext.stoneDoor.unk80 & 0x1F) == 0) {
-            PlaySfxPositional(SFX_STONE_MOVE_A);
-        }
-
-        ++self->ext.stoneDoor.unk80;
-        if (self->ext.stoneDoor.unk80 & 1) {
-            // Mirrored castle: left/right nudge direction is swapped
-            // relative to NO0's EntityStoneDoor (confirmed via the
-            // target asm's addiu sign).
-            if (params) {
-                self->posX.i.hi--;
-            } else {
-                self->posX.i.hi++;
-            }
-            // NO0 only sets this unconditionally under
-            // "#ifdef STAGE_IS_NO0"; RNO0's target asm shows the same
-            // unconditional store (no modulo gating), confirmed via
-            // the target asm.
-            g_backbufferY = 1;
-        } else {
-            g_backbufferY = 0;
-        }
-
-        if (self->ext.stoneDoor.unk80 > 96) {
-            UpdateStoneDoorTiles(false);
-            self->step--;
-            g_backbufferY = 0;
-        }
-        break;
-    }
-}
-
-void RNO0_Unused801C2338(void) {}
+#include "../clock_room_entities.h"

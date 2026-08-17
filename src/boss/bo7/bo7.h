@@ -4,15 +4,13 @@
 
 #include <stage.h>
 
-#define OVL_EXPORT(x) BO7_##x
-
 #define STAGE_IS_BO7
 
 enum Palettes {
     PAL_NONE,
 };
 
-enum Entities {
+typedef enum EntityID {
     E_NONE,
     E_BREAKABLE,             // EntityBreakable
     E_EXPLOSION,             // EntityExplosion

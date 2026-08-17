@@ -87,6 +87,7 @@ s32 func_800FE044(s32 amount, s32 type);
 void AddToInventory(u16 itemId, s32 itemCategory);
 void InitStatsAndGear(bool isDeathTakingItems);
 s32 PlaySfxVolPan(s16 sfxId, u16 sfxVol, s16 sfxPan);
+s32 SetVolumeCommand22_23(s16 vol, s16 distance);
 u32 CheckEquipmentItemCount(u32 itemId, u32 equipType);
 void GetPlayerSensor(Collider* col);
 void RevealSecretPassageAtPlayerPositionOnMap(s32 arg0);
@@ -125,32 +126,6 @@ bool InitGame(struct InitGameParams* params) {
         if (Psyz_CdSetDiskPath(params->diskPath) < 0) {
             WARNF("failed to parse CD layout at '%s'. Music will be disabled",
                   params->diskPath);
-        }
-    } else {
-        // No --disk given (e.g. a direct --stage boot, which skips the SEL
-        // flow). CD-DA/XA audio (stage background music) needs a raw disc
-        // image to stream from, separate from the "disks/us/..." assets
-        // that are already read straight off the filesystem elsewhere in
-        // the port. Fall back to the conventional local dump path so music
-        // still works without requiring the flag. No-op (debug-only log) if
-        // the file isn't there, e.g. checkouts without a local disc dump or
-        // CI, so this never turns into user-facing noise.
-        const char* defaultDiskPath = "disks/sotn.us.cue";
-        FILE* f = fopen(defaultDiskPath, "rb");
-        if (f) {
-            fclose(f);
-            if (Psyz_CdSetDiskPath(defaultDiskPath) < 0) {
-                WARNF("failed to parse default CD layout at '%s'. Music "
-                      "will be disabled",
-                      defaultDiskPath);
-            } else {
-                DEBUGF("no --disk given; using default disk path '%s'",
-                       defaultDiskPath);
-            }
-        } else {
-            DEBUGF("no --disk given and no default disk image at '%s'; "
-                   "XA/CD-DA music will be disabled",
-                   defaultDiskPath);
         }
     }
     if (!InitPlatform()) {
@@ -201,7 +176,7 @@ bool InitGame(struct InitGameParams* params) {
     api.relicDefs = g_RelicDefs;
     api.InitStatsAndGear = InitStatsAndGear;
     api.PlaySfxVolPan = PlaySfxVolPan;
-    api.SetVolumeCommand22_23 = NULL;
+    api.SetVolumeCommand22_23 = SetVolumeCommand22_23;
     api.MakeAll = NULL;
     api.CheckEquipmentItemCount = CheckEquipmentItemCount;
     api.GetPlayerSensor = GetPlayerSensor;

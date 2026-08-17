@@ -1,37 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rbo2.h"
+#include "sfx.h"
 
-s16 func_us_8019A98C_from_rcen(s16 arg0, s16 arg1, s16 arg2) {
-    s16 v_s1;
-    s16 v_s0;
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", EntityBreakable);
 
-    arg1 &= 0xFFF;
-
-    v_s1 = arg2 - arg1;
-    v_s0 = v_s1;
-
-    if (v_s1 > ROT(180)) {
-        v_s0 = v_s1 - ROT(360);
-    }
-    if (v_s1 < ROT(-180)) {
-        v_s0 = v_s1 + ROT(360);
-    }
-
-    if (abs(v_s0) > arg0) {
-        if (v_s1 < 0) {
-            v_s0 = arg1 - arg0;
-        } else {
-            v_s0 = arg1 + arg0;
-        }
-        return v_s0;
-    }
-
-    return arg2;
-}
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019A98C_from_rcen);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019B430);
 
-#include "../../st/approach_s16.h"
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_801CDC80);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019B52C);
 
@@ -41,34 +18,7 @@ INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019C924);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019D4CC);
 
-extern s32 D_us_80180B5C;
-extern EInit D_us_801804C4;
-
-void func_us_8019D950(Entity* self) {
-    s32 params;
-    s32 rotate;
-
-    if (D_us_80180B5C & 8) {
-        DestroyEntity(self);
-        return;
-    }
-    if (!self->step) {
-        InitializeEntity(D_us_801804C4);
-        params = self->params;
-        rotate = self->rotate;
-        self->drawFlags = 8;
-        self->blendMode = 0x30;
-        self->opacity = 0x60;
-        self->animCurFrame = params;
-        if (rotate) {
-            self->drawFlags |= 4;
-        }
-    }
-    self->opacity -= 8;
-    if (!self->opacity) {
-        DestroyEntity(self);
-    }
-}
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019D950);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019DA04);
 
@@ -76,158 +26,120 @@ INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019E558);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019E920);
 
-extern EInit D_us_801804DC;
-
-void func_us_8019ECCC(Entity* self) {
-    s32 params;
-    s32 rotate;
-
-    if (D_us_80180B5C & 0x10) {
-        DestroyEntity(self);
-        return;
-    }
-    if (!self->step) {
-        InitializeEntity(D_us_801804DC);
-        params = self->params;
-        rotate = self->rotate;
-        self->drawFlags = 8;
-        self->blendMode = 0x30;
-        self->opacity = 0x60;
-        self->animCurFrame = params;
-        if (rotate) {
-            self->drawFlags |= 4;
-        }
-    }
-    self->opacity -= 8;
-    if (!self->opacity) {
-        DestroyEntity(self);
-    }
-}
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019ECCC);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019ED80);
 
-// twin of polarPlacePart (src/st/giantbro_helpers.h); this overlay never
-// resolved the polarPlacePart twin above, so it keeps calling it by its
-// still-unmatched local name.
-void func_us_8019ED80(Entity* self);
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", polarPlacePartsWithAngvel);
 
-void polarPlacePartsWithAngvel(s16* entOffsets) {
-    Entity* ent;
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_801CDD00);
 
-    while (*entOffsets) {
-        if (*entOffsets != 0xFF) {
-            ent = g_CurrentEntity + *entOffsets;
-            ent->ext.GH_Props.rotate += ent->ext.GH_Props.rotVel;
-            func_us_8019ED80(ent);
-        }
-        entOffsets++;
-    }
-}
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_801CDD80);
 
-void func_801CDD00(Entity* entity, s16 arg1, s16 arg2) {
-    s16 temp_t0 = arg1 - entity->ext.GH_Props.rotate;
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_801CDF1C);
 
-    if (temp_t0 > 0x800) {
-        temp_t0 = temp_t0 - 0x1000;
-    }
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_801CE1E8);
 
-    if (temp_t0 < -0x800) {
-        temp_t0 = temp_t0 + 0x1000;
-    }
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_801CE228);
 
-    temp_t0 = temp_t0 / arg2;
-    entity->ext.GH_Props.rotVel = temp_t0;
-    entity->ext.GH_Props.unkA4 = arg1;
-}
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", polarPlacePartsList);
 
-void func_801CDD80(s16* entOffsets, unkStr_801CDD80* arg1) {
-    Entity* var_s1;
-    s16* ptr = arg1->unk4;
-
-    while (*entOffsets) {
-        if (*entOffsets != 0xFF) {
-            var_s1 = g_CurrentEntity + *entOffsets;
-            func_801CDD00(var_s1, *ptr, arg1->unk0);
-        }
-        ptr++;
-        entOffsets++;
-    }
-}
-
-void func_801CDF1C(s16 entIndices[], unkStr_801CDD80* arg1, s32 arg2) {
-
-    arg1 += (u16)g_CurrentEntity->ext.GH_Props.unkB0[arg2];
-
-    if (!g_CurrentEntity->ext.GH_Props.unkB4[arg2]) {
-        func_801CDD80(entIndices, arg1);
-        g_CurrentEntity->ext.GH_Props.unkB4[arg2] = arg1->unk0;
-    }
-    if (!--g_CurrentEntity->ext.GH_Props.unkB4[arg2]) {
-        arg1++;
-        if (!arg1->unk0) {
-            g_CurrentEntity->ext.GH_Props.unkB0[arg2] = 0;
-        } else {
-            ++g_CurrentEntity->ext.GH_Props.unkB0[arg2];
-        }
-    }
-}
-
-void func_801CE1E8(s32 step) {
-    s32 i;
-
-    g_CurrentEntity->step = step;
-    g_CurrentEntity->step_s = 0;
-    g_CurrentEntity->pose = 0;
-    g_CurrentEntity->poseTimer = 0;
-    for (i = 0; i < 4; i++) {
-        g_CurrentEntity->ext.GH_Props.unkB0[i] = 0;
-        g_CurrentEntity->ext.GH_Props.unkB4[i] = 0;
-    }
-}
-
-void func_801CE228() {
-    s32 i;
-
-    for (i = 0; i < 4; i++) {
-        g_CurrentEntity->ext.GH_Props.unkB0[i] = 0;
-        g_CurrentEntity->ext.GH_Props.unkB4[i] = 0;
-    }
-}
-
-void polarPlacePartsList(s16* offsets) {
-    Entity* entity;
-
-    while (*offsets) {
-        entity = g_CurrentEntity + *offsets;
-        if (!entity->ext.GH_Props.unkA8) {
-            func_us_8019ED80(entity);
-        }
-        offsets++;
-    }
-}
-
-static void SpawnEntityCluster_from_rcen(void) {
-    s32 i;
-    u8 variant;
-    s16 angle;
-    Entity* newEntity;
-
-    variant = Random() & 0x3;
-    angle = ((Random() & 0xF) << 8) - 0x800;
-
-    for (i = 0; i < 6; i++) {
-        newEntity = AllocEntity(&g_Entities[224], &g_Entities[256]);
-        if (newEntity != NULL) {
-            CreateEntityFromEntity(E_UNK_1F, g_CurrentEntity, newEntity);
-            newEntity->ext.et_8019D330.unk89 = 6 - i;
-            newEntity->ext.et_8019D330.unk88 = variant;
-            newEntity->params = 2;
-            newEntity->ext.et_8019D330.unk84 = angle;
-            newEntity->zPriority = g_CurrentEntity->zPriority + 1;
-        }
-    }
-}
+// decompiled in src/boss/bo1/e_explosion_flame.c
+INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019D260_from_rcen);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019F260);
 
-INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019F4AC);
+extern EInit g_EInitInteractable;
+extern s32 D_us_80180B5C;
+extern u32 g_CutsceneFlags;
+
+void func_us_8019F4AC(Entity* self) {
+    Entity* entity;
+    u32 posX;
+    s32 posY;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        self->flags |= FLAG_UNK_10000;
+        // fallthrough
+
+    case 1:
+        posX = PLAYER.posX.i.hi + g_Tilemap.scrollX.i.hi;
+        if ((posX - 0x41) < 0x17F) {
+            D_us_80180B5C |= 1;
+            self->step++;
+        }
+        break;
+
+    case 2:
+        if (g_CastleFlags[DEATH_FIGHT_CS] ||
+            (g_PlayableCharacter != PLAYER_ALUCARD) ||
+            (g_DemoMode != Demo_None)) {
+            posX = PLAYER.posX.i.hi + g_Tilemap.scrollX.i.hi;
+            if ((posX - 0x81) >= 0xFF) {
+                break;
+            }
+        } else if (!(g_CutsceneFlags & 2)) {
+            break;
+        }
+        g_api.TimeAttackController(
+            TIMEATTACK_EVENT_DEATH_DEFEAT, TIMEATTACK_SET_VISITED);
+        stopMusicFlag = true;
+        currentMusicId = MU_DEATH_BALLAD;
+        D_us_80180B5C |= 2;
+        self->step++;
+        break;
+
+    case 3:
+        if (g_api.func_80131F68() == false) {
+            stopMusicFlag = false;
+            g_api.PlaySfx(currentMusicId);
+            self->step++;
+        }
+        // fallthrough
+
+    case 4:
+        if (D_us_80180B5C & 0x10) {
+            g_api.TimeAttackController(
+                TIMEATTACK_EVENT_DEATH_DEFEAT, TIMEATTACK_SET_RECORD);
+            g_api.PlaySfx(SET_UNK_90);
+            currentMusicId = MU_ABANDONED_PIT;
+            self->step++;
+        }
+        break;
+
+    case 5:
+        if (D_us_80180B5C & 0x40) {
+            self->step++;
+        }
+        break;
+
+    case 6:
+        posX = 0x100 - g_Tilemap.scrollX.i.hi;
+        posY = 0x80 - g_Tilemap.scrollY.i.hi;
+        entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
+        if (entity != NULL) {
+            CreateEntityFromEntity(E_LIFE_UPSPAWN, self, entity);
+            entity->posX.i.hi = posX;
+            entity->posY.i.hi = posY;
+            entity->params = 0x15;
+            stopMusicFlag = true;
+            currentMusicId = MU_ABANDONED_PIT;
+            D_us_80180B5C |= 0x80;
+            self->step++;
+        }
+        break;
+
+    case 7:
+        if (g_api.func_80131F68() == false) {
+            stopMusicFlag = false;
+            g_api.PlaySfx(currentMusicId);
+            self->step++;
+        }
+        break;
+    }
+
+    FntPrint("set_step %x\n", self->step);
+    FntPrint("boss_flag %x\n", D_us_80180B5C);
+}

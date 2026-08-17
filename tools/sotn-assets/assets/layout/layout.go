@@ -28,19 +28,9 @@ type layoutEntry struct {
 	YOrder  *int   `json:"yOrder,omitempty"`
 }
 
-// raw words embedded between two layout blocks but not referenced by any
-// layout table (e.g. NO0 has an orphan spawn cluster inside the Y-ordered
-// copy); preserved so the build stays byte-exact
-type layoutGap struct {
-	Copy       string   `json:"copy"`       // "x" or "y"
-	AfterBlock int      `json:"afterBlock"` // address-ordered block index the gap follows
-	Words      []uint16 `json:"words"`
-}
-
 type layouts struct {
 	Entities [][]layoutEntry `json:"entities"`
 	Indices  []int           `json:"indices"`
-	Gaps     []layoutGap     `json:"gaps,omitempty"`
 }
 
 // Utility function that finds the index of the given value in the given list.
@@ -185,77 +175,21 @@ func readEntityLayout(r io.ReadSeeker, ovlName string, off, baseAddr psx.Addr, c
 		if err := hydrateYOrderFields(l, yLayouts); err != nil {
 			return layouts{}, nil, fmt.Errorf("unable to populate YOrder field: %w", err)
 		}
-		xMerged, xGaps, err := mergeRangesCapturingGaps(r, baseAddr, xRanges, "x")
+		// Keep block ranges separate here. Info consolidates adjacent runs while
+		// leaving gaps unclaimed; Extract does not consume the ranges.
+		laydefRange, err := datarange.Merge([]datarange.DataRange{
+			datarange.New(off, endOfArray), yRanges[0]})
 		if err != nil {
 			return layouts{}, nil, err
 		}
-		yMerged := yRanges[1]
-		defRange := datarange.MergeDataRanges([]datarange.DataRange{datarange.New(off, endOfArray), yRanges[0]})
-		l.Gaps = append(xGaps, yLayouts.Gaps...)
-		var dataRange datarange.DataRange
-		if xMerged.End() != yMerged.Begin() {
-			// unreferenced bytes between the X and Y copies: keep them as a
-			// tail gap of the last X block so Build reproduces them in place
-			words, err := readGapWords(r, baseAddr, xMerged.End(), yMerged.Begin())
-			if err != nil {
-				return layouts{}, nil, err
-			}
-			l.Gaps = append(l.Gaps, layoutGap{Copy: "x", AfterBlock: len(xRanges) - 1, Words: words})
-			dataRange = datarange.New(xMerged.Begin(), yMerged.End())
-		} else {
-			dataRange = datarange.MergeDataRanges([]datarange.DataRange{xMerged, yMerged})
-		}
-		return l, []datarange.DataRange{defRange, dataRange}, nil
+		layoutRanges := append(
+			[]datarange.DataRange{laydefRange}, xRanges...)
+		return l, append(layoutRanges, yRanges[1:]...), nil
 	} else {
-		merged, gaps, err := mergeRangesCapturingGaps(r, baseAddr, xRanges, "y")
-		if err != nil {
-			return layouts{}, nil, err
-		}
-		l.Gaps = gaps
-		return l, []datarange.DataRange{datarange.New(off, endOfArray), merged}, nil
+		return l, append(
+			[]datarange.DataRange{datarange.New(off, endOfArray)},
+			xRanges...), nil
 	}
-}
-
-// reads the raw words of an unreferenced hole [begin, end) inside the layout data
-func readGapWords(r io.ReadSeeker, baseAddr, begin, end psx.Addr) ([]uint16, error) {
-	gapLen := int(end) - int(begin)
-	if gapLen <= 0 || gapLen%2 != 0 {
-		return nil, fmt.Errorf("layout blocks overlap or misalign: %s vs %s", begin, end)
-	}
-	if err := begin.MoveFile(r, baseAddr); err != nil {
-		return nil, err
-	}
-	words := make([]uint16, gapLen/2)
-	if err := binary.Read(r, binary.LittleEndian, words); err != nil {
-		return nil, err
-	}
-	return words, nil
-}
-
-// like datarange.MergeDataRanges but instead of failing on non-contiguous
-// blocks it captures each hole's raw content, tagged with the address-ordered
-// block index it follows
-func mergeRangesCapturingGaps(r io.ReadSeeker, baseAddr psx.Addr, ranges []datarange.DataRange, copyName string) (datarange.DataRange, []layoutGap, error) {
-	var zero datarange.DataRange
-	if len(ranges) == 0 {
-		return zero, nil, fmt.Errorf("no layout %s ranges, bug?!", copyName)
-	}
-	sorted := make([]datarange.DataRange, len(ranges))
-	copy(sorted, ranges)
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Begin() < sorted[j].Begin() })
-	var gaps []layoutGap
-	for i := 0; i < len(sorted)-1; i++ {
-		end, next := sorted[i].End(), sorted[i+1].Begin()
-		if end == next {
-			continue
-		}
-		words, err := readGapWords(r, baseAddr, end, next)
-		if err != nil {
-			return zero, nil, fmt.Errorf("layout %s copy: %w", copyName, err)
-		}
-		gaps = append(gaps, layoutGap{Copy: copyName, AfterBlock: i, Words: words})
-	}
-	return datarange.New(sorted[0].Begin(), sorted[len(sorted)-1].End()), gaps, nil
 }
 
 func buildEntityLayouts(fileName, outputDir, subDir string, ovlName string) error {
@@ -296,13 +230,8 @@ func buildEntityLayouts(fileName, outputDir, subDir string, ovlName string) erro
 		return sorting
 	}
 	writeLayoutEntries := func(sb *strings.Builder, el layouts, sortByX bool) error {
-		copyName := "y"
-		if sortByX {
-			copyName = "x"
-		}
 		banks := makeSortedBanks(el.Entities, sortByX)
 		nWritten := 0
-		wordsWritten := 0
 		for i, entries := range banks {
 			// do a sanity check on the entries as we do not want to build something that will cause the game to crash
 			if entries[0].X != -2 || entries[0].Y != -2 {
@@ -323,25 +252,8 @@ func buildEntityLayouts(fileName, outputDir, subDir string, ovlName string) erro
 					uint16(e.X), uint16(e.Y), e.ID, int(e.Flags)<<8, int(e.Slot)|(int(e.SpawnID)<<8), e.Params))
 			}
 			nWritten += len(entries)
-			wordsWritten += len(entries) * 5
-			for _, gap := range el.Gaps {
-				if gap.Copy != copyName || gap.AfterBlock != i {
-					continue
-				}
-				sb.WriteString("// unreferenced raw words (not reachable from the layout tables)\n")
-				for j, w := range gap.Words {
-					if j%8 == 0 {
-						sb.WriteString("   ")
-					}
-					sb.WriteString(fmt.Sprintf(" 0x%04X,", w))
-					if j%8 == 7 || j == len(gap.Words)-1 {
-						sb.WriteString("\n")
-					}
-				}
-				wordsWritten += len(gap.Words)
-			}
 		}
-		if !sortByX && wordsWritten%2 != 0 {
+		if !sortByX && nWritten%2 != 0 {
 			sb.WriteString("    0, // padding\n")
 		}
 		return nil
@@ -361,23 +273,11 @@ func buildEntityLayouts(fileName, outputDir, subDir string, ovlName string) erro
 	_, _ = h.Write([]byte(outputDir))
 	symbolVariant := strconv.FormatUint(uint64(h.Sum32()), 16)
 	symbolName := fmt.Sprintf("entity_layout_%s", symbolVariant)
-	// per-copy u16 offsets: unreferenced gaps shift every block after them,
-	// and a gap not multiple of 10 bytes breaks LayoutEntity-granular indexing
-	makeOffsets := func(copyName string) ([]int, bool) {
-		hasGap := false
-		out := make([]int, len(el.Entities))
-		cur := 0
-		for i := 0; i < len(el.Entities); i++ {
-			out[i] = cur
-			cur += len(el.Entities[i]) * 5
-			for _, gap := range el.Gaps {
-				if gap.Copy == copyName && gap.AfterBlock == i {
-					cur += len(gap.Words)
-					hasGap = true
-				}
-			}
-		}
-		return out, hasGap
+	offsets := make([]int, len(el.Entities))
+	offsetCur := 0
+	for i := 0; i < len(el.Entities); i++ {
+		offsets[i] = offsetCur
+		offsetCur += len(el.Entities[i]) * 5
 	}
 
 	ovlHeaderLoc := fmt.Sprintf("../%s.h", ovlName)
@@ -390,26 +290,18 @@ func buildEntityLayouts(fileName, outputDir, subDir string, ovlName string) erro
 	laydefFile.WriteString("#include <stage.h>\n\n")
 	laydefFile.WriteString("#include \"common.h\"\n\n")
 	laydefFile.WriteString("// clang-format off\n")
-	writeLaydef := func(copyName, cName string) {
-		offsets, hasGap := makeOffsets(copyName)
-		if hasGap {
-			// gaps break LayoutEntity-granular indexing: use u16 indices
-			laydefFile.WriteString(fmt.Sprintf("extern u16 %s_%s[];\n", symbolName, copyName))
-		} else {
-			laydefFile.WriteString(fmt.Sprintf("extern LayoutEntity %s_%s[];\n", symbolName, copyName))
-		}
-		laydefFile.WriteString(fmt.Sprintf("LayoutEntity* %s[] = {\n", cName))
-		for _, i := range el.Indices {
-			if hasGap {
-				laydefFile.WriteString(fmt.Sprintf("    (LayoutEntity*)&%s_%s[%d],\n", symbolName, copyName, offsets[i]))
-			} else {
-				laydefFile.WriteString(fmt.Sprintf("    &%s_%s[%d],\n", symbolName, copyName, offsets[i]/5))
-			}
-		}
-		laydefFile.WriteString(fmt.Sprintf("};\n"))
+	laydefFile.WriteString(fmt.Sprintf("extern LayoutEntity %s_x[];\n", symbolName))
+	laydefFile.WriteString("LayoutEntity* entityLayoutHorizontal[] = {\n")
+	for _, i := range el.Indices {
+		laydefFile.WriteString(fmt.Sprintf("    &%s_x[%d],\n", symbolName, offsets[i]/5))
 	}
-	writeLaydef("x", "entityLayoutHorizontal")
-	writeLaydef("y", "entityLayoutVertical")
+	laydefFile.WriteString(fmt.Sprintf("};\n"))
+	laydefFile.WriteString(fmt.Sprintf("extern LayoutEntity %s_y[];\n", symbolName))
+	laydefFile.WriteString("LayoutEntity* entityLayoutVertical[] = {\n")
+	for _, i := range el.Indices {
+		laydefFile.WriteString(fmt.Sprintf("    &%s_y[%d],\n", symbolName, offsets[i]/5))
+	}
+	laydefFile.WriteString(fmt.Sprintf("};\n"))
 
 	layoutFile := strings.Builder{}
 	layoutFile.WriteString(fmt.Sprintf("#include \"%s\"\n\n", ovlHeaderLoc))

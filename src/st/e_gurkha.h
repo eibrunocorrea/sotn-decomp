@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+extern EInit g_EInitGurkha;
+extern EInit g_EInitGurkhaWeapon;
+
 // clang-format off
 static u16 D_80182EF4[] = {0, 9, 0, 4, 4, -4, -8, 0};
 static giantBroBodyPartsInit D_80182F04[] = {
@@ -226,8 +229,8 @@ void EntityGurkha(Entity* self) {
         self->facingLeft = self->params;
         self->hitboxWidth = 6;
         self->hitboxHeight = 6;
-#ifdef GURKHA_ZPRIORITY_OFFSET
-        self->zPriority += GURKHA_ZPRIORITY_OFFSET;
+#ifdef STAGE_IS_RNO0
+        self->zPriority += 8;
 #endif
         /* fallthrough */
     case 1:

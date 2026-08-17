@@ -3,8 +3,6 @@
 
 #define STAGE_IS_NO0
 
-#define OVL_EXPORT(x) NO0_##x
-
 void EntityExplosionVariants(Entity* entity);
 void EntityGreyPuff(Entity* entity);
 
@@ -112,7 +110,7 @@ extern Primitive* FindFirstUnkPrim(Primitive* poly);
 extern EInit g_EInitBreakable;
 extern EInit g_EInitObtainable;
 extern EInit g_EInitParticle;
-extern EInit g_EInitSpawner;
+extern EInit D_us_80180A88;
 extern EInit g_EInitInteractable;
 extern EInit D_us_80180AA0;
 extern EInit D_us_80180AAC;
@@ -127,7 +125,7 @@ extern EInit D_us_80180B0C;
 extern EInit g_EInitDamageNum;
 extern EInit g_EInitDiplocephalus;
 extern EInit g_EInitDiplocephalusFoot;
-extern EInit g_EInitDiplocephalusLeg;
+extern EInit D_us_80180B3C;
 extern EInit g_EInitDiplocephalusTail;
 extern EInit g_EInitDiplocephalusFireball;
 extern EInit g_EInitElevator;

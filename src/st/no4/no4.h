@@ -2,7 +2,6 @@
 #include "stage.h"
 
 #define STAGE_IS_NO4
-#define OVL_EXPORT(x) NO4_##x
 
 typedef enum EntityID {
     /* 0x00 */ E_NONE,
@@ -36,7 +35,7 @@ typedef enum EntityID {
     /* 0x1C */ E_ID_1C,
     /* 0x1D */ E_ID_1D,
     /* 0x1E */ E_ID_1E,
-    /* 0x1F */ E_ID_1F,
+    /* 0x1F */ E_BG_COLUMN_PARALLAX,
     /* 0x20 */ E_ID_20,
     /* 0x21 */ E_ID_21,
     /* 0x22 */ E_ID_22,

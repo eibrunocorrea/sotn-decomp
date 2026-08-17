@@ -1,12 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include "sfx.h"
-
 extern EInit g_EInitSubwpnCloche;
 extern EInit g_EInitSubwpnClochePieces;
-extern EInit g_EInitObtainable;
 extern EInit g_EInitParticle;
-
-void EntityPrizeDrop(Entity* self);
+extern EInit g_EInitObtainable;
 
 typedef struct SubWpnContDebris {
     s16 velX;
@@ -18,12 +14,12 @@ typedef struct SubWpnContDebris {
 extern u8* g_MariaSubweaponAnimPrizeDrop[];
 extern u8* g_SubweaponAnimPrizeDrop[];
 
-static SubWpnContDebris D_80182584[] = {
+static SubWpnContDebris glassPiecesParams[] = {
     {0, -87, 3, false}, {-10, -70, 7, true}, {-11, -55, 6, false},
     {7, -74, 7, true},  {10, -60, 6, true},  {-9, -39, 5, false},
     {8, -41, 4, false}, {2, -49, 5, true},   {0, -66, 7, true},
 };
-static s32 D_801825CC[] = {22, 20, 16, 14, 19, 21, 15, 17, 18};
+static s32 subweapon_params[] = {22, 20, 16, 14, 19, 21, 15, 17, 18};
 
 // SubWeapons floating in the breakable container
 typedef enum {
@@ -58,9 +54,9 @@ void EntitySubWeaponContainer(Entity* self) {
         self->palette += self->params;
         newEntity = self + 1;
         CreateEntityFromEntity(
-            E_func_801C7884, self, newEntity); // Create SubWeapon
+            E_SUBWPN_IN_CONT, self, newEntity); // Create SubWeapon
         newEntity->posY.i.hi -= 72;
-        newEntity->params = D_801825CC[self->params];
+        newEntity->params = subweapon_params[self->params];
         newEntity->zPriority = self->zPriority - 2;
 
         primIndex = g_api.AllocPrimitives(PRIM_GT4, 2);
@@ -106,8 +102,8 @@ void EntitySubWeaponContainer(Entity* self) {
         g_api.FreePrimitives(self->primIndex);
         self->flags &= ~FLAG_HAS_PRIMS;
         g_api.PlaySfx(SFX_SUBWEAPON_CONTAINER_BREAK);
-        glassPieceTBL = D_80182584;
-        for (i = 0; i < LEN(D_80182584); i++, glassPieceTBL++) {
+        glassPieceTBL = glassPiecesParams;
+        for (i = 0; i < LEN(glassPiecesParams); i++, glassPieceTBL++) {
             newEntity = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (newEntity != NULL) {
                 CreateEntityFromEntity(E_FALLING_GLASS, self, newEntity);
@@ -202,11 +198,15 @@ void EntitySubWpnContGlass(Entity* self) {
     }
 }
 
-static u8 D_801825F0[] = {1, 1, 4, 1, 2, 1, 5, 1, 2, 1, 3, 1, 0, 0};
-static s32 D_80182600[] = {FIX(-1), FIX(-1), FIX(-0.5), FIX(-0.25)};
+// This is weird. It's 1 frame of pose 1, 4 frames of pose 1, 2 frames of pose
+// 1, etc So it only shows pose 1. Which is a generic little flame particle.
+// Look close at the broken liquid and it is in fact a fire.
+static AnimateEntityFrame fallingLiquidAnim[] = {
+    {1, 1}, {4, 1}, {2, 1}, {5, 1}, {2, 1}, {3, 1}, POSE_LOOP(0)};
+static s32 bubbleRiseSpeeds[] = {FIX(-1), FIX(-1), FIX(-0.5), FIX(-0.25)};
 
 // falling liquid from subweapons container
-void func_801C7654(Entity* self) {
+void EntityFallingLiquid(Entity* self) {
     Collider collider;
     s32 x, y;
 
@@ -221,7 +221,7 @@ void func_801C7654(Entity* self) {
         break;
 
     case 1:
-        AnimateEntity(D_801825F0, self);
+        AnimateEntity(fallingLiquidAnim, self);
         MoveEntity();
         self->velocityY += FIX(0.125);
         x = self->posX.i.hi;
@@ -247,7 +247,7 @@ void func_801C7654(Entity* self) {
 }
 
 // Liquid bubbles from the Subweapon container
-void func_801C77B8(Entity* self) {
+void EntityBubbles(Entity* self) {
     switch (self->step) {
     case 0:
         InitializeEntity(g_EInitSubwpnClochePieces);
@@ -255,7 +255,7 @@ void func_801C77B8(Entity* self) {
         self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY;
         self->scaleX = self->scaleY = 0x100;
         self->velocityX = 0;
-        self->velocityY = D_80182600[self->params];
+        self->velocityY = bubbleRiseSpeeds[self->params];
         break;
 
     case 1:
@@ -269,8 +269,8 @@ void func_801C77B8(Entity* self) {
     }
 }
 
-void func_801C7884(Entity* self) {
-    Entity* tempEntity;
+void EntitySubwpnInContainer(Entity* self) {
+    Entity* parentContainer;
     s32 params = self->params;
 
     switch (self->step) {
@@ -284,19 +284,19 @@ void func_801C7884(Entity* self) {
             if (params >= 14 && params < 23) {
                 switch (params) {
                 case 14:
-                    params = 0xF;
+                    params = 15;
                     break;
                 case 15:
-                    params = 0xE;
+                    params = 14;
                     break;
                 case 21:
-                    params = 0x10;
+                    params = 16;
                     break;
                 case 17:
-                    params = 0x11;
+                    params = 17;
                     break;
                 case 19:
-                    params = 0x13;
+                    params = 19;
                     break;
                 default:
                     params = 0;
@@ -314,11 +314,14 @@ void func_801C7884(Entity* self) {
         MoveEntity();
         AnimateEntity(g_SubweaponAnimPrizeDrop[params], self);
 #endif
+        // Handles floating up and down within the liquid
         self->velocityY = rsin(self->rotate) * 2;
         self->rotate += 0x20;
 
-        tempEntity = &self[-1];
-        if (tempEntity->step != 1) {
+        parentContainer = self - 1;
+        // Once the parent is broken (no longer idle) this entity becomes
+        // an actual collectible subweapon
+        if (parentContainer->step != SUBWPNCONT_IDLE) {
             self->entityId = E_PRIZE_DROP;
             self->pfnUpdate = EntityPrizeDrop;
             self->poseTimer = 0;

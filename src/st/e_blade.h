@@ -2,6 +2,9 @@
 
 // The enemy called "Blade", his helper functions, and his swords
 
+extern EInit g_EInitBlade;
+extern EInit g_EInitBladeWeapon;
+
 static void func_801D0A00(s16* arg0) {
     Entity* ent;
 
@@ -24,7 +27,18 @@ static void func_801D0A00(s16* arg0) {
     }
 }
 
-#include "e_blade_sync_parts.h"
+static void func_801D0B40(void) {
+    Entity* ent;
+    s16* unk88;
+
+    ent = g_CurrentEntity + 15;
+    unk88 = ent->ext.et_801D0B40.unk88;
+    ent->ext.et_801D0B40.unk84 = unk88[0x4E] - 0x600;
+
+    ent = g_CurrentEntity + 16;
+    unk88 = ent->ext.et_801D0B40.unk88;
+    ent->ext.et_801D0B40.unk84 = unk88[0x4E] - 0x600;
+}
 
 static s32 func_801D0B78(Entity* ent) {
     Entity* player = &PLAYER;
@@ -317,8 +331,8 @@ void EntityBlade(Entity* self) {
         self->facingLeft = self->params;
         self->hitboxWidth = 6;
         self->hitboxHeight = 6;
-#ifdef BLADE_ZPRIORITY_OFFSET
-        self->zPriority += BLADE_ZPRIORITY_OFFSET;
+#ifdef STAGE_IS_RNO0
+        self->zPriority += 8;
 #endif
         /* fallthrough */
     case 1:

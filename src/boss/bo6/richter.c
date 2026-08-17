@@ -1158,7 +1158,8 @@ void RicStepFall(void) {
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepCrouch);
 
 void RicResetPose(void) {
-    RIC.pose = RIC.poseTimer = 0;
+    RIC.poseTimer = 0;
+    RIC.pose = 0;
     g_Ric.unk44 = 0;
     g_Ric.unk46 = 0;
     RIC.drawFlags &= ~ENTITY_ROTATE;
