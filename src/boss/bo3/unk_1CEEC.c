@@ -314,10 +314,8 @@ INCLUDE_ASM("boss/bo3/nonmatchings/unk_1CEEC", func_us_801B5004_from_rbo5);
 
 INCLUDE_ASM("boss/bo3/nonmatchings/unk_1CEEC", func_us_801A1BE8);
 
-extern s32 D_us_80180C80[]; // g_SplashYMovement (velocityY/accelY pairs)
-extern s16 D_us_80180D38[]; // g_splashAspects
-#define g_SplashYMovement D_us_80180C80
-#define g_splashAspects D_us_80180D38
+extern s32 g_SplashYMovement[]; // velocityY/accelY pairs
+extern s16 g_splashAspects[];
 extern EInit g_EInitCommon;
 
 // twin of EntitySplashWater (src/st/water_effects.h); this overlay plays a

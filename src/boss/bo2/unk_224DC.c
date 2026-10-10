@@ -22,7 +22,6 @@ INCLUDE_ASM("boss/bo2/nonmatchings/unk_224DC", func_us_801A460C);
 #include "e_unk_29.h"
 
 extern EInit D_us_80180524;
-#define anim_boss_torch D_us_80180B60
 extern AnimateEntityFrame anim_boss_torch[];
 // Torches are scaled slightly smaller based on params
 // to appear further in the background.

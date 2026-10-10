@@ -65,5 +65,5 @@ EInit D_us_801804AC = {ANIMSET_OVL(3), 0, 72, 512, 0x145};
 EInit D_us_801804B8 = {ANIMSET_OVL(3), 0, 72, 512, 0x146};
 EInit D_us_801804C4 = {ANIMSET_OVL(3), 0, 72, 512, 0x005};
 EInit D_us_801804D0 = {ANIMSET_OVL(3), 0, 72, 512, 0x002};
-EInit D_us_801804DC = {ANIMSET_OVL(1), 8, 0, 0, 0x005};
+EInit g_EInitBossDoor = {ANIMSET_OVL(1), 8, 0, 0, 0x005};
 // clang-format on

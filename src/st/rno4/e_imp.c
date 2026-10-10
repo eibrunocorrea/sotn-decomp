@@ -30,7 +30,6 @@ extern u8 D_us_80182A40[];
 extern u8 D_us_80182A4C[];
 extern u8 D_us_80182A90[];
 extern u8 D_us_80182B6C[];
-#define anim_imp D_us_80182B78
 #include "../e_imp.h"
 
 #include "../e_imp_smoke.h"

@@ -21,6 +21,7 @@ minotaur_attack_hitboxes = 0x80180964;
 minotaur_attack_hitbox_indices = 0x80180A00;
 fireball_config = 0x80180A5C;
 anim_torch_puff = 0x80180B44;
+anim_boss_torch = 0x80180B60;
 actor_names = 0x80180C20;
 rooms = 0x801817E0;
 werewolf_attack_hitboxes = 0x80181A3C;

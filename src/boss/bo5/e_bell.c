@@ -24,11 +24,8 @@ typedef struct {
 
 extern EInit g_EInitInteractable;
 
-#define points D_us_80180684
 extern SVEC4 points[];
-#define bell_params D_us_801806B4
 extern BellParams bell_params[];
-#define trans_vector D_us_801806CC
 extern VECTOR trans_vector;
 
 void EntityBell(Entity* self) {

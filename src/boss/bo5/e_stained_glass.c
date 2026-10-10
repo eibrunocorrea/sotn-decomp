@@ -21,46 +21,27 @@ enum {
 
 extern EInit g_EInitInteractable;
 
-#define glass_points_0 D_us_80181A34
 extern SVECTOR glass_points_0;
-#define glass_points_1 D_us_80181A3C
 extern SVECTOR glass_points_1;
-#define glass_points_2 D_us_80181A44
 extern SVECTOR glass_points_2;
-#define glass_points_3 D_us_80181A4C
 extern SVECTOR glass_points_3;
-#define light_points_0 D_us_80181A54
 extern SVECTOR light_points_0;
-#define light_points_1 D_us_80181A5C
 extern SVECTOR light_points_1;
-#define light_points_2 D_us_80181A64
 extern SVECTOR light_points_2;
-#define light_points_3 D_us_80181A6C
 extern SVECTOR light_points_3;
 // Atypical use of this vector.  It uses the normal vector values normally, but
 // also uses pad to store the number of recursions of StainedGlassRecurseDepth
-#define params D_us_80181A74
 extern VECTOR params[];
 
-#define y_vals D_us_80181B34
 extern s16 y_vals[];
-#define colors D_us_80181B4C
 extern CVECTOR colors[];
-#define light_rot_vector D_us_80181B7C
 extern SVECTOR light_rot_vector; // bss on pspeu
-#define bg_points_0 D_us_80181B84
 extern SVECTOR bg_points_0;
-#define bg_points_1 D_us_80181B8C
 extern SVECTOR bg_points_1;
-#define bg_points_2 D_us_80181B94
 extern SVECTOR bg_points_2;
-#define bg_points_3 D_us_80181B9C
 extern SVECTOR bg_points_3;
-#define bg_pos_vector D_us_80181BA4
 extern SVECTOR bg_pos_vector; // bss on pspeu
-#define trans_vectors D_us_80181BAC
 extern VECTOR trans_vectors[];
-#define bg_rot_vector D_us_80181C3C
 extern SVECTOR bg_rot_vector; // bss on pspeu
 
 // Renders the stained glass and "sunlight" effect
