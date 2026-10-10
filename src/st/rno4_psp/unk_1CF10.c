@@ -180,7 +180,94 @@ void func_us_801C5364(Entity* self) {
     }
 }
 
-INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_1CF10", EntityBgColumnsParallax_from_no4);
+extern s16 D_pspeu_0929B880[];
+
+void EntityBgColumnsParallax_from_no4(Entity* self) {
+    s32 primIndex;
+    s32 scrollY;
+    s32 scrollX;
+    s32 var_s5;
+    s16* ptr;
+    s32 var_s3;
+    s32 var_s2;
+    s32 var_s1;
+    Primitive* prim;
+
+    if (!self->step) {
+        InitializeEntity(g_EInitInteractable);
+        self->animSet = 0;
+        primIndex = g_api.AllocPrimitives(PRIM_GT4, 10);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_801C12B0.prim = prim;
+        while (prim != NULL) {
+            prim->tpage = 0xE;
+            prim->clut = 0x84;
+            prim->u0 = prim->u2 = 0xE9;
+            prim->u1 = prim->u3 = 0xFD;
+            prim->v0 = prim->v1 = 0x7F;
+            prim->v2 = prim->v3 = 1;
+            prim->priority = 0x1C;
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+    }
+
+    prim = self->ext.et_801C12B0.prim;
+    ptr = D_pspeu_0929B880;
+    scrollX = g_Tilemap.scrollX.i.hi;
+    scrollX /= 2;
+    scrollX &= 0xFF;
+    scrollY = g_Tilemap.scrollY.i.hi;
+
+    scrollY /= 2;
+    while (1) {
+        var_s1 = *ptr++;
+        var_s2 = 0x7A - *ptr++ + (g_Tilemap.height - 0x100) / 2;
+        var_s5 = *ptr++;
+        var_s1 -= scrollX;
+        var_s2 -= scrollY;
+        var_s3 = var_s2 + 0x7E;
+        if (var_s1 < -0x14) {
+            continue;
+        }
+
+        if (var_s1 >= 0x100) {
+            break;
+        }
+
+        if (var_s3 >= 0 && var_s2 < 0xE0) {
+            if (var_s5 & 1) {
+                prim->x0 = prim->x2 = var_s1 + 0x14;
+                prim->x1 = prim->x3 = var_s1;
+            } else {
+                prim->x0 = prim->x2 = var_s1;
+                prim->x1 = prim->x3 = var_s1 + 0x14;
+            }
+
+            if (var_s5 & 2) {
+                prim->y0 = prim->y1 = var_s2;
+                prim->y2 = prim->y3 = var_s3;
+            } else {
+                prim->y0 = prim->y1 = var_s3;
+                prim->y2 = prim->y3 = var_s2;
+            }
+
+            prim->drawMode = DRAW_DEFAULT;
+            prim = prim->next;
+        }
+    }
+
+    while (prim != NULL) {
+        prim->drawMode = DRAW_HIDE;
+        prim = prim->next;
+    }
+}
 
 INCLUDE_ASM("st/rno4_psp/nonmatchings/rno4_psp/unk_1CF10", func_us_801C1EE4_from_no4);
 

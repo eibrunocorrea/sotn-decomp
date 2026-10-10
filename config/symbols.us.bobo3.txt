@@ -61,3 +61,4 @@ UnkRecursivePrimFunc1 = 0x801AED08;
 UnkRecursivePrimFunc2 = 0x801AF2E8;
 PlaySfxPositional = 0x801AFBE0;
 UnkPolyFunc2 = 0x801B1ED8;
+D_us_80180BC4 = 0x80180BC4; // size:0x30

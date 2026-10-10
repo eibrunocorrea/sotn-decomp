@@ -1,10 +1,43 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rbo6.h"
 
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", EntityBreakable);
+static u8 anim_1[] = {4, 1, 4, 2, 0, 0};
+static u8 anim_2[] = {4, 0, 4, 0, 0};
+static u8* g_eBreakableAnimations[8] = {anim_1, anim_2};
+static u8 g_eBreakableHitboxes[8] = {8, 8};
+static u8 g_eBreakableExplosionTypes[8] = {0, 0};
+static u16 g_eBreakableanimSets[8] = {ANIMSET_DRA(3), ANIMSET_DRA(3)};
 
-// decompiled in src/boss/bo1/e_explosion_flame.c
-INCLUDE_ASM("boss/rbo6/nonmatchings/unk_1D690", func_us_8019D260_from_rcen);
+static u8 blend_modes[8] = {
+    BLEND_TRANSP | BLEND_QUARTER,
+    BLEND_TRANSP | BLEND_ADD,
+};
+
+static u8 unused[] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+#include "../../st/e_breakable.h"
+
+static void func_us_8019D260_from_rcen(void) {
+    s32 i;
+    u8 variant;
+    s16 angle;
+    Entity* newEntity;
+
+    variant = Random() & 0x3;
+    angle = ((Random() & 0xF) << 8) - 0x800;
+
+    for (i = 0; i < 6; i++) {
+        newEntity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+        if (newEntity != NULL) {
+            CreateEntityFromEntity(E_UNK_16, g_CurrentEntity, newEntity);
+            newEntity->ext.et_8019D330.unk89 = 6 - i;
+            newEntity->ext.et_8019D330.unk88 = variant;
+            newEntity->params = 2;
+            newEntity->ext.et_8019D330.unk84 = angle;
+            newEntity->zPriority = g_CurrentEntity->zPriority + 1;
+        }
+    }
+}
 
 void func_us_8019D330_from_rcen(Entity* self) {
     typedef struct {

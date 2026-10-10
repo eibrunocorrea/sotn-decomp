@@ -45,3 +45,7 @@ EntityBackgroundVortex = 0x801B0D68;
 g_SkipCutscene = 0x801B3F4C;
 g_Dialogue = 0x801B3F50;
 g_CutsceneFlags = 0x801B3FFC;
+
+D_us_801805E4 = 0x801805E4; // size:0x4
+D_us_801805E8 = 0x801805E8; // size:0x4
+D_us_801805EC = 0x801805EC; // size:0x10

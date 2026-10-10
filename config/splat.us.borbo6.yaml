@@ -45,6 +45,7 @@ segments:
       - [0x57C, data]
       - [0x5B4, .data, e_red_door_tiles]
       - [0x5D4, data]
+      - [0x5FC, .data, unk_1D690]
       - [0x65C, .data, d_prize_drops]
       - [0x678, data]
       - [0x924, .data, st_update]

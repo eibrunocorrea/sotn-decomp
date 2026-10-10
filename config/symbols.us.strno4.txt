@@ -114,3 +114,4 @@ DrawLaserRing = 0x801DA6D8;
 EntityNovaLaserPulse = 0x801DB398;
 EntityImp = 0x801DB4F0;
 FindFirstUnkPrim = 0x801DCC5C;
+D_us_80181428 = 0x80181428; // size:0x38
