@@ -206,7 +206,7 @@ void polarPlacePartsList(s16* offsets) {
     }
 }
 
-static void SpawnEntityCluster_from_rcen(void) {
+static void func_us_8019D260_from_rcen(void) {
     s32 i;
     u8 variant;
     s16 angle;
