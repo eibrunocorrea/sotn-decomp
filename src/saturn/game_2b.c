@@ -2,9 +2,11 @@
 #include "inc_asm.h"
 #include "sattypes.h"
 #include "game.h"
-#include "lib/scl.h"
+#include <saturn_sprite.h>
 #define _SPR2_
 #include "lib/spr/spr.h"
+
+void DestroyEntity(Entity* entity);
 
 void PlaySfx(s32 sfxId);
 
@@ -12,15 +14,121 @@ extern s32 DAT_00292000;
 
 s32* func_060784A8(void) { return &DAT_00292000; }
 
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f60784B8, func_060784B8);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078550, func_06078550);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078604, func_06078604);
+u16 LocalLookupTblNoToVram(u16 tableNo);
 
-// _disp_num_string
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078684, func_06078684);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078700, func_06078700);
+static u16 LookupTblNoToVram(u16 arg0) {
+    if (arg0 & 0x4000) {
+        return LocalLookupTblNoToVram(arg0 & 0xFFF);
+    } else {
+        return SPR_2LookupTblNoToVram(arg0 & 0xFFF);
+    }
+}
 
-extern s32 DAT_06086390;
+extern SaturnSpriteImage g_StatusPortraitImages[17];
+extern s16 DAT_0605AEE8;
+
+void func_060784B8(SprSpCmd* cmd, s32 portraitIndex, s32 colorTableIndex) {
+    SaturnSpriteImage* image;
+
+    image = &g_StatusPortraitImages[portraitIndex];
+    cmd->control = 0x1000;
+    cmd->drawMode = 0x488;
+    cmd->color = LookupTblNoToVram(colorTableIndex + 0x30);
+    cmd->charAddr = DAT_0605AEE8;
+    cmd->charAddr += image->characterOffsetUnits;
+    cmd->charSize =
+        ((image->storedWidth / 4) << 8) | (image->storedHeight << 1);
+}
+
+extern SaturnSpriteResource** DAT_060645EC;
+extern SprSpCmd DAT_06086108;
+extern SprSpCmd* d_0605AEAC;
+
+// original name: disp_char
+void func_06078550(s32 arg0, u8 ch, Point16* pos);
+
+void func_06078550_noInline(s32 arg0, u8 ch, Point16* pos) {
+    SprSpCmd* cmd = &DAT_06086108;
+    SaturnSpriteResource* iVar5 = DAT_060645EC[13];
+
+    cmd->control = 0x1000;
+    cmd->drawMode = 0x488;
+    cmd->charSize = 0x108;
+    cmd->color = LookupTblNoToVram(0x30);
+    cmd->charAddr = DAT_0605aec0[iVar5->allocationIndex][0] + ch * 4;
+    LOW(cmd->ax) = (pos->x << 0x10) | (pos->y & 0xFFFF);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
+// original name: disp_string
+void func_06078604(s32 arg0, u8* str, Point16* pos) {
+    Point16 point;
+    s32 x, y;
+    s32 drawX, drawY;
+    s32 count;
+    u8 ch;
+
+    count = 0;
+    x = pos->x;
+    y = pos->y;
+
+    while (count < 0x20) {
+        drawX = x;
+        drawY = y;
+        ch = *str++;
+
+        if (ch == 0xFF) {
+            ch = *str++;
+            if (ch == 0) {
+                break;
+            }
+            if (ch != 0xFF) {
+                drawX -= 8;
+                drawY -= 8;
+                x -= 8;
+            }
+        }
+
+        if (ch != 0) {
+            point.x = drawX;
+            point.y = drawY;
+            func_06078550(arg0, ch, &point);
+            count++;
+        }
+
+        x += 8;
+    }
+}
+
+// original name: disp_num_string
+void func_06078684(s32 arg0, s32 num, Point16* pos) {
+    s32 count = 0;
+    Point16 point = *pos;
+
+    while (count < 10) {
+        u8 ch = num % 10;
+        point.x -= 7;
+        func_06078550(arg0, ch + 0x10, &point);
+        num /= 10;
+        if (num == 0) {
+            break;
+        }
+        count++;
+    }
+}
+
+void func_06078700(u8* arg0, s8* arg1, s32 arg2) {
+    s16 sp[4];
+
+    sp[0] = arg2 * 0xC;
+    sp[1] = 0x10;
+    sp[2] = 0;
+    sp[3] = 0;
+    func_0601960C(arg1, arg0, sp, sp + 2, 0);
+}
 
 // func_06078748
 char* GetMenuItemName(s32 id) {
@@ -51,28 +159,273 @@ char* GetMenuItemName(s32 id) {
 
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f60787C8, func_060787C8);
 
-// _SubDispSpecial
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078920, func_06078920);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f60789C4, func_060789C4);
+// original name: SubDispSpecial
+void func_06078920(s32 arg0, Point16* pos) {
+    SprSpCmd* cmd;
+    u16* ptr;
+
+    cmd = &DAT_06086108;
+
+    cmd->control = 0x1000;
+    cmd->drawMode = 0x488;
+    cmd->charAddr = DAT_0605aec0[1][0];
+    ptr = DAT_0605aec0[1];
+    cmd->charSize = 0x910;
+    cmd->color = LookupTblNoToVram(0x31);
+    cmd->charAddr = ptr[2] + 0x480;
+    LOW(cmd->ax) = (pos->x << 0x10) | (pos->y & 0xFFFF);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
+void func_060789C4(s32 arg0, s32 arg1, Point16* pos) {
+    SprSpCmd* cmd;
+    s32 charBase;
+    u16* ptr;
+
+    if (DAT_06086390 == 2 || DAT_06086390 == 3) {
+        cmd = &DAT_06086108;
+
+        cmd->control = 0x1000;
+        cmd->drawMode = 0x488;
+        cmd->charAddr = DAT_0605aec0[1][0];
+        cmd->charSize = 0x1210;
+        cmd->color = LookupTblNoToVram(0x31);
+        ptr = DAT_0605aec0[1];
+        charBase = ptr[2];
+        cmd->charAddr = arg1 * 0x90 + ptr[2];
+        LOW(cmd->ax) = (pos->x << 0x10) | (pos->y & 0xFFFF);
+        if (SpMstCmdPos < 0x278) {
+            SPR_2Cmd(arg0, cmd);
+            d_0605AEAC++;
+        }
+    } else {
+        func_06078604(arg0, GetMenuItemName(arg1), pos);
+    }
+}
+
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078B48, func_06078B48);
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078E28, func_06078E28);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6078F58, func_06078F58);
 
-// _SubDispSortKind
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079008, func_06079008);
+void func_06078F58(s32 arg0, s32 arg1, Point16* pos) {
+    SprSpCmd* cmd;
+    s32 charBase;
+    u16* ptr;
+
+    cmd = &DAT_06086108;
+
+    cmd->control = 0x1000;
+    cmd->drawMode = 0x488;
+    cmd->charAddr = DAT_0605aec0[1][0];
+    cmd->charSize = 0x610;
+    cmd->color = LookupTblNoToVram(0x31);
+    ptr = DAT_0605aec0[1];
+    charBase = ptr[2];
+    cmd->charAddr = (arg1 + 0xB) * 0x30 + ptr[2];
+    LOW(cmd->ax) = (pos->x << 0x10) | (u16)pos->y;
+
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
+// original name: SubDispSortKind
+void func_06079008(s32 arg0, s32 arg1, Point16* pos) {
+    SprSpCmd* cmd;
+    u16* ptr;
+    s32 charBase;
+
+    cmd = &DAT_06086108;
+    cmd->control = 0x1000;
+    cmd->drawMode = 0x488;
+    cmd->charAddr = DAT_0605aec0[1][0];
+    cmd->charSize = 0x610;
+    cmd->color = LookupTblNoToVram(0x31);
+    ptr = DAT_0605aec0[1];
+    charBase = ptr[2];
+    cmd->charAddr = arg1 * 0x30 + ptr[2];
+    LOW(cmd->ax) = (pos->x << 0x10) | (pos->y & 0xFFFF);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f60790B4, func_060790B4);
 
-// _SubDispFace
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079208, func_06079208);
+// original name: SubDispFace
+void func_06079208(s32 arg0, Point16* pos) {
+    SprSpCmd* cmd;
+    SaturnSpriteImage* image;
+
+    cmd = &DAT_06086108;
+    image = &g_StatusPortraitImages[0];
+
+    cmd->control = 0x1000;
+    cmd->drawMode = 0x4A0;
+    cmd->color = LookupTblNoToVram(0x4000);
+    cmd->charAddr = DAT_0605AEE8;
+    cmd->charAddr += image->characterOffsetUnits;
+    cmd->charSize =
+        ((image->storedWidth / 4) << 8) | (image->storedHeight << 1);
+    LOW(cmd->ax) = (pos->x << 0x10) | ((u16)pos->y);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f60792B8, func_060792B8);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079424, func_06079424);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079580, func_06079580);
+
+extern s32 DAT_06085E54;
+extern u16 DAT_06085E58[][2];
+
+void func_06079424(s32 arg0, s32 arg1, s32 arg2, Point16* pos) {
+    SprSpCmd* cmd;
+    s32 iVar7;
+    s32 iVar8;
+
+    cmd = &DAT_06086108;
+
+    iVar8 = arg1 ? 1 : 2;
+
+    if (arg2) {
+        DAT_06085E54++;
+        if (DAT_06085E54 > 0x47) {
+            DAT_06085E54 = 0x0;
+        }
+        if (DAT_06085E54 < 0x24) {
+            iVar7 = DAT_06085E54 / 6 + 2;
+        } else {
+            iVar7 = 8 - ((DAT_06085E54 - 0x24) / 6);
+        }
+    } else {
+        iVar7 = 2;
+    }
+    func_060784B8(cmd, iVar8, iVar7);
+    if (!arg2) {
+        cmd->drawMode |= 4;
+        cmd->grshAddr = SPR_2GourTblNoToVram(0x301);
+    }
+    LOW(cmd->ax) = (pos->x << 0x10) | (pos->y & 0xFFFF);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
+void func_06079580(s32 arg0, s32 arg1, Point16* pos) {
+    SprSpCmd* cmd = &DAT_06086108;
+
+    func_060784B8(cmd, DAT_06085E58[arg1][0], DAT_06085E58[arg1][1]);
+
+    LOW(cmd->ax) = (pos->x << 0x10) | (pos->y & 0xFFFF);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079670, func_06079670);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f607973C, func_0607973C);
+
+void func_0607973C(s32 arg0, Point16* pos) {
+    SprSpCmd* cmd;
+    s16 top;
+    s16 left;
+    s16 right;
+    s16 bottom;
+    s32 shade;
+
+    left = pos->x;
+    top = pos->y;
+    cmd = &DAT_06086108;
+
+    if (g_Timer & 0x10) {
+        shade = (g_Timer % 0x10) * 2 + 0x60;
+    } else {
+        shade = 0x7F - (g_Timer % 0x10);
+    }
+    shade /= 8;
+
+    right = left + 0x6F;
+    bottom = top + 0xC;
+
+    cmd->control = 0x1004;
+    cmd->drawMode = 0x4C0;
+    cmd->color = RGB16_COLOR(shade, shade, 0);
+
+    LOW(cmd->ax) = (left << 0x10) | ((u16)top);
+    LOW(cmd->bx) = (right << 0x10) | ((u16)top);
+    LOW(cmd->cx) = (right << 0x10) | ((u16)bottom);
+    LOW(cmd->dx) = (left << 0x10) | ((u16)bottom);
+
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f60797FC, func_060797FC);
 INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079958, func_06079958);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079A2C, func_06079A2C);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f6079AF0, func_06079AF0);
+
+void func_06079A2C(s32 arg0, s32 arg1, Point16* pos) {
+    SprSpCmd* cmd;
+    s32 shade;
+
+    s16 top;
+    s16 left;
+    s16 right;
+    s16 bottom;
+
+    left = pos->x;
+    top = pos->y;
+    cmd = &DAT_06086108;
+
+    if (arg1) {
+        shade = 0x80;
+    } else {
+        if (g_Timer & 0x20) {
+            shade = (g_Timer % 0x20) + 0x40;
+        } else {
+            shade = 0x5F - (g_Timer % 0x20);
+        }
+    }
+    shade /= 8;
+
+    right = left + 0x6F;
+    bottom = top + 0xC;
+
+    cmd->control = 0x1004;
+    cmd->drawMode = 0x4C0;
+    cmd->color = RGB16_COLOR(shade, 0, 0);
+    LOW(cmd->ax) = (left << 0x10) | ((u16)top);
+    LOW(cmd->bx) = (right << 0x10) | ((u16)top);
+    LOW(cmd->cx) = (right << 0x10) | ((u16)bottom);
+    LOW(cmd->dx) = (left << 0x10) | ((u16)bottom);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(arg0, cmd);
+        d_0605AEAC++;
+    }
+}
+
+s32 func_06079AF0(void) {
+    if ((g_Player.status & PLAYER_STATUS_DEAD) || DAT_0605D7F0 ||
+        !(g_pads[0].tapped & PAD_START)) {
+        return 0;
+    }
+    if (DAT_0605C668 != 0 && DAT_0605ceb0 != 0) {
+        if (g_PlayableCharacter == 0) {
+            return 1;
+        }
+        if (StatusPause(0) != 0) {
+            return 2;
+        }
+    }
+    return 0;
+}
 
 // original name: normal_move
 void NormalMove(Entity* entity) {
@@ -151,7 +504,7 @@ s32 UnkCollisionFunc3(Entity* entity, s16* sensors) {
                     return 1;
                 }
             } else if ((col.effects & EFFECT_NOTHROUGH) && i != 1) {
-                if (col.effects & EFFECT_QUICKSAND) {
+                if (col.effects & EFFECT_SINK) {
                     entity->flags &= ~FLAG_UNK_10000000;
                     return 4;
                 }
@@ -199,8 +552,8 @@ s32 UnkCollisionFunc2(Entity* entity, s16* posX) {
         y -= 7;
         CheckCollision(x * 0x10000, y * 0x10000, &collider, 0);
         if (collider.effects & EFFECT_SOLID) {
-            if ((collider.effects & (EFFECT_UNK_8000 | EFFECT_UNK_0002)) ==
-                EFFECT_UNK_0002) {
+            if ((collider.effects & (EFFECT_UNK_8000 | EFFECT_SIDE)) ==
+                EFFECT_SIDE) {
                 entity->posX.val -= entity->velocityX;
                 entity->velocityX = 0;
                 SyncSpriteObjectPos(entity);
@@ -252,7 +605,7 @@ s32 UnkCollisionFunc(Entity* entity, s16* hitSensors, s16 sensorCount) {
 
             y += *hitSensors++;
             CheckCollision(x * 0x10000, y * 0x10000, &collider, 0);
-            if (collider.effects & EFFECT_UNK_0002) {
+            if (collider.effects & EFFECT_SIDE) {
                 if (!(collider.effects & EFFECT_UNK_8000) || (i != 0)) {
                     SyncSpriteObjectPos(entity);
                     return 2;
@@ -284,7 +637,7 @@ void CheckFieldCollision(Entity* entity, s16* hitSensors, s16 sensorCount) {
             }
             y += *hitSensors++;
             CheckCollision(x * 0x10000, y * 0x10000, &col, 0);
-            if (col.effects & EFFECT_UNK_0002) {
+            if (col.effects & EFFECT_SIDE) {
                 if (!(col.effects & EFFECT_UNK_8000) || (i != 0)) {
                     if (velocityX < 0) {
                         entity->posX.i.hi += col.unk1C / 0x10000;
@@ -324,7 +677,7 @@ u8 CheckColliderOffsets(Entity* entity, s16* arg0, u8 facing) {
     return ret;
 }
 
-bool UnkCollisionFunc5(Entity* entity, s16* pointXY) {
+int UnkCollisionFunc5(Entity* entity, s16* pointXY) {
     Collider collider;
 
     FallEntity(entity);
@@ -376,7 +729,7 @@ u8 UnkCollisionFunc4(Entity* entity, u8 arg1) {
             posX = entity->posX.i.hi;
             posY = entity->posY.i.hi - 4;
             CheckCollision(posX * 0x10000, posY * 0x10000, &collider, 0);
-            if (collider.effects & EFFECT_UNK_0002) {
+            if (collider.effects & EFFECT_SIDE) {
                 bits_67 = 0x40;
                 if (entity->velocityX > 0) {
                     bits_01 = 2;
@@ -411,7 +764,7 @@ u8 UnkCollisionFunc4(Entity* entity, u8 arg1) {
             posX = entity->posX.i.hi;
             posY = entity->posY.i.hi + 4;
             CheckCollision(posX * 0x10000, posY * 0x10000, &collider, 0);
-            if (collider.effects & EFFECT_UNK_0002) {
+            if (collider.effects & EFFECT_SIDE) {
                 bits_67 = 0x40;
                 if (entity->velocityX > 0) {
                     bits_01 = 2;
@@ -624,8 +977,63 @@ u8 GetPlayerCollisionWith(Entity* self, u16 w, u16 h, u16 flags) {
     return 0;
 }
 
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f607A88C, func_0607A88C);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f607A994, func_0607A994);
+void func_0600B0B8(SpritePart* part, void* arg1, s32 arg2);
+
+void func_0607A88C(Entity* self) {
+
+    typedef struct {
+        u8 unk0;
+        u8 unk1;
+    } unkStruct;
+
+    u8** animations;
+    unkStruct* pcVar2;
+    s16* frame;
+    s16** frames;
+    SpriteObject* sprite;
+    unkStruct local_14;
+
+    self->poseTimer = self->ext.spriteAnimEnemy.unk82;
+    self->pose = self->ext.spriteAnimEnemy.unk81;
+    self->ext.spriteAnimEnemy.unk88 = 0;
+    if (self->ext.spriteAnimEnemy.unk82 == 0) {
+        animations = self->ext.spriteAnimEnemy.animations;
+        pcVar2 = animations[self->ext.spriteAnimEnemy.unk80];
+        local_14 = pcVar2[self->ext.spriteAnimEnemy.unk81];
+        if (local_14.unk0 == 0xFF) {
+            local_14 = pcVar2[0];
+            self->ext.spriteAnimEnemy.unk81 = 0;
+            self->ext.spriteAnimEnemy.unk88 = 1;
+        }
+        self->ext.spriteAnimEnemy.unk82 = local_14.unk0;
+        sprite = self->unk0;
+        frames = self->ext.spriteAnimEnemy.frames;
+        frame = frames[local_14.unk1];
+        self->animCurFrame = local_14.unk1;
+        sprite->flags = sprite->flags & ~0x3F08 | frame[0] & 0x3F08;
+        sprite->slotAndStreamId =
+            sprite->slotAndStreamId & ~0x7F | frame[1] & 0x7F;
+        func_0600B0B8(
+            sprite->parts, &frame[2], (sprite->flags & 0x3F00) >> 0x8);
+        self->ext.spriteAnimEnemy.unk81++;
+    }
+    self->ext.spriteAnimEnemy.unk82--;
+}
+
+void func_0607A994(Entity* self) {
+    s16** frames;
+    s16* frame;
+    SpriteObject* sprite;
+
+    frames = self->ext.spriteAnimEnemy.frames;
+
+    frame = frames[self->ext.spriteAnimEnemy.unk83];
+    sprite = self->unk0;
+
+    sprite->flags = sprite->flags & ~0x3F08 | frame[0] & 0x3F08;
+    sprite->slotAndStreamId = sprite->slotAndStreamId & ~0x7F | frame[1] & 0x7F;
+    func_0600B0B8(sprite->parts, &frame[2], (sprite->flags & 0x3F00) >> 8);
+}
 
 // SAT func_0607A9F8
 // Original name: _hkyori_search
@@ -650,8 +1058,24 @@ s32 GetDistanceToPlayerY(Entity* self) {
     return yDistance;
 }
 
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f607AA40, func_0607AA40);
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f607AA74, func_0607AA74);
+void func_0607AA40(Entity* self, s16 stepS, s8 arg2, s8 arg3) {
+    self->step = stepS;
+    self->ext.spriteAnimEnemy.unk80 = arg2;
+    self->ext.spriteAnimEnemy.unk81 = arg3;
+    self->ext.spriteAnimEnemy.unk82 = 0;
+    self->poseTimer = 0;
+    self->pose = 0;
+    self->step_s = 0;
+}
+
+void func_0607AA74(Entity* self, s16 stepS, s8 arg2, s8 arg3) {
+    self->step_s = stepS;
+    self->ext.spriteAnimEnemy.unk80 = arg2;
+    self->ext.spriteAnimEnemy.unk81 = arg3;
+    self->ext.spriteAnimEnemy.unk82 = 0;
+    self->poseTimer = 0;
+    self->pose = 0;
+}
 
 // func_0607AAA4
 void FaceEntityAwayFromPlayer(Entity* entity) {
@@ -776,9 +1200,74 @@ bool HantenDir1(Entity* entity) {
 // func_0607AC2C
 u8 GetPlayerFacing(void) { return PLAYER.facingLeft; }
 
-INCLUDE_ASM("asm/saturn/game/f_nonmat", f607AC40, func_0607AC40);
+extern SprGourTbl* SpGourTbl;
+extern s16 g_olroxDroolInitData[];
+extern s16 g_olroxDroolCollOffsets[];
 
-void CreateEntityFromEntity(u16 entityId, Entity* source, Entity* entity);
+void SyncSpriteObjectPosUnchecked(Entity* entity, s16* offset);
+
+static void unkFunc(Entity* entity, s16* offset) {
+    SyncSpriteObjectPosUnchecked(entity, offset);
+}
+
+// func_0607AC40
+void EntityOlroxDrool(Entity* self) {
+    s32 primIndex;
+    s32 idx;
+    SprGourTbl* temp;
+    Primitive* prim;
+    s16 x, y;
+
+    switch (self->step) {
+    case 0:
+        unkFunc(self, g_olroxDroolInitData);
+        TekiInit(self, 2);
+        primIndex = AllocPrimitives(0x8005, 1);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->primIndex = primIndex;
+        self->flags |= FLAG_HAS_PRIMS;
+        self->hitboxState = 0;
+        prim = &g_PrimBuf[primIndex];
+        self->unkB4 = prim;
+        prim->x0 = prim->x1 = self->posX.i.hi;
+        prim->y0 = prim->y1 = self->posY.i.hi;
+        idx = prim->unk1C;
+        temp = &SpGourTbl[idx];
+        temp->entry[0] = RGB16_COLOR(8, 8, 31);
+        temp->entry[1] = RGB16_COLOR(0, 0, 2);
+        prim->unk6 = 0xC210;
+        prim->priority = 0x80;
+        prim->drawMode = 0x37;
+        self->step = 1;
+        break;
+
+    case 1:
+        prim = self->unkB4;
+        if (CheckColliderOffsets(self, g_olroxDroolCollOffsets, 0)) {
+            prim->y1 += 2;
+            if (self->step_s == 0) {
+                self->step_s = 1;
+            }
+        } else {
+            self->velocityY += 0x1800;
+            self->posY.val += self->velocityY;
+            if (prim->y0 - prim->y1 > 8) {
+                prim->y1 = prim->y0 - 8;
+            }
+        }
+        prim->x0 = self->posX.i.hi;
+        prim->x1 = self->posX.i.hi;
+        prim->y0 = self->posY.i.hi;
+        if (prim->y0 < prim->y1) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+}
 
 // func_0607AE48
 void DestroyEntityWithExplosion(Entity* self, u16 params) {
@@ -793,7 +1282,7 @@ void DestroyEntityWithExplosion(Entity* self, u16 params) {
         CreateEntityFromEntity(E_EXPLOSION, self, entity);
         entity->params = params;
         self->animCurFrame = 0;
-        self->unk1D = 0;
+        self->drawFlags = ENTITY_DEFAULT;
         self->step = 0;
         self->step_s = 0;
     }
@@ -812,8 +1301,6 @@ Entity* FindFirstFreeEntity(s16 start, s16 end) {
     }
     return NULL;
 }
-
-extern s16 g_SineTable[];
 
 s32 GetSineScaled(u8 arg0, s16 arg1) {
     s32 sine = g_SineTable[arg0];
@@ -966,8 +1453,6 @@ void TekiInit(Entity* entity, u16 enemyId) {
     entity->step_s = 0;
 }
 
-extern u32 g_randomNext;
-
 // SAT: func_0607B2F4
 s32 Random(void) {
     g_randomNext = (g_randomNext * 0x01010101) + 1;
@@ -991,7 +1476,6 @@ void CreateEntityFromEntity(u16 entityId, Entity* source, Entity* entity) {
 }
 
 void FreePrimitives(s32);
-void DestroySpriteObject(SpriteObject*);
 
 // func_0607B3D0
 void ChangeCurrentEntityType(u16 entityId) {
@@ -1050,7 +1534,7 @@ void ReplaceBreakableWithItemDrop(Entity* self) {
 }
 
 // func_0607B604
-void SyncSpriteObjectPosUnchecked(Entity* entity) {
+void SyncSpriteObjectPosUnchecked(Entity* entity, s16* offset) {
     SpriteObject* temp = entity->unk0;
 
     temp->posX = entity->posX.val;
@@ -1141,9 +1625,6 @@ void PlaySfxPositional(s32 sfxId) {
     }
 }
 
-extern u16 DAT_0605cdb8;
-extern u8 DAT_0608FFF8[];
-
 void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
     Collider col0;
     Collider col1;
@@ -1167,7 +1648,7 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
         u16 D;
         u16 E;
         posX = posX * 4 / 5;
-        A = DAT_0605cdb8 * 4 / 5;
+        A = DAT_0605CDB8 * 4 / 5;
         B = A / 2;
         C = posX >> 20;
         D = posY >> 20;
@@ -1196,11 +1677,9 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
                     if (col0.effects & EFFECT_SOLID) {
                         res->unk18 += col0.unk18 - 0x10000;
                     }
-                    res->effects = col0.effects |=
-                        EFFECT_UNK_0002 | EFFECT_SOLID;
+                    res->effects = col0.effects |= EFFECT_BLOCK;
                 } else {
-                    res->effects =
-                        EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID;
+                    res->effects = EFFECT_UNK_8000 | EFFECT_BLOCK;
                 }
             } else {
                 res->effects = EFFECT_SOLID;
@@ -1296,11 +1775,9 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
                     if (col1.effects & EFFECT_SOLID) {
                         res->unk20 += col1.unk20 + 0x10000;
                     }
-                    res->effects = col1.effects |=
-                        EFFECT_UNK_0002 | EFFECT_SOLID;
+                    res->effects = col1.effects |= EFFECT_BLOCK;
                 } else {
-                    res->effects =
-                        EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID;
+                    res->effects = EFFECT_UNK_0800 | EFFECT_BLOCK;
                 }
             } else {
                 res->effects = EFFECT_SOLID;
@@ -1388,14 +1865,14 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
 
         case 0x7F:
             if (res->unk20 < 0x80000) {
-                res->effects = EFFECT_UNK_0002 | EFFECT_SOLID;
+                res->effects = EFFECT_BLOCK;
                 res->unk18 += 0x80000;
             }
             break;
 
         case 0x7E:
             if (res->unk20 >= 0x80000) {
-                res->effects = EFFECT_UNK_0002 | EFFECT_SOLID;
+                res->effects = EFFECT_BLOCK;
                 res->unk20 -= 0x80000;
             }
             break;
@@ -1422,14 +1899,14 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
             break;
 
         case 0x78:
-            res->effects = EFFECT_MIST_ONLY | EFFECT_UNK_0002 | EFFECT_SOLID;
+            res->effects = EFFECT_MIST_ONLY | EFFECT_BLOCK;
             break;
 
         case 0x74:
         case 0x75:
         case 0x76:
         case 0x77:
-            res->effects = EFFECT_UNK_0020;
+            res->effects = EFFECT_HURT;
             break;
 
         case 0x6E:
@@ -1438,7 +1915,7 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
         case 0x71:
         case 0x72:
         case 0x73:
-            res->effects = EFFECT_UNK_0002 | EFFECT_SOLID;
+            res->effects = EFFECT_BLOCK;
             break;
 
         case 0x6D:
@@ -1488,14 +1965,6 @@ void CheckCollision(s32 x, s32 y, Collider* res, u16 unk) {
     res->unkC = res->unkC * 5 / 4;
 }
 
-extern s32 DAT_06086128;
-extern s32 DAT_0608612c;
-extern s32 DAT_06086130;
-extern s32 DAT_06086134;
-
-void ResetLayerColorCalc();
-void func_0600C818();
-
 // func_0607BE38
 void InitScreenWaveEffect(void) {
     func_0600C818();
@@ -1504,14 +1973,10 @@ void InitScreenWaveEffect(void) {
     DAT_06086130 = 0x0;
     ResetLayerColorCalc();
     SCL_SET_CCMD(0);
-    SCL_SetColMixMode(0x7, 0x1);
+    SCL_SetColMixMode(7, 1);
     DAT_06086134 = 0x1F;
     SCL_SET_S0CCRT(DAT_06086134);
 }
-
-extern s32 d_0605AEAC;
-extern u16 DAT_0605aec0[][2];
-extern s32 SpMstCmdPos;
 
 // func_0607BED0
 void DrawScreenWaveEffect(void) {
@@ -1532,7 +1997,7 @@ void DrawScreenWaveEffect(void) {
         spCmd->ay = i + 0x68;
         if (SpMstCmdPos < 0x278) {
             SPR_2Cmd(0x1C0, spCmd);
-            d_0605AEAC += 0x20;
+            d_0605AEAC++;
         }
         spCmd->charAddr += 20;
     }

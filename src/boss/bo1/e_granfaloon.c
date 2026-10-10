@@ -72,7 +72,7 @@ extern s32 E_ID(ZOMBIE_ENEMY);
 extern s32 E_ID(EXPLOSION_FLAME);
 extern s32 E_ID(BODY_PART_SHELL);
 extern s32 E_ID(HOMING_LASER);
-extern s32 E_ID(LIFE_UPSPAWN);
+extern s32 E_ID(LIFE_UP_SPAWN);
 extern s32 E_ID(UNK_23);
 #endif
 
@@ -159,7 +159,7 @@ void EntityGranfaloon(Entity* self) {
             MoveEntity();
             if (!(g_Timer & 0xF)) {
                 PlaySfxPositional(SFX_GRANFALOON_APPEAR);
-                g_api.func_80102CD8(1);
+                g_api.ShakeCamera(SHAKE_Y_SMALL);
             }
             y = self->posY.i.hi + g_Tilemap.scrollY.i.hi;
             FntPrint("y %x\n", y);
@@ -369,7 +369,7 @@ void EntityGranfaloon(Entity* self) {
         case 2:
             MoveEntity();
             self->velocityY = FIX(0.5);
-            self->rotate -= 0x40;
+            self->rotate -= ROT(5.625);
             if (!(self->ext.granfaloon.timer & 3)) {
                 self->opacity -= 1;
             }
@@ -414,7 +414,7 @@ void EntityGranfaloon(Entity* self) {
         case 5:
             ent = AllocEntity(&g_Entities[160], &g_Entities[192]);
             if (ent != NULL) {
-                CreateEntityFromEntity(E_ID(LIFE_UPSPAWN), self, ent);
+                CreateEntityFromEntity(E_ID(LIFE_UP_SPAWN), self, ent);
                 ent->posX.i.hi = 0x100 - g_Tilemap.scrollX.i.hi;
                 ent->posY.i.hi = 0x150 - g_Tilemap.scrollY.i.hi;
                 ent->params = 1;
@@ -724,7 +724,7 @@ void func_us_801A2D90(Entity* self) {
         self->ext.granfaloon.timer = (Random() & 0x1F) + 0x10;
     case 1:
         MoveEntity();
-        self->rotate += 0x40;
+        self->rotate += ROT(5.625);
         if (self->velocityY < FIX(3.0)) {
             self->velocityY += 0x1400;
         }
@@ -1234,7 +1234,7 @@ void EntityZombieFalling(Entity* self) {
     case 1:
         MoveEntity();
         self->velocityY += FIX(0.0625);
-        self->rotate += 0x18;
+        self->rotate += ROT(2.109375);
         if (self->flags & FLAG_DEAD) {
             self->velocityY = 0;
             self->hitboxState = 0;

@@ -6,6 +6,7 @@
 
 #define _SPR2_
 #include "lib/spr/spr.h"
+#include "game.h"
 
 // func_06004080
 void entrypoint(void) {
@@ -13,63 +14,43 @@ void entrypoint(void) {
     Scl_s_reg.tvmode &= ~0x8100;
     SclProcess = 1;
     InitSystem();
-    DAT_0605cea2 = 0;
+    DAT_0605cea0.unk2 = 0;
     DAT_0605C658 = 1;
     do {
         func_060040d8();
     } while (true);
 }
 
-void func_0600456c();
-void SetVblank();
-void ReturnToGame();
-void func_06004f50();
-void func_06005310();
-void func_0600652C();
-void func_06007d54();
-void CloseSpriteList();
-void func_06008264();
-void TransferAllBgLayers();
-void UpdateScrollForRoom();
-void StartColorOffsetFade(s32, s32);
-void func_06009838();
-void func_0600d8bc();
 void MoviePRGClear();
 void func_06010400();
 void PlaySfx();
-void func_06012fb4();
-void SPR_WaitDrawEnd();
 void SCL_Vdp2Init();
 void SCL_DisplayFrame();
-extern s32 DAT_06057f34;
-extern u16 DAT_0605cea0;
-extern u16 DAT_0605cea2;
-extern s32 DAT_0605d7f0;
-extern s32 DAT_0605d7f8;
+void StartColorOffsetFade(s32, s32);
 
 void func_060040d8(void) {
     g_Timer++;
     func_06007d54();
-    switch (DAT_0605cea2) {
+    switch (DAT_0605cea0.unk2) {
     case 0:
         func_0600456c();
         DAT_0605d7f8 = 0;
-        func_06004f50(0x20);
-        DAT_0605cea0++;
+        func_06004F50(0x20);
+        DAT_0605cea0.unk0++;
         break;
     case 6:
-        if (DAT_0605cea0 == 0) {
+        if (DAT_0605cea0.unk0 == 0) {
             func_06005328();
-            DAT_0605cea0++;
+            DAT_0605cea0.unk0++;
             Scl_s_reg.tvmode |= 0x8000;
             SclProcess = 1;
         }
         func_060645E0();
         break;
     case 2:
-        if (DAT_0605cea0 == 0) {
+        if (DAT_0605cea0.unk0 == 0) {
             func_06005328();
-            DAT_0605cea0++;
+            DAT_0605cea0.unk0++;
         }
         func_06064688();
         UpdateScrollForRoom();
@@ -82,23 +63,23 @@ void func_060040d8(void) {
         UpdateScrollForRoom();
         break;
     case 4:
-        if (DAT_0605cea0 == 0) {
+        if (DAT_0605cea0.unk0 == 0) {
             func_06005328();
-            DAT_0605cea0++;
+            DAT_0605cea0.unk0++;
         }
         func_06064674();
         break;
     case 8:
-        if (DAT_0605cea0 == 0) {
+        if (DAT_0605cea0.unk0 == 0) {
             func_06005328();
-            DAT_0605cea0++;
+            DAT_0605cea0.unk0++;
         }
         func_06064580();
         break;
     case 0x11:
-        if (*((u32*)&DAT_0605cea0) == 0x11) {
+        if (DAT_0605cea0.unk0 == 0 && DAT_0605cea0.unk2 == 0x11) {
             if (func_06005328() == 0) {
-                DAT_0605cea0++;
+                DAT_0605cea0.unk0++;
             }
         } else {
             func_06009838();
@@ -107,10 +88,10 @@ void func_060040d8(void) {
         }
         break;
     case 5:
-        if (DAT_0605cea0 == 0) {
+        if (DAT_0605cea0.unk0 == 0) {
             StartColorOffsetFade(0, 2);
             func_06005328();
-            DAT_0605cea0++;
+            DAT_0605cea0.unk0++;
         }
         func_06064644();
         UpdateScrollForRoom();
@@ -138,18 +119,18 @@ void func_060040d8(void) {
         SclProcess = 1;
         SCL_DisplayFrame();
         SCL_Vdp2Init();
-        func_06011ce4();
+        func_06011CE4();
         ReturnToGame();
-        func_06004f50(0x31);
+        func_06004F50(0x31);
         func_06007d54();
         break;
     case 0x31:
-        DAT_0605d7f0 = 1;
-        func_0600d8bc();
+        DAT_0605D7F0 = true;
+        func_0600D8BC();
         break;
     }
     if (func_0600fb4c() != 0) {
-        if (DAT_0605cea2 == 6) {
+        if (DAT_0605cea0.unk2 == 6) {
             SYS_EXECDMP();
         } else {
             PlaySfx(SET_UNK_0B);
@@ -160,12 +141,12 @@ void func_060040d8(void) {
             func_06012fb4();
             func_0600652C();
             func_0601333c();
-            if (DAT_0605cea2 == 2) {
+            if (DAT_0605cea0.unk2 == 2) {
                 SYS_EXECDMP();
             }
         }
         StartColorOffsetFade(0, 4);
-        func_06004f50(0x30);
+        func_06004F50(0x30);
     }
     func_06010400();
     CloseSpriteList();
@@ -177,20 +158,275 @@ void func_060040d8(void) {
     ((void (*)(void))rand)();
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60044D0, InitSystem);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600456C, func_0600456C);
+void InitScuDma();
+void InitBackupRam();
+void func_06011CE4();
 
-// _RESET_SYSTEM
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600460C, func_0600460C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60046E8, func_060046E8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60047E8, func_060047E8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004878, func_06004878);
-INCLUDE_ASM_NO_ALIGN("asm/saturn/zero/f_nonmat", f6004932, func_06004932);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004A10, func_06004A10);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004B20, func_06004B20);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004C14, func_06004C14);
+void InitSystem(void) {
+    CSH_Init(0);
+    CSH_AllClr();
+    func_06004A10();
+    InitScuDma();
+    InitSpriteEngine(0);
+    func_0600B234();
+    func_0600DAB4();
+    InitVdp2Display();
+    func_06006470();
+    InitBackupRam();
+    func_06011CE4();
+    SetVblank(1);
+    func_060082C8();
+    InitDebugPrint();
+}
 
-s32 g_PadsRepeatTimer[];
+void func_0600456C(void) {
+    func_06004878();
+    func_060046E8();
+    func_060047E8();
+    SetVDP2Vram();
+
+    Scl_w_reg.win0_start[0] = 0;
+    Scl_w_reg.win0_start[1] = 12;
+    Scl_w_reg.win0_end[0] = 640;
+    Scl_w_reg.win0_end[1] = 240;
+    Scl_w_reg.wincontrl[0] = 0x0383;
+    Scl_w_reg.wincontrl[1] = 0x8383;
+    Scl_w_reg.wincontrl[2] = 0x0083;
+
+    SclProcess = 1;
+    func_06009D30();
+    DAT_0605D770.unk0 = 0;
+    SCL_DisplayFrame();
+}
+
+void GFS_Reset();
+
+// original name: RESET_SYSTEM
+void func_0600460C(void) {
+    CSH_Init(0);
+    CSH_AllClr();
+    func_06004A10();
+    InitSpriteEngine(0);
+    func_0600B234();
+    func_0600DAB4();
+    InitVdp2Display();
+    SetVDP2Vram();
+
+    Scl_w_reg.win0_start[0] = 0;
+    Scl_w_reg.win0_start[1] = 12;
+    Scl_w_reg.win0_end[0] = 640;
+    Scl_w_reg.win0_end[1] = 240;
+    Scl_w_reg.wincontrl[0] = 0x0383;
+    Scl_w_reg.wincontrl[1] = 0x8383;
+    Scl_w_reg.wincontrl[2] = 0x0083;
+    SclProcess = 1;
+
+    func_06009D30();
+    GFS_Reset();
+    func_06006470();
+    func_060082C8();
+    InitDebugPrint();
+}
+
+void func_060046E8(void) {
+    BgTransfer* transfer;
+    u32 i;
+
+    DAT_06057F40 = 0;
+    D_8003C730 = 0;
+    g_Timer = 0;
+    DAT_0605c10c = 0;
+    g_GameTimer = 0;
+
+    DAT_0605cea0.unk0 = 0;
+    DAT_0605cea0.unk2 = 0;
+    DAT_0605cea0.unk4 = 0xFFFF;
+    DAT_0605cea0.unk8 = 0;
+
+    DAT_0605cd70.unk0 = 0;
+    DAT_0605cd70.unk2 = 0;
+    DAT_0605cd70.unk4 = 0xFFFF;
+    DAT_0605cd70.unk8 = 0;
+
+    DAT_0605c680.unk0 = 0;
+    DAT_0605c680.unk8 = 0;
+    DAT_0605c680.unk4 = 0;
+    DAT_0605c680.unk10 = 0;
+    DAT_0605c680.unkC = 0;
+    DAT_0605c680.unk18 = 0;
+    DAT_0605c680.g_ScrollDeltaX = 0;
+    DAT_0605c680.unk20 = 0;
+    DAT_0605c680.g_ScrollDeltaY = 0;
+    DAT_0605c680.unk2C = 0;
+    DAT_0605c680.unk24 = 0;
+    DAT_0605c680.unk30 = 0;
+    DAT_0605c680.unk28 = 0;
+    DAT_0605c680.unk3C = 0;
+    DAT_0605c680.unk34 = 0;
+    DAT_0605c680.unk40 = 0;
+    DAT_0605c680.unk38 = 0;
+
+    func_0600FB34();
+
+    transfer = &DAT_0605D6C0[0];
+    for (i = 0; i < 8; i++) {
+        transfer[i].tileFlags = 0;
+        transfer[i].src = 0;
+        transfer[i].dest = 0;
+        transfer[i].cnt = 0;
+    }
+
+    g_CurrentRoom.stageID = 0;
+    g_CurrentRoom.unk2 = 0;
+    g_CurrentRoom.unk4 = 0;
+    g_CurrentRoom.unk6 = 0;
+    DAT_0605D7F0 = false;
+    g_Status.timerHours = 0;
+    g_Status.timerMinutes = 0;
+    g_Status.timerSeconds = 1;
+}
+
+void func_060047E8(void) {
+    DAT_0605C118 = 0;
+    g_Settings.D_8003CB00 = 0;
+    g_Settings.D_8003CB04 = 0;
+    DAT_0605CE90 = 0;
+    DAT_0605C6D4 = 0;
+    g_CutsceneHasControl = 0;
+    DAT_0605c6e4 = 0;
+    DAT_0605c664 = 0;
+    D_80097C98 = 0;
+    D_8006C374 = 0;
+    g_Tilemap.scrollX.val = 0;
+    g_Tilemap.scrollY.val = 0;
+    g_Tilemap.unk8 = 0;
+    g_Tilemap.vSize = 0;
+    g_Tilemap.hSize = 0;
+    g_Tilemap.unk14 = 0;
+    g_Tilemap.bottom = 0;
+    g_Tilemap.right = 0;
+    g_Tilemap.top = 0;
+    g_Tilemap.left = 0;
+    g_Tilemap.height = 0;
+    g_Tilemap.width = 0;
+    g_Tilemap.y = 0;
+    g_Tilemap.x = 0;
+    DAT_0605C6D8.a = 0;
+    currentMusicId = 0;
+}
+
+void func_06004878(void) {
+    while (PER_LInit(PER_KD_SYS, 0, 0, NULL, 0) == PER_INT_ERR) {
+    }
+
+    do {
+        DAT_060505E0 = PER_GET_SYS();
+    } while (DAT_060505E0 == NULL);
+
+    DAT_0605D764 = DAT_060505E0->sm & PER_MSK_STEREO ? false : true;
+    if (DAT_0605D764 != 0) {
+        ((s32(*)(s32))PlaySfx)(0xF0000006);
+    } else {
+        ((s32(*)(s32))PlaySfx)(0xF0000005);
+    }
+    SCL_DisplayFrame();
+    SCL_DisplayFrame();
+    SCL_DisplayFrame();
+    func_06004A10();
+}
+
+void func_06004924(void) {
+    u32 status_sys;
+
+    while (PER_LInit(PER_KD_SYS, 0, 0, NULL, 0) == PER_INT_ERR) {
+    }
+
+    do {
+        DAT_060505E4 = PER_GET_SYS();
+    } while (DAT_060505E4 == NULL);
+    status_sys = DAT_060505E4->sm;
+    if (DAT_0605D764 != 0) {
+        status_sys &= ~PER_MSK_STEREO;
+    } else {
+        status_sys |= PER_MSK_STEREO;
+    }
+    PER_SMPC_SET_SM(status_sys);
+
+    SCL_DisplayFrame();
+    SCL_DisplayFrame();
+    SCL_DisplayFrame();
+    func_06004A10();
+}
+
+extern s8 DAT_06057F50[PER_WORK_SIZE(1, 2)];
+
+void func_06004A10(void) {
+    s32 i;
+    s8* ptr;
+
+    i = 0;
+    ptr = DAT_06057F50;
+    for (; i < PER_WORK_SIZE(1, 2); i++) {
+        *ptr++ = 0;
+    }
+
+    g_pads[0].previous = g_pads[0].tapped = g_pads[0].pressed = 0;
+    ResetPadsRepeat();
+    while (PER_LInit(PER_KD_PERTIM, 1, 2, DAT_06057F50, 0) != PER_INT_OK) {
+    }
+}
+
+void InitializePads(void);
+
+void func_06004A74(void) {
+    u32 status;
+    s32 i;
+
+    g_pads[0].previous = g_pads[0].pressed;
+    status = PER_LGetPer(&DAT_060505F8, &DAT_060505FC);
+    if (DAT_060505FC->con != PER_MCON_NCON_UNKNOWN &&
+        DAT_060505F8->id == PER_ID_DGT && DAT_060505F8->size == PER_SIZE_DGT) {
+        if (!DAT_0605D7F0) {
+            UpdatePads();
+            UpdatePadsRepeat();
+        }
+    } else if (DAT_060505F8->id == PER_ID_ANL) {
+        InitializePads();
+    }
+    if (status == PER_INT_ERR) {
+        InitializePads();
+    }
+    if (DAT_060505FC->con != 1) {
+        func_06004A10();
+    }
+    if (status == PER_INT_ERR || DAT_060505FC->con != 1) {
+        DAT_06057F60[0] = 0x01;
+        DAT_06057F60[1] = 0x00;
+        DAT_06057F60[2] = 0x00;
+        DAT_06057F60[3] = 0x21;
+        DAT_06057F60[4] = 0x45;
+        DAT_06057F60[5] = 0x98;
+        DAT_06057F60[6] = 0x19;
+    } else {
+        DAT_06050600 = PER_GET_TIM();
+        DAT_06057F60[0] = DAT_06050600[0];
+        DAT_06057F60[1] = DAT_06050600[1];
+        DAT_06057F60[2] = DAT_06050600[2];
+        DAT_06057F60[3] = DAT_06050600[3];
+        DAT_06057F60[4] = DAT_06050600[4];
+        DAT_06057F60[5] = DAT_06050600[5];
+        DAT_06057F60[6] = DAT_06050600[6];
+    }
+}
+
+void UpdatePads(void) {
+    g_pads[0].previous = g_pads[0].pressed;
+    g_pads[0].pressed = ~DAT_060505F8->buttons;
+    g_pads[0].tapped =
+        (g_pads[0].pressed ^ g_pads[0].previous) & g_pads[0].pressed;
+}
+
+extern u8 g_PadsRepeatTimer[0x10];
 
 // func_06004C44
 void ResetPadsRepeat(void) {
@@ -204,57 +440,685 @@ void ResetPadsRepeat(void) {
     }
 }
 
-// _REPEAT_PAD
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004C70, UpdatePadsRepeat);
+// original name: REPEAT_PAD
+void UpdatePadsRepeat(void) {
+    u16 button = 1;
+    u16 tapped = g_pads[0].tapped;
+    u16 pressed = g_pads[0].pressed;
+    u16 repeat = 0;
+    s32 i;
+
+    for (i = 0; i < 0x10; i++, button <<= 1) {
+        if (pressed & button) {
+            if (tapped & button) {
+                repeat |= button;
+                g_PadsRepeatTimer[i] = 0x10;
+            } else if (!g_PadsRepeatTimer[i]--) {
+                repeat |= button;
+                g_PadsRepeatTimer[i] = 5;
+            }
+        }
+    }
+    g_pads[0].repeat = repeat;
+}
 
 // func_06004CDC
 void InitializePads(void) {
-    g_pads[0].previous = g_pads[0].pressed = g_pads[0].tapped =
+    g_pads[0].tapped = g_pads[0].pressed = g_pads[0].previous =
         g_pads[0].repeat = PAD_NONE;
 }
 
-// SET_VBLANK
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004D00, func_06004D00);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004D84, func_06004D84);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004DE8, func_06004DE8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004E50, func_06004E50);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004E94, func_06004E94);
+static inline void set_sr(u32 sr) { asm volatile("ldc\t%0,sr" : : "r"(sr)); }
 
-// RETURN_TO_GAME
+static inline u32 get_sr(void) {
+    u32 sr;
+
+    asm volatile("stc\tsr,%0" : "=r"(sr));
+    return sr;
+}
+
+static inline u32 get_imask(void) {
+    u32 imask = (get_sr() & 0x000000F0) >> 4;
+
+    return imask;
+}
+
+static inline void set_imask(u32 imask) {
+    u32 sr = get_sr();
+
+    sr &= ~0x000000F0;
+    sr |= (imask << 4);
+    set_sr(sr);
+}
+
+// original name: SET_VBLANK
+void SetVblank(s32 useAlternateHandlers) {
+
+    set_imask(15);
+
+    if (useAlternateHandlers == 0) {
+        INT_ChgMsk(
+            INT_MSK_NULL, INT_MSK_VBLK_IN | INT_MSK_VBLK_OUT | INT_MSK_HBLK_IN);
+        INT_SetScuFunc(INT_SCU_VBLK_IN, func_06004D84);
+        INT_SetScuFunc(INT_SCU_VBLK_OUT, func_06004DE8);
+        INT_SetScuFunc(INT_SCU_HBLK_IN, NULL);
+        INT_ChgMsk(INT_MSK_VBLK_IN | INT_MSK_VBLK_OUT, INT_MSK_NULL);
+    } else {
+        INT_ChgMsk(INT_MSK_NULL, INT_MSK_VBLK_IN | INT_MSK_VBLK_OUT);
+        INT_SetScuFunc(INT_SCU_VBLK_IN, func_06004E50);
+        INT_SetScuFunc(INT_SCU_VBLK_OUT, func_06004E94);
+        INT_ChgMsk(INT_MSK_VBLK_IN | INT_MSK_VBLK_OUT, INT_MSK_NULL);
+    }
+
+    set_imask(0);
+}
+
+void func_06004D84(void) {
+    u32 msk;
+
+    msk = get_imask();
+    set_imask(0);
+
+    SCL_VblankStart();
+    DAT_0605c10c += 1;
+    func_06008EE8();
+    SignalSlaveSh2();
+
+    set_imask(msk);
+}
+
+void func_06004DE8(void) {
+    u32 msk;
+
+    msk = get_imask();
+    set_imask(0);
+
+    SCL_VblankEnd();
+    func_06004A74();
+    if (IsCdOpened() == true) {
+        SYS_EXECDMP();
+    }
+
+    set_imask(msk);
+}
+
+void func_06004E50(void) {
+    u32 msk;
+
+    msk = get_imask();
+    set_imask(0);
+
+    SCL_VblankStart();
+
+    set_imask(msk);
+}
+
+void func_06004E94(void) {
+    u32 msk;
+
+    msk = get_imask();
+    set_imask(0);
+
+    SCL_VblankEnd();
+    if (IsCdOpened() == true) {
+        SYS_EXECDMP();
+    }
+
+    set_imask(msk);
+}
+
+// _RETURN_TO_GAME
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004EF0, func_06004EF0);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6004F50, func_06004F50);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005208, func_06005208);
+
+void func_06005208(s32 arg) {
+    u16 mode = arg;
+    Unk0605cd70* state = &DAT_0605cd70;
+
+    state->unk4 = state->unk2;
+    state->unk2 = mode;
+    state->unk0 = 0;
+    state->unk8 = 0;
+    DAT_0605c110 = 0;
+
+    if (mode == 5) {
+        Scl_s_reg.dispenbl &= ~0x0001;
+        SclProcess = 1;
+        DAT_0605D770.unk2 = 5;
+    } else {
+        DAT_0605C100 = 0;
+        DAT_0605CD80 = 0;
+        DAT_0605CD5C = 0;
+        DAT_0605C65C = 0;
+        ResetLayerColorCalc();
+
+        switch (mode) {
+        case 1:
+            if ((g_CurrentRoom.stageID & 0xDF) == 0xD) {
+                func_06009F10();
+            }
+            if (state->unk4 == 4) {
+                state->unk0 += 3;
+            } else {
+                DAT_0606465C();
+                if (state->unk4 == 1) {
+                    state->unk0 += 1;
+                }
+                SetVdp2BackgroundColor();
+            }
+            break;
+
+        case 4:
+            SetVdp2BackgroundColor();
+            DAT_06057f68 = 0;
+            break;
+        }
+    }
+}
 
 void func_06005310(void) { func_06006FA8(); }
 
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005328, func_06005328);
 
 void func_0600544C(void) {}
-const char* logo = "LOGO.PRG";
-const char* kcen = "KCEN.MAP";
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005470, func_06005470);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005508, func_06005508);
+void func_06005470(void) {
+    ReadFileToAddr("LOGO.PRG", (s32)&DAT_060a5000);
+    if (g_FileLoadEnabled != 0) {
+        func_0601B184();
+    }
+    DAT_0605D7DC = 0x00252000;
+    DAT_0605D7DC += ReadFileToAddr("KCEN.MAP", DAT_0605D7DC);
+    if (DAT_0605D7DC & 1) {
+        DAT_0605D7DC++;
+    }
+}
 
-// _READ_LOAD_MODE
+extern s16* DAT_0605C120[];
+
+void func_06005508(void) {
+    ReadFileToAddr("TITLE.PRG", (s32)&DAT_060a5000);
+    if (g_FileLoadEnabled != 0) {
+        func_0601AEF4();
+    }
+    ReadFileToAddr("TITLE.CHR", VRAM_ADDR + 0x13980);
+    ReadFileToAddr("ASCII.FON", 0x00252000);
+    func_060100DC();
+
+    DAT_0605D7DC = 0x00256000;
+    DAT_0605D7DC += ReadFileToAddr("TITLE.MAP", DAT_0605D7DC);
+    if (DAT_0605D7DC & 1) {
+        DAT_0605D7DC++;
+    }
+    DAT_0605C120[0] = (s16*)DAT_0605D7DC;
+}
+
+// original name: READ_LOAD_MODE
 s32 func_060055A4(void) { return 0; }
-const char* rload_map = "RLOAD.MAP";
-const char* load_map = "LOAD.MAP";
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60055C8, func_060055C8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600583C, func_0600583C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60058D0, func_060058D0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005944, func_06005944);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60059F4, func_060059F4);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005A90, func_06005A90);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6005E3C, func_06005E3C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600607C, func_0600607C);
+extern s32 DAT_060937F8;
+void ResetSpriteVram(void);
+void AllocGameSprite(s32);
+void func_06019FA0(s32);
+void func_06019FE4(s32);
+
+s32 func_060055C8(void) {
+    s32 iVar4;
+
+    if (DAT_0605D770.unk0 == 0x0) {
+        func_06019FA0(0);
+    } else {
+        func_06019FE4(0);
+    }
+
+    if (DAT_06038a44) {
+        return 1;
+    }
+
+    DAT_06038a44 = 1;
+    switch (DAT_0605D770.unk0) {
+    case 0:
+        ResetSpriteVram();
+        AllocGameSprite(g_PlayableCharacter);
+        Scl_s_reg.dispenbl &= ~0x003F;
+        SclProcess = 1;
+        ((s32(*)(s32, s32))StartColorOffsetFade)(1, 2);
+        DAT_0605D770.unk0++;
+
+    case 1:
+        DAT_0605D770.unk0++;
+
+    case 2:
+        DAT_0605D770.unk8 = 1;
+        break;
+
+    case 3:
+        DAT_0605D770.unk8 = 2;
+        break;
+
+    case 4:
+        DAT_0605D770.unk8 = 3;
+        if (g_PlayableCharacter == 1 || g_PlayableCharacter == 2) {
+            DAT_0605D770.unk0 += 6;
+        }
+        break;
+
+    case 5:
+        DAT_0605D770.unk8 = 4;
+        break;
+
+    case 6:
+        DAT_0605D770.unk8 = 5;
+        break;
+
+    case 7:
+        DAT_0605D770.unk8 = 6;
+        break;
+
+    case 8:
+        DAT_0605D770.unk8 = 7;
+        if (g_Servant < 1) {
+            DAT_0605D770.unk0 += 2;
+        }
+        break;
+
+    case 9:
+        DAT_0605D770.unk8 = 11;
+        break;
+
+    case 10:
+        DAT_0605D770.unk8 = 12;
+        break;
+
+    case 11:
+        DAT_0605D770.unk8 = 8;
+        break;
+
+    case 12:
+        DAT_0605D770.unk8 = 9;
+        break;
+
+    case 13:
+        if (func_0600607C(g_CurrentRoom.stageID)) {
+            ReadFileToAddr(func_06005E3C(0, g_CurrentRoom.stageID),
+                           SCL_VDP2_VRAM_A1 + 0x2000);
+            ReadFileToAddr(
+                func_06005E3C(1, g_CurrentRoom.stageID), SCL_VDP2_VRAM_B1);
+            DAT_060645C4();
+        }
+
+        if (g_CurrentRoom.stageID & 0x20) {
+            ReadFileToAddr("RLOAD.MAP", &DAT_060937F8);
+        } else {
+            ReadFileToAddr("LOAD.MAP", &DAT_060937F8);
+        }
+
+        iVar4 = 0;
+        if (g_CurrentRoom.stageID == 0x1A || g_CurrentRoom.stageID == 0x18 ||
+            g_CurrentRoom.stageID == 0x39) {
+            iVar4 = GetEnemyPlayerCharaAddr();
+        }
+        DAT_0605D7DC = iVar4 + 0x00252000;
+        DAT_0605D770.unk8 = 10;
+        break;
+
+    case 14:
+        DAT_06038a44 = 0;
+        return 0;
+    }
+    DAT_0605D770.unk0++;
+    return 1;
+}
+
+void func_0600583C(void) {
+    ReadFileToAddr("OPEN.PRG", (s32)&DAT_060a5000);
+    if (g_FileLoadEnabled != 0) {
+        func_0601AF2C();
+    }
+    ReadFileToAddr("OPENNING.CHR", VRAM_ADDR + 0x13980);
+    DAT_0605D7DC = 0x254000;
+    DAT_0605D7DC += ReadFileToAddr("OPENNING.MAP", DAT_0605D7DC);
+    if (DAT_0605D7DC & 1) {
+        DAT_0605D7DC++;
+    }
+}
+
+void func_060058D0(void) {
+    ReadFileToAddr("STAFF.PRG", (s32)&DAT_060a5000);
+    if (g_FileLoadEnabled != 0) {
+        func_0601AF44();
+    }
+    DAT_0605D7DC = 0x254000;
+    DAT_0605D7DC += ReadFileToAddr("STAFROLL.MAP", DAT_0605D7DC);
+    if (DAT_0605D7DC & 1) {
+        DAT_0605D7DC++;
+    }
+}
+
+extern s32 func_0601B1B4(void);
+
+void func_06005944(void) {
+    ReadFileToAddr("MOVIE.PRG", (s32)&DAT_06066000);
+    if (g_FileLoadEnabled != 0) {
+        func_0601B1B4();
+    }
+}
+
+const char DAT_0600597C[] = "S430.PTN";
+
+const char DAT_06005988[] = "S430.CHR";
+
+const char DAT_06005994[] = "S440.PTN";
+
+const char DAT_060059A0[] = "S440.CHR";
+
+const char DAT_060059AC[] = "S410.PTN";
+
+const char DAT_060059B8[] = "S410.CHR";
+
+const char DAT_060059C4[] = "S400.PTN";
+
+const char DAT_060059D0[] = "S400.CHR";
+
+void func_060059F4(void) {
+    ReadFileToAddr("ENDING.PRG", (s32)&g_StageOverlayData);
+    if (g_FileLoadEnabled != 0) {
+        func_0601B19C();
+    }
+    ReadFileToAddr("ENDING.CHR", VRAM_ADDR + 0x2A980);
+    if (DAT_0605D7FC != 4 && DAT_0605D7FC != 6) {
+        ReadFileToAddr(
+            DAT_06038A14[DAT_0605D7FC - 1][0], SCL_VDP2_VRAM_A1 + 0x2000);
+        ReadFileToAddr(DAT_06038A14[DAT_0605D7FC - 1][1], SCL_VDP2_VRAM_B1);
+    }
+    DAT_060645C4();
+}
+
+extern s32 DAT_060389E0[][2];
+extern s32 DAT_060389F4[];
+
+s32 func_06005A90(void) {
+    func_06019FE4(0);
+    switch (DAT_0605D770.unk8) {
+    case 0:
+        ((s32(*)(s32))PlaySfx)(DAT_060389E0[g_PlayableCharacter][0]);
+        DAT_0605D770.unk8++;
+        return 1;
+
+    case 1:
+        if (func_06012D88() != 0) {
+            return 1;
+        }
+        DAT_0605D770.unk8++;
+        return 1;
+
+    case 2:
+        ((s32(*)(s32))PlaySfx)(DAT_060389E0[g_PlayableCharacter][1]);
+        DAT_0605D770.unk8++;
+        return 1;
+
+    case 3:
+        if (func_06012D88() != 0) {
+            return 1;
+        }
+        DAT_0605D770.unk8++;
+
+    case 4:
+        ((s32(*)(s32))PlaySfx)(g_StageFileRecords[g_CurrentRoom.stageID].unkC);
+        DAT_0605D770.unk8++;
+        return 1;
+
+    case 5:
+        if (func_06012D88() != 0) {
+            return 1;
+        }
+        if ((g_Servant != 0) && (g_PlayableCharacter == 0)) {
+            DAT_0605D770.unk8++;
+            return 1;
+        }
+        goto block_43;
+
+    case 6:
+        ((s32(*)(s32))PlaySfx)(DAT_060389F4[g_Servant]);
+        DAT_0605D770.unk8++;
+        return 1;
+
+    case 7:
+        if (func_06012D88() != 0) {
+            return 1;
+        }
+    block_43:
+        if (g_CurrentRoom.stageID == 0x1F) {
+            DAT_0605D770.unk8 = 8;
+            goto case8;
+        }
+        if (g_CurrentRoom.stageID == 0x40) {
+            DAT_0605D770.unk8 = 9;
+            goto case9;
+        }
+        if (g_PlayableCharacter != 0 && g_CurrentRoom.stageID == 0x41) {
+            DAT_0605D770.unk8 = 10;
+            goto case10;
+        }
+        ((s32(*)(s32, s32))StartColorOffsetFade)(0, 2);
+        return 0;
+
+    case 8:
+    case8:
+        ((s32(*)(s32))PlaySfx)(0xF0000807);
+        DAT_0605D770.unk8 = 0x80;
+        return 1;
+
+    case 9:
+    case9:
+        ((s32(*)(s32))PlaySfx)(0xF0000810);
+        DAT_0605D770.unk8 = 0x80;
+        return 1;
+
+    case 10:
+    case10:
+        if (g_PlayableCharacter == 1) {
+            ((s32(*)(s32))PlaySfx)(0xF0000812);
+        }
+        if (g_PlayableCharacter == 2) {
+            ((s32(*)(s32))PlaySfx)(0xF000080F);
+        }
+        DAT_0605D770.unk8 = 0x80;
+        return 1;
+
+    case 0x80:
+        if (func_06012D88() != 0) {
+            return 1;
+        }
+    default:
+        ((s32(*)(s32, s32))StartColorOffsetFade)(0, 2);
+        return 0;
+    }
+}
+
+char* func_06005E3C(s32 arg0, u16 arg1) {
+    switch (arg1) {
+    case 0x1F:
+        if (arg0 == 0) {
+            return "S011.CHR";
+        } else {
+            return "S011.PTN";
+        }
+    case 0x40:
+        if (arg0 == 0) {
+            return "S160.CHR";
+        } else {
+            return "S160.PTN";
+        }
+    case 0x9:
+        if (arg0 == 0) {
+            return "SWATA.CHR";
+        } else {
+            return "SWATA.PTN";
+        }
+    case 0x12:
+        if (arg0 == 0) {
+            return "EVENT070.001";
+        } else {
+            return "EVENT070.002";
+        }
+    case 0x18:
+        if (arg0 == 0) {
+            return "SBO7.CHR";
+        } else {
+            return "SBO7.PTN";
+        }
+    case 0xB:
+        if (arg0 == 0) {
+            return "S302.CHR";
+        } else {
+            return "S302.PTN";
+        }
+    case 0x41:
+        if (arg0 == 0) {
+            return "EVENT020.001";
+        } else {
+            return "EVENT020.002";
+        }
+    case 0xC:
+        if (arg0 == 0) {
+            return "S040.CHR";
+        } else {
+            return "S040.PTN";
+        }
+    case 0x6:
+        if (arg0 == 0) {
+            return "S060.CHR";
+        } else {
+            return "S060.PTN";
+        }
+    case 0x19:
+        if (arg0 == 0) {
+            return "S050.CHR";
+        } else {
+            return "S050.PTN";
+        }
+    case 0x1C:
+        if (arg0 == 0) {
+            return "S110.CHR";
+        } else {
+            return "S110.PTN";
+        }
+    case 0x28:
+        if (arg0 == 0) {
+            return "SR14.CHR";
+        } else {
+            return "SR14.PTN";
+        }
+    case 0x38:
+        if (arg0 == 0) {
+            return "SDRACULA.CHR";
+        } else {
+            return "SDRACULA.PTN";
+        }
+    case 0x3C:
+        if (arg0 == 0) {
+            return "S140.CHR";
+        } else {
+            return "S140.PTN";
+        }
+    case 0x8:
+        if (arg0 == 0) {
+            return "S190.CHR";
+        } else {
+            return "S190.PTN";
+        }
+    case 0x17:
+        if (arg0 == 0) {
+            return "S030.CHR";
+        } else {
+            return "S030.PTN";
+        }
+    }
+    return NULL;
+}
+
+bool func_0600607C(u16 arg0) {
+    if (g_PlayableCharacter != 0 && g_CurrentRoom.stageID == 0x9) {
+        return true;
+    }
+    if (g_PlayableCharacter == 1 && g_CurrentRoom.stageID == 0x1F) {
+        return true;
+    }
+    if (g_PlayableCharacter == 0) {
+        switch (arg0) {
+        case 0x6:
+        case 0x8:
+        case 0x9:
+        case 0xB:
+        case 0xC:
+        case 0x12:
+        case 0x17:
+        case 0x18:
+        case 0x19:
+        case 0x1C:
+        case 0x1F:
+        case 0x28:
+        case 0x38:
+        case 0x3C:
+        case 0x40:
+        case 0x41:
+            return true;
+        }
+    }
+    return false;
+}
+
+const char DAT_06006158[] = "in GfsInit";
+
+const char DAT_06006164[] = "in CdInit";
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006170, func_06006170);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60062F8, func_060062F8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006470, func_06006470);
+
+s32 func_06006470(void) {
+    s32 result;
+    s32 index;
+    s32 success;
+
+    result = 1;
+    index = 0;
+    success = 1;
+
+    do {
+        switch (index) {
+        case 0:
+            DAT_06038a44 = 0;
+            DAT_06050668 = 0;
+            index++;
+        case 1:
+            result = func_06006170();
+            break;
+        case 2:
+            result = func_060062F8(0, &DAT_0605AE80);
+            break;
+        }
+
+        if (result == 1) {
+            DAT_06050668 = 0;
+            index++;
+        } else if (result == 0) {
+            success = 0;
+            break;
+        }
+    } while (index < 3);
+
+    if (success == 0) {
+        SYS_EXECDMP();
+    }
+
+    DAT_0605AE8C = &DAT_0605064C;
+    *(char*)((char*)&DAT_0605064C - 0x40) = 0;
+    return success;
+}
 
 void func_0600652C(void) {
-    func_0601B600();
+    GFS_Reset();
     DAT_06038a44 = 0;
 }
 
@@ -266,29 +1130,29 @@ struct Unk0600654C {
     s32 unkc;
     s32 unk10;
 };
-s32 func_06006574(struct Unk0600654C*);
+
 // func_0600654C
-void ReadFileToAddr(s32 param_1, s32 param_2) {
+s32 ReadFileToAddr(char* path, s32 addr) {
     struct Unk0600654C unk;
-    unk.unk0 = param_1;
-    unk.unk4 = param_2;
+    unk.unk0 = (s32)path;
+    unk.unk4 = addr;
     unk.unk8 = -1;
     unk.unka = 0;
-    func_06006574(&unk);
+    return func_06006574(&unk);
 }
 
 // _FileReadSetAdrEx
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006574, func_06006574);
 
 // func_060066F0
-void ReadFileToAddrAsync(u32 param_1, u32 param_2, u32 param_3, u32 param_4) {
+void ReadFileToAddrAsync(u32 arg0, u32 arg1, u32 arg2, u32 arg3) {
     struct Unk0600654C unk;
-    unk.unk0 = param_1;
-    unk.unk4 = param_2;
+    unk.unk0 = arg0;
+    unk.unk4 = arg1;
     unk.unk8 = -1;
     unk.unka = 0;
-    unk.unkc = param_3;
-    unk.unk10 = param_4;
+    unk.unkc = arg2;
+    unk.unk10 = arg3;
     func_06006720(&unk, 3, 0);
 }
 
@@ -296,16 +1160,76 @@ void ReadFileToAddrAsync(u32 param_1, u32 param_2, u32 param_3, u32 param_4) {
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006720, func_06006720);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006A7C, func_06006A7C);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006C00, func_06006C00);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006E14, func_06006E14);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006E4C, func_06006E4C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006E9C, func_06006E9C);
 
-s32 func_0602DCFC();
+char* func_06006E14(char* path) {
+    s32 lastSlash;
+    s32 i;
 
-// _IsCdOpened
-u32 func_06006ED4() { return (func_0602DCFC() >> 5) & 1; }
+    lastSlash = -1;
+    for (i = 0; i < 0x3F; i++) {
+        if (path[i] == '\\') {
+            lastSlash = i;
+        } else if (path[i] == 0) {
+            break;
+        }
+    }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006EF8, func_06006EF8);
+    lastSlash++;
+    return path + lastSlash;
+}
+
+void func_06006E4C(char* path, char* dst) {
+    s32 lastSlash;
+    s32 i;
+
+    lastSlash = -1;
+    for (i = 0; i < 0x3F; i++) {
+        if (path[i] == '\\') {
+            lastSlash = i;
+        } else if (path[i] == 0) {
+            break;
+        }
+    }
+
+    lastSlash++;
+    for (i = 0; i < lastSlash; i++) {
+        dst[i] = path[i];
+    }
+    dst[lastSlash] = 0;
+}
+
+void GFS_GetFileSize(s32, s32*, s32*, s32*);
+
+s32 func_06006E9C(s32* nsct, s32 gfs) {
+    s32 sctsz;
+    s32 lstsz;
+
+    GFS_GetFileSize(gfs, &sctsz, nsct, &lstsz);
+    return (sctsz * (*nsct - 1)) + lstsz;
+}
+
+// original name: IsCdOpened
+bool IsCdOpened() { return (CDC_GetHirqReq() & CDC_HIRQ_DCHG) ? true : false; }
+
+s32 func_06006EF8(void) {
+    s32 stat[4];
+    s32* status;
+    s32 retries;
+    s32 result;
+    char* data;
+
+    result = 1;
+    data = (char*)&stat[1];
+    status = stat;
+    retries = 0x10;
+    while (CDC_GetPeriStat(&stat[1]) == CDC_ERR_PERI && retries > 0) {
+    }
+    status[0] = data[0] & 0x0F;
+    if (stat[0] == 1 || stat[0] == 2) {
+        result = 0;
+    }
+    return result;
+}
 
 bool func_06006F50(void) { return 1; }
 
@@ -315,34 +1239,46 @@ bool CdSeek(void) { return 1; }
 // func_06006F68
 bool GetFileReadStat(void) { return 0; }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006F74, func_06006F74);
+s32 func_06006F74(void) { return 1; }
+
+const u16 DAT_06006F7E = 0x0000;
+const u16 DAT_06006F80 = 0x0000;
+const char weapon0_prg[] = "WEAPON0.PRG";
+const char weapon0_chr[] = "WEAPON0.CHR";
+const char dummy_dat[] = "DUMMY.DAT";
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6006FA8, func_06006FA8);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60071C8, func_060071C8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60076D0, func_060076D0);
+
+s32 func_060076D0(s32 arg0) {
+    s32 result;
+
+    if (g_Status.equipment[4] == 0x19) {
+        result = DAT_060645AC + 0x2D4C;
+    } else {
+        result = DAT_060645AC + (g_Status.equipment[arg0] * 0x34);
+    }
+    return result;
+}
 
 // _CD_READ_OUT
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007714, func_06007714);
 
 struct Unk0600654C prg_info;
 struct Unk0600654C chr_info;
-void func_0601AE2C(s32);
-void func_0600C0C4(s32);
-void func_0600C298(s32);
-s32 func_0601AE5C(s32, s32);
 
 char* WEAPON0_PRG;
 char* WEAPON0_CHR;
 char* WEAPON1_PRG;
 char* WEAPON1_CHR;
-extern s32 g_FileLoadEnabled;
 
-void func_06007824(int param_1, int param_2) {
-    if ((g_FileLoadEnabled == 0) || (0x3f < param_2)) {
-        func_0601AE5C(param_1, param_2);
+void func_06007824(s32 arg0, s32 arg1) {
+    if ((g_FileLoadEnabled == 0) || (0x3F < arg1)) {
+        func_0601AE5C(arg0, arg1);
     } else {
-        prg_info.unka = param_2 * 6;
-        chr_info.unka = param_2 * 8;
-        if (param_1 == 0) {
+        prg_info.unka = arg1 * 6;
+        chr_info.unka = arg1 * 8;
+        if (arg0 == 0) {
             prg_info.unk0 = &WEAPON0_PRG;
             prg_info.unk4 = 0x060D6000;
             chr_info.unk0 = &WEAPON0_CHR;
@@ -354,59 +1290,181 @@ void func_06007824(int param_1, int param_2) {
             chr_info.unk4 = VRAM_ADDR + 0x21980;
         }
         func_06006574(&prg_info);
-        func_0601AE2C(param_1);
+        func_0601AE2C(arg0);
         func_06006574(&chr_info);
-        func_0600C298(param_1);
-        func_0600C0C4(param_1);
+        func_0600C298(arg0);
+        func_0600C0C4(arg0);
     }
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60078EC, func_060078EC);
+extern struct Unk0600654C DAT_06038B6C;
+extern struct Unk0600654C DAT_06038BAC;
+
+extern s32 DAT_06038C24[][2];
+void SetServantResourceList(void);
+void func_0600C254(void);
+void func_0600C0FC(void);
+
+void func_060078EC(s32 arg0) {
+    if (g_FileLoadEnabled != 0) {
+        DAT_06038B6C.unk0 = DAT_06038C24[arg0][0];
+        func_06006574(&DAT_06038B6C);
+        SetServantResourceList();
+        DAT_06038BAC.unk0 = DAT_06038C24[arg0][1];
+        DAT_06038BAC.unk4 = VRAM_ADDR + 0x25980;
+        func_06006574(&DAT_06038BAC);
+        func_0600C254();
+        func_0600C0FC();
+    }
+}
 
 // _InitVdp1
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007968, InitSpriteEngine);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007A34, AllocSpriteCharVram);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007B34, func_06007B34);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007B8C, func_06007B8C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007BE0, func_06007BE0);
 
-// _SprSetGourTbl
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007CA0, AllocGourTbl);
+u16 func_06007B34(SprLookupTbl* tbl) {
+    u16* entry;
+    s32 i;
+    u16 tblNo;
+
+    tblNo = d_0605AEA8;
+    if (tblNo < 0x200) {
+        if (tbl != NULL) {
+            entry = tbl->entry;
+            for (i = 0; i < 0x10; i++) {
+                *entry++ |= ~0x7FFF;
+            }
+            SPR_2SetLookupTbl(tblNo, tbl);
+        }
+        d_0605AEA8 += 1;
+    }
+    return tblNo;
+}
+
+s32 func_06007B8C(s16* colors) {
+    u32 charNo;
+    s16* dest;
+    s32 i;
+
+    charNo = (u16)d_0605AEB0;
+    if (charNo <= 0x3E) {
+        if (colors != NULL) {
+            dest = (s16*)(SCL_COLRAM_ADDR + 0x800 + charNo * 0x20);
+
+            for (i = 0; i < 0x10; i++) {
+                *dest++ = *colors++ & 0x7FFF;
+            }
+        }
+        d_0605AEB0++;
+    }
+    return charNo | 0x4000;
+}
+
+u16 LocalLookupTblNoToVram(u16 arg0);
+
+u16 func_06007BE0(s16* colors, s32 arg1) {
+    u16 tblNo;
+    u16 i;
+    u16 vram;
+    s16* dst;
+    SprLookupTbl lookupTbl;
+
+    tblNo = d_0605AEA8;
+    if (tblNo > 0x1FFU) {
+        return tblNo;
+    }
+    if ((u16)d_0605AEB0 > 0x3EU) {
+        return d_0605AEB0 | 0x4000;
+    }
+    if (colors != NULL) {
+        dst = (s16*)(SCL_COLRAM_ADDR + 0x800 + ((u16)d_0605AEB0 << 5));
+        for (i = 0; i < 0x10; i++) {
+            *dst++ = *colors++ & 0x7FFF;
+        }
+
+        vram = LocalLookupTblNoToVram(d_0605AEB0);
+        for (i = 0; i < 0x10; i++) {
+            lookupTbl.entry[i] = vram + i;
+        }
+
+        SPR_2SetLookupTbl(d_0605AEA8, &lookupTbl);
+    }
+    d_0605AEA8 += 1;
+    d_0605AEB0 += 1;
+    return tblNo;
+}
+
+extern s32 DAT_0605BEC4;
+extern u16 DAT_0605BEC8;
+extern s16 DAT_0605BECA;
+extern s32 d_06038dbc;
+extern s32 d_060576AC;
+
+// original name: SprSetGourTbl
+u16 SprSetGourTbl(SprGourTbl* gourTbl) {
+    u16 prev;
+
+    prev = DAT_0605BEC8;
+    if (DAT_0605BEC8 < 0x304) {
+        SPR_2SetGourTbl(DAT_0605BEC8, gourTbl);
+        DAT_0605BEC8++;
+    }
+    return prev;
+}
 
 // func_06007CE0
 u16 LocalLookupTblNoToVram(u16 arg0) { return arg0 * 0x10 + 0x400; }
 
-void SPR_2ClrAllChar(void);
-
-s16 d_0605BECA;
-s16 d_0605AEA8;
-s16 d_0605AEB0;
-s16 d_0605BEC8;
-s32 d_06038dbc;
-s32 d_0605BEC4;
-s32 d_060576AC;
-
 // func_06007CF8
 void ResetSpriteVram() {
     SPR_2ClrAllChar();
-    d_0605BECA = 0;
+    DAT_0605BECA = 0;
     d_0605AEA8 = 0;
     d_0605AEB0 = 0;
-    d_0605BEC8 = 0x304;
+    DAT_0605BEC8 = 0x304;
     d_060576AC = 0;
-    d_0605BEC4 = 0x00011180;
+    DAT_0605BEC4 = 0x11180;
     d_06038dbc = 0;
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6007D54, func_06007D54);
+extern XyInt DAT_0605AEA0[2];
+extern SprSpCmd DAT_06050684[];
+extern SprSpCmd* d_0605AEAC;
+extern XyInt DAT_0600E23C;
 
-void SPR_2CloseCommand();
+void func_06007D54(void) {
+    SprSpCmd cmd;
 
-s32 d_0605AEAC;
-s32 d_06038c5c;
-s32 d_06038c5c;
-s32 d_0605BEBE;
-u16 d_0605AEA0[4];
+    SPR_2OpenCommand(1);
+
+    cmd.control = 0x1009;
+    LOW(cmd.cx) = LOW(DAT_0605BEC0);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(0, &cmd);
+        d_0605AEAC++;
+    }
+
+    cmd.control = 0x1008;
+    LOW(cmd.ax) = LOW(DAT_0605AEA0[0]);
+    LOW(cmd.cx) = LOW(DAT_0605AEA0[1]);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(0, &cmd);
+        d_0605AEAC++;
+    }
+
+    cmd.control = 0x100A;
+    LOW(cmd.ax) = LOW(DAT_0600E23C);
+    if (SpMstCmdPos < 0x278) {
+        SPR_2Cmd(0, &cmd);
+        d_0605AEAC++;
+    }
+
+    d_0605AEAC = &DAT_06050684[SpMstCmdPos];
+}
+
+extern s32 d_06038c5c;
+extern s32 d_0605BEBE;
+
 // func_06007E14
 void CloseSpriteList(void) {
     SprSpCmd cmd;
@@ -419,39 +1477,34 @@ void CloseSpriteList(void) {
         cmd.ax = cmd.dx = 0;
         cmd.bx = cmd.cx = d_0605BEBE;
         cmd.ay = cmd.by = 0;
-        cmd.cy = cmd.dy = d_0605AEA0[1] - 1;
+        cmd.cy = cmd.dy = DAT_0605AEA0[0].y - 1;
         SPR_2Cmd(0x1FF, &cmd);
-        d_0605AEAC += 0x20;
+        d_0605AEAC++;
     }
 
     SPR_2CloseCommand();
 }
-void SPR_SetEraseData(
-    Uint16 eraseData, Uint16 leftX, Uint16 topY, Uint16 rightX, Uint16 botY);
 
-void SPR_2FrameEraseData(Uint16);
 // func_06007EB8
-void SetSpriteEraseData(s16 param_1) {
-    SPR_2FrameEraseData(param_1);
-    SPR_SetEraseData(
-        param_1, d_0605AEA0[0], d_0605AEA0[1], d_0605AEA0[2], d_0605AEA0[3]);
+void SetSpriteEraseData(s16 arg0) {
+    SPR_2FrameEraseData(arg0);
+    SPR_SetEraseData(arg0, DAT_0605AEA0[0].x, DAT_0605AEA0[0].y,
+                     DAT_0605AEA0[1].x, DAT_0605AEA0[1].y);
 }
-
-void SetVdp2BackgroundColor();
 
 // func_06007F04
 void InitVdp2Display(void) {
     SCL_Vdp2Init();
-    SCL_SetDisplayMode(0, 1, 0);
+    SCL_SetDisplayMode(SCL_NON_INTER, SCL_240LINE, SCL_NORMAL_A);
     SPR_2FrameChgIntr(-1);
     SclPriBuffDirty.SclColOffset = 1;
-    SclColOffset.ColorOffsetEnable = 0x6f;
-    SCL_SetColOffset(0, 0x6f, 0xFF01, 0xFF01, 0xFF01);
+    SclColOffset.ColorOffsetEnable = 0x6F;
+    SCL_SetColOffset(SCL_OFFSET_A, 0x6F, -0xFF, -0xFF, -0xFF);
     SetVdp2BackgroundColor();
 }
 
-// _SET_VDP2_VRAM
-void func_06007F6C(void) {
+// original name: SET_VDP2_VRAM
+void SetVDP2Vram(void) {
     SclVramConfig cfg;
     SCL_InitVramConfigTb(&cfg);
     cfg.vramModeA = 0;
@@ -478,227 +1531,855 @@ void func_06007F6C(void) {
     SCL_SetColMixMode(6, 1);
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008048, ResetLayerColorCalc);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60080EC, func_060080EC);
-
-// SetVdp2BackgroundColor
-void SetVdp2BackgroundColor(void) {
-    s16 local_c[2];
-    local_c[0] = 0;
-    SCL_SetBack(SCL_VDP2_VRAM + 0x7FE20, 1, local_c);
+// func_06008048
+void ResetLayerColorCalc(void) {
+    SCL_DisableLineCol(SCL_NBG1);
+    SCL_DisableLineCol(SCL_NBG2);
+    SCL_DisableLineCol(SCL_NBG3);
+    SCL_DisableLineCol(SCL_SPR);
+    SCL_SET_EXCCEN(0);
+    SCL_SET_N1CCEN(0);
+    SCL_SET_N2CCEN(0);
+    SCL_SET_N3CCEN(0);
+    SCL_SET_CCMD(1);
+    SCL_SET_S0CCRT(23);
+    SCL_SET_S1CCRT(15);
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600815C, func_0600815C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600819C, BlankScreen);
+void func_060080EC(s32 arg0) {
+    if (arg0 == 1) {
+        SCL_SET_CCMD(0);
+    } else {
+        SCL_SET_CCMD(1);
+    }
+}
+
+void SetVdp2BackgroundColor(void) {
+    u16 color = RGB16_COLOR(0, 0, 0) & 0x7FFF;
+    SCL_SetBack(SCL_VDP2_VRAM + 0x80000 - 0x1E0, 1, &color);
+}
+
+void SetVdp2BackgroundColorRgb(u8 r, u8 g, u8 b) {
+    u16 color = RGB16_COLOR(r, g, b);
+    SCL_SetBack(SCL_VDP2_VRAM + 0x80000 - 0x1E0, 1, &color);
+}
+
+// func_0600819C
+void BlankScreen(void) {
+    SCL_SetDisplayMode(SCL_NON_INTER, SCL_240LINE, SCL_NORMAL_A);
+    SclPriBuffDirty.SclColOffset = 1;
+    SclColOffset.ColorOffsetEnable = 0x6F;
+    SCL_SetColOffset(SCL_OFFSET_A, 0x6F, -0xFF, -0xFF, -0xFF);
+    SetVdp2BackgroundColor();
+    Scl_w_reg.win0_start[0] = 0;
+    Scl_w_reg.win0_start[1] = 12;
+    Scl_w_reg.win0_end[0] = 640;
+    Scl_w_reg.win0_end[1] = 240;
+    Scl_w_reg.wincontrl[0] = 0x0383;
+    Scl_w_reg.wincontrl[1] = 0x8383;
+    Scl_w_reg.wincontrl[2] = 0x0083;
+    SclProcess = 1;
+}
 
 // func_0600824C
-void InitScuDma(void) {
-    // sega library func
-    DMA_ScuInit();
-}
+void InitScuDma(void) { DMA_ScuInit(); }
 
-// _VDP1_TRANS
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008264, func_06008264);
+// original name: VDP1_TRANS
+void func_06008264(void) {
+    FlushVramTransfers();
+    func_06008488();
+    func_060082E8();
+    func_06008464();
+}
 
 // func_06008298
 void TransferAllBgLayers(void) {
     s32 i;
+    // BUG: DAT_0605CD90 has size 4
     for (i = 0; i < 8; i++) {
         TransferBgLayer(i);
     }
 }
 
-// _INIT_TRANS
+// original name: INIT_TRANS
 void func_060082C8(void) {
     func_060082E8();
     func_0600841C();
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60082E8, func_060082E8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600831C, QueueVramTransfer);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008374, FlushVramTransfers);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600841C, func_0600841C);
-
-s32 d_0605DB60[];
-void func_06008464(void) {
-    s32* puVar1;
+void func_060082E8(void) {
+    s32* ptr;
     s32 i;
 
-    puVar1 = d_0605DB60;
+    ptr = DAT_060576B0;
+    for (i = 0; i < 0x10; i++, ptr += 3) {
+        ptr[2] = 0;
+        ptr[0] = 0;
+        ptr[1] = 0;
+    }
+    DAT_06057770 = 0;
+}
+
+INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600831C, QueueVramTransfer);
+INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008374, FlushVramTransfers);
+
+void func_0600841C(void) {
+    s32 i;
+    Unk0605DB60* entry;
+
+    entry = d_0605DB60;
 
     for (i = 0; i < 0x20; i++) {
-        puVar1[0] = 0;
-        puVar1[1] = 0;
-        puVar1 += 4;
+        entry->unk0 = 0;
+        entry->unk4 = 0;
+        entry->unk8 = -1;
+        entry->unkA = -1;
+        entry->unkC = -1;
+        entry->unkE = -1;
+        entry++;
     }
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008488, func_06008488);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008524, func_06008524);
+void func_06008464(void) {
+    Unk0605DB60* entry;
+    s32 i;
 
-extern Unk0605cd70 DAT_0605cd70;
+    entry = d_0605DB60;
+
+    for (i = 0; i < 0x20; i++) {
+        entry->unk0 = 0;
+        entry->unk4 = 0;
+        entry++;
+    }
+}
+
+void func_06008488(void) {
+    u16* chars;
+    u16* palettes;
+    Unk0605DB60* entry;
+    s32 i;
+
+    chars = (u16*)(VRAM_ADDR + DAT_0605aec0[0][0] * 8);
+    palettes = (u16*)(VRAM_ADDR + SPR_2LookupTblNoToVram(0x10) * 8);
+    entry = d_0605DB60;
+    for (i = 0; i < 0x20;) {
+        if (entry->unk0 != NULL) {
+            DMA_CpuMemCopy2(chars, entry->unk0, 0x40);
+            while (DMA_CpuResult() == 2) {
+            }
+        }
+        if (entry->unk4 != NULL) {
+            DMA_CpuMemCopy2(palettes, entry->unk4, 0x10);
+            while (DMA_CpuResult() == 2) {
+            }
+        }
+        i++;
+        entry++;
+        chars += 0x40;
+        palettes += 0x10;
+    }
+}
+
+s32 func_06008524(u32 dest, u32 src, u32 cnt) {
+    u32 first;
+    u32 i;
+    BgTransfer* transfer;
+
+    first = 0;
+    if (DAT_0605cd70.unk0 == 0) {
+        first = 4;
+    }
+    if (DAT_0605cd70.unk0 == 1) {
+        first = 3;
+    }
+    transfer = &DAT_0605D6C0[first];
+
+    for (i = first; i < 8; i++, transfer++) {
+        if (transfer->cnt == 0) {
+            transfer->src = src;
+            transfer->dest = dest;
+            transfer->cnt = cnt;
+            transfer->tileFlags |= 8;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // Handles transfer of background tile graphics
 // func_06008588
-void TransferBgLayer(int param_1) {
+void TransferBgLayer(s32 arg0) {
     s32 cnt;
-    struct Unk0605d6c0* puVar5;
-    struct Unk0605CD90* puVar6;
+    BgTransfer* transfer;
+    Unk0605CD90* ptr;
 
-    puVar5 = &DAT_0605d6c0[param_1 * 4];
-    puVar6 = &DAT_0605CD90[param_1];
-    if (puVar5->tileFlags == 0) {
+    transfer = &DAT_0605D6C0[arg0];
+    ptr = &DAT_0605CD90[arg0];
+    if (transfer->tileFlags == 0) {
         return;
     }
-    if (puVar5->tileFlags & 1) {
-        cnt =
-            DecompressLZSS(puVar6->unkc, (s32)SYS_buf_060485E0, puVar6->unk18);
-        DmaScroll((s32*)SYS_buf_060485E0, puVar6->dst0, cnt);
+    if (transfer->tileFlags & 1) {
+        cnt = DecompressLZSS(ptr->unkC, (s32)DAT_060485E0, ptr->unk18);
+        DmaScroll((u16*)DAT_060485E0, ptr->dst0, cnt);
     }
-    if (puVar5->tileFlags & 2) {
-        cnt =
-            DecompressLZSS(puVar6->unk10, (s32)SYS_buf_060485E0, puVar6->unk1c);
-        DmaScroll((s32*)SYS_buf_060485E0, puVar6->dst4, cnt);
+    if (transfer->tileFlags & 2) {
+        cnt = DecompressLZSS(ptr->unk10, (s32)DAT_060485E0, ptr->unk1C);
+        DmaScroll((u16*)DAT_060485E0, ptr->dst4, cnt);
     }
-    if (puVar5->tileFlags & 4) {
+    if (transfer->tileFlags & 4) {
         if (DAT_0605cd70.unk2 == 4) {
-            BuildSubDispTilemap(puVar6);
+            BuildSubDispTilemap(ptr);
         } else {
-            func_0600871C(puVar6, &DAT_0605c680, param_1);
+            func_0600871C(ptr, &DAT_0605c680, arg0);
         }
     }
-    if (puVar5->tileFlags & 8) {
-        DmaScroll(puVar5->src, puVar5->dest, puVar5->cnt);
+    if (transfer->tileFlags & 8) {
+        DmaScroll(transfer->src, transfer->dest, transfer->cnt);
     }
-    if (puVar5->tileFlags & 0x10) {
-        DmaScroll(puVar5->src, puVar5->dest, puVar5->cnt);
+    if (transfer->tileFlags & 0x10) {
+        DmaScroll(transfer->src, transfer->dest, transfer->cnt);
     }
-    if (puVar5->tileFlags & 0x20) {
-        DmaScroll(puVar5->src, puVar5->dest, puVar5->cnt);
+    if (transfer->tileFlags & 0x20) {
+        DmaScroll(transfer->src, transfer->dest, transfer->cnt);
     }
-    if (puVar5->tileFlags & 0x40) {
-        cnt = DecompressLZSS(puVar6->unkc, DMA_SRC_ADDR, puVar6->unk18);
-        DmaScroll(DMA_SRC_ADDR, puVar6->dst0, cnt);
+    if (transfer->tileFlags & 0x40) {
+        cnt = DecompressLZSS(ptr->unkC, DMA_SRC_ADDR, ptr->unk18);
+        DmaScroll(DMA_SRC_ADDR, ptr->dst0, cnt);
     }
-    if (puVar5->tileFlags & 0x80) {
-        cnt = DecompressLZSS(puVar6->unk10, DMA_SRC_ADDR, puVar6->unk1c);
-        DmaScroll(DMA_SRC_ADDR, puVar6->dst4, cnt);
+    if (transfer->tileFlags & 0x80) {
+        cnt = DecompressLZSS(ptr->unk10, DMA_SRC_ADDR, ptr->unk1C);
+        DmaScroll(DMA_SRC_ADDR, ptr->dst4, cnt);
     }
-    puVar5->tileFlags = 0;
-    puVar5->cnt = 0;
-    puVar5->dest = 0;
-    puVar5->src = 0;
-    return;
+    transfer->tileFlags = 0;
+    transfer->cnt = 0;
+    transfer->dest = 0;
+    transfer->src = 0;
 }
 
-// _DMA_SCROLL
-// func_060086E8
-void DmaScroll(s32* src, s32* dest, u32 cnt) {
-    s32 result;
-
+// original name: DMA_SCROLL
+void DmaScroll(u16* src, u16* dest, u32 cnt) {
     if (cnt != 0) {
-        // sega DMA lib
-        DMA_CpuMemCopy2(dest, src, cnt >> 1);
-        do {
-            result = DMA_CpuResult();
-        } while (result == 2);
+        DMA_CpuMemCopy2(dest, src, cnt / 2);
+        while (DMA_CpuResult() == 2) {
+        }
     }
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600871C, func_0600871C);
+void func_0600871C(Unk0605CD90* arg0, UNK_0605c680* arg1, s32 arg2) {
+    s32 scrollX, scrollY;
+    s16 x, y;
+    u16 cols, rows;
+    u16 tileBase;
+    s16* dst;
+    s16* src;
+    u16 i, j;
+
+    if (arg0->unk20 == 0) {
+        return;
+    }
+
+    if ((g_CurrentRoom.stageID == 0x41) && (g_CurrentRoom.unk4 == 0x12) &&
+        (arg2 == 0)) {
+        arg0->width = 0x500;
+    }
+
+    scrollX = FIXED(0);
+    scrollY = FIXED(8);
+
+    if (arg0->divisorX != 0) {
+        scrollX = arg1->unk4 / arg0->divisorX;
+    }
+
+    if (arg0->divisorY != 0) {
+        scrollY = arg1->unkC / arg0->divisorY;
+    }
+
+    x = (scrollX >> 19) - 8;
+    y = (scrollY >> 19) - 8;
+
+    cols = 0x38;
+    rows = 0x2E;
+
+    if (x < 0) {
+        cols += x;
+        x = 0;
+    }
+
+    if (y < 0) {
+        rows += y;
+        y = 0;
+    }
+
+    if ((arg0->flags & 1) == 0) {
+        if ((x + cols) > arg0->width) {
+            cols = arg0->width - x;
+        }
+    }
+    if ((arg0->flags & 2) == 0) {
+        if ((y + rows) > arg0->height) {
+            rows = arg0->height - y;
+        }
+    }
+
+    src = DAT_0605C120[arg2] + 2;
+    dst = arg0->unk8;
+    tileBase = arg0->unk24 * 0x1000;
+
+    src += (x % arg0->width) + (y % arg0->height) * arg0->width;
+    dst += ((y & 0x3F) << 6) + (x & 0x3F);
+
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++) {
+            *dst = *src + tileBase;
+
+            if (((x + j) & 0x3F) == 0x3F) {
+                dst -= 0x3F;
+            } else {
+                dst++;
+            }
+
+            if ((arg0->flags & 1) &&
+                ((x + j) % arg0->width) == (arg0->width - 1)) {
+                src -= arg0->width - 1;
+            } else {
+                src++;
+            }
+        }
+        dst = arg0->unk8 + (x & 0x3F);
+        dst += ((y + i + 1) & 0x3F) << 6;
+
+        src = DAT_0605C120[arg2] + 2;
+        src += (x % arg0->width) + ((y + i + 1) % arg0->height) * arg0->width;
+    }
+    if ((g_CurrentRoom.stageID == 0x41) && (g_CurrentRoom.unk4 == 0x12) &&
+        (arg2 == 0)) {
+        arg0->width = 0x2D0;
+    }
+}
 
 // func_060089F0
-void BuildSubDispTilemap(struct Unk0605CD90* param_1) {
-    u16 sVar2;
-    s16* psVar5;
-    s16* psVar7;
-    u16 i; // r2
-    u16 j; // r1
+void BuildSubDispTilemap(Unk0605CD90* arg0) {
+    u16 tileBase;
+    s16* dst;
+    s16* src;
+    u16 i, j;
 
-    psVar7 = DAT_0605c120[3] + 1;
-    sVar2 = param_1->unk24 * 0x1000;
+    src = DAT_0605C120[3] + 2;
+    tileBase = arg0->unk24 * 0x1000;
     j = 0;
-    psVar5 = param_1->unk8 + j * 0x20;
+    dst = arg0->unk8 + j * 0x20;
     for (j = 0; j < 32; j++) {
         for (i = 0; i < 32; i++) {
-            *psVar5++ = *psVar7++ + sVar2;
+            *dst++ = *src++ + tileBase;
         }
-        psVar5 = 0x400 + param_1->unk8 + j * 0x20;
+        dst = 0x400 + arg0->unk8 + j * 0x20;
 
         for (i = 0; i < 10; i++) {
-            *psVar5++ = *psVar7++ + sVar2;
+            *dst++ = *src++ + tileBase;
         }
-        psVar5 = param_1->unk8 + (j + 1) * 0x20;
+        dst = arg0->unk8 + (j + 1) * 0x20;
     }
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008A70, func_06008A70);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008AB4, func_06008AB4);
+void UpdateScrollForRoom(void) {
+    func_06008AB4();
+    if (g_CurrentRoom.stageID == 0x41 && g_CurrentRoom.unk4 == 0x12) {
+        func_06008C2C();
+    } else {
+        func_06008B20();
+    }
+}
 
-// _SCROLL_DSP
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008B20, func_06008B20);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008C2C, func_06008C2C);
-INCLUDE_ASM_NO_ALIGN("asm/saturn/zero/f_nonmat", f6008D04, func_06008D04);
-INCLUDE_ASM_NO_ALIGN("asm/saturn/zero/f_nonmat", f6008EE8, func_06008EE8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008FF0, func_06008FF0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009010, func_06009010);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009058, func_06009058);
+void func_06008AB4(void) {
+    if (DAT_0605cd70.unk2 != 4 &&
+        (DAT_0605cd70.unk0 != 0x91 || DAT_0605cd70.unk2 != 1) &&
+        DAT_0605D770.unk2 != 4) {
+        if (DAT_0605cd70.unk2 != 5 || DAT_0605cd70.unk0 <= 2) {
+            func_0600BD68();
+        }
+        func_0600DE38();
+        func_0600E164();
+    }
+}
 
-// _GAME_SCROLL_SET
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009510, func_06009510);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009570, func_06009570);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600971C, func_0600971C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60097B4, func_060097B4);
+// original name: SCROLL_DSP
+void func_06008B20(void) {
+    Unk0605CD90* ptr;
+    s32 x, y;
+    u32 i;
+
+    ptr = &DAT_0605CD90[0];
+    for (i = 0; i < 3; i++, ptr++) {
+        if (ptr->unk18 != 0) {
+            SCL_Open(SCL_NBG1 << i);
+            x = FIXED(0);
+            y = FIXED(10);
+            if (ptr->divisorX != 0) {
+                x = DAT_0605c680.unk3C / ptr->divisorX;
+            }
+            if (ptr->divisorY != 0) {
+                y = DAT_0605c680.unk40 / ptr->divisorY;
+            }
+            SCL_MoveTo(x, y, 0);
+            SCL_Close();
+        }
+    }
+    if (DAT_0605cd70.unk2 == 5) {
+        SCL_Open(SCL_NBG0);
+        SCL_MoveTo(FIXED(0), FIXED(8), FIXED(0));
+        SCL_Close();
+    }
+    if (DAT_0605cd70.unk2 == 4) {
+        SCL_Open(SCL_NBG0);
+        SCL_MoveTo(FIXED(15), FIXED(13), FIXED(0));
+        SCL_Close();
+    }
+}
+
+void func_06008C2C(void) {
+    Unk0605CD90* ptr;
+    s32 x, y;
+    u32 i;
+
+    ptr = &DAT_0605CD90[0];
+    for (i = 0; i < 3; i++, ptr++) {
+        if (i == 0) {
+            SCL_Open(SCL_NBG1);
+            x = (DAT_0605c680.unk3C / 4) * 7;
+            y = DAT_0605c680.unk40;
+            SCL_MoveTo(x, y, FIXED(0));
+            SCL_Close();
+        } else {
+            SCL_Open(SCL_NBG1 << i);
+            x = FIXED(0);
+            y = FIXED(10);
+            if (ptr->divisorX != 0) {
+                x = DAT_0605c680.unk3C / ptr->divisorX;
+            }
+            if (ptr->divisorY != 0) {
+                y = DAT_0605c680.unk40 / ptr->divisorY;
+            }
+            SCL_MoveTo(x, y, FIXED(0));
+            SCL_Close();
+        }
+    }
+}
+
+INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008D04, StartColorOffsetFade);
+INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6008EE8, func_06008EE8);
+
+void func_800EA5AC(u16 a, u8 r, u8 g, u8 b) {
+    DAT_0605C6D8.a = a;
+    DAT_0605C6D8.r = r;
+    DAT_0605C6D8.g = g;
+    DAT_0605C6D8.b = b;
+}
+
+void func_06009010(u8* rgb) {
+    if (DAT_0605C6D8.a != 0) {
+        SCL_SetColOffset(SCL_OFFSET_A, 0x6F, rgb[0], rgb[1], rgb[2]);
+    } else {
+        SCL_SetColOffset(SCL_OFFSET_A, 0x6F, 0, 0, 0);
+    }
+}
+
+extern SclConfig DAT_0605BED0[];
+
+void func_06009058(u16 arg0) {
+    SclConfig* scfg;
+    Unk0605CD90* ptr;
+    s32 i;
+
+    DAT_0605c680.unk0 = 0;
+    ptr = &DAT_0605CD90[0];
+    scfg = &DAT_0605BED0[0];
+    switch (arg0) {
+    case 6:
+        ptr->dst0 = SCL_VDP2_VRAM_A0;
+        ptr->unk8 = SCL_VDP2_VRAM_B0;
+        ptr->dst4 = SCL_COLRAM_ADDR;
+        ptr->unk24 = 0;
+        SCL_InitConfigTb(scfg);
+        scfg->charsize = SCL_CHAR_SIZE_1X1;
+        scfg->pnamesize = SCL_PN1WORD;
+        scfg->platesize = SCL_PL_SIZE_1X1;
+        scfg->coltype = SCL_COL_TYPE_256;
+        scfg->datatype = SCL_CELL;
+        scfg->mapover = SCL_OVER_0;
+        scfg->flip = SCL_PN_12BIT;
+        scfg->plate_addr[0] = scfg->plate_addr[1] = scfg->plate_addr[2] =
+            scfg->plate_addr[3] = ptr->unk8;
+        scfg->patnamecontrl = 0;
+        SCL_SetConfig(SCL_NBG0, scfg);
+        SCL_SetCycleTable(DAT_06038D30);
+        break;
+
+    case 4:
+    case 8:
+        for (i = 0; i < 2; i++, ptr++, scfg++) {
+            ptr->dst0 = SCL_VDP2_VRAM_A0 + i * 0x8000;
+            ptr->unk8 = SCL_VDP2_VRAM_B0 + i * 0x8000;
+            ptr->dst4 = SCL_COLRAM_ADDR + i * 0x200;
+            ptr->unk24 = i;
+            SCL_InitConfigTb(scfg);
+            scfg->charsize = SCL_CHAR_SIZE_1X1;
+            scfg->pnamesize = SCL_PN1WORD;
+            scfg->platesize = SCL_PL_SIZE_1X1;
+            scfg->coltype = SCL_COL_TYPE_16;
+            scfg->datatype = SCL_CELL;
+            scfg->mapover = SCL_OVER_0;
+            scfg->flip = SCL_PN_10BIT;
+            scfg->plate_addr[0] = scfg->plate_addr[1] = scfg->plate_addr[2] =
+                scfg->plate_addr[3] = ptr->unk8;
+            scfg->patnamecontrl = 0;
+            if (i != 0) {
+                scfg->patnamecontrl = 0x21;
+            }
+            SCL_SetConfig(SCL_NBG1 << i, scfg);
+        }
+        SCL_SetCycleTable(DAT_06038D50);
+        break;
+
+    case 2:
+        for (i = 0; i < 2; i++, ptr++, scfg++) {
+            ptr->dst0 = SCL_VDP2_VRAM_A0 + (1 - i) * 0x18000;
+            ptr->unk8 = SCL_VDP2_VRAM_B0 + i * 0x8000;
+            ptr->dst4 = SCL_COLRAM_ADDR + i * 0x200;
+            ptr->unk24 = i;
+            SCL_InitConfigTb(scfg);
+            scfg->charsize = SCL_CHAR_SIZE_1X1;
+            scfg->pnamesize = SCL_PN1WORD;
+            scfg->platesize = SCL_PL_SIZE_1X1;
+            scfg->coltype = SCL_COL_TYPE_256;
+            scfg->datatype = SCL_CELL;
+            scfg->mapover = SCL_OVER_0;
+            scfg->flip = SCL_PN_10BIT;
+            scfg->plate_addr[0] = scfg->plate_addr[1] = scfg->plate_addr[2] =
+                scfg->plate_addr[3] = ptr->unk8;
+            scfg->patnamecontrl = 0x43;
+            if (i != 0) {
+                scfg->flip = SCL_PN_12BIT;
+                scfg->patnamecontrl = 0;
+            }
+            SCL_SetConfig(SCL_NBG1 << i, scfg);
+        }
+        SCL_SetCycleTable(DAT_06038D40);
+        break;
+
+    case 3:
+    case 7:
+        for (i = 0; i < 2; i++, ptr++, scfg++) {
+            ptr->dst0 = SCL_VDP2_VRAM_A0 + i * 0x20000;
+            ptr->unk8 = SCL_VDP2_VRAM_B0 + i * 0x8000;
+            ptr->dst4 = SCL_COLRAM_ADDR + i * 0x200;
+            ptr->unk24 = i;
+            SCL_InitConfigTb(scfg);
+            scfg->charsize = SCL_CHAR_SIZE_1X1;
+            scfg->pnamesize = SCL_PN1WORD;
+            scfg->platesize = SCL_PL_SIZE_1X1;
+            scfg->coltype = SCL_COL_TYPE_256;
+            scfg->datatype = SCL_CELL;
+            scfg->mapover = SCL_OVER_0;
+            scfg->flip = SCL_PN_12BIT;
+            scfg->plate_addr[0] = scfg->plate_addr[1] = scfg->plate_addr[2] =
+                scfg->plate_addr[3] = ptr->unk8;
+            scfg->patnamecontrl = i * 4;
+            SCL_SetConfig(SCL_NBG1 << i, scfg);
+        }
+        ptr->dst0 = SCL_VDP2_VRAM_A0 + 0x10000;
+        ptr->unk8 = SCL_VDP2_VRAM_B0 + 0x10000;
+        ptr->dst4 = SCL_COLRAM_ADDR + 0x400;
+        ptr->unk24 = 0x20;
+        SCL_InitConfigTb(scfg);
+        scfg->charsize = SCL_CHAR_SIZE_1X1;
+        scfg->pnamesize = SCL_PN1WORD;
+        scfg->platesize = SCL_PL_SIZE_2X2;
+        scfg->coltype = SCL_COL_TYPE_16;
+        scfg->datatype = SCL_CELL;
+        scfg->mapover = SCL_OVER_0;
+        scfg->flip = SCL_PN_10BIT;
+        scfg->plate_addr[0] = ptr->unk8;
+        scfg->plate_addr[1] = ptr->unk8 + 0x1000;
+        scfg->plate_addr[2] = ptr->unk8 + 0x2000;
+        scfg->plate_addr[3] = ptr->unk8 + 0x3000;
+        scfg->patnamecontrl = 0x42;
+        SCL_SetConfig(SCL_NBG3, scfg);
+        SCL_SetCycleTable(DAT_06038D60);
+        break;
+
+    case 5:
+    case 16:
+    case 17:
+        for (i = 0; i < 3; i++, ptr++, scfg++) {
+            ptr->dst0 = SCL_VDP2_VRAM_A0 + i * 0x8000;
+            ptr->unk8 = SCL_VDP2_VRAM_B0 + i * 0x8000;
+            ptr->dst4 = SCL_COLRAM_ADDR + i * 0x200;
+            ptr->unk24 = i * 0x10;
+            SCL_InitConfigTb(scfg);
+            scfg->charsize = SCL_CHAR_SIZE_1X1;
+            scfg->pnamesize = SCL_PN1WORD;
+            scfg->platesize = SCL_PL_SIZE_1X1;
+            scfg->coltype = SCL_COL_TYPE_16;
+            scfg->datatype = SCL_CELL;
+            scfg->mapover = SCL_OVER_0;
+            scfg->flip = SCL_PN_10BIT;
+            scfg->plate_addr[0] = scfg->plate_addr[1] = scfg->plate_addr[2] =
+                scfg->plate_addr[3] = ptr->unk8;
+            scfg->patnamecontrl = DAT_06038C84[i];
+            SCL_SetConfig(SCL_NBG1 << i, scfg);
+        }
+        SCL_SetCycleTable(DAT_06038D70);
+        break;
+    }
+}
+
+// original name: GAME_SCROLL_SET
+void func_06009510(u16 scrollId) {
+    s32 i;
+    s32 bound;
+    Unk0605CD90* ptr;
+
+    i = 0;
+    ptr = &DAT_0605CD90[0];
+
+    for (; i < 4; i++, ptr++) {
+        ptr->unk18 = 0;
+    }
+
+    if (scrollId == 0x50) {
+        DAT_06064624(0);
+    } else {
+        bound = 0x50;
+        if (scrollId >= bound) {
+            bound = 0x63;
+            if (scrollId <= bound) {
+                bound = 0x60;
+                if (scrollId >= bound) {
+                    DAT_06064624(1);
+                } else {
+                    DAT_0606461C(scrollId);
+                }
+            } else {
+                DAT_0606461C(scrollId);
+            }
+        } else {
+            DAT_0606461C(scrollId);
+        }
+    }
+}
+
+void func_06009570(s32 arg0) {
+    SclConfig scfg;
+    s32* temp_r1;
+    Unk0605CD90* ptr;
+    s16* src;
+
+    SCL_InitConfigTb(&scfg);
+    scfg.charsize = SCL_CHAR_SIZE_2X2;
+    scfg.pnamesize = SCL_PN1WORD;
+    scfg.platesize = SCL_PL_SIZE_2X1;
+    scfg.coltype = SCL_COL_TYPE_16;
+    scfg.datatype = SCL_CELL;
+    scfg.mapover = SCL_OVER_0;
+    scfg.flip = SCL_PN_10BIT;
+    scfg.patnamecontrl = 0x64;
+    scfg.plate_addr[3] = SCL_VDP2_VRAM_B0 + 0x18000;
+    scfg.plate_addr[2] = SCL_VDP2_VRAM_B0 + 0x18000;
+    scfg.plate_addr[1] = SCL_VDP2_VRAM_B0 + 0x18000;
+    scfg.plate_addr[0] = SCL_VDP2_VRAM_B0 + 0x18000;
+    SCL_SetConfig(SCL_NBG0, &scfg);
+    ptr = &DAT_0605CD90[3];
+    temp_r1 = &DAT_06038CA0[arg0 * 6];
+    ptr->unk8 = SCL_VDP2_VRAM_B0 + 0x18000;
+    ptr->dst0 = SCL_VDP2_VRAM_A1;
+    ptr->dst4 = SCL_COLRAM_ADDR + 0x600;
+    ptr->unk24 = 0x30;
+    ptr->unkC = *temp_r1++ + 0x00252000;
+    ptr->unk18 = *temp_r1++;
+    ptr->unk10 = *temp_r1++ + 0x00252000;
+    ptr->unk1C = *temp_r1++;
+    ptr->unk14 = *temp_r1++ + 0x00252000;
+    ptr->unk20 = *temp_r1++;
+    ptr->divisorX = ptr->divisorY = 1;
+    ptr->flags = 0;
+    SCL_Open(SCL_NBG0);
+    SCL_MoveTo(FIXED(8), FIXED(8), FIXED(0));
+    SCL_Close();
+    DAT_0605C120[3] = 0x2C7000;
+    src = DAT_0605C120[3];
+    DecompressLZSS(ptr->unk14, src, ptr->unk20);
+    ptr->width = src[0];
+    ptr->height = src[1];
+    DAT_0605D6C0[3].tileFlags = 7;
+    SCL_SetDisplayMode(SCL_DOUBLE_INTER, SCL_240LINE, SCL_HIRESO_A);
+    Scl_w_reg.win0_start[0] = 0;
+    Scl_w_reg.win0_start[1] = 12;
+    Scl_w_reg.win0_end[0] = 640;
+    Scl_w_reg.win0_end[1] = 480;
+    Scl_w_reg.wincontrl[0] = 0x8383;
+    Scl_w_reg.wincontrl[1] = 0x8383;
+    Scl_w_reg.wincontrl[2] = 0x0083;
+    SclProcess = 1;
+    SCL_SetCycleTable(DAT_06038DA0);
+}
+
+void func_0600971C(void) {
+    if (g_PlayableCharacter == 0) {
+        SCL_SetDisplayMode(SCL_NON_INTER, SCL_240LINE, SCL_NORMAL_A);
+        SCL_SetCycleTable(DAT_06038D70);
+    }
+
+    Scl_w_reg.win0_start[0] = 0;
+    Scl_w_reg.win0_start[1] = 12;
+    Scl_w_reg.win0_end[0] = 640;
+    Scl_w_reg.win0_end[1] = 240;
+    Scl_w_reg.wincontrl[0] = 0x0383;
+    Scl_w_reg.wincontrl[1] = 0x8383;
+    Scl_w_reg.wincontrl[2] = 0x0083;
+
+    SclProcess = 1;
+    Scl_s_reg.dispenbl &= ~0x0001;
+    SclProcess = 1;
+}
+
+void func_060097B4(Unk0605CD90* arg0, s32 arg1) {
+    s32 x, y;
+
+    SCL_Open(SCL_NBG1 << arg1);
+    x = FIXED(0);
+    y = FIXED(10);
+    if (arg0->divisorX != 0) {
+        x = DAT_0605c680.unk34 / arg0->divisorX;
+    }
+    if (arg0->divisorY != 0) {
+        y = DAT_0605c680.unk38 / arg0->divisorY;
+    }
+    SCL_MoveTo(x, y, 0);
+    SCL_Close();
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009838, func_06009838);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60098F0, func_060098F0);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009AE8, func_06009AE8);
 
 // _UPDATE_BG
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009CCC, func_06009CCC);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009D30, func_06009D30);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009D60, func_06009D60);
+
+void func_06009D30(void) {
+    u32 i;
+
+    for (i = 0; i < 4; i++) {
+        func_06009D60(i);
+    }
+}
+
+void func_06009D60(u32 bank) {
+    u32* dst;
+    u32 i;
+
+    if (bank < 2) {
+        dst = &(((u32*)SCL_VDP2_VRAM_A0)[bank * 0x8000]);
+        for (i = 0; i < 0x8000; i++) {
+            *dst++ = 0;
+        }
+    } else {
+        dst = &(((u32*)SCL_VDP2_VRAM_B0)[(bank - 2) * 0x8000]);
+        for (i = 0; i < 0x8000; i++) {
+            *dst++ = 0;
+        }
+    }
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009DB0, func_06009DB0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009F10, func_06009F10);
+
+void func_06009F10(void) {
+    SclConfig scfg;
+
+    SCL_InitConfigTb(&scfg);
+    scfg.charsize = SCL_CHAR_SIZE_1X1;
+    scfg.pnamesize = SCL_PN1WORD;
+    scfg.platesize = SCL_PL_SIZE_1X1;
+    scfg.coltype = SCL_COL_TYPE_16;
+    scfg.datatype = SCL_CELL;
+    scfg.mapover = SCL_OVER_0;
+    scfg.flip = SCL_PN_10BIT;
+    scfg.plate_addr[3] = SCL_VDP2_VRAM_B0 + 0x8000;
+    scfg.plate_addr[2] = SCL_VDP2_VRAM_B0 + 0x8000;
+    scfg.plate_addr[1] = SCL_VDP2_VRAM_B0 + 0x8000;
+    scfg.plate_addr[0] = SCL_VDP2_VRAM_B0 + 0x8000;
+    scfg.patnamecontrl = 0x21;
+    SCL_SetConfig(SCL_NBG2, &scfg);
+}
 
 // _X_SCROLL_TRANS
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6009F84, func_06009F84);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A030, func_0600A030);
+
+void func_0600A030(void) {
+    Unk0605CD90* ptr;
+    s32 i;
+
+    ptr = &DAT_0605CD90[0];
+    for (i = 0; i < 3; i++) {
+        if (ptr->unk18 != 0) {
+            Scl_s_reg.dispenbl |= 2 << i;
+            SclProcess = 1;
+        }
+        ptr++;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A088, func_0600A088);
-void func_0600A240(s32 param_1) {
-    if (param_1 != 0) {
+
+void func_0600A240(s32 arg0) {
+    if (arg0 != 0) {
         DAT_0605D910[0x4D] = 1;
     } else {
         DAT_0605D910[4] = 1;
     }
 }
 
-// _SetCharTrans
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A264, func_0600A264);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A29C, LookupTblNoToVramAddr);
-
-// func_0600A304
-void SetSprGourTable(u16 arg0, SprGourTbl* gourTbl) {
-    SPR_2SetGourTbl(arg0, gourTbl);
+// original name: SetCharTrans
+void SetCharTrans(u16 arg0, s32 arg1, s32 arg2) {
+    QueueVramTransfer(VRAM_ADDR + DAT_0605aec0[arg0][0] * 8, arg2, arg1);
 }
 
-// _SetPlTransNonSeparateAura
-void func_0600A31C(void) { DAT_0605D910[3] = 1; }
+INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A29C, LookupTblNoToVramAddr);
+
+void func_0600A304(s32 gourTblNo, SprGourTbl* gourTbl) {
+    SPR_2SetGourTbl(gourTblNo, gourTbl);
+}
+
+// original name: SetPlTransNonSeparateAura
+void SetPlTransNonSeparateAura(void) { DAT_0605D910[3] = 1; }
 
 void func_0600A330(void) {
     if (g_PlayableCharacter == 0) {
         DAT_0605D910[3] = 0;
     }
 }
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A350, func_0600A350);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A490, func_0600A490);
-// MapBytesThroughLutPair
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600A5FC, func_0600A5FC);
 
-u8 d_060578A0[];
+extern u8 d_060578A0[];
+
+// MapBytesThroughLutPair
+void func_0600A5FC(u8* src, u8* dst0, u8* dst1, s32 count) {
+    u8 value;
+
+    while (count > 0) {
+        value = *src++;
+        *dst0++ = DAT_060577A0[value];
+        *dst1++ = d_060578A0[value];
+        count--;
+    }
+}
+
 // func_0600A62C
-void MapBytesThroughLut(u8* param_1, u8* param_2, int param_3) {
-    for (; param_3 > 0; param_3--) {
-        *param_2++ = d_060578A0[*param_1++];
+void MapBytesThroughLut(u8* src, u8* dst, s32 count) {
+    while (count > 0) {
+        *dst++ = d_060578A0[*src++];
+        count--;
     }
 }
 
@@ -711,27 +2392,54 @@ INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600AB60, func_0600AB60);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600AC30, func_0600AC30);
 
 // func_0600AD80
-int GetEnemyPlayerCharaAddr(void) {
+s32 GetEnemyPlayerCharaAddr(void) {
     return -(s32)&DAT_00252000 + (s32)&DAT_00258000;
 }
 
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600AD98, InitPaletteRemapLuts);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600AE30, func_0600AE30);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600AEE4, func_0600AEE4);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600AFA8, func_0600AFA8);
+
+void func_0600AFA8(SpriteObject* sprite, SaturnSpriteFrameHeader* frame) {
+    SpritePart* part;
+    SaturnSpritePart* src;
+    s32 i;
+    s32 count;
+
+    sprite->flags = frame->header;
+    sprite->slotAndStreamId =
+        (sprite->slotAndStreamId & ~0x7F) | (frame->commandFlags & 0x7F);
+
+    count = (frame->header & 0x3F00) >> 8;
+    part = sprite->parts;
+    src = (SaturnSpritePart*)(frame + 1);
+
+    for (i = 0; i < count; i++, src++) {
+        *((SaturnSpritePart*)part) = *src;
+        part = part->next;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B004, func_0600B004);
 
-// _SetParts
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B084, func_0600B084);
+// original name: SetParts
+void SetParts(SpritePart* part, SaturnSpritePart* src, s32 count) {
+    s32 i;
+
+    for (i = 0; i < count; i++, src++) {
+        *((SaturnSpritePart*)part) = *src;
+        part = part->next;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B0B8, func_0600B0B8);
 
-void func_0600B104(u16* param_1, int param_2, int param_3)
-
-{
+void func_0600B104(SpritePart* part, s32 arg1, s32 count) {
     s32 i;
-    for (i = 0; i < param_3; i++) {
-        *param_1 = *param_1 & 0xE0FF | (param_2 << 8);
-        param_1 = *(u16**)(param_1 + 6);
+
+    for (i = 0; i < count; i++) {
+        part->attributes = part->attributes & 0xE0FF | (arg1 << 8);
+        part = part->next;
     }
 }
 
@@ -746,20 +2454,7 @@ void func_0600B234(void) {
 // _ClearOdma
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B254, func_0600B254);
 
-extern SpriteObject g_SpriteObjectPool[SPRITE_OBJECT_MAX]; /* 0x0608AFF8 */
-extern SpritePart g_SpritePartPool[SPRITE_PART_MAX];       /* 0x0608D7F8 */
-
-extern SpriteObject* g_SpriteObjectFreeList; /* 0x06057798 */
-extern SpritePart* g_SpritePartFreeList;     /* 0x0605779C */
-extern SpriteObject* g_SpriteListHead;       /* 0x06057790 */
-extern SpriteObject* g_SpriteListTail;       /* 0x06057794 */
-extern s32 g_SpriteListCount;                /* 0x06038DB0 */
-extern s32 g_SpriteObjectsInUse;             /* 0x06038DB4 */
-extern s32 g_SpritePartsInUse;               /* 0x06038DB8 */
-
-SpriteObject* AllocSpriteObject(void);
-
-static inline SpritePart* AllocSpriteParts(s32 maxParts) {
+static SpritePart* AllocSpriteParts(s32 maxParts) {
     SpritePart* head;
     SpritePart* node;
 
@@ -771,12 +2466,12 @@ static inline SpritePart* AllocSpriteParts(s32 maxParts) {
     g_SpritePartsInUse += maxParts;
     for (; maxParts > 1; maxParts--) {
         node->attributes = 0;
-        *(int*)&node->rotate = 0x00004040;
+        *(s32*)&node->rotate = 0x00004040;
         node = node->next;
     }
     g_SpritePartFreeList = node->next;
     node->attributes = 0;
-    *(int*)&node->rotate = 0x00004040;
+    *(s32*)&node->rotate = 0x00004040;
     node->next = NULL;
     return head;
 }
@@ -817,24 +2512,91 @@ SpriteObject* CreateSpriteObject(
     return obj;
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B428, func_0600B428);
+void func_0600B428(SpriteObject* obj) {
+    SpriteObject* prev;
+    SpritePart* firstPart;
+    SpritePart* lastPart;
+    SpritePart* next;
+
+    if (g_SpriteListCount > 0) {
+        if (g_SpriteListHead == obj) {
+            g_SpriteListHead = obj->next;
+            prev = NULL;
+        } else {
+            prev = g_SpriteListHead;
+            for (; prev->next != obj; prev = prev->next) {
+            }
+            prev->next = obj->next;
+        }
+        if (g_SpriteListTail == obj) {
+            g_SpriteListTail = prev;
+        }
+        firstPart = obj->parts;
+        next = firstPart->next;
+        lastPart = firstPart;
+        while (next != NULL) {
+            lastPart = lastPart->next;
+            g_SpritePartsInUse--;
+            next = lastPart->next;
+        }
+        g_SpritePartsInUse--;
+        lastPart->next = g_SpritePartFreeList;
+        g_SpritePartFreeList = firstPart;
+        obj->next = g_SpriteObjectFreeList;
+        g_SpriteObjectFreeList = obj;
+        g_SpriteObjectsInUse--;
+        g_SpriteListCount--;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B4C4, func_0600B4C4);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600B954, func_0600B954);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BA24, func_0600BA24);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BCE0, func_0600BCE0);
+
+void func_0600BCE0(s32* mtx, s16 angle) {
+    Fixed32 s, c;
+    s32 cosv;
+    s32 sinv;
+    s32 axis;
+
+    rsincos(angle, &s, &c);
+    cosv = c;
+    sinv = s;
+    axis = mtx[0];
+    c = cosv * 0x10;
+    s = sinv * 0x10;
+    mtx[0] = MTH_Mul(c, axis);
+    mtx[1] = MTH_Mul(s, axis);
+    axis = mtx[3];
+    mtx[2] = -MTH_Mul(s, axis);
+    mtx[3] = MTH_Mul(c, axis);
+}
+
+extern SprGourTbl* SpGourTbl;
 
 // func_0600BD4C
-int GetSpriteObjectGourTbl(u8* param_1) { return SpGourTbl + param_1[2] * 2; }
+SprGourTbl* GetSpriteObjectGourTbl(SpriteObject* obj) {
+    return &SpGourTbl[obj->slotAndStreamId >> 8];
+}
 
 // _Odma
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BD68, func_0600BD68);
 
-// _AllocGameSprite
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BE18, func_0600BE18);
-
-void func_0600BEA8();
-void func_0600BF08();
-void func_0600C18C();
+// original name: AllocGameSprite
+void AllocGameSprite(s32 arg0) {
+    if (arg0 == 1 || arg0 == 2) {
+        func_0600BEA8();
+        func_0600BF08();
+        func_0600BF38();
+    } else {
+        func_0600BEA8();
+        func_0600BF08();
+        func_0600BF38();
+        func_0600BF8C();
+        func_0600BFD8();
+    }
+    func_0600C18C();
+}
 
 void func_0600BE7C(void) {
     func_0600BEA8();
@@ -842,26 +2604,199 @@ void func_0600BE7C(void) {
     func_0600C18C();
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BEA8, func_0600BEA8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BF08, func_0600BF08);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BF38, func_0600BF38);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BF8C, func_0600BF8C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600BFD8, func_0600BFD8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C00C, func_0600C00C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C0C4, func_0600C0C4);
+void func_0600BEA8(void) {
+    s16 size[2];
+    Unk0605DB60* entry;
+    s32 i;
 
-void func_0600C0FC(void) { DAT_060645D0->unk0->unk8 = 0xc; }
+    size[0] = 0x80;
+    size[1] = 0x40;
+    AllocSpriteCharVram(8, 0, size, 0);
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C114, func_0600C114);
+    entry = d_0605DB60;
 
-void func_0600C18C(void) {
-    d_0605AEA8 = 0x10;
-    return;
+    for (i = 0; i < 0x20; i++) {
+        entry->unk8 = -1;
+        entry->unkA = -1;
+        entry->unkC = -1;
+        entry->unkE = -1;
+        entry++;
+    }
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C1A0, func_0600C1A0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C254, func_0600C254);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C298, func_0600C298);
+void func_0600BF08(void) {
+    s16 size[2];
+
+    size[0] = 0x60;
+    size[1] = 0x80;
+    AllocSpriteCharVram(8, 0, size, 0);
+}
+
+void func_0600BF38(void) {
+    s16 size[2];
+    s32 i;
+
+    size[0] = 0x80;
+    size[1] = 0x50;
+    for (i = 0; i < 8; i++) {
+        AllocSpriteCharVram(8, 0, size, 0);
+    }
+    func_0600AB60();
+}
+
+void func_0600BF8C(void) {
+    s16 size[2];
+    s32 i;
+
+    size[0] = 0x100;
+    size[1] = 0x80;
+    for (i = 0; i < 2; i++) {
+        AllocSpriteCharVram(8, 0, size, 0);
+    }
+}
+
+void func_0600BFD8(void) {
+    s16 size[2];
+
+    size[0] = 0x100;
+    size[1] = 0xA0;
+    AllocSpriteCharVram(8, 0, size, 0);
+}
+
+void func_0600C00C(void) {
+    SaturnSpriteResource** banks;
+    s32 i;
+    SaturnSpriteImage* images;
+    s32 palette;
+    SaturnSpriteResource* bank;
+
+    banks = DAT_06064650;
+    banks[0]->allocationIndex = 3;
+    if (g_PlayableCharacter == 0) {
+        banks[3]->allocationIndex = 3;
+        banks[2]->allocationIndex = 3;
+        banks[4]->allocationIndex = 3;
+    }
+    if (g_PlayableCharacter == 1 || g_PlayableCharacter == 2) {
+        DAT_0605BECA = 10;
+    } else {
+        DAT_0605BECA = 13;
+    }
+    bank = DAT_06064650[5];
+    i = 5;
+    while (bank != NULL) {
+        if (bank->palettes != NULL) {
+            if (bank->images != NULL) {
+                if (bank->flags & 0x4000) {
+                    palette = 0;
+                } else {
+                    palette = 8;
+                }
+                bank->allocationIndex =
+                    func_0600AE30(NULL, bank->images, palette);
+            }
+        }
+        i++;
+        bank = DAT_06064650[i];
+    }
+    DAT_06038FD4 = DAT_0605BECA;
+}
+
+void func_0600C0C4(int arg0) {
+    if (arg0 == 0) {
+        DAT_0605BECA = 10;
+        DAT_060645D4[0]->allocationIndex = 10;
+    } else {
+        DAT_0605BECA = 11;
+        DAT_06064670[0]->allocationIndex = 11;
+    }
+}
+
+void func_0600C0FC(void) { DAT_060645D0[0]->allocationIndex = 12; }
+
+extern SaturnSpriteResource** DAT_060645EC;
+
+void func_0600C114(void) {
+    SaturnSpriteResource* bank;
+    SaturnSpriteImage* image;
+    s32 palette;
+    s32 i;
+
+    DAT_0605BECA = DAT_06038FD4;
+    bank = DAT_060645EC[0];
+    i = 0;
+    while (bank != NULL) {
+        if (bank->palettes != NULL) {
+            if (bank->images != NULL) {
+                if (bank->flags & 0x4000) {
+                    palette = 0;
+                } else {
+                    palette = 8;
+                }
+                bank->allocationIndex = func_0600AE30(0, bank->images, palette);
+            }
+        }
+        i++;
+        bank = DAT_060645EC[i];
+    }
+}
+
+void func_0600C18C(void) { d_0605AEA8 = 0x10; }
+
+void func_0600C1A0(void) {
+    SaturnSpriteResource* entry;
+    s32 i, j;
+
+    if (g_PlayableCharacter == 1 || g_PlayableCharacter == 2) {
+        d_0605AEA8 = 0x30;
+    } else {
+        d_0605AEA8 = 0xA0;
+    }
+    d_0605AEB0 = 0;
+
+    for (i = 0; i < 5; i++) {
+        entry = DAT_06064650[i];
+        if (entry->palettes != NULL) {
+            entry->flags = func_0600AEE4(entry->palettes);
+        }
+    }
+
+    for (j = 5; (entry = DAT_06064650[j]) != NULL; j++) {
+        if (entry->palettes != NULL) {
+            entry->flags = func_0600AEE4(entry->palettes);
+        }
+    }
+
+    DAT_06038FD6 = d_0605AEA8;
+    DAT_06038FD8 = d_0605AEB0;
+}
+
+void func_0600C254(void) {
+    u16 prev;
+    SaturnSpriteResource* bank;
+
+    prev = d_0605AEA8;
+    d_0605AEA8 = 0x90;
+    bank = DAT_060645D0[0];
+    bank->flags = func_0600AEE4(bank->palettes);
+    d_0605AEA8 = prev;
+}
+
+void func_0600C298(s32 arg0) {
+    u16 prev;
+    SaturnSpriteResource* bank;
+
+    prev = d_0605AEA8;
+    if (arg0 == 0) {
+        d_0605AEA8 = 0x30;
+        bank = DAT_060645D4[0];
+    } else {
+        d_0605AEA8 = 0x60;
+        bank = DAT_06064670[0];
+    }
+    bank->flags = func_0600AEE4(bank->palettes);
+    d_0605AEA8 = prev;
+}
 
 // _SetLocalPalData
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C2EC, func_0600C2EC);
@@ -869,43 +2804,361 @@ INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C3A8, func_0600C3A8);
 
 // _RequestItemTrans
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C43C, func_0600C43C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C518, func_0600C518);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C628, func_0600C628);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C6AC, func_0600C6AC);
+
+void func_0600C518(u16* charSrc, u16* palSrc, s32 charRows, s32 palRows) {
+    u16* dst;
+    s32 chunks;
+    s32 i;
+
+    chunks = charRows / 3;
+    dst = func_0600CB04(0x140, 0);
+
+    for (i = 0; i < chunks; i++) {
+        DmaScroll(charSrc, dst, 0x180);
+        dst += 0x200;
+        charSrc += 0xC0;
+        charRows -= 3;
+    }
+
+    if (charRows > 0) {
+        DMA_CpuMemCopy2(dst, charSrc, charRows * 0x40);
+        while (DMA_CpuResult() == 2) {
+        }
+    }
+
+    chunks = palRows / 12;
+    dst = func_0600CB04(0x140, 0x6C);
+
+    for (i = 0; i < chunks; i++) {
+        DmaScroll(palSrc, dst, 0x180);
+        dst += 0x200;
+        palSrc += 0xC0;
+        palRows -= 12;
+    }
+
+    if (palRows > 0) {
+        DMA_CpuMemCopy2(dst, palSrc, palRows * 0x10);
+        while (DMA_CpuResult() == 2) {
+        }
+    }
+}
+
+void func_0600C628(u16* src, s32 count) {
+    s32 i;
+    u16* dst;
+
+    count = (count + 11) / 12;
+    dst = func_0600CB04(0x140, 0x87);
+    for (i = 0; i < count; i++) {
+        DmaScroll(src, dst, 0x180);
+        dst += 0x200;
+        src += 0xC0;
+    }
+}
+
+void func_0600C6AC(s32 arg0, s32 arg1) {
+    func_0600C880(0x13B00, arg1, 0x240);
+    func_0600C880(0x13E00, arg0, 0x2980);
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C6E4, func_0600C6E4);
 
-// _SetGameoverToFrameBuffer
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C7E4, func_0600C7E4);
+// original name: SetGameoverToFrameBuffer
+void SetGameoverToFrameBuffer(s32 arg0, s32 arg1) {
+    s32 offset;
+
+    offset = 0x16800;
+    offset = func_0600C880(offset, arg1, 0x20);
+    func_0600C880(offset, arg0, 0x1400);
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C818, func_0600C818);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C880, func_0600C880);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600C99C, func_0600C99C);
 
-// ClearFrameBuffer
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CAB8, func_0600CAB8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CB04, func_0600CB04);
-INCLUDE_ASM_NO_ALIGN("asm/saturn/zero/f_nonmat", f600CB20, func_0600CB20);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CB74, Crc32);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CBCC, func_0600CBCC);
+// original name: ClearFrameBuffer
+void ClearFrameBuffer(u16 clearColor) {
+    u16* ptr;
+    s32 x, y;
 
-// _ASYS_RESET_DIS
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CC14, func_0600CC14);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CC5C, InitBackupRam);
+    for (y = 0; y < 0xF0; y++) {
+        ptr = func_0600CB04(0, y);
+        for (x = 0; x < 0x140; x++) {
+            *ptr++ = clearColor;
+        }
+    }
+}
 
-// _ABup_CheckRam
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CD70, func_0600CD70);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CE1C, func_0600CE1C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600CED0, func_0600CED0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D028, func_0600D028);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D0DC, func_0600D0DC);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D1A0, func_0600D1A0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D264, func_0600D264);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D370, func_0600D370);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D47C, func_0600D47C);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D4C4, func_0600D4C4);
+u16* func_0600CB04(s32 x, s32 y) {
+    u16* base = FBUF_ADDR;
+
+    return &base[0x200 * y + x];
+}
+
+u16* func_0600CB20(s32 offset) {
+    s32 row;
+    s32 col;
+
+    offset = offset >> 1;
+    row = offset / 0xC0;
+    col = offset - (row * 0xC0) + 0x140;
+    return func_0600CB04(col, row);
+}
+
+const char DAT_0600CB68[] = "DRACULAX_";
+
+s32 Crc32(s32 len, u8* data);
+s32 Crc32_noInline(s32 len, u8* data) {
+    u16 i;
+    u16 bit;
+    u32 crc;
+
+    crc = -1;
+    for (i = 0; i < len; i++) {
+        crc ^= data[i];
+        for (bit = 0; bit < 8; bit++) {
+            if (crc & 1) {
+                crc = (crc >> 1) ^ 0xEDB88320;
+            } else {
+                crc = crc >> 1;
+            }
+        }
+    }
+    return ~crc;
+}
+
+// original name: ASYS_RESET_ENA
+void func_0600CBCC(void) {
+    DAT_0605DD61 = 0;
+    PER_SMPC_RES_ENA();
+}
+
+// original name: ASYS_RESET_DIS
+void func_0600CC14(void) {
+    DAT_0605DD61 = 1;
+    PER_SMPC_RES_DIS();
+}
+
+void InitBackupRam(void) {
+    s8 i;
+    s8 device;
+
+    DAT_060485C0.unk5 = -1;
+    DAT_060485C0.unk4 = 0;
+    DAT_0605DD60 = 0;
+
+    func_0600CC14();
+
+    BUP_Init(DAT_0605DDD0, DAT_06002000, &DAT_0605DD90);
+
+    func_0600CBCC();
+
+    g_GameClearFlag = 0;
+
+    for (device = 0; device < 2; device++) {
+        for (i = 1; i < 6; i++) {
+            if (func_0600D028(device, i) == 0) {
+                if (DAT_060485C0.unk100C != 0) {
+                    g_GameClearFlag = DAT_060485C0.unk100C;
+                }
+            }
+        }
+    }
+}
+
+// original name: ABup_CheckRam
+s32 func_0600CD70(void) {
+    BupStat sttb;
+    s32 status;
+    s32 result;
+
+    InitBackupRam();
+    func_0600CC14();
+
+    if (DAT_0605DD90.unit_id == 1) {
+        status = BUP_Stat(0, 0, &sttb);
+        result = 0;
+        if (status == BUP_UNFORMAT) {
+            result = BUP_UNFORMAT;
+        }
+    } else {
+        result = 1;
+    }
+
+    func_0600CBCC();
+    return result;
+}
+
+s32 func_0600CE1C(void) {
+    BupStat sttb;
+    s32 status;
+    s32 result;
+
+    InitBackupRam();
+    func_0600CC14();
+
+    if (DAT_0605DD94 == 2) {
+        status = BUP_Stat(1, 0, &sttb);
+        result = 0;
+        if (status == BUP_UNFORMAT) {
+            result = BUP_UNFORMAT;
+        }
+    } else {
+        result = 1;
+    }
+
+    func_0600CBCC();
+    return result;
+}
+
+extern BupDir DAT_0605DDA0;
+
+s32 func_0600CED0(u32 device, s8 arg1) {
+    char filename[12];
+    s32 status;
+
+    sprintf(filename, "%s%02d", DAT_06038FE0, arg1);
+    status = BUP_Dir(device, filename, 1, &DAT_0605DDA0);
+    if (status == BUP_NON) {
+        return DAT_0605DDA0.date;
+    }
+    return 0;
+}
+
+extern char DAT_0605DD70[];
+extern char DAT_06038FE4[][4];
+
+char* func_0600CF40(u32 device, s8 arg1) {
+    char filename[12];
+    BupDate date;
+    u32 pdate;
+
+    sprintf(filename, "%s%02d", DAT_06038FE0, arg1);
+    pdate = func_0600CED0(device, arg1);
+    if (pdate != 0) {
+        BUP_GetDate(pdate, &date);
+        sprintf(DAT_0605DD70, "%4d-%2d-%2d %s %2d:%02d", date.year + 1980,
+                date.month, date.day, DAT_06038FE4[date.week], date.time,
+                date.min);
+    } else {
+        DAT_0605DD70[0] = '\0';
+    }
+    return DAT_0605DD70;
+}
+
+s32 func_0600D028(u32 device, s8 arg1) {
+    char filename[12];
+    s32 status;
+
+    sprintf(filename, "%s%02d", DAT_06038FE0, arg1);
+    func_0600CC14();
+    status = BUP_Read(device, filename, &DAT_060485C0);
+    func_0600CBCC();
+    return status;
+}
+
+s32 func_0600D0DC(void) {
+    BupDate date;
+
+    date.year = (u8)((u16)(DAT_06057F60[6] >> 4) * 1000 +
+                     (u16)(DAT_06057F60[6] & 0x0F) * 100 +
+                     (u16)(DAT_06057F60[5] >> 4) * 10 +
+                     (u16)(DAT_06057F60[5] & 0x0F) - 1980);
+    date.month = DAT_06057F60[4] & 0x0F;
+    date.day = (DAT_06057F60[3] >> 4) * 10 + (DAT_06057F60[3] & 0x0F);
+    date.time = (DAT_06057F60[2] >> 4) * 10 + (DAT_06057F60[2] & 0x0F);
+    date.min = (DAT_06057F60[1] >> 4) * 10 + (DAT_06057F60[1] & 0x0F);
+
+    return BUP_SetDate(&date);
+}
+
+s8 func_0600D1A0(u32 device, s8 arg1) {
+    char filename[12];
+    s32 status;
+
+    sprintf(filename, "%s%02d", DAT_06038FE0, arg1);
+    func_0600CC14();
+    status = BUP_Read(device, filename, &DAT_060485C0);
+    func_0600CBCC();
+    if (status == 0) {
+        status = LoadGameState();
+    }
+    return status;
+}
+
+extern char DAT_06039000[];
+
+void SaveGameState(void);
+
+s8 func_0600D264(u32 device, s8 arg1) {
+    s32 date;
+    s32 status;
+
+    if (arg1 != 0) {
+        SaveGameState();
+        DAT_060485C0.unk4 = device;
+        DAT_060485C0.unk5 = arg1;
+        sprintf(DAT_0605DDA0.filename, "%s%02d", DAT_06038FE0, arg1);
+        sprintf(DAT_0605DDA0.comment, DAT_06039000);
+        DAT_0605DDA0.language = 0;
+        date = func_0600D0DC();
+        DAT_0605DDA0.date = date;
+        DAT_060485C0.unk8 = date;
+        DAT_0605DDA0.datasize = 0x1124;
+        func_0600CC14();
+        status = BUP_Write(device, &DAT_0605DDA0, &DAT_060485C0, 0);
+        func_0600CBCC();
+        return status;
+    }
+    return 3;
+}
+
+void func_0600D6C0(void);
+
+s8 func_0600D370(u32 device, s8 arg1) {
+    s32 date;
+    s32 status;
+
+    if (arg1 != 0) {
+        func_0600D6C0();
+        DAT_060485C0.unk4 = device;
+        DAT_060485C0.unk5 = arg1;
+        sprintf(DAT_0605DDA0.filename, "%s%02d", DAT_06038FE0, arg1);
+        sprintf(DAT_0605DDA0.comment, DAT_06039000);
+        DAT_0605DDA0.language = 0;
+        date = func_0600D0DC();
+        DAT_0605DDA0.date = date;
+        DAT_060485C0.unk8 = date;
+        DAT_0605DDA0.datasize = 0x1124;
+        func_0600CC14();
+        status = BUP_Write(device, &DAT_0605DDA0, &DAT_060485C0, 0);
+        func_0600CBCC();
+        return status;
+    }
+    return 3;
+}
+
+s8 func_0600D47C(u32 device, s8 arg1) {
+    char filename[12];
+
+    sprintf(filename, "%s%02d", DAT_06038FE0, arg1);
+    return BUP_Verify(device, filename, &DAT_060485C0);
+}
+
+s8 func_0600D4C4(u32 device, s8 arg1) {
+    char filename[12];
+
+    sprintf(filename, "%s%02d", DAT_06038FE0, arg1);
+    return BUP_Delete(device, filename);
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D508, SaveGameState);
 
-// _ABup_ChechsumSet
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D6C0, func_0600D6C0);
+// original name: ABup_ChechsumSet
+void func_0600D6C0(void) {
+    DAT_060485C0.unk0 = Crc32(0x1120, &DAT_060485C0.unk4);
+}
+
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D6EC, LoadGameState);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600D8BC, func_0600D8BC);
 
@@ -916,51 +3169,338 @@ void func_0600DAB4(void) { InitPrimBuf(); }
 
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DACC, InitPrimBuf);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DB38, func_0600DB38);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DCA4, func_0600DCA4);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DCF0, func_0600DCF0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DD38, func_0600DD38);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DD84, func_0600DD84);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DDD4, func_0600DDD4);
+
+// original name: free_effect
+void func_0600DCA4(s32 arg0) {
+    Primitive* prim;
+
+    prim = &g_PrimBuf[arg0];
+    while (prim->next != NULL) {
+        prim->drawMode = 0xFFFF;
+        prim = prim->next;
+        DAT_06061DD4--;
+    }
+    prim->drawMode = 0xFFFF;
+    DAT_06061DD4--;
+}
+
+s32 func_0600DCF0(Primitive* prim) {
+    Point16* pos;
+    s32 visible;
+    s32 i;
+
+    visible = 0;
+    pos = &prim->x0;
+
+    for (i = 0; i < 4; i++) {
+        s16 x = pos->x;
+        s16 y = pos->y;
+        if (x >= -0x20 && x < 0x160) {
+            if (y >= -0x20 && y < 0x110) {
+                visible = 1;
+                break;
+            }
+        }
+        pos++;
+    }
+
+    return visible;
+}
+
+s32 func_0600DD38(Primitive* prim) {
+    Point16* pos;
+    s32 visible;
+    s32 i;
+
+    visible = 0;
+    pos = &prim->x0;
+
+    for (i = 0; i < 2; i++) {
+        s16 x = pos->x;
+        s16 y = pos->y;
+        if (x >= -0x20 && x < 0x160) {
+            if (y >= -0x20 && y < 0x110) {
+                visible = 1;
+                break;
+            }
+        }
+        pos += 2;
+    }
+
+    return visible;
+}
+
+s32 func_0600DD84(Primitive* prim) {
+    u16 temp_r2;
+    s16 x, y;
+    s16 x2, y2;
+    s32 visible;
+
+    visible = 0;
+
+    temp_r2 = prim->unkA;
+    x = prim->x0;
+    y = prim->y0;
+
+    x2 = ((temp_r2 >> 8) << 3) + x;
+    y2 = (temp_r2 & 0xFF) + y;
+
+    if (x2 >= -0x20 && x < 0x160) {
+        if (y2 >= -0x20 && y < 0x110) {
+            visible = 1;
+        }
+    }
+    return visible;
+}
+
+s32 func_0600DDD4(Primitive* prim) {
+    Point16* pos;
+    s32 visible;
+    s32 i;
+
+    visible = 0;
+    pos = &prim->x0;
+
+    for (i = 0; i < 2; i++) {
+        s16 x = pos->x;
+        s16 y = pos->y;
+        if (x >= -0x20 && x < 0x160) {
+            if (y >= -0x20 && y < 0x110) {
+                visible = 1;
+                break;
+            }
+        }
+        pos++;
+    }
+
+    return visible;
+}
 
 bool func_0600DE20(void) { return 0; }
 
 bool func_0600DE2C(void) { return 1; }
 
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DE38, func_0600DE38);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600DFC0, func_0600DFC0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E01C, func_0600E01C);
 
-void func_0600E050(struct Unk0600E050* param_1, short param_2, short param_3) {
-    param_1->unkc = param_2 + param_1->unkc;
-    param_1->unke = param_3 + param_1->unke;
+void func_0600DFC0(Primitive* prim, s16 x, s16 y) {
+    prim->x0 += x;
+    prim->x1 += x;
+    prim->x2 += x;
+    prim->x3 += x;
+    prim->y0 += y;
+    prim->y1 += y;
+    prim->y2 += y;
+    prim->y3 += y;
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E070, func_0600E070);
+void func_0600E01C(Primitive* prim, s16 x, s16 y) {
+    prim->x0 += x;
+    prim->x2 += x;
+    prim->y0 += y;
+    prim->y2 += y;
+}
 
-void func_0600E0A4(struct Unk0600E050* param_1, short param_2, short param_3) {
-    param_1->unk4 = param_2 + param_1->unk4;
-    param_1->unk8 = param_3 + param_1->unk8;
+void func_0600E050(Primitive* prim, s16 x, s16 y) {
+    prim->x0 += x;
+    prim->y0 += y;
+}
+
+void func_0600E070(Primitive* prim, s16 x, s16 y) {
+    prim->x0 += x;
+    prim->x1 += x;
+    prim->y0 += y;
+    prim->y1 += y;
+}
+
+void func_0600E0A4(Primitive* prim, s16 arg1, s16 arg2) {
+    prim->unk4 += arg1;
+    prim->unk8 += arg2;
 }
 
 void func_0600E0C4() {}
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E0D0, func_0600E0D0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E164, func_0600E164);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E240, func_0600E240);
+void func_0600E0D0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    Primitive* prim;
+    s32 i;
+    u16 mode;
 
-// _RotTransCurMatrix_ps
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E2D4, SetCurrentMatrixBinAngle);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E390, func_0600E390);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E400, func_0600E400);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E450, TransformAndProjectPoints);
+    prim = &g_PrimBuf[0];
 
-// _CheckClipScreenArea
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E4E0, func_0600E4E0);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E51C, RotateVec2Degrees);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E5A4, RotateVec2);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600E61C, func_0600E61C);
+    for (i = 0; i < 0x200; i++) {
+        mode = prim->drawMode;
+        if (mode != 0xFFFF) {
+            if (mode & 2) {
+                DAT_0603908C[prim->type & 0x0F](prim, arg0, arg1);
+            } else if (mode & 0x200) {
+                DAT_0603908C[prim->type & 0x0F](prim, -arg2, -arg3);
+            }
+        }
+        prim++;
+    }
+}
 
-const short ratan_tbl[] = {
+void func_0600E164(void) {
+    SprSpCmd cmd;
+    s32 count;
+
+    count = DAT_0605CD5C;
+    if (count != 0) {
+        if (count > 0) {
+            cmd.ax = cmd.dx = DAT_0605BEC0.x - (--count);
+            cmd.bx = cmd.cx = DAT_0605BEC0.x;
+        } else {
+            cmd.ax = cmd.dx = 0;
+            cmd.bx = cmd.cx = -count - 1;
+        }
+        cmd.control = 0x1004;
+        cmd.drawMode = 0x00C0;
+        cmd.color = 0x67F0;
+        cmd.ay = cmd.by = DAT_0605AEA0[0].y;
+        cmd.cy = cmd.dy = DAT_0605BEC0.y;
+        SPR_2Cmd(0x1FF, &cmd);
+        d_0605AEAC++;
+    }
+}
+
+const Uint16 DAT_0600E228[10] = {0};
+
+const XyInt DAT_0600E23C = {0, 0};
+
+void func_0600E240(XyInt* arg0) {
+    MTH_InitialMatrix(&DAT_06061DF0, 2, &DAT_060579A8);
+    DAT_06061DE8.x = DAT_0600E23C.x;
+    DAT_06061DE8.y = DAT_0600E23C.y;
+    DAT_06057A08.x = -(arg0->x / 2);
+    DAT_06057A08.y = -(arg0->y / 2);
+    DAT_06057A0C.x = arg0->x + arg0->x / 2;
+    DAT_06057A0C.y = arg0->y + arg0->y / 2;
+}
+
+// original name: RotTransCurMatrix_ps
+void SetCurrentMatrixBinAngle(MthXyz* rot, MthXyz* pos) {
+    s32 angle;
+
+    MTH_ClearMatrix(&DAT_06061DF0);
+    DAT_06061DF0.current->val[0][3] = pos->x;
+    DAT_06061DF0.current->val[1][3] = pos->y;
+    DAT_06061DF0.current->val[2][3] = pos->z;
+    angle = rot->z & 0xFFF;
+    if (angle != 0) {
+        angle *= 360 * 16;
+        if (angle >= MTH_FIXED(180)) {
+            angle -= MTH_FIXED(360);
+        }
+        MTH_RotateMatrixZ(&DAT_06061DF0, angle);
+    }
+    angle = rot->y & 0xFFF;
+    if (angle != 0) {
+        angle *= 360 * 16;
+        if (angle >= MTH_FIXED(180)) {
+            angle -= MTH_FIXED(360);
+        }
+        MTH_RotateMatrixY(&DAT_06061DF0, angle);
+    }
+    angle = rot->x & 0xFFF;
+    if (angle != 0) {
+        angle *= 360 * 16;
+        if (angle >= MTH_FIXED(180)) {
+            angle -= MTH_FIXED(360);
+        }
+        MTH_RotateMatrixX(&DAT_06061DF0, angle);
+    }
+}
+
+void func_0600E390(MthXyz* rot, MthXyz* pos) {
+    MTH_ClearMatrix(&DAT_06061DF0);
+    DAT_06061DF0.current->val[0][3] = pos->x;
+    DAT_06061DF0.current->val[1][3] = pos->y;
+    DAT_06061DF0.current->val[2][3] = pos->z;
+    if (rot->z != 0) {
+        MTH_RotateMatrixZ(&DAT_06061DF0, rot->z);
+    }
+    if (rot->y != 0) {
+        MTH_RotateMatrixY(&DAT_06061DF0, rot->y);
+    }
+    if (rot->x != 0) {
+        MTH_RotateMatrixX(&DAT_06061DF0, rot->x);
+    }
+}
+
+void TransformNormals(MthXyz* src, MthXyz* dst, s32 count) {
+    MthXyz unused;
+
+    while (count > 0) {
+        MTH_NormalTrans(DAT_06061DF0.current, src, dst);
+        src++;
+        dst++;
+        count--;
+    }
+}
+
+// 0x0600E450
+void TransformAndProjectPoints(MthXyz* src, XyInt* dst, s32 count) {
+    MthXyz point;
+
+    while (count > 0) {
+        MTH_CoordTrans(DAT_06061DF0.current, src, &point);
+        point.z >>= 8;
+        MTH_Pers2D(&point, &DAT_06061DE0, dst);
+        dst->x += DAT_06061DE8.x;
+        dst->y += DAT_06061DE8.y;
+        src++;
+        dst++;
+        count--;
+    }
+}
+
+// original name: CheckClipScreenArea
+bool CheckClipScreenArea(XyInt* arg0) {
+    if (arg0->x < DAT_06057A08.x || DAT_06057A0C.x < arg0->x ||
+        arg0->y < DAT_06057A08.y || DAT_06057A0C.y < arg0->y) {
+        return false;
+    }
+    return true;
+}
+
+// 0x0600E51C
+void RotateVec2Degrees(MthXy* arg0, s16 arg1) {
+    Fixed32 angle;
+    Fixed32 s, c;
+    MthXy pos;
+
+    angle = MTH_IntToFixed(arg1);
+    c = MTH_Cos(angle);
+    s = MTH_Sin(angle);
+
+    pos = *arg0;
+    arg0->x = MTH_Mul(c, pos.x) - MTH_Mul(s, pos.y);
+    arg0->y = MTH_Mul(s, pos.x) + MTH_Mul(c, pos.y);
+}
+
+// 0x0600E5A4
+void RotateVec2(MthXy* arg0, s16 arg1) {
+    Fixed32 s, c;
+    MthXy pos;
+
+    rsincos(arg1, &s, &c);
+    c *= 0x10;
+    s *= 0x10;
+
+    pos = *arg0;
+    arg0->x = MTH_Mul(c, pos.x) - MTH_Mul(s, pos.y);
+    arg0->y = MTH_Mul(s, pos.x) + MTH_Mul(c, pos.y);
+}
+
+bool func_0600E61C(XyInt* p0, XyInt* p1, XyInt* p2) {
+    s32 dx1 = p1->x - p0->x;
+    s32 dx2 = p2->x - p0->x;
+    s32 dy1 = p1->y - p0->y;
+    s32 dy2 = p2->y - p0->y;
+
+    return (dx1 * dy2) > (dy1 * dx2);
+}
+
+const s16 ratan_tbl[] = {
     0x000, 0x000, 0x001, 0x001, 0x002, 0x003, 0x003, 0x004, 0x005, 0x005, 0x006,
     0x007, 0x007, 0x008, 0x008, 0x009, 0x00A, 0x00A, 0x00B, 0x00C, 0x00C, 0x00D,
     0x00E, 0x00E, 0x00F, 0x00F, 0x010, 0x011, 0x011, 0x012, 0x013, 0x013, 0x014,
@@ -1112,7 +3652,7 @@ long ratan2(long dx, long dy) {
     return ret;
 }
 
-const s16 rsin_tbl[1024] = {
+const s16 rsin_tbl[] = {
     0x0000, 0x0006, 0x000C, 0x0012, 0x0019, 0x001F, 0x0025, 0x002B, 0x0032,
     0x0038, 0x003E, 0x0045, 0x004B, 0x0051, 0x0057, 0x005E, 0x0064, 0x006A,
     0x0071, 0x0077, 0x007D, 0x0083, 0x008A, 0x0090, 0x0096, 0x009D, 0x00A3,
@@ -1229,7 +3769,10 @@ const s16 rsin_tbl[1024] = {
     0x0FFF, 0x0FFF, 0x0FFF, 0x0FFF, 0x0FFF, 0x0FFF, 0x0FFF,
 };
 
+//_SSsin
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600F7BC, rsin);
+
+//_SScos
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600F81C, rcos);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600F87C, rsincos);
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600F914, SquareRoot0);
@@ -1307,79 +3850,123 @@ s32 DecompressLZSS(u8* src, u8* dst, u32 srclen) {
 // _PSX_SHAKE_MAIN
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FA4C, func_0600FA4C);
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FACC, func_0600FACC);
+void func_0600FACC(void) {
+    struct ShakeState* shake = &DAT_06057A10;
 
-extern s32 DAT_06039128[];
+    shake->offset = shake->offsets[shake->index];
+    shake->index++;
+    if (shake->offsets[shake->index] == 0x7FFF) {
+        shake->id = 0;
+        shake->offset = 0;
+    }
+}
 
 void func_0600FB0C(s32 arg0) {
-    DAT_06057A10[0] = arg0;
-    DAT_06057A10[1] = 0;
-    *(s32*)&DAT_06057A10[2] = DAT_06039128[arg0];
+    DAT_06057A10.id = arg0;
+    DAT_06057A10.index = 0;
+    DAT_06057A10.offsets = (s16*)DAT_06039128[arg0];
 }
 
 void func_0600FB34(void) {
-    DAT_06057A10[0] = 0;
-    DAT_06057A10[4] = 0;
+    DAT_06057A10.id = 0;
+    DAT_06057A10.offset = 0;
 }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FB4C, func_0600FB4C);
-
-s32 func_0602A778(s32, s32, s32);
+s32 func_0600FB4C(void) {
+    if ((DAT_0605D770.unk2 == 0) && ((g_pads[0].pressed & 0x700) == 0x700)) {
+        if ((g_pads[0].tapped & PAD_START) && (DAT_0605C658 != 0)) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // original name: TEST_TEST
 void func_0600FB9C(void) { func_0602A778(0x100, 32, 0); }
 
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FBBC, func_0600FBBC);
+s32 func_0600FBBC(void) {
+    if (!CdSoundCommandQueueEmpty()) {
+        return 1;
+    }
+    PlaySfx(SET_UNK_10);
+    ((s32(*)(void))func_06010400)();
+    PlaySfx(0xF0000008);
+    return 0;
+}
 
 // _all_map_check
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FC04, RevealMapCellAtPlayer);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FCF8, func_0600FCF8);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FE98, func_0600FE98);
 
-void func_0600FEFC() {}
+extern void MarkRoomVisited(s32, s32, s32, Tilemap*);
+INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FCF8, MarkRoomVisited);
+
+void func_0600FE98(s32 arg0) {
+    s32 x = g_Tilemap.left + g_PlayerX / 320;
+    s32 y = g_Tilemap.top + g_PlayerY / 240;
+
+    MarkRoomVisited(x, y, arg0, &g_Tilemap);
+}
+
+void func_800F2120(void) {}
 
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FF08, SetCanRevealMap);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FF64, func_0600FF64);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f600FFB8, func_0600FFB8);
+
+void func_0600FF64(s16 arg0) {
+    s32 i;
+    Entity* entity;
+
+    entity = &g_Entities[arg0];
+    for (i = arg0; i < 0x100; i++, entity++) {
+        DestroyEntity(entity);
+    }
+}
+
+void func_0600FFB8(Entity* self) {
+    if (self->unk0 != NULL) {
+        DestroySpriteObject(self->unk0);
+    }
+    if (self->flags & FLAG_HAS_PRIMS) {
+        FreePrimitives(self->primIndex);
+    }
+    memset(self, 0, sizeof(Entity));
+}
 
 // func_06010008
 void InitDebugPrint(void) {
-    struct Unk0605d6c0* puVar2;
-    SclConfig temp;
+    SclConfig scfg;
 
     DAT_06062224[1] = 0;
     DAT_06062224[0] = 0;
     ClearDebugPrintTilemap();
-    SCL_InitConfigTb(&temp);
-    temp.dispenbl = 1;
-    temp.charsize = 0;
-    temp.pnamesize = 1;
-    temp.platesize = 0;
-    temp.coltype = 0;
-    temp.datatype = 0;
-    temp.mapover = 0;
-    temp.flip = 0;
-    temp.patnamecontrl = 0x66;
-    temp.plate_addr[0] = VDP2_DEBUG_TILEMAP_OFFSET;
-    temp.plate_addr[1] = VDP2_DEBUG_TILEMAP_OFFSET;
-    temp.plate_addr[2] = VDP2_DEBUG_TILEMAP_OFFSET;
-    temp.plate_addr[3] = VDP2_DEBUG_TILEMAP_OFFSET;
-    SCL_SetConfig(SCL_NBG0, &temp);
-    puVar2 = &DAT_0605d6c0;
-    puVar2->unk30 = 0x10;
-    puVar2->unk34 = &DAT_06039214;
-    puVar2->unk38 = VDP2_25F00600;
-    puVar2->unk3c = 0x80;
+    SCL_InitConfigTb(&scfg);
+    scfg.dispenbl = ON;
+    scfg.charsize = SCL_CHAR_SIZE_1X1;
+    scfg.pnamesize = SCL_PN1WORD;
+    scfg.platesize = SCL_PL_SIZE_1X1;
+    scfg.coltype = SCL_COL_TYPE_16;
+    scfg.datatype = SCL_CELL;
+    scfg.mapover = SCL_OVER_0;
+    scfg.flip = SCL_PN_10BIT;
+    scfg.patnamecontrl = 0x66;
+    scfg.plate_addr[0] = SCL_VDP2_VRAM_B0 + 0x18000;
+    scfg.plate_addr[1] = SCL_VDP2_VRAM_B0 + 0x18000;
+    scfg.plate_addr[2] = SCL_VDP2_VRAM_B0 + 0x18000;
+    scfg.plate_addr[3] = SCL_VDP2_VRAM_B0 + 0x18000;
+    SCL_SetConfig(SCL_NBG0, &scfg);
+    DAT_0605D6C0[3].tileFlags = 0x10;
+    DAT_0605D6C0[3].src = &DAT_06039214;
+    DAT_0605D6C0[3].dest = SCL_COLRAM_ADDR + 0x600;
+    DAT_0605D6C0[3].cnt = 0x80;
 }
 
-// 0x060100b8
+// 0x060100B8
 // clears the debug print tilemap area, debug prints are at least used by
 // the stage select screen on the title screen
 void ClearDebugPrintTilemap(void) {
     u16 i;
     u16* ptr;
 
-    ptr = VDP2_DEBUG_TILEMAP_OFFSET;
+    ptr = SCL_VDP2_VRAM_B0 + 0x18000;
     for (i = 0; i < 0x1000; i++) {
         *ptr++ = 0;
     }
@@ -1399,52 +3986,7 @@ INCLUDE_ASM("asm/saturn/zero/f_nonmat", f60110C0, func_060110C0);
 // func_06011264
 void SignalSlaveSh2(void) {
     // set input capture flag on sub-sh2
-    *((u16*)SH2_REG_M_FRT_IC) = 0xffff;
-    return;
+    *((u16*)SH2_REG_M_FRT_IC) = 0xFFFF;
 }
 
 INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011278, func_06011278);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011A6C, func_06011A6C);
-
-extern s32 DAT_06064230;
-extern s16 DAT_060643c4;
-extern u8 DAT_060644c4;
-
-s32 PlaySfxVolPan(s32 sfxId, s32 sfxVol, s16 sfxPan) {
-    s32 ret = 0;
-
-    if (sfxId < 0x600 || sfxId > 0x916) {
-        return -3;
-    }
-    if (sfxPan < -8 || sfxPan > 8) {
-        sfxPan = 0x40;
-        ret = -1;
-    } else {
-        if (sfxPan == 0) {
-            sfxPan = sfxPan * 8 + 0x40;
-        } else if (sfxPan > 0) {
-            sfxPan = sfxPan * 8 + 0x3F;
-        } else {
-            sfxPan = sfxPan * 8 + 0x40;
-        }
-    }
-    DAT_06064230 = sfxVol;
-    DAT_060643c4 = sfxPan;
-    DAT_060644c4 = 1;
-    PlaySfx(sfxId);
-    DAT_060644c4 = 0;
-    return ret;
-}
-
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011B28, func_06011B28);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011C28, func_06011C28);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011CE4, func_06011CE4);
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011EE0, func_06011EE0);
-
-// func_06011F40
-void StopPcm(s32 param) { SND_StopPcm2(); }
-
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011F58, func_06011F58);
-
-// _KeyOffBGM2
-INCLUDE_ASM("asm/saturn/zero/f_nonmat", f6011FC8, func_06011FC8);

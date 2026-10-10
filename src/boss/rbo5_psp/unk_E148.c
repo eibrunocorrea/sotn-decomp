@@ -389,7 +389,7 @@ void func_80158B04(u16 arg0) {
     MARIA.posX.i.hi -= xMod;
 
     if (arg0 & 1) {
-        g_api.func_80102CD8(3);
+        g_api.ShakeCamera(3);
         g_api.PlaySfx(SFX_WALL_DEBRIS_B);
     }
 
@@ -732,7 +732,7 @@ void func_pspeu_0924C550(s32 arg0) {
         if (func_pspeu_0924EA98(0x20280) != 0) {
             MARIA.step = Dop_StatusStone;
             MARIA.velocityX = MARIA.velocityY = 0;
-            g_api.func_80102CD8(1);
+            g_api.ShakeCamera(1);
             g_api.PlaySfx(SFX_WALL_DEBRIS_B);
             MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(39, 0), 0);
             if (g_Maria.unk6A <= 0) {
@@ -1323,7 +1323,7 @@ void MarCheckFloor(void) {
         if (g_Maria.colFloor[i].effects & EFFECT_SOLID_FROM_BELOW) {
             continue;
         }
-        if (!(g_Maria.colFloor[i].effects & EFFECT_UNK_0002 ||
+        if (!(g_Maria.colFloor[i].effects & EFFECT_SIDE ||
               MARIA.velocityY >= 0 || g_Maria.status & 3 ||
               abs(MARIA.velocityX) >= FIX(2))) {
             continue;
@@ -1339,7 +1339,7 @@ void MarCheckFloor(void) {
             yCheck += g_Maria.colFloor[i].unk18 - 1;
             g_api.CheckCollision(xCheck, yCheck, &col, 0);
             if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
-                col.effects &= ~(EFFECT_UNK_0002 | EFFECT_SOLID);
+                col.effects &= ~(EFFECT_SIDE | EFFECT_SOLID);
             }
             effects = col.effects;
             if (!(effects & EFFECT_SOLID)) {
@@ -1356,7 +1356,7 @@ void MarCheckFloor(void) {
                 continue;
             }
             if ((effects &
-                 (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID)) ==
+                 (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID)) ==
                 (EFFECT_UNK_8000 | EFFECT_SOLID)) {
                 if (i < 2) {
                     *vramFlag |= (effects & (EFFECT_UNK_4000 | EFFECT_UNK_2000 |
@@ -1474,7 +1474,7 @@ void MarCheckCeiling(void) {
             continue;
         }
         if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
-            col.effects &= ~(EFFECT_UNK_0002 | EFFECT_SOLID);
+            col.effects &= ~(EFFECT_SIDE | EFFECT_SOLID);
         }
         effects2 = g_Maria.colCeiling[i].effects &
                    (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SOLID);
@@ -1487,7 +1487,7 @@ void MarCheckCeiling(void) {
                      g_Maria.colCeiling[i].unk10 + 1;
             g_api.CheckCollision((s16)xCheck, (s16)yCheck, &col, 0);
             if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
-                col.effects &= ~(EFFECT_UNK_0002 | EFFECT_SOLID);
+                col.effects &= ~(EFFECT_SIDE | EFFECT_SOLID);
             }
             effects = col.effects;
             if (!(effects & EFFECT_SOLID)) {
@@ -1506,11 +1506,11 @@ void MarCheckCeiling(void) {
                 continue;
             }
             if ((effects &
-                 (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID)) ==
+                 (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID)) ==
                 (EFFECT_UNK_0800 | EFFECT_SOLID)) {
                 if (i < 2) {
                     *vramFlag |=
-                        (EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                        (EFFECT_UNK_0800 | EFFECT_SIDE |
                          ((effects >> 4) & (EFFECT_UNK_0400 | EFFECT_UNK_0200 |
                                             EFFECT_UNK_0100)));
                     if (!(*vramFlag & 1)) {
@@ -1535,7 +1535,7 @@ void MarCheckCeiling(void) {
         }
         if ((effects2 == (EFFECT_UNK_0800 | EFFECT_SOLID)) && i < 2) {
             *vramFlag |=
-                (EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                (EFFECT_UNK_0800 | EFFECT_SIDE |
                  ((g_Maria.colCeiling[i].effects >> 4) &
                   (EFFECT_UNK_0400 | EFFECT_UNK_0200 | EFFECT_UNK_0100)));
             if (!(*vramFlag & 1)) {
@@ -1561,7 +1561,7 @@ void MarCheckCeiling(void) {
         effects2 = g_Maria.colCeiling[i].effects;
         vramApply = ((effects2 >> 4) &
                      (EFFECT_UNK_0400 | EFFECT_UNK_0200 | EFFECT_UNK_0100)) +
-                    (EFFECT_UNK_0800 | EFFECT_UNK_0002);
+                    (EFFECT_UNK_0800 | EFFECT_SIDE);
         if (!(effects2 & EFFECT_UNK_0800)) {
             continue;
         }
@@ -1624,10 +1624,10 @@ void func_pspeu_09250260(void) {
 
     effects =
         g_Maria.unk04 & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
-                         EFFECT_UNK_0400 | EFFECT_UNK_0002 | EFFECT_SOLID);
-    if ((effects == (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
-        (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
-        (effects == (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+                         EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID);
+    if ((effects == (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID)) ||
+        (effects == (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID)) ||
+        (effects == (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE |
                      EFFECT_SOLID))) {
         *vramFlag |= 4;
         return;
@@ -1636,16 +1636,16 @@ void func_pspeu_09250260(void) {
     for (i = 0; i < NUM_VERTICAL_SENSORS; i++) {
         effects = g_Maria.colWall[i].effects &
                   (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
-                   EFFECT_UNK_0002 | EFFECT_SOLID);
+                   EFFECT_SIDE | EFFECT_SOLID);
         if (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SOLID) ||
-            effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0002 |
+            effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SIDE |
                         EFFECT_SOLID) ||
             effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_SOLID) ||
-            effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+            effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_SIDE |
                         EFFECT_SOLID) ||
-            effects == (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID) ||
-            effects == (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID) ||
-            effects == (EFFECT_UNK_0002 | EFFECT_SOLID)) {
+            effects == (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID) ||
+            effects == (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID) ||
+            effects == (EFFECT_SIDE | EFFECT_SOLID)) {
             xCheck = *x + g_MarSensorsWall[i].x + g_Maria.colWall[i].unk4 - 1;
             yCheck = *y + g_MarSensorsWall[i].y;
             g_api.CheckCollision(xCheck, yCheck, &col, 0);
@@ -1660,7 +1660,7 @@ void func_pspeu_09250260(void) {
             (i != 0) &&
             ((g_Maria.colWall[0].effects & EFFECT_UNK_0800) ||
              !(g_Maria.colWall[0].effects &
-               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE)))) {
             *vramFlag |= 4;
             *x += g_Maria.colWall[i].unk4;
             return;
@@ -1670,7 +1670,7 @@ void func_pspeu_09250260(void) {
             (i != 6) &&
             ((g_Maria.colWall[6].effects & EFFECT_UNK_8000) ||
              !(g_Maria.colWall[6].effects &
-               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE)))) {
             *vramFlag |= 4;
             *x += g_Maria.colWall[i].unk4;
             return;
@@ -1696,29 +1696,29 @@ void MarCheckWallLeft(void) {
 
     effects =
         g_Maria.unk04 & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
-                         EFFECT_UNK_0400 | EFFECT_UNK_0002 | EFFECT_SOLID);
-    if ((effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0002 |
+                         EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID);
+    if ((effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SIDE |
                      EFFECT_SOLID)) ||
-        (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0400 | EFFECT_UNK_0002 |
+        (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0400 | EFFECT_SIDE |
                      EFFECT_SOLID)) ||
         (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
-                     EFFECT_UNK_0400 | EFFECT_UNK_0002 | EFFECT_SOLID))) {
+                     EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID))) {
         *vramFlag |= 8;
         return;
     }
     for (i = NUM_VERTICAL_SENSORS; i < NUM_VERTICAL_SENSORS * 2; i++) {
         effects = g_Maria.colWall[i].effects &
                   (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
-                   EFFECT_UNK_0002 | EFFECT_SOLID);
+                   EFFECT_SIDE | EFFECT_SOLID);
         if ((effects == (EFFECT_UNK_8000 | EFFECT_SOLID)) ||
-            (effects == (EFFECT_UNK_8000 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID)) ||
             (effects == (EFFECT_UNK_0800 | EFFECT_SOLID)) ||
-            (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID)) ||
-            (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0002 |
+            (effects == (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID)) ||
+            (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SIDE |
                          EFFECT_SOLID)) ||
-            (effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_UNK_0002 |
+            (effects == (EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_SIDE |
                          EFFECT_SOLID)) ||
-            (effects == (EFFECT_UNK_0002 | EFFECT_SOLID))) {
+            (effects == (EFFECT_SIDE | EFFECT_SOLID))) {
             xCheck = *x + g_MarSensorsWall[i].x + g_Maria.colWall[i].unkC + 1;
             yCheck = *y + g_MarSensorsWall[i].y;
             g_api.CheckCollision(xCheck, yCheck, &col, 0);
@@ -1734,7 +1734,7 @@ void MarCheckWallLeft(void) {
             (i != 7) &&
             ((g_Maria.colWall[7].effects & EFFECT_UNK_0800) ||
              !(g_Maria.colWall[7].effects &
-               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE)))) {
             *vramFlag |= 8;
             *x += g_Maria.colWall[i].unkC;
             return;
@@ -1745,7 +1745,7 @@ void MarCheckWallLeft(void) {
             (i != 13) &&
             ((g_Maria.colWall[13].effects & EFFECT_UNK_8000) ||
              !(g_Maria.colWall[13].effects &
-               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_UNK_0002)))) {
+               (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE)))) {
             *vramFlag |= 8;
             *x += g_Maria.colWall[i].unkC;
             return;

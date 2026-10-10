@@ -737,7 +737,7 @@ void func_80158B04(u16 arg0) {
     MARIA.posX.i.hi -= xMod;
 
     if (arg0 & 1) {
-        g_api.func_80102CD8(3);
+        g_api.ShakeCamera(3);
         g_api.PlaySfx(SFX_WALL_DEBRIS_B);
     }
 

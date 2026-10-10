@@ -5,19 +5,16 @@
 #include <stage.h>
 
 #define STAGE_IS_RNZ1
+#define INVERTED_STAGE
 
 enum Palettes {
     PAL_NONE,
     PAL_SPIKES_DUST = 0x161,
+    PAL_BREAKABLE_DEBRIS = 0x226,
     PAL_WALL_CANDELABRA_A = 0x228,
     PAL_WALL_CANDELABRA_B = 0x229,
     PAL_BREAKABLE = 0x22A,
-    PAL_BREAKABLE_DEBRIS = 0x22E,
     PAL_PUFF_OPAQUE_OFFSET = 0x2E0,
-    // puff params 2 (not used directly, PAL_PUFF_OPAQUE_OFFSET + 3)
-    PAL_PUFF_OPAQUE_2 = 0x2E3,
-    // puff params 3 (not used directly, PAL_PUFF_OPAQUE_OFFSET + 4)
-    PAL_PUFF_OPAQUE_3 = 0x2E4
 };
 
 typedef enum EntityID {
@@ -33,7 +30,7 @@ typedef enum EntityID {
     E_STAGE_NAME_POPUP,       // EntityStageNamePopup
     E_EQUIP_ITEM_DROP,        // EntityEquipItemDrop
     E_RELIC_ORB,              // EntityRelicOrb
-    E_HEART_DROP,             // EntityHeartDrop
+    E_PERSISTENT_ITEM_DROP,   // EntityPersistentItemDrop
     E_ENEMY_BLOOD,            // EntityEnemyBlood
     E_MESSAGE_BOX,            // EntityMessageBox
     E_DUMMY_F,                // EntityDummy
@@ -53,7 +50,7 @@ typedef enum EntityID {
     E_WALL_GEAR,              // EntityWallGear
     E_BREAKABLE_WALL,         // EntityBreakableWall
     E_SECRET_WALL_DEBRIS,     // EntitySecretWallDebris
-    E_UNK_20,                 // func_us_801A8F7C
+    E_ROOM_EXIT,              // EntityRoomExit
     E_BREAKABLE_WALL_PARTIAL, // EntityBreakableWallPartial
     E_SECRET_AREA_DOOR,       // EntitySecretAreaDoor
     E_WATER_FOREGROUND,       // EntityWaterForeground
@@ -67,14 +64,14 @@ typedef enum EntityID {
     E_SPIKES_PARTS,           // EntitySpikesParts
     E_SPIKES_DUST,            // EntitySpikesDust
     E_SPIKES_DAMAGE,          // EntitySpikesDamage
-    E_UNK_2E,                 // func_us_801A9DB8
-    E_FROZEN_SHADE_CRYSTAL,   // EntityFrozenShadeCrystal
-    E_UNK_30,                 // func_us_801ABDE4
-    E_UNK_31,                 // func_us_801AAF00
-    E_UNK_32,                 // func_us_801AB04C
-    E_BOSS_DOOR_TRIGGER,      // EntityBossDoorTrigger
+    E_DARKWING_BAT,           // EntityDarkwingBat
+    E_DARKWING_PERCH,         // EntityDarkwingBatPerch
+    E_BAT_WINGS,              // EntityDarkwingBatWings
+    E_DARKWING_WIND_DUST,     // EntityDarkwingWindDust
+    E_FADING_FIREBALL,        // EntityFadingFireball
+    E_BOSS_DOOR_TRIGGER,      // EntityBossFightManager
     E_BOSS_DOORS,             // EntityBossDoors
-    E_LIFE_UPSPAWN,           // EntityLifeUpSpawn
+    E_LIFE_UP_SPAWN,          // EntityLifeUpSpawn
     E_CLOAKED_KNIGHT,         // EntityCloakedKnight
     E_CLOAKED_KNIGHT_CLOAK,   // EntityCloakedKnightCloak
     E_CLOAKED_KNIGHT_SWORD,   // EntityCloakedKnightSword
@@ -86,17 +83,19 @@ typedef enum EntityID {
     E_VALHALLA_KNIGHT,        // EntityValhallaKnight
     E_VALHALLA_KNIGHT_UNK1,   // func_us_801C8954
     E_VALHALLA_KNIGHT_UNK2,   // func_us_801C8AAC
-    E_UNK_41,                 // func_us_801BBE58
-    E_UNK_42,                 // func_us_801BC650
-    E_UNK_43,                 // func_us_801BCE4C
-    E_UNK_44,                 // func_us_801BCA5C
-    E_UNK_45,                 // func_us_801BCB9C
-    E_UNK_46,                 // func_us_801BCD80
-    E_UNK_47,                 // func_us_801BCFC8
-    E_UNK_48,                 // func_us_801BD398
-    E_UNK_49,                 // func_us_801BDA24
-    E_UNK_4A,                 // func_us_801BD324
+    E_BOMB_KNIGHT,            // EntityBombKnight
+    E_THROWN_BOMB,            // EntityThrownBomb
+    E_DEATH_PARTS,            // EntityKnightDeathParts
+    E_FUSE_SPARKS,            // EntityBombFuseSparks
+    E_THROWN_ROCK,            // EntityThrownRock
+    E_ROCK_PIECE,             // EntityRockPiece
+    E_BOMB_KNIGHT_ARM,        // EntityBombKnightArm
+    E_CRUSHER_HEAD,           // EntityCrusherHead
+    E_CRUSHER_SPINNING_TEETH, // EntityCrusherSpinningTeeth
+    E_CRUSHER,                // EntityCrusher
     NUM_ENTITIES,
 };
+
+extern s32 g_BossFlag;
 
 #endif // RNZ1_H

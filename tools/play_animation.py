@@ -1,7 +1,7 @@
 # Author: bismurphy
 
 # Renders the animations declared in a .c file (or .h file). Requires that:
-# 1. There exists a u8 array in the specified file, which...
+# 1. There exists a AnimateEntityFrame array in the specified file, which...
 # 2. Has been fully declared as static, with all values pulled into the function as .data and ...
 # 3. Is called in an entity updating function. Further...
 # 4. The function be decompiled, and ...
@@ -55,13 +55,14 @@ def load_array_from_file(filelines, arrayname):
     exit()
 
 
-# Get every array of u8's and return as a Python dictionary
+# Get every array of AnimateEntityFrame's and return as a Python dictionary
 def load_anims(src_file):
     with open(src_file) as f:
         file_lines = f.read().split("\n")
     loaded_anims = {}
     for i, line in enumerate(file_lines):
-        if line.startswith("static u8") or line.startswith("static AnimateEntityFrame"):
+        if line.startswith("static AnimateEntityFrame"):
+            print("Start of animation, line = ", line)
             # handle the potential of multi-line animations
             anim = ""
             line_idx = 0
@@ -69,7 +70,9 @@ def load_anims(src_file):
                 anim += file_lines[i + line_idx]
                 line_idx += 1
             # got full animation line. Get the name. Comes after "static, space, type, space"
-            namesearch = re.match(r"static\s+(\w+)\s+(\w+)\[\]\s*=", anim)
+            print("RE SEARCH:")
+            print(anim)
+            namesearch = re.match(r"static\s+(\w+)\s+(\w+)\[\].*=", anim)
             if namesearch:
                 anim_name = namesearch.group(2)
             print(anim_name)
@@ -77,7 +80,7 @@ def load_anims(src_file):
             anim = anim.replace(" ", "")
             # Now use regex to find data up to the semicolon
             anim_data = re.findall(r"(?<={)[^;]*", anim)[0]
-            # flatten 2d arrays (such as AnimateEntityFrame)
+            # flatten 2d AnimateEntityFrame array
             anim_data = anim_data.replace("{", "")
             anim_data = anim_data.replace("}", "")
             # expand POSE_LOOP macro
@@ -100,7 +103,7 @@ def get_initializer_for_ent(anim_name, src_file, overlay):
     with open(src_file) as f:
         filelines = f.readlines()
     for i, line in enumerate(filelines):
-        if anim_name in line and "static u8" not in line:
+        if anim_name in line and "static AnimationFrame" not in line:
             # Now we've found a line where it's used. Search backward for
             # a call to InitializeEntity.
             print(f"Anim used in line {i}:")
@@ -173,6 +176,10 @@ class AnimationShower:
         # Load DRA file dynamically, they are split out different
         if not anim_num & 0x8000:
             animset_file = f"src/dra/gen/us/{anim_set_name}.h"
+
+        if not os.path.exists(animset_file):
+            animset_file = animset_file.replace("gen", "gen/us")
+
         with open(animset_file) as f:
             self.framesdata = f.read().splitlines()
             print("Loading framearray")

@@ -191,7 +191,7 @@ void AddToInventory(u16 id, EquipKind kind) {
     }
 
     count[id]++;
-    if (emptySlot < existingItemSlot) {
+    if (existingItemSlot > emptySlot) {
         order[existingItemSlot] = order[emptySlot];
         order[emptySlot] = id;
     }
@@ -253,7 +253,7 @@ s16 GetStatusAilmentTimer(StatusAilments statusAilment, s16 timer) {
     return ret;
 }
 
-bool CastSpell(SpellIds spellId) {
+int CastSpell(SpellIds spellId) {
     s32 mpUsage = g_SpellDefs[spellId].mpUsage;
 
     if (g_Status.mp < mpUsage) {
@@ -280,7 +280,7 @@ void LearnSpell(s32 spellId) {
 }
 
 // original name: reduce_weapon
-bool ReduceWeapon(s32 hand) {
+int ReduceWeapon(s32 hand) {
     s32 equippedItem = g_Status.equipment[hand];
     bool isConsumable = g_EquipDefs[equippedItem].isConsumable;
 
@@ -546,7 +546,7 @@ void GetEquipProperties(s32 handId, Equipment* res, s32 equipId) {
     }
 
     res->criticalRate = criticalRate;
-    func_800F4994();
+    UpdateEquipStatBonuses();
     itemCategory = g_EquipDefs[equipId].itemCategory;
     if (itemCategory == ITEM_FOOD || itemCategory == ITEM_MEDICINE) {
         return;
@@ -557,9 +557,9 @@ void GetEquipProperties(s32 handId, Equipment* res, s32 equipId) {
     }
 }
 
-bool HasEnoughMp(s32 mpCount, bool subtractMp) {
+int HasEnoughMp(s32 mpCount, int shouldSubtractMp) {
     if (mpCount <= g_Status.mp) {
-        if (subtractMp) {
+        if (shouldSubtractMp) {
             g_Status.mp -= mpCount;
         }
         return false;

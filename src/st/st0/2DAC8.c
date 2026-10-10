@@ -338,7 +338,7 @@ void EntityDraculaFinalForm(Entity* self) {
             }
             if (func_801ADAC8(0x4C) != 0) {
                 g_api.PlaySfx(SFX_START_SLAM_B);
-                g_api.func_80102CD8(1);
+                g_api.ShakeCamera(SHAKE_Y_SMALL);
                 self->step_s++;
             }
             break;
@@ -480,7 +480,7 @@ void EntityDraculaFinalForm(Entity* self) {
             }
             if (func_801ADAC8(0x4C) != 0) {
                 g_api.PlaySfx(SFX_START_SLAM_B);
-                g_api.func_80102CD8(1);
+                g_api.ShakeCamera(SHAKE_Y_SMALL);
                 self->step_s++;
             }
             break;
@@ -675,7 +675,7 @@ void EntityDraculaFinalForm(Entity* self) {
                     self->step_s++;
                     break;
                 }
-                g_api.func_80102CD8(1);
+                g_api.ShakeCamera(SHAKE_Y_SMALL);
                 D_80181148--;
                 if (D_80181148 == 0) {
                     D_80181148 = 0x800;
@@ -839,7 +839,7 @@ void EntityDraculaMegaFireball(Entity* self) {
             self->drawFlags |= ENTITY_ROTATE | ENTITY_SCALEY | ENTITY_SCALEX;
             self->scaleX = self->scaleY = 0x80;
             angle = self->rotate;
-            self->rotate = 0x1C0;
+            self->rotate = ROT(39.375);
             self->rotate -= angle;
             if (self->facingLeft) {
                 self->velocityX = rcos(angle) * 0x60;

@@ -5,13 +5,17 @@
 #include <stage.h>
 
 #define STAGE_IS_RNO2
+#define INVERTED_STAGE
 
 enum Palettes {
     PAL_NONE,
+    PAL_SPIKES_DUST = 0x161,
     PAL_AZAGHAL_BODY_A = 0x220,
     PAL_AZAGHAL_BODY_B = 0x221,
     PAL_AZAGHAL_COMBO_A = 0x222,
     PAL_AZAGHAL_COMBO_B = 0x223,
+    PAL_BREAKABLE = 0x226,
+    PAL_BREAKABLE_DEBRIS = 0x22A,
     PAL_CTULHU_DEATH = 0x2EE,
 };
 
@@ -28,7 +32,7 @@ typedef enum EntityID {
     E_STAGE_NAME_POPUP,         // EntityStageNamePopup
     E_EQUIP_ITEM_DROP,          // EntityEquipItemDrop
     E_RELIC_ORB,                // EntityRelicOrb
-    E_HEART_DROP,               // EntityHeartDrop
+    E_PERSISTENT_ITEM_DROP,     // EntityPersistentItemDrop
     E_ENEMY_BLOOD,              // EntityEnemyBlood
     E_MESSAGE_BOX,              // EntityMessageBox
     E_DUMMY_F,                  // EntityDummy
@@ -38,31 +42,31 @@ typedef enum EntityID {
     E_UNK_ID13,                 // EntityUnkId13
     E_EXPLOSION_VARIANTS,       // EntityExplosionVariants
     E_GREY_PUFF,                // EntityGreyPuff
-    E_UNK_16,                   // func_us_801B3D8C_from_bo0
-    E_UNK_17,                   // func_us_801B3F30_from_bo0
-    E_UNK_18,                   // func_us_801B4148_from_bo0
-    E_UNK_19,                   // func_us_801B41A4_from_bo0
-    E_UNK_1A,                   // func_us_801B4210_from_bo0
-    E3D_BACKGROUND_HOUSE,       // Entity3DBackgroundHouse
-    E3D_HOUSE_SPAWNER,          // Entity3DHouseSpawner
-    E_UNK_1D,                   // func_us_801B4DA4_from_bo0
+    E_DEEP_BG_ARCH,             // EntityDeepBackgroundArch
+    E_FOUNTAIN_WATER,           // EntityFountainWater
+    E_RAMPART,                  // EntityRampart
+    E_NIGHT_SKY,                // EntityNightSky
+    E_STONE_BRAZIER,            // EntityStoneBrazier
+    E_3D_BACKGROUND_HOUSE,      // Entity3DBackgroundHouse
+    E_3D_HOUSE_SPAWNER,         // Entity3DHouseSpawner
+    E_HOUSE_SHADER,             // EntityHouseShader
     E_SPIKES,                   // EntitySpikes
     E_SPIKES_PARTS,             // EntitySpikesParts
     E_SPIKES_DUST,              // EntitySpikesDust
     E_SPIKES_DAMAGE,            // EntitySpikesDamage
-    E_UNK_22,                   // func_us_801B5FB8_from_no2
-    E_UNK_23,                   // func_us_801B68EC_from_no2
-    E_UNK_24,                   // func_us_801AC54C_from_bo0
+    E_UNK_22,                   // EntityBreakableWall
+    E_STONE_BRIDGE_SECRET,      // EntityStoneBridgeSecret
+    E_UNK_24,                   // EntityBreakableWallBackside
     E_PRISONER,                 // EntityPrisoner
     E_SEALED_DOOR,              // EntitySealedDoor
     E_CTULHU,                   // EntityCtulhu
     E_CTULHU_FIREBALL,          // EntityCtulhuFireball
     E_CTULHU_ICE_SHOCKWAVE,     // EntityCtulhuIceShockwave
     E_CTULHU_DEATH,             // EntityCtulhuDeath
-    E_UNK_2B,                   // func_us_801C39A4
-    E_UNK_2C,                   // func_us_801C4960
-    E_UNK_2D,                   // func_us_801C4C0C
-    E_UNK_2E,                   // func_us_801C4EA8
+    E_MALACHI,                  // EntityMalachi
+    E_MALACHI_SHOOTER,          // EnittyMalachiShooter
+    E_MALACHI_BALL,             // EntityMalachiBall
+    E_MALACHI_BALL_WISP,        // EntityMalachiBallWisp
     E_KARASUMAN,                // EntityKarasuman
     E_KARASUMAN_FEATHER_ATTACK, // EntityKarasumanFeatherAttack
     E_KARASUMAN_ORB_ATTACK,     // EntityKarasumanOrbAttack
@@ -76,11 +80,18 @@ typedef enum EntityID {
     E_AZAGHAL,                  // EntityAzaghal
     E_AZAGHAL_SWORD_HITBOX,     // EntityAzaghalSwordHitbox
     E_BREAKABLE_DEBRIS,         // EntityBreakableDebris
-    E_UNK_3C,                   // func_us_801CAB8C
+    E_GHOST_DANCER,             // EntityGhostDancer
     E_MEDUSA_HEAD_SPAWNER,      // EntityMedusaHeadSpawner
     E_MEDUSA_HEAD_BLUE,         // EntityMedusaHeadBlue
     E_MEDUSA_HEAD_YELLOW,       // EntityMedusaHeadYellow
     NUM_ENTITIES,
 };
+
+Primitive* FindFirstUnkPrim2(Primitive* prim, u8 index);
+
+extern EInit g_EInitObtainable;
+extern EInit g_EInitParticle;
+extern EInit g_EInitInteractable;
+extern EInit g_EInitCommon;
 
 #endif // RNO2_H

@@ -12,7 +12,7 @@ void EntityRoomForeground(Entity* self);
 void EntityStageNamePopup(Entity* self);
 void EntityEquipItemDrop(Entity* self);
 void EntityRelicOrb(Entity* self);
-void EntityHeartDrop(Entity* self);
+void EntityPersistentItemDrop(Entity* self);
 void EntityEnemyBlood(Entity* self);
 void EntityMessageBox(Entity* self);
 void EntityDummy(Entity* self);
@@ -22,31 +22,31 @@ void EntityLockCamera(Entity* self);
 void EntityUnkId13(Entity* self);
 void EntityExplosionVariants(Entity* self);
 void EntityGreyPuff(Entity* self);
-void func_us_801B3D8C_from_bo0(Entity* self);
-void func_us_801B3F30_from_bo0(Entity* self);
-void func_us_801B4148_from_bo0(Entity* self);
-void func_us_801B41A4_from_bo0(Entity* self);
-void func_us_801B4210_from_bo0(Entity* self);
+void EntityDeepBackgroundArch(Entity* self);
+void EntityFountainWater(Entity* self);
+void EntityRampart(Entity* self);
+void EntityNightSky(Entity* self);
+void EntityStoneBrazier(Entity* self);
 void Entity3DBackgroundHouse(Entity* self);
 void Entity3DHouseSpawner(Entity* self);
-void func_us_801B4DA4_from_bo0(Entity* self);
+void EntityHouseShader(Entity* self);
 void EntitySpikes(Entity* self);
 void EntitySpikesParts(Entity* self);
 void EntitySpikesDust(Entity* self);
 void EntitySpikesDamage(Entity* self);
-void func_us_801B5FB8_from_no2(Entity* self);
-void func_us_801B68EC_from_no2(Entity* self);
-void func_us_801AC54C_from_bo0(Entity* self);
+void EntityBreakableWall(Entity* self);
+void EntityStoneBridgeSecret(Entity* self);
+void EntityBreakableWallBackside(Entity* self);
 void EntityPrisoner(Entity* self);
 void EntitySealedDoor(Entity* self);
 void EntityCtulhu(Entity* self);
 void EntityCtulhuFireball(Entity* self);
 void EntityCtulhuIceShockwave(Entity* self);
 void EntityCtulhuDeath(Entity* self);
-void func_us_801C39A4(Entity* self);
-void func_us_801C4960(Entity* self);
-void func_us_801C4C0C(Entity* self);
-void func_us_801C4EA8(Entity* self);
+void EntityMalachi(Entity* self);
+void EnittyMalachiShooter(Entity* self);
+void EntityMalachiBall(Entity* self);
+void EntityMalachiBallWisp(Entity* self);
 void EntityKarasuman(Entity* self);
 void EntityKarasumanFeatherAttack(Entity* self);
 void EntityKarasumanOrbAttack(Entity* self);
@@ -60,7 +60,7 @@ void EntityBloodSplatter(Entity* self);
 void EntityAzaghal(Entity* self);
 void EntityAzaghalSwordHitbox(Entity* self);
 void EntityBreakableDebris(Entity* self);
-void func_us_801CAB8C(Entity* self);
+void EntityGhostDancer(Entity* self);
 void EntityMedusaHeadSpawner(Entity* self);
 void EntityMedusaHeadBlue(Entity* self);
 void EntityMedusaHeadYellow(Entity* self);
@@ -77,7 +77,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityStageNamePopup,
     EntityEquipItemDrop,
     EntityRelicOrb,
-    EntityHeartDrop,
+    EntityPersistentItemDrop,
     EntityEnemyBlood,
     EntityMessageBox,
     EntityDummy,
@@ -87,31 +87,31 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityUnkId13,
     EntityExplosionVariants,
     EntityGreyPuff,
-    func_us_801B3D8C_from_bo0,
-    func_us_801B3F30_from_bo0,
-    func_us_801B4148_from_bo0,
-    func_us_801B41A4_from_bo0,
-    func_us_801B4210_from_bo0,
+    EntityDeepBackgroundArch,
+    EntityFountainWater,
+    EntityRampart,
+    EntityNightSky,
+    EntityStoneBrazier,
     Entity3DBackgroundHouse,
     Entity3DHouseSpawner,
-    func_us_801B4DA4_from_bo0,
+    EntityHouseShader,
     EntitySpikes,
     EntitySpikesParts,
     EntitySpikesDust,
     EntitySpikesDamage,
-    func_us_801B5FB8_from_no2,
-    func_us_801B68EC_from_no2,
-    func_us_801AC54C_from_bo0,
+    EntityBreakableWall,
+    EntityStoneBridgeSecret,
+    EntityBreakableWallBackside,
     EntityPrisoner,
     EntitySealedDoor,
     EntityCtulhu,
     EntityCtulhuFireball,
     EntityCtulhuIceShockwave,
     EntityCtulhuDeath,
-    func_us_801C39A4,
-    func_us_801C4960,
-    func_us_801C4C0C,
-    func_us_801C4EA8,
+    EntityMalachi,
+    EnittyMalachiShooter,
+    EntityMalachiBall,
+    EntityMalachiBallWisp,
     EntityKarasuman,
     EntityKarasumanFeatherAttack,
     EntityKarasumanOrbAttack,
@@ -125,7 +125,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityAzaghal,
     EntityAzaghalSwordHitbox,
     EntityBreakableDebris,
-    func_us_801CAB8C,
+    EntityGhostDancer,
     EntityMedusaHeadSpawner,
     EntityMedusaHeadBlue,
     EntityMedusaHeadYellow,
@@ -142,8 +142,8 @@ EInit g_EInitUnkId13 = {ANIMSET_DRA(0), 0, 0, 0, 0x002};
 EInit g_EInitLockCamera = {ANIMSET_DRA(0), 0, 0, 0, 0x001};
 EInit g_EInitCommon = {ANIMSET_DRA(0), 0, 0, 0, 0x003};
 EInit g_EInitDamageNum = {ANIMSET_DRA(0), 0, 0, 0, 0x003};
-EInit D_us_801808BC = {ANIMSET_OVL(2), 11, 0, 0, 0x003};
-EInit D_us_801808C8 = {ANIMSET_OVL(3), 1, 73, 513, 0x003};
+EInit g_EInitEnvironment = {ANIMSET_OVL(2), 11, 0, 0, 0x003};
+EInit g_EInitPrisoner = {ANIMSET_OVL(3), 1, 73, 513, 0x003};
 
 EInit g_EInitCtulhu = {ANIMSET_OVL(4), 0, 72, 515, 0x0E9};
 EInit g_EInitCtulhuFireball = {ANIMSET_OVL(4), 0, 72, 515, 0x0EA};
@@ -162,6 +162,6 @@ EInit g_EInitFlyingZombieHalf1 = {ANIMSET_OVL(7), 0, 75, 542, 0x00E};
 EInit g_EInitBloodyZombie = {ANIMSET_OVL(9), 1, 74, 726, 0x00D};
 EInit g_EInitAzaghal = {ANIMSET_OVL(0), 0, 0, 0, 0x0E0};
 EInit g_EInitGhostDancer = {ANIMSET_OVL(10), 0, 76, 558, 0x0D8};
-EInit g_EInitMedusaHead1 = {ANIMSET_OVL(13), 0, 95, 592, 0x12F};
-EInit g_EInitMedusaHead2 = {ANIMSET_OVL(13), 0, 95, 593, 0x130};
+EInit g_EInitMedusaHeadBlue = {ANIMSET_OVL(13), 0, 95, 592, 0x12F};
+EInit g_EInitMedusaHeadYellow = {ANIMSET_OVL(13), 0, 95, 593, 0x130};
 // clang-format on

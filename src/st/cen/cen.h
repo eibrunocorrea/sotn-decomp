@@ -24,7 +24,7 @@ typedef enum EntityID {
     /* 0x09 */ E_STAGE_NAME_POPUP,
     /* 0x0A */ E_EQUIP_ITEM_DROP,
     /* 0x0B */ E_RELIC_ORB,
-    /* 0x0C */ E_HEART_DROP,
+    /* 0x0C */ E_PERSISTENT_ITEM_DROP,
     /* 0x0D */ E_ENEMY_BLOOD,
     /* 0x0E */ E_MESSAGE_BOX,
     /* 0x0F */ E_DUMMY_0F,
@@ -122,7 +122,7 @@ void EntityGreyPuff(Entity* entity);
 /*** Initializers ***/
 extern EInit g_EInitBreakable;
 extern EInit g_EInitObtainable;
-extern GAME_IMPORT EInit g_EInitSpawner;
+extern EInit g_EInitSpawner;
 extern EInit g_EInitInteractable;
 extern EInit g_EInitCommon;
 extern EInit g_EInitParticle;

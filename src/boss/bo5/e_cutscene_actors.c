@@ -2,14 +2,15 @@
 #include "bo5.h"
 
 void CutsceneCameraPan(s16 target) {
-    s16 newTarget = 0x180 - target;
-    s16 delta = newTarget - g_unkGraphicsStruct.unkC;
+    s16 delta;
 
+    target = 384 - target;
+    delta = target - g_unkGraphicsStruct.unk14;
     if (delta > 1) {
-        g_unkGraphicsStruct.unkC++;
+        g_unkGraphicsStruct.unk14++;
     } else if (delta < -1) {
-        g_unkGraphicsStruct.unkC--;
+        g_unkGraphicsStruct.unk14--;
     } else {
-        g_unkGraphicsStruct.unkC = newTarget;
+        g_unkGraphicsStruct.unk14 = target;
     }
 }

@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rnz1.h"
 
-/*
- * RNZ1's breakable mirrors NZ1's stage-specific implementation for the
- * inverted castle: the wall sconce flame primitive is flipped on both axes,
- * the candelabra debris shower falls upward, and the urn and jug share a
- * single heart drop index instead of NZ1's distinct ones.
- */
+#define CANDELABRA_HIT_SFX SFX_CANDLE_HIT_WHOOSH_B
+#define BREAKABLE_HIT_SFX SFX_SMALL_FLAME_IGNITE
+#define OVL_BREAKABLE_ANIMSET ANIMSET_OVL(10)
 
 enum BreakableTypes {
     CANDELABRA_WALL_DOUBLE,
@@ -34,15 +31,68 @@ extern s32 E_ID(BREAKABLE_DEBRIS);
 extern EInit g_EInitBreakable;
 extern EInit g_EInitInteractable;
 extern EInit g_EInitParticle;
-extern AnimateEntityFrame* animations[];
-extern u8 hitbox_heights[];
-extern u8 explosion_types[];
-extern u16 palettes[];
-extern u16 anim_sets[];
-extern u16 unk_5A[];
-extern u8 blend_modes[];
-extern u16 hitbox_offsets_y[];
-extern s16 candelabra_debris_offsets_y[];
+
+static AnimateEntityFrame anim1[] = {{4, 1}, {4, 2}, POSE_LOOP(0)};
+static AnimateEntityFrame anim2[] = {
+    {4, 14}, {4, 15}, {4, 16}, {4, 17}, POSE_LOOP(0)};
+static AnimateEntityFrame anim3[] = {
+    {5, 1}, {5, 2}, {5, 3}, {5, 4}, POSE_LOOP(0)};
+static AnimateEntityFrame anim4[] = {
+    {5, 5}, {5, 6}, {5, 7}, {5, 8}, POSE_LOOP(0)};
+static AnimateEntityFrame anim5[] = {
+    {5, 9}, {5, 10}, {5, 11}, {5, 12}, POSE_LOOP(0)};
+static AnimateEntityFrame anim6[] = {
+    {5, 13}, {5, 14}, {5, 15}, {5, 16}, POSE_LOOP(0)};
+static AnimateEntityFrame anim7[] = {{5, 17}, {5, 18}, {5, 19}, POSE_LOOP(0)};
+static AnimateEntityFrame anim8[] = {{5, 23}, POSE_LOOP(0)};
+static AnimateEntityFrame anim9[] = {{5, 22}, POSE_LOOP(0)};
+static AnimateEntityFrame anim10[] = {
+    {5, 20}, {-1, -1}, {5, 21}, {5, 21}, POSE_END};
+static AnimateEntityFrame* animations[] = {
+    anim1,  // params 0x0000-0x0FFF
+    anim2,  // params 0x1000-0x1FFF
+    anim3,  // params 0x2000-0x2FFF
+    anim4,  // params 0x3000-0x3FFF
+    anim5,  // params 0x4000-0x4FFF
+    anim6,  // params 0x5000-0x5FFF
+    anim7,  // params 0x6000-0x6FFF
+    anim8,  // params 0x7000-0x7FFF
+    anim9,  // params 0x8000-0x8FFF
+    anim10, // params 0x9000-0x9FFF
+};
+static u8 hitbox_heights[] = {8, 8, 40, 24, 16, 16, 8, 8, 8, 8, 8, 0};
+static u8 explosion_types[] = {
+    EXPLOSION_SMALL,          EXPLOSION_SMALL,
+    EXPLOSION_SMALL_MULTIPLE, EXPLOSION_SMALL_MULTIPLE,
+    EXPLOSION_SMALL_MULTIPLE, EXPLOSION_SMALL_MULTIPLE,
+    EXPLOSION_SMALL,          EXPLOSION_SMALL_MULTIPLE,
+    EXPLOSION_SMALL_MULTIPLE, EXPLOSION_SMALL_MULTIPLE};
+static u16 palettes[] = {
+    PAL_NULL,      PAL_BREAKABLE_DEBRIS, PAL_BREAKABLE, PAL_BREAKABLE,
+    PAL_BREAKABLE, PAL_BREAKABLE,        PAL_BREAKABLE, PAL_BREAKABLE,
+    PAL_BREAKABLE, PAL_BREAKABLE};
+static u16 anim_sets[] = {
+    ANIMSET_DRA(3),        ANIMSET_OVL(9),        OVL_BREAKABLE_ANIMSET,
+    OVL_BREAKABLE_ANIMSET, OVL_BREAKABLE_ANIMSET, OVL_BREAKABLE_ANIMSET,
+    OVL_BREAKABLE_ANIMSET, OVL_BREAKABLE_ANIMSET, OVL_BREAKABLE_ANIMSET,
+    OVL_BREAKABLE_ANIMSET};
+static u16 unk_5A[] = {0, 87, 91, 91, 91, 91, 91, 91, 91, 91};
+static u8 blend_modes[] = {
+    BLEND_SUB | BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD};
+static u16 hitbox_offsets_y[] = {0, 0, -24, -16, 0, 0, 0, 0, 0, 0, 0, 0};
+
+// The first 5 elements are used with the tall candelabra and the last 5 are
+// used with the short candelabra
+static s16 candelabra_debris_offsets_y[] = {0, 1, 2, 2, 3, 0, 1, 2, 3, 0};
 
 void EntityBreakable(Entity* self) {
     Entity* entity;
@@ -78,14 +128,12 @@ void EntityBreakable(Entity* self) {
             prim->u1 = prim->u3 = 248;
             prim->v0 = prim->v1 = 128;
             prim->v2 = prim->v3 = 160;
-            // These are equivalent to the -25 and -9, but pspeu doesn't like
+            // These are equivalent to the -23, but pspeu doesn't like
             // subtraction here
-            posX = self->posX.i.hi;
-            prim->x0 = prim->x2 = posX + 23;
-            prim->x1 = prim->x3 = posX + 0xFFE7;
-            primIndex = self->posY.i.hi;
-            prim->y0 = prim->y1 = primIndex + 23;
-            prim->y2 = prim->y3 = primIndex + 0xFFF7;
+            prim->x0 = prim->x2 = self->posX.i.hi - 0xFFE9;
+            prim->x1 = prim->x3 = prim->x0 - 48;
+            prim->y0 = prim->y1 = self->posY.i.hi - 0xFFE9;
+            prim->y2 = prim->y3 = prim->y0 - 32;
             prim->priority = self->zPriority;
             prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE |
                              DRAW_UNK02 | DRAW_TRANSP;
@@ -114,7 +162,11 @@ void EntityBreakable(Entity* self) {
         case CANDELABRA_TALL:
         case CANDELABRA_SHORT:
             self->facingLeft = GetSideToPlayer() & 1;
+#ifdef INVERTED_STAGE
             posY = self->posY.i.hi + 40;
+#else
+            posY = self->posY.i.hi - 40;
+#endif
             if (breakableType == CANDELABRA_TALL) {
                 debrisCount = 4;
             } else {
@@ -139,7 +191,11 @@ void EntityBreakable(Entity* self) {
                     entity->posY.i.hi = posY;
                     entity->params = EXPLOSION_SMALL;
                 }
+#ifdef INVERTED_STAGE
                 posY -= 16;
+#else
+                posY += 16;
+#endif
             }
             g_api.PlaySfx(SFX_CANDLE_HIT);
             break;
@@ -155,7 +211,7 @@ void EntityBreakable(Entity* self) {
             g_api.PlaySfx(SFX_GLASS_BREAK_E);
             entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
             if (entity != NULL) {
-                CreateEntityFromEntity(E_HEART_DROP, self, entity);
+                CreateEntityFromEntity(E_PERSISTENT_ITEM_DROP, self, entity);
                 entity->params = 0;
             }
             PreventEntityFromRespawning(self);
@@ -165,7 +221,7 @@ void EntityBreakable(Entity* self) {
             g_api.PlaySfx(SFX_GLASS_BREAK_E);
             entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
             if (entity != NULL) {
-                CreateEntityFromEntity(E_HEART_DROP, self, entity);
+                CreateEntityFromEntity(E_PERSISTENT_ITEM_DROP, self, entity);
                 entity->params = 0;
             }
             PreventEntityFromRespawning(self);
@@ -213,13 +269,18 @@ void EntityBreakableDebris(Entity* self) {
             self->ext.breakableDebris.prim = prim;
             UnkPolyFunc2(prim);
             prim->tpage = 22;
-            prim->clut = PAL_BREAKABLE_DEBRIS;
+            prim->clut = 0x22E;
             prim->u0 = prim->u2 = 152;
             prim->u1 = prim->u3 = 167;
             posY = 132;
             posY += self->params * 16;
+#ifdef INVERTED_STAGE
             prim->v0 = prim->v1 = posY + 15;
             prim->v2 = prim->v3 = posY;
+#else
+            prim->v0 = prim->v1 = posY;
+            prim->v2 = prim->v3 = posY + 15;
+#endif
             prim->next->x1 = self->posX.i.hi;
             prim->next->y0 = self->posY.i.hi;
             LOH(prim->next->r2) = 16;

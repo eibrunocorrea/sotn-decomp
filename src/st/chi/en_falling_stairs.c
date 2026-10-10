@@ -84,7 +84,7 @@ void EntityFallingStairs(Entity* self) {
     const u32 TriggerBoxH = 0x40;
     const s32 RightSideHitHeight = 0x29F;
 
-    typedef enum Step {
+    enum Step {
         INIT = 0,
         WAIT_FOR_TRIGGER = 1,
         BREAK_AWAY = 2,
@@ -92,7 +92,7 @@ void EntityFallingStairs(Entity* self) {
         LAND = 4,
     };
 
-    typedef enum Falling_SubStep {
+    enum Falling_SubStep {
         ROTATE_CLOCKWISE = 0,
         ROTATE_COUNTER_CLOCKWISE = 1,
     };
@@ -170,8 +170,7 @@ void EntityFallingStairs(Entity* self) {
             g_Tilemap.fg[*pDstTileIdx] = 0;
         }
 
-        g_api.func_80102CD8(1); // Not sure what this does.
-                                // Removal doesn't make an obvious difference
+        g_api.ShakeCamera(SHAKE_Y_SMALL);
         g_api.PlaySfx(SFX_WALL_DEBRIS_B);
         entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
 
@@ -229,7 +228,7 @@ void EntityFallingStairs(Entity* self) {
         switch (self->step_s) {
         case ROTATE_CLOCKWISE:
             MoveEntity();
-            self->rotate += 0x12;
+            self->rotate += ROT(1.58203125);
             self->velocityY += FIX(0.25);
             scrolledY = self->posY.i.hi + g_Tilemap.scrollY.i.hi;
             if (self->ext.fallingStairs.prim7C != NULL) {
@@ -293,7 +292,7 @@ void EntityFallingStairs(Entity* self) {
             if (self->rotate < 0) {
                 self->rotate = 0; // Don't over-rotate
                 g_api.PlaySfx(SFX_EXPLODE_B);
-                g_api.func_80102CD8(1);
+                g_api.ShakeCamera(SHAKE_Y_SMALL);
                 entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
 
                 // Spawn a dust cloud
@@ -388,7 +387,7 @@ void EntityFallingStep(Entity* self) {
     const u32 TriggerBoxW = 0x18;
     const u32 TriggerBoxH = 0x40;
 
-    typedef enum Step {
+    enum Step {
         INIT = 0,
         WAIT_FOR_TRIGGER = 1,
         BREAK_AWAY = 2,
@@ -468,7 +467,7 @@ void EntityFallingStep(Entity* self) {
 
     case FALLING:
         MoveEntity();
-        self->rotate -= 0x20;
+        self->rotate -= ROT(2.8125);
         self->velocityY += FIX(0.25);
         posX = self->posX.i.hi;
         posY = self->posY.i.hi + 9;

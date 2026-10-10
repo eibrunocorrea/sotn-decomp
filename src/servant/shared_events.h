@@ -2,8 +2,8 @@
 #define E_UNK_DC 220
 #define E_UNK_DF 223
 // clang-format off
-#define MAKE_EVENT(servant, roomX, roomY, camX, camY, check, delay, entity, params) \
-    { 0, 0, servant, roomX, roomY, camX, camY, check, delay, entity, params, 1 }
+#define MAKE_EVENT(servant, roomX, roomY, camX, camY, condition, delay, entity, params) \
+    { 0, 0, servant, roomX, roomY, camX, camY, condition, delay, entity, params, 1 }
 #define NULL_EVENT \
     { 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0 }
 static ServantEvent g_Events[] = {
@@ -34,7 +34,7 @@ static ServantEvent g_Events[] = {
     MAKE_EVENT(FAM_ACTIVE_FAERIE, 27, 21, 512, 260, FOR_CASTLE_FLAG(NO2_SECRET_WALL_OPEN), 64, E_UNK_DC, 7),
     MAKE_EVENT(FAM_ACTIVE_FAERIE, 49, 18, 0, 4, FOR_CASTLE_FLAG(LIB_BOOKSHELF_SECRET), 512, E_UNK_DC, 8),
     MAKE_EVENT(FAM_ACTIVE_FAERIE, 50, 11, 0, 4, FOR_CASTLE_FLAG(NZ1_UPPER_WALL_OPEN), 32, E_UNK_DC, 9),
-    MAKE_EVENT(FAM_ACTIVE_FAERIE, 43, 10, 0, 255, FOR_CASTLE_FLAG(NZ1_LOWER_WALL_OPEN), 0x80, E_UNK_DC, 10),
+    MAKE_EVENT(FAM_ACTIVE_FAERIE, 43, 10, 0, 255, FOR_CASTLE_FLAG(NZ1_LOWER_WALL_OPEN), 128, E_UNK_DC, 10),
     MAKE_EVENT(FAM_ACTIVE_FAERIE, 41, 50, 0, 4, FOR_CASTLE_FLAG(CAT_SPIKE_ROOM_LIT), 1, E_UNK_DC, 15),
     MAKE_EVENT(FAM_ACTIVE_YOUSEI, 49, 20, 0, 4, CHECK_NONE, 0, E_UNK_DC, 0),
     MAKE_EVENT(FAM_ACTIVE_YOUSEI, 16, 21, 0, 4, CHECK_NONE, 0, E_UNK_DC, 0),

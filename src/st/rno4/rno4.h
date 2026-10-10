@@ -23,7 +23,7 @@ typedef enum EntityID {
     E_STAGE_NAME_POPUP,          // EntityStageNamePopup
     E_EQUIP_ITEM_DROP,           // EntityEquipItemDrop
     E_RELIC_ORB,                 // EntityRelicOrb
-    E_HEART_DROP,                // EntityHeartDrop
+    E_PERSISTENT_ITEM_DROP,      // EntityPersistentItemDrop
     E_ENEMY_BLOOD,               // EntityEnemyBlood
     E_DUMMY_E,                   // EntityDummy
     E_DUMMY_F,                   // EntityDummy
@@ -109,5 +109,13 @@ typedef enum EntityID {
     E_KILLER_FISH_DEATH_PUFF,    // EntityKillerFishDeathPuff
     NUM_ENTITIES,
 };
+
+extern EInit g_EInitObtainable;
+extern EInit g_EInitParticle;
+extern EInit g_EInitInteractable;
+extern EInit g_EInitCommon;
+extern EInit g_EInitNovaSkeleton;
+extern EInit g_EInitNovaSkeleton2;
+extern EInit g_EInitKillerFish;
 
 #endif // RNO4_H

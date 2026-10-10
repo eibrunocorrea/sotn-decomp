@@ -17,7 +17,7 @@ typedef enum EntityID {
     /* 0x09 */ E_STAGE_NAME_POPUP,
     /* 0x0A */ E_EQUIP_ITEM_DROP,
     /* 0x0B */ E_RELIC_ORB,
-    /* 0x0C */ E_HEART_DROP,
+    /* 0x0C */ E_PERSISTENT_ITEM_DROP,
     /* 0x0D */ E_ENEMY_BLOOD,
     /* 0x0E */ E_MESSAGE_BOX,
     /* 0x13 */ E_ID_13,
@@ -91,22 +91,5 @@ typedef enum RicSteps {
 #define RIC g_Entities[STAGE_ENTITY_START]
 
 extern PlayerState g_Ric;
-
-// same bit flags as `RicInputChecks` in src/ric/ric.h (Richter player overlay)
-enum BO6_RicInputChecks {
-    CHECK_GROUND = 1,
-    CHECK_FALL = 4,
-    CHECK_FACING = 8,
-    CHECK_JUMP = 0x10,
-    CHECK_CRASH = 0x40,
-    CHECK_80 = 0x80,
-    CHECK_GRAVITY_HIT = 0x200,
-    CHECK_ATTACK = 0x1000,
-    CHECK_CROUCH = 0x2000,
-    CHECK_GRAVITY_FALL = 0x8000,
-    CHECK_GRAVITY_JUMP = 0x10000,
-    CHECK_GROUND_AFTER_HIT = 0x20000,
-    CHECK_SLIDE = 0x40000,
-};
 
 #endif // BO6_H

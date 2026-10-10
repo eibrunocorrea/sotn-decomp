@@ -15,7 +15,7 @@ static void func_80158B04(u16 arg0) {
     PLAYER.posX.i.hi -= xMod;
 
     if (arg0 & 1) {
-        g_api.func_80102CD8(3);
+        g_api.ShakeCamera(SHAKE_Y_SMALL2);
         g_api.PlaySfx(SFX_WALL_DEBRIS_B);
     }
     if (arg0 & 2) {
@@ -700,14 +700,14 @@ void RicStepHit(s32 damageEffect, u32 damageKind, s16 prevStep, s32 prevStepS) {
             if ((g_StageId != STAGE_BO6) && (g_StageId != STAGE_RBO6) &&
                 (g_StageId != STAGE_DRE)) {
                 for (i = 2; i < NUM_VERTICAL_SENSORS; i++) {
-                    if (g_Player.colWall[i].effects & EFFECT_UNK_0002) {
+                    if (g_Player.colWall[i].effects & EFFECT_SIDE) {
                         break;
                     }
                 }
                 if (i == NUM_VERTICAL_SENSORS) {
                     for (i = NUM_VERTICAL_SENSORS + 2;
                          i < NUM_VERTICAL_SENSORS * 2; i++) {
-                        if (g_Player.colWall[i].effects & EFFECT_UNK_0002) {
+                        if (g_Player.colWall[i].effects & EFFECT_SIDE) {
                             break;
                         }
                     }
@@ -727,7 +727,7 @@ void RicStepHit(s32 damageEffect, u32 damageKind, s16 prevStep, s32 prevStepS) {
                     PLAYER.posY.i.hi -= 20;
                     PLAYER.posX.i.hi -= xShift;
                     g_api.PlaySfx(SFX_WALL_DEBRIS_B);
-                    g_api.func_80102CD8(2);
+                    g_api.ShakeCamera(SHAKE_X_MEDIUM);
                     PLAYER.step_s = 1;
                     damage.effects = EFFECT_NONE;
                     damage.damageKind = DAMAGEKIND_1;
@@ -744,7 +744,7 @@ void RicStepHit(s32 damageEffect, u32 damageKind, s16 prevStep, s32 prevStepS) {
             ric_hit_stun_timer = 8;
             g_api.PlaySfx(SFX_WALL_DEBRIS_B);
             PLAYER.velocityY = FIX(-2.5);
-            g_api.func_80102CD8(2);
+            g_api.ShakeCamera(SHAKE_X_MEDIUM);
             PLAYER.step_s = 3;
             RicCreateEntFactoryFromEntity(
                 g_CurrentEntity, FACTORY(BP_SKID_SMOKE_2, 8), 0);
@@ -1163,7 +1163,7 @@ void RicStepDeadPrologue(void) {
     switch (PLAYER.step_s) {
     case 0:
         g_CurrentEntity->flags |= FLAG_UNK_10000;
-        g_unkGraphicsStruct.unk20 = 4;
+        g_unkGraphicsStruct.unk28 = 4;
         RicDecelerateX(FIX(0.125));
         if (PLAYER.velocityX == 0) {
             RicSetAnimation(D_80155748);
@@ -1267,7 +1267,7 @@ void RicStepDeadPrologue(void) {
     case 7:
         if (PLAYER.poseTimer < 0) {
             g_CurrentEntity->flags &= ~FLAG_UNK_10000;
-            g_unkGraphicsStruct.unk20 = 0;
+            g_unkGraphicsStruct.unk28 = 0;
             RicSetFall();
             RicSetAnimation(D_801558DC);
             g_Player.timers[PL_T_INVINCIBLE_SCENE] = 4;
@@ -1358,7 +1358,7 @@ static void func_8015BB80(void) {
             PLAYER.posX.i.hi++;
         }
     }
-    if (g_StageId == (STAGE_TOP | STAGE_INVERTEDCASTLE_FLAG)) {
+    if (g_StageId == STAGE_RTOP) {
         if (abs((g_Tilemap.left << 8) + g_PlayerX) - 8384 > 0) {
             PLAYER.posX.i.hi--;
         }

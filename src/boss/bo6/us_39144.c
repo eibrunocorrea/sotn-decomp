@@ -67,7 +67,7 @@ void func_us_801B9340(void) {
         func_us_801B9ACC(0xFFFF1000);
         RIC.anim = D_us_8018221C;
         g_api.PlaySfx(SFX_BOSS_RIC_DEATH);
-        g_Ric.damagePalette = 0x8166;
+        g_Ric.damagePalette = PAL_FLAG(PAL_CC_RED_EFFECT_A);
         g_Ric.timers[2] = 8;
         RicCreateEntFactoryFromEntity(
             g_CurrentEntity, FACTORY(E_ID_21, 0x58), 0);
@@ -515,6 +515,7 @@ Entity* RicGetFreeEntityReverse(s16 start, s16 end) {
     return NULL;
 }
 
+// also passed to UpdateAnim as an AnimationFrame* table by func_us_801BBBD0
 extern u8 D_us_801812B8[][4];
 extern u8 D_us_801D07FC;
 extern u8 D_us_801D0800;
@@ -676,7 +677,6 @@ void func_us_801BBBC0(void) {}
 
 void func_us_801BBBC8(void) {}
 
-extern AnimationFrame* D_us_801812B8[];
 extern PfnEntityUpdate D_us_8018158C[];
 extern u8 D_us_801D0800;
 extern u8 D_us_801D0804;
@@ -703,7 +703,7 @@ void func_us_801BBBD0(void) {
                     DestroyEntity(entity);
                 } else {
                     if (entity->flags & FLAG_UNK_20000000) {
-                        g_api.UpdateAnim(NULL, D_us_801812B8);
+                        g_api.UpdateAnim(NULL, (AnimationFrame**)D_us_801812B8);
                     }
                     entity->flags |= FLAG_NOT_AN_ENEMY;
                 }
@@ -819,7 +819,7 @@ void func_us_801BD0B8(Entity* self) {
             } else {
                 self->animSet = ANIMSET_DRA(5);
                 self->anim = D_us_801818A8;
-                self->palette = PAL_FLAG(0x170);
+                self->palette = PAL_FLAG(PAL_UNK_170);
             }
         }
         self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;

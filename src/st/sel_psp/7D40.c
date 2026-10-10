@@ -255,8 +255,8 @@ static u8 D_8018046C[] = {
 void SetGameState(GameState gameState) {
     g_GameState = gameState;
     g_GameStep = 0;
-    g_backbufferX = 0;
-    g_backbufferY = 0;
+    g_cameraOffsetX = 0;
+    g_cameraOffsetY = 0;
 }
 
 void func_801B18F4(void) { ClearImage(&g_Vram.D_800ACDA0, 0, 0, 0); }
@@ -410,7 +410,7 @@ void func_801B1F4C(s32 arg0) {
     LoadTPage((u_long*)pix, 0, 0, 0x180, arg0, 0x100, 0x10);
 }
 
-void func_801B1FD8(char* str, s32 y) {
+void func_801B1FD8(const char* str, s32 y) {
     const int W = 12;
     const int H = 16;
     const int LEN = W * H / 2;

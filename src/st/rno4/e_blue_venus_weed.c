@@ -27,11 +27,8 @@ extern u8 D_us_8018250C[];
 // for rno3/chi too, so the whole file is copied locally instead, with that
 // one spot corrected.
 #define BLUE
-// rno4 has no gen/us/sprite_banks.h yet (sprite tables not extracted for
-// this overlay); SPIKE_SPRITES is declared extern under a guessed name
-// mirroring rno3's numbering. Harmless for strict-fn-diff: it only ever
-// appears behind a %hi/%lo reloc.
-#define SPIKE_SPRITES D_us_801BE9C4
+// sprite table named by config/symbols.us.strno4.txt
+#define SPIKE_SPRITES sprites_rno4_4
 #define TENDRIL_COUNT 8
 // rno4's palette layout is rno3's minus 0xC across the board (confirmed via
 // strict-fn-diff CONST feedback on EntityVenusWeed's PLANT_CLUT/DEATH_CLUT

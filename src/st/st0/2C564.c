@@ -725,7 +725,7 @@ void EntityDracula(Entity* self) {
                 self->step_s++;
             }
             if (!self->poseTimer && self->pose == 5) {
-                g_api.func_80102CD8(2);
+                g_api.ShakeCamera(SHAKE_X_MEDIUM);
             }
             break;
 
@@ -1107,7 +1107,7 @@ void EntityDraculaGlass(Entity* entity) {
         }
     case 1:
         MoveEntity();
-        entity->rotate += 0x20;
+        entity->rotate += ROT(2.8125);
         entity->velocityY += FIX(0.125);
         if (entity->posY.i.hi > 204) {
             g_api.PlaySfx(SFX_DRA_GLASS_BREAK); // "What is a man?!"

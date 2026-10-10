@@ -19,7 +19,7 @@ extern s32 E_ID(BREAKABLE_WALL_DEBRIS);
 // func_8019C31C
 // https://decomp.me/scratch/NKGUh
 void EntityBreakableWallDebris(Entity* self) {
-    typedef enum Step {
+    enum Step {
         INIT = 0,
         CHECK_FLAG = 1,
         MOVEMENT = 2,
@@ -134,7 +134,7 @@ void EntityBreakableWall(Entity* self) {
 
     const int startTileIdx = 0x160;
 
-    typedef enum Step {
+    enum Step {
         INIT = 0,
         IDLE = 1,
         BREAK_1 = 2, // Dynamically calculated, never set directly
@@ -315,7 +315,7 @@ void EntityBreakableWall(Entity* self) {
         prim->x1 = prim->x3 -= 0x10;
         entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
         if (entity != NULL) {
-            CreateEntityFromCurrentEntity(E_HEART_DROP, entity);
+            CreateEntityFromCurrentEntity(E_PERSISTENT_ITEM_DROP, entity);
             entity->posX.i.hi = 0x20 - g_Tilemap.scrollX.i.hi;
             entity->posY.i.hi = 0x188 - g_Tilemap.scrollY.i.hi;
             entity->params = 3;

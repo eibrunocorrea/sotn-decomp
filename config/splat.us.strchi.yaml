@@ -59,7 +59,7 @@ segments:
       - [0x132C, .data, e_particles]
       - [0x13AC, .data, e_room_fg]
       - [0x1438, .data, e_slogra]
-      - [0x1628, data]
+      - [0x161C, data]
       - [0x162C, .data, e_gaibon]
       - [0x1780, .data, e_thornweed]
       - [0x1838, data]

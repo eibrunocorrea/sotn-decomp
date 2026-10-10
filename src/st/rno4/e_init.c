@@ -12,7 +12,7 @@ void EntityRoomForeground(Entity* self);
 void EntityStageNamePopup(Entity* self);
 void EntityEquipItemDrop(Entity* self);
 void EntityRelicOrb(Entity* self);
-void EntityHeartDrop(Entity* self);
+void EntityPersistentItemDrop(Entity* self);
 void EntityEnemyBlood(Entity* self);
 void EntityDummy(Entity* self);
 void EntityDummy(Entity* self);
@@ -109,7 +109,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityStageNamePopup,
     EntityEquipItemDrop,
     EntityRelicOrb,
-    EntityHeartDrop,
+    EntityPersistentItemDrop,
     EntityEnemyBlood,
     EntityDummy,
     EntityDummy,
@@ -226,8 +226,8 @@ EInit g_EInitJackOBones3 = {ANIMSET_OVL(10), 21, 82, 528, 0x075};
 EInit g_EInitNovaSkeleton = {ANIMSET_OVL(11), 1, 72, 532, 0x07E};
 EInit g_EInitNovaSkeleton2 = {ANIMSET_OVL(11), 0, 72, 532, 0x07F};
 EInit g_EInitImp = {ANIMSET_OVL(12), 1, 79, 640, 0x11C};
-EInit D_us_80180C38 = {ANIMSET_OVL(12), 1, 79, 640, 0x002};
-EInit g_EInitBalloonpod = {ANIMSET_OVL(12), 19, 79, 640, 0x11D};
-EInit D_us_80180C50 = {ANIMSET_OVL(12), 42, 79, 640, 0x11E};
+EInit g_EInitImpSmoke = {ANIMSET_OVL(12), 1, 79, 640, 0x002};
+EInit g_EInitRdaiUnk33 = {ANIMSET_OVL(12), 19, 79, 640, 0x11D};
+EInit g_EInitImpDeathParticle = {ANIMSET_OVL(12), 42, 79, 640, 0x11E};
 EInit g_EInitKillerFish = {ANIMSET_OVL(13), 1, 83, 616, 0x15E};
 // clang-format on

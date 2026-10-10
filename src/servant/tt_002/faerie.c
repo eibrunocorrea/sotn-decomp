@@ -690,9 +690,9 @@ void UpdateServantUseLifeApple(Entity* self) {
         self->step++;
         // fallthrough
     case 3:
-        if (!g_unkGraphicsStruct.unk20) {
+        if (!g_unkGraphicsStruct.unk28) {
             g_Status.equipHandCount[ITEM_LIFE_APPLE]--;
-            g_unkGraphicsStruct.unk20 = 0xFFF;
+            g_unkGraphicsStruct.unk28 = 0xFFF;
             self->step++;
         }
         break;
@@ -784,7 +784,7 @@ void UpdateServantUseLifeApple(Entity* self) {
     case 10:
         self->ext.faerie.frameCounter++;
         if (self->ext.faerie.frameCounter > 90) {
-            g_unkGraphicsStruct.unk20 = 0;
+            g_unkGraphicsStruct.unk28 = 0;
             self->step++;
         }
         break;
@@ -873,7 +873,7 @@ void UpdateServantUseHammer(Entity* self) {
             g_api.CreateEntFactoryFromEntity(self, FACTORY(0x37, 3), 0);
             CreateEventEntity_Local(self, FAERIE_SUBENTITY_ITEM, 1);
             g_api.PlaySfx(SFX_LEVER_METAL_BANG);
-            g_api.func_80102CD8(4);
+            g_api.ShakeCamera(SHAKE_Y_MEDIUM);
             self->ext.faerie.frameCounter = 0;
             self->step++;
         }

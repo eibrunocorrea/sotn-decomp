@@ -773,8 +773,6 @@ void resetMapTileOnCastleBlueprint(s32, s32);
 void paintMapTileOnCastleBlueprint(s32, s32, s32);
 void RevealSecretPassageOnMap(s32, s32, s32);
 void func_800F2120(void);
-void func_800F223C(void);
-void func_800F4994(void);
 void CalcDefense(void);
 bool IsAlucart(void);
 void make_all(void);
@@ -807,14 +805,13 @@ void GetSpellDef(SpellDef* spell, s32 id);
 void LearnSpell(s32 spellId);
 bool IsRelicActive(RelicIds relicId);
 s32 HandleGravityBootsMP(CallMode mode);
-void func_800FDE00(void);
 s32 func_800FE3C4(SubweaponDef* subwpn, s32 subweaponId, bool useHearts);
 void GetEquipProperties(s32 handId, Equipment* res, s32 equipId);
 s32 HandleDamage(DamageParam*, s32, s32 amount, s32);
 s32 HandleTransformationMP(TransformationForm, CallMode);
 void ClearStatBuff(s32 arg0);
 s32 func_801025F4(void);
-void func_80102CD8(s32);
+void ShakeCamera(cameraShakeTypes);
 Entity* GetFreeEntity(s16 start, s16 end);
 Entity* GetFreeEntityReverse(s16 start, s16 end);
 void DestroyEntitiesFromIndex(s16 startIndex);
@@ -952,5 +949,15 @@ bool func_80133950(void);
 void func_80133FCC(void);
 void SetReleaseRate2(void);
 void func_801361F8(void);
+
+#ifdef FIX_UB
+// Without these prototypes, the callers assume an int return type and read
+// garbage from the unused upper bits of the return register.
+s16 AllocPrimitives(u8 primType, s32 count);
+s16 AllocPrimitivesReverse(u8 type, s32 count);
+s16 GetStatusAilmentTimer(StatusAilments statusAilment, s16 timer);
+s16 func_80110394(void);
+int MemcardDetectSave(s32 nPort, u8* expectedSaveName, s32 block);
+#endif
 
 #endif

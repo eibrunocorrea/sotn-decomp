@@ -30,7 +30,7 @@ void func_us_801B4BD0(void) {
                 FLAG_SUPPRESS_STUN | FLAG_UNK_2000;
     RIC.facingLeft = 0;
     RIC.unk5A = 8;
-    RIC.palette = 0x8220;
+    RIC.palette = PAL_FLAG(0x220);
     RIC.scaleX = RIC.scaleY = 0x100;
     RIC.rotPivotY = 0x18;
     RIC.blendMode = BLEND_NO;
@@ -114,7 +114,14 @@ static void CheckBladeDashInput() {
     }
 }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", CheckHighJumpInput);
+void CheckHighJumpInput(void) {
+    if (RIC.step == 3 || RIC.step == 1 ||
+        (RIC.step == 5 && RIC.velocityY > FIX(1)) || RIC.step == 4) {
+        if (g_Ric.unk46 == 0 && g_Ric.padTapped & PAD_R2) {
+            func_us_801BA050();
+        }
+    }
+}
 
 extern s32 D_us_80181210[];
 extern u16 D_us_80181250[];
@@ -1035,7 +1042,7 @@ void func_us_801B6998(void) {
         if (++D_us_801D11C0 > 1) {
             if ((g_CastleFlags[SHAFT_ORB_DEFEATED] == 0) &&
                 (g_DemoMode == Demo_None)) {
-                g_unkGraphicsStruct.unk20 = 0xFF;
+                g_unkGraphicsStruct.unk28 = 0xFF;
             }
             D_us_80181278++;
         }
@@ -1090,17 +1097,14 @@ void EntityRichter(Entity* self) {
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepStand);
 
 void RicStepWalk(void) {
-    if (!RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
-                       CHECK_ATTACK | CHECK_CROUCH)) {
+    if (RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
+                      CHECK_ATTACK | CHECK_CROUCH) == 0) {
         DecelerateX(FIX(0.125));
         if (RicCheckFacing() == 0) {
             RicSetStand(0);
             return;
         }
-        if (RIC.step_s != 0) {
-            if (RIC.step_s) {
-            }
-        } else {
+        if (RIC.step_s == 0) {
             RicSetSpeedX(FIX(1.25));
         }
     }
@@ -1111,26 +1115,19 @@ extern AnimationFrame D_us_80181F24[];
 void RicStepRun(void) {
     g_Ric.timers[PL_T_8] = 8;
     g_Ric.timers[PL_T_CURSE] = 8;
-    if (!RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
-                       CHECK_ATTACK | CHECK_CROUCH)) {
+    if (RicCheckInput(0x305C) == 0) {
         DecelerateX(FIX(0.125));
         if (RicCheckFacing() == 0) {
             RicSetStand(0);
             if (g_Ric.timers[PL_T_RUN] == 0) {
                 if (!(g_Ric.vram_flag & (TOUCHING_L_WALL | TOUCHING_R_WALL))) {
-                    RicSetAnimation(D_us_80181F24);
-                    RicCreateEntFactoryFromEntity(
-                        g_CurrentEntity, BP_SKID_SMOKE, 0);
+                    RicSetAnimation(&D_us_80181F24);
+                    RicCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 }
             } else {
                 RIC.velocityX = 0;
             }
-            return;
-        }
-        if (RIC.step_s != 0) {
-            if (RIC.step_s) {
-            }
-        } else {
+        } else if (RIC.step_s == 0) {
             RicSetSpeedX(FIX(2.25));
         }
     }
@@ -1144,14 +1141,14 @@ void RicStepFall(void) {
         return;
     }
     DecelerateX(FIX(1. / 16));
-    switch (RIC.step_s) {
-    case 0:
+    if (RIC.step_s == 0) {
         if (g_Ric.timers[PL_T_5] && g_Ric.padTapped & PAD_CROSS) {
             func_us_801B9E70();
-        } else if (RicCheckFacing()) {
+            return;
+        }
+        if (RicCheckFacing()) {
             RicSetSpeedX(FIX(0.75));
         }
-        break;
     }
 }
 
@@ -1181,12 +1178,12 @@ extern AnimationFrame D_us_801820B0[];
 
 void RicStepStandInAir(void) {
     if (RIC.step_s == 0) {
-        RIC.velocityY += 0x3800;
+        RIC.velocityY += FIX(0.21875);
         if (RIC.velocityY > 0) {
             RIC.velocityY = 0;
             RIC.step_s = 1;
         }
-    } else if (g_Ric.unk4E) {
+    } else if (g_Ric.unk4E != 0) {
         g_Ric.unk46 = 0;
         RicSetStep(PL_S_JUMP);
         RicSetAnimation(D_us_801820B0);
@@ -1203,7 +1200,12 @@ void RicStepHydrostorm(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepGenericSubwpnCrash);
+void RicStepGenericSubwpnCrash(void) {
+    if (g_Ric.unk4E != 0) {
+        RicSetStand(0);
+        g_Ric.unk46 = 0;
+    }
+}
 
 INCLUDE_ASM("boss/bo6/nonmatchings/richter", RicStepThrowDaggers);
 
@@ -1365,7 +1367,7 @@ static void func_us_801B8E80(u16 arg0) {
     RIC.posX.i.hi -= xMod;
 
     if (arg0 & 1) {
-        g_api.func_80102CD8(3);
+        g_api.ShakeCamera(3);
         g_api.PlaySfx(SFX_WALL_DEBRIS_B);
     }
     if (arg0 & 2) {

@@ -1,20 +1,33 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rnz1.h"
 
-/*
- * RNZ1's secret walls mirror NZ1's e_secrets for the inverted castle: tiles
- * are written right-to-left with negative row steps, the debris kick angles
- * keep the same quadrants, and the reverse castle plays no positional sound
- * effects when the walls crack.
- */
-
 extern EInit g_EInitInteractable;
 extern EInit g_EInitEnvironment;
 
-extern s16 wall_1_tile_layout[];
-extern s16 wall_2_tile_layout[];
-extern u16 partial_wall_tiles[];
-extern s32 item_drops[];
+#ifdef VERSION_PSP
+extern s32 E_ID(SECRET_WALL_DEBRIS);
+#endif
+
+static s16 D_us_80180FF8[] = {
+    0x30C, 0x30D, 0x30E, 0x30F, 0x30E, 0x30F, 0x316, 0x317, 0x30C, 0x545, 0x54C,
+    0x54D, 0x554, 0x555, 0x55C, 0x55D, 0x546, 0x547, 0x54E, 0x54F, 0x556, 0x557,
+    0x55E, 0x55F, 0x561, 0x562, 0x000, 0x000, 0x000, 0x000, 0x563, 0x56C,
+};
+
+static s16 D_us_80181038[] = {
+    0x53E, 0x53F, 0x53E, 0x53F, 0x53E, 0x53F, 0x53E, 0x53F, 0x540, 0x541, 0x548,
+    0x549, 0x550, 0x551, 0x558, 0x559, 0x542, 0x543, 0x54A, 0x54B, 0x552, 0x553,
+    0x55A, 0x55B, 0x564, 0x565, 0x000, 0x56D, 0x000, 0x575, 0x57C, 0x57D,
+};
+
+static u16 D_us_80181078[] = {0x560, 0x560, 0x560, 0x568, 0x569, 0x544};
+
+static s32 item_drops[] = {
+    ITEM_POT_ROAST,
+    ITEM_SHURIKEN,
+    ITEM_BWAKA_KNIFE,
+    ITEM_TNT,
+};
 
 void EntityBreakableWall(Entity* self) {
     Entity* tempEntity;
@@ -29,8 +42,9 @@ void EntityBreakableWall(Entity* self) {
         self->hitboxWidth = 0x10;
         self->hitboxHeight = 0x20;
         self->hitboxState = 2;
-        castleFlag = RNZ1_LOWER_WALL_OPEN;
         if (!self->params) {
+            castleFlag = RNZ1_LOWER_WALL_OPEN;
+        } else {
             castleFlag = RNZ1_UPPER_WALL_OPEN;
         }
         if (g_CastleFlags[castleFlag]) {
@@ -39,10 +53,10 @@ void EntityBreakableWall(Entity* self) {
             i = 0;
         }
         if (!self->params) {
-            ptr = &wall_1_tile_layout[i];
+            ptr = &D_us_80180FF8[i];
             tileIdx = 0x45F;
         } else {
-            ptr = &wall_2_tile_layout[i];
+            ptr = &D_us_80181038[i];
             tileIdx = 0x391;
         }
         for (i = 0; i < 4; i++, ptr += 2) {
@@ -69,10 +83,10 @@ void EntityBreakableWall(Entity* self) {
     case 2:
         self->ext.breakable.breakCount++;
         if (!self->params) {
-            ptr = &wall_1_tile_layout[self->ext.breakable.breakCount * 8];
+            ptr = &D_us_80180FF8[self->ext.breakable.breakCount * 8];
             tileIdx = 0x45F;
         } else {
-            ptr = &wall_2_tile_layout[self->ext.breakable.breakCount * 8];
+            ptr = &D_us_80181038[self->ext.breakable.breakCount * 8];
             tileIdx = 0x391;
         }
         for (i = 0; i < 4; i++, ptr += 2) {
@@ -93,13 +107,13 @@ void EntityBreakableWall(Entity* self) {
         self->step++;
         if (self->ext.breakable.breakCount == 3) {
             if (!self->params) {
-                g_CastleFlags[RNZ1_UPPER_WALL_OPEN] = 1;
-                g_api.RevealSecretPassageAtPlayerPositionOnMap(
-                    RNZ1_UPPER_WALL_OPEN);
-            } else {
                 g_CastleFlags[RNZ1_LOWER_WALL_OPEN] = 1;
                 g_api.RevealSecretPassageAtPlayerPositionOnMap(
                     RNZ1_LOWER_WALL_OPEN);
+            } else {
+                g_CastleFlags[RNZ1_UPPER_WALL_OPEN] = 1;
+                g_api.RevealSecretPassageAtPlayerPositionOnMap(
+                    RNZ1_UPPER_WALL_OPEN);
             }
             for (i = 0; i < 8; i++) {
                 tempEntity = AllocEntity(&g_Entities[224], &g_Entities[256]);
@@ -132,8 +146,8 @@ void EntityBreakableWallPartial(Entity* self) {
     switch (self->step) {
     case 0:
         InitializeEntity(g_EInitInteractable);
-        if ((g_CastleFlags[RNZ1_STATUE_ROOM_BREAKABLE_WALLS] >> self->params) &
-            1) {
+        if (g_CastleFlags[RNZ1_STATUE_ROOM_BREAKABLE_WALLS] &
+            (1 << self->params)) {
             tileX = self->posX.i.hi;
             tileY = self->posY.i.hi + 0x10;
             tileX += g_Tilemap.scrollX.i.hi;
@@ -141,7 +155,7 @@ void EntityBreakableWallPartial(Entity* self) {
             for (i = 0; i < 3; i++) {
                 tileIdx =
                     (tileX >> 4) + ((tileY >> 4) * g_Tilemap.hSize * 0x10);
-                g_Tilemap.fg[tileIdx] = partial_wall_tiles[i + 3];
+                g_Tilemap.fg[tileIdx] = D_us_80181078[i + 3];
                 tileY -= 0x10;
             }
             self->step = 0x10;
@@ -165,7 +179,7 @@ void EntityBreakableWallPartial(Entity* self) {
         tileY += g_Tilemap.scrollY.i.hi;
         for (i = 0; i < 3; i++) {
             tileIdx = (tileX >> 4) + ((tileY >> 4) * g_Tilemap.hSize * 0x10);
-            g_Tilemap.fg[tileIdx] = partial_wall_tiles[i + 3];
+            g_Tilemap.fg[tileIdx] = D_us_80181078[i + 3];
             tileY -= 0x10;
         }
         self->hitboxState = 0;
@@ -226,9 +240,9 @@ void EntitySecretWallDebris(Entity* self) {
         /* fallthrough */
     case 1:
         MoveEntity();
-        self->rotate += 0x20;
+        self->rotate += ROT(2.8125);
         if (self->params) {
-            self->rotate += 0x20;
+            self->rotate += ROT(2.8125);
         }
         self->velocityY += FIX(0.125);
         x = self->posX.i.hi;
@@ -262,5 +276,26 @@ void EntitySecretWallDebris(Entity* self) {
         }
         self->velocityY = -self->velocityY * 2 / 3;
         break;
+    }
+}
+
+// This is the entity that transitions the player out of the large secret area
+// behind the breakable wall and the left side of the room with the pendulums
+void EntityRoomExit(Entity* self) {
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        self->hitboxWidth = 0x10;
+        self->hitboxHeight = 0x20;
+        self->hitboxState = 1;
+        /* fallthrough */
+    case 1:
+        if ((g_PlayerX > g_Tilemap.width - 0x100) &&
+            (GetDistanceToPlayerX() < (self->hitboxWidth)) &&
+            (GetDistanceToPlayerY() < (self->hitboxHeight))) {
+            g_Tilemap.width -= 0x100;
+            g_Tilemap.right -= 1;
+            self->step = 0x10;
+        }
     }
 }

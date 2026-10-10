@@ -12,7 +12,7 @@ void EntityRoomForeground(Entity* self);
 void EntityStageNamePopup(Entity* self);
 void EntityEquipItemDrop(Entity* self);
 void EntityRelicOrb(Entity* self);
-void EntityHeartDrop(Entity* self);
+void EntityPersistentItemDrop(Entity* self);
 void EntityEnemyBlood(Entity* self);
 void EntityMessageBox(Entity* self);
 void EntityDummy(Entity* self);
@@ -36,7 +36,7 @@ void EntityBackgroundSkyLand(Entity* self);
 void EntityRbo3Door(Entity* self);
 void func_us_801A1C14(Entity* self);
 void func_us_801A425C(Entity* self);
-void func_us_801A4430(Entity* self);
+void EntityFireDamageHitbox(Entity* self);
 void func_us_801A3FD4(Entity* self);
 void func_us_801A3E78(Entity* self);
 void func_us_801A3B88(Entity* self);
@@ -60,7 +60,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityStageNamePopup,
     EntityEquipItemDrop,
     EntityRelicOrb,
-    EntityHeartDrop,
+    EntityPersistentItemDrop,
     EntityEnemyBlood,
     EntityMessageBox,
     EntityDummy,
@@ -84,7 +84,7 @@ PfnEntityUpdate EntityUpdates[] = {
     EntityRbo3Door,
     func_us_801A1C14,
     func_us_801A425C,
-    func_us_801A4430,
+    EntityFireDamageHitbox,
     func_us_801A3FD4,
     func_us_801A3E78,
     func_us_801A3B88,

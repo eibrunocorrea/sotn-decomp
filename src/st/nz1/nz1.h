@@ -43,7 +43,7 @@ enum EntityID {
     E_STAGE_NAME_POPUP,         // EntityStageNamePopup
     E_EQUIP_ITEM_DROP,          // EntityEquipItemDrop
     E_RELIC_ORB,                // EntityRelicOrb
-    E_HEART_DROP,               // EntityHeartDrop
+    E_PERSISTENT_ITEM_DROP,     // EntityPersistentItemDrop
     E_ENEMY_BLOOD,              // EntityEnemyBlood
     E_MESSAGE_BOX,              // EntityMessageBox
     E_DUMMY_F,                  // EntityDummy
@@ -108,7 +108,7 @@ enum EntityID {
     E_FLEA_ARMOR_ATTACK_HITBOX, // EntityFleaArmorAttackHitbox
     E_FLEA_MAN,                 // EntityFleaMan
     E_BREAKABLE_DEBRIS,         // EntityBreakableDebris
-    E_BOSS_DOOR_TRIGGER,        // EntityBossDoorTrigger
+    E_BOSS_DOOR_TRIGGER,        // EntityBossFightManager
     E_BOSS_DOORS,               // EntityBossDoors
     E_KARASUMAN,                // EntityKarasuman
     E_KARASUMAN_FEATHER_ATTACK, // EntityKarasumanFeatherAttack

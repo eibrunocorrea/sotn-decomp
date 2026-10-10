@@ -242,7 +242,11 @@ void EntityFireWarg(Entity* self) {
             self->params = 0;
             self->flags &= ~(FLAG_NOT_AN_ENEMY | FLAG_DEAD);
             part->flags &= ~(FLAG_NOT_AN_ENEMY | FLAG_DEAD);
+#ifdef VERSION_HD
+            self->flags |= FLAG_SUPPRESS_STUN;
+#else
             self->flags |= FLAG_SUPPRESS_STUN | FLAG_UNK_400;
+#endif
             part->flags |= FLAG_SUPPRESS_STUN;
             self->enemyId = part->enemyId = 0x94;
             part->flags = self->flags;
@@ -401,7 +405,7 @@ void EntityFireWarg(Entity* self) {
 
             if ((!self->ext.fireWarg.unk86) ||
                 (collider.effects & EFFECT_SOLID &&
-                 collider.effects & EFFECT_UNK_0002)) {
+                 collider.effects & EFFECT_SIDE)) {
                 func_801CC6F8(self);
             }
         }
@@ -451,7 +455,7 @@ void EntityFireWarg(Entity* self) {
                 if (self->velocityX) {
                     g_api.CheckCollision(var_s1, self->posY.i.hi, &collider, 0);
                     if ((collider.effects & EFFECT_SOLID) &&
-                        (collider.effects & EFFECT_UNK_0002)) {
+                        (collider.effects & EFFECT_SIDE)) {
                         self->posX.val -= self->velocityX;
                         self->velocityX = 0;
                     }

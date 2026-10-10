@@ -186,7 +186,7 @@ void EntityGreyPuff(Entity* self) {
     }
 }
 
-static s16 g_olroxDroolCollOffsets[] = {0x0000, 0x0000, 0x00FF, 0x0000};
+static s16 g_olroxDroolCollOffsets[] = {0x00, 0x00, 0xFF};
 
 // Purpose is not 100% clear. Creates a falling blue droplet that sizzles after
 // hitting the ground. In existing overlays, this entity is not used. But looks
@@ -253,7 +253,7 @@ void EntityOlroxDrool(Entity* self) {
     }
 }
 
-bool UnkCollisionFunc5(s16* pointXY) {
+int UnkCollisionFunc5(s16* pointXY) {
     Collider collider;
 
     FallEntity();
@@ -306,7 +306,7 @@ u8 UnkCollisionFunc4(u8 arg0) {
             posX = g_CurrentEntity->posX.i.hi;
             posY = g_CurrentEntity->posY.i.hi - 4;
             g_api.CheckCollision(posX, posY, &collider, 0);
-            if (collider.effects & EFFECT_UNK_0002) {
+            if (collider.effects & EFFECT_SIDE) {
                 bits_67 = 0x40;
                 if (g_CurrentEntity->velocityX > 0) {
                     bits_01 = 2;
@@ -342,7 +342,7 @@ u8 UnkCollisionFunc4(u8 arg0) {
             posX = g_CurrentEntity->posX.i.hi;
             posY = g_CurrentEntity->posY.i.hi + 4;
             g_api.CheckCollision(posX, posY, &collider, 0);
-            if (collider.effects & EFFECT_UNK_0002) {
+            if (collider.effects & EFFECT_SIDE) {
                 bits_67 = 0x40;
                 if (g_CurrentEntity->velocityX > 0) {
                     bits_01 = 2;

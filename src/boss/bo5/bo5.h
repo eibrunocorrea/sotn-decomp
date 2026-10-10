@@ -7,7 +7,10 @@
 #define STAGE_IS_BO5
 
 enum Palettes {
-    PAL_NONE,
+    PAL_NONE = 0,
+    PAL_CASTLE_WALL_1 = 0x74,
+    PAL_BACKGROUND_SKY_LAND = 0xC5,
+    PAL_CASTLE_WALL_2 = 0xC8,
 };
 
 typedef enum EntityID {
@@ -23,7 +26,7 @@ typedef enum EntityID {
     E_STAGE_NAME_POPUP,         // EntityStageNamePopup
     E_EQUIP_ITEM_DROP,          // EntityEquipItemDrop
     E_RELIC_ORB,                // EntityRelicOrb
-    E_HEART_DROP,               // EntityHeartDrop
+    E_PERSISTENT_ITEM_DROP,     // EntityPersistentItemDrop
     E_ENEMY_BLOOD,              // EntityEnemyBlood
     E_MESSAGE_BOX,              // EntityMessageBox
     E_DUMMY_F,                  // EntityDummy
@@ -47,11 +50,11 @@ typedef enum EntityID {
     E_RBO3DOOR,                 // EntityRbo3Door
     E_UNK_22,                   // func_us_801A1C14
     E_UNK_23,                   // func_us_801A425C
-    E_UNK_24,                   // func_us_801A4430
+    E_UNK_24,                   // EntityFireDamageHitbox
     E_UNK_25,                   // func_us_801A3FD4
     E_UNK_26,                   // func_us_801A3E78
     E_UNK_27,                   // func_us_801A3B88
-    E_LIFE_UPSPAWN,             // EntityLifeUpSpawn
+    E_LIFE_UP_SPAWN,            // EntityLifeUpSpawn
     E_UNK_29,                   // func_us_801A4494
     E_CUTSCENE,                 // EntityCutscene
     E_UNK_2B,                   // func_us_801A5F88

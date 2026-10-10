@@ -89,7 +89,7 @@ void EntityExplosionFlame(Entity* self) {
         }
 
         if (self->params & 0xF0) {
-            self->palette = 0x819F;
+            self->palette = PAL_FLAG(PAL_UNK_19F);
             self->blendMode = BLEND_TRANSP;
             self->facingLeft = 1;
         }
@@ -146,7 +146,7 @@ void EntityExplosionFlame(Entity* self) {
             angle = self->rotate;
             self->velocityX = rcos(angle) << 4;
             self->velocityY = rsin(angle) << 4;
-            self->rotate -= 0x400;
+            self->rotate -= ROT(90);
             self->step_s++;
         }
         MoveEntity();
@@ -160,7 +160,7 @@ void EntityExplosionFlame(Entity* self) {
             angle = self->rotate;
             self->velocityX = (rcos(angle) * 7) << 2;
             self->velocityY = (rsin(angle) * 7) << 2;
-            self->rotate += 0x400;
+            self->rotate += ROT(90);
             self->blendMode = BLEND_ADD | BLEND_TRANSP;
             self->drawFlags =
                 ENTITY_OPACITY | ENTITY_ROTATE | ENTITY_SCALEY | ENTITY_SCALEX;
@@ -186,11 +186,11 @@ void EntityExplosionFlame(Entity* self) {
             self->facingLeft = (Random() & 1);
             self->velocityX = (Random() << 8) - 0x8000;
             self->velocityY = 0xFFFD8000;
-            self->ext.et_801A518C.unk8C = -(Random() << 4) - 0x1000;
+            self->ext.et_801A518C.acceleration = -(Random() << 4) - 0x1000;
             self->step_s++;
         }
         MoveEntity();
-        self->velocityY += (s32)self->ext.et_801A518C.unk8C;
+        self->velocityY += (s32)self->ext.et_801A518C.acceleration;
         self->opacity -= 1;
         if (self->pose == 8 && !self->poseTimer) {
             newEntity = AllocEntity(&g_Entities[64], &g_Entities[256]);

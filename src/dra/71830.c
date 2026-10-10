@@ -28,7 +28,7 @@ void func_8011197C(void) {
 #ifndef VERSION_HD
 extern s32 D_80137FDC;
 #endif
-bool func_801119C4(void) {
+int func_801119C4(void) {
     if (!D_801396EA) {
         if (g_Player.padTapped & PAD_L2) {
             if (g_Player.demo_timer == 0) {
@@ -157,17 +157,15 @@ bool func_80111DE8(bool mistReset) {
         collider1.effects = EFFECT_NONE;
     }
     filtered_effects =
-        collider1.effects & (EFFECT_UNK_8000 | EFFECT_UNK_4000 |
-                             EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID);
+        collider1.effects &
+        (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_BLOCK);
     if (filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_4000 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_4000 +
-                                EFFECT_UNK_0002 + EFFECT_SOLID ||
+        filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_4000 + EFFECT_BLOCK ||
         filtered_effects == EFFECT_UNK_4000 + EFFECT_UNK_0800 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_4000 + EFFECT_UNK_0800 +
-                                EFFECT_UNK_0002 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_0002 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_0800 + EFFECT_UNK_0002 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_0002 + EFFECT_SOLID) {
+        filtered_effects == EFFECT_UNK_4000 + EFFECT_UNK_0800 + EFFECT_BLOCK ||
+        filtered_effects == EFFECT_UNK_8000 + EFFECT_BLOCK ||
+        filtered_effects == EFFECT_UNK_0800 + EFFECT_BLOCK ||
+        filtered_effects == EFFECT_BLOCK) {
         // This "plus 16, minus 8" is a random guess. The effect is just +8.
         // We can use any pair that comes out to 8, but the compiler comes
         // out wrong if we don't split it into two. So "+10-2" works equally
@@ -191,17 +189,15 @@ bool func_80111DE8(bool mistReset) {
         collider1.effects = EFFECT_NONE;
     }
     filtered_effects =
-        collider1.effects & (EFFECT_UNK_8000 | EFFECT_UNK_4000 |
-                             EFFECT_UNK_0800 | EFFECT_UNK_0002 | EFFECT_SOLID);
+        collider1.effects &
+        (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 | EFFECT_BLOCK);
     if (filtered_effects == EFFECT_UNK_8000 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_0002 + EFFECT_SOLID ||
+        filtered_effects == EFFECT_UNK_8000 + EFFECT_BLOCK ||
         filtered_effects == EFFECT_UNK_0800 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_0800 + EFFECT_UNK_0002 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_4000 +
-                                EFFECT_UNK_0002 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_4000 + EFFECT_UNK_0800 +
-                                EFFECT_UNK_0002 + EFFECT_SOLID ||
-        filtered_effects == EFFECT_UNK_0002 + EFFECT_SOLID) {
+        filtered_effects == EFFECT_UNK_0800 + EFFECT_BLOCK ||
+        filtered_effects == EFFECT_UNK_8000 + EFFECT_UNK_4000 + EFFECT_BLOCK ||
+        filtered_effects == EFFECT_UNK_4000 + EFFECT_UNK_0800 + EFFECT_BLOCK ||
+        filtered_effects == EFFECT_BLOCK) {
         // See above comment regarding values combining to 8.
         xPos = (PLAYER.posX.i.hi - 9) + collider1.unkC + 1;
         yPos = PLAYER.posY.i.hi + floorY - 1;
@@ -218,7 +214,7 @@ bool func_80111DE8(bool mistReset) {
     return 0;
 }
 
-bool func_8011203C(void) {
+int func_8011203C(void) {
     Entity* ent;
     bool collision = func_80111D24();
 
@@ -1034,7 +1030,7 @@ void CreateCeilingHitEffect(u16 arg0) {
     PLAYER.posX.i.hi -= move;
 
     if (arg0 & 1) {
-        func_80102CD8(3);
+        ShakeCamera(SHAKE_Y_SMALL2);
         PlaySfx(SFX_WALL_DEBRIS_B);
     }
     if (arg0 & 2) {
@@ -1493,7 +1489,7 @@ void AlucardHandleDamage(DamageParam* damage, s16 arg1, s16 arg2) {
             CreateCeilingHitEffect(1);
             PLAYER.velocityX /= 2;
             PLAYER.velocityY = 0;
-            g_Player.timers[8] = 24;
+            g_Player.timers[ALU_T_8] = 24;
             PLAYER.step_s = 5;
             if (g_Player.prev_step_s == 0xF &&
                 (func_80113D7C(g_Player.damageTaken) != 0)) {
@@ -1504,14 +1500,14 @@ void AlucardHandleDamage(DamageParam* damage, s16 arg1, s16 arg2) {
         if ((g_StageId != STAGE_BO6) && (g_StageId != STAGE_RBO6) &&
             (g_StageId != STAGE_DRE)) {
             for (i = 2; i < NUM_VERTICAL_SENSORS; i++) {
-                if (g_Player.colWall[i].effects & EFFECT_UNK_0002) {
+                if (g_Player.colWall[i].effects & EFFECT_SIDE) {
                     break;
                 }
             }
             if (i == NUM_VERTICAL_SENSORS) {
                 for (i = NUM_VERTICAL_SENSORS + 2; i < NUM_VERTICAL_SENSORS * 2;
                      i++) {
-                    if (g_Player.colWall[i].effects & EFFECT_UNK_0002) {
+                    if (g_Player.colWall[i].effects & EFFECT_SIDE) {
                         break;
                     }
                 }
@@ -1534,7 +1530,7 @@ void AlucardHandleDamage(DamageParam* damage, s16 arg1, s16 arg2) {
                 PLAYER.posY.i.hi -= 0x15;
                 PLAYER.posX.i.hi -= var_s2;
                 PlaySfx(SFX_WALL_DEBRIS_B);
-                func_80102CD8(2);
+                ShakeCamera(SHAKE_X_MEDIUM);
                 PLAYER.step_s = 1;
                 if (g_Player.prev_step_s == 0xF &&
                     (func_80113D7C(g_Player.damageTaken) != 0)) {
@@ -1544,12 +1540,12 @@ void AlucardHandleDamage(DamageParam* damage, s16 arg1, s16 arg2) {
             }
         }
 
-        if (PLAYER.step_s == 0xF) {
-            g_Player.timers[8] = 8;
+        if (PLAYER.step_s == 15) {
+            g_Player.timers[ALU_T_8] = 8;
             SetPlayerAnim(0x3F);
             PlaySfx(SFX_WALL_DEBRIS_B);
             PLAYER.velocityY = FIX(-2.5);
-            func_80102CD8(2);
+            ShakeCamera(SHAKE_X_MEDIUM);
             PLAYER.step_s = 3;
             CreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_31, 8), 0);
             if (func_80113D7C(g_Player.damageTaken) != 0) {
@@ -1571,7 +1567,7 @@ void AlucardHandleDamage(DamageParam* damage, s16 arg1, s16 arg2) {
         CreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_31, 8), 0);
         break;
     case 3:
-        if (!g_Player.timers[8]) {
+        if (!g_Player.timers[ALU_T_8]) {
             SetSpeedX(FIX(0.75));
             if (func_8010FDF8(0x20280) != 0) {
                 return;
@@ -1684,7 +1680,7 @@ void PlayerStepStoned(s32 arg0) {
         if (func_8010FDF8(0x20280) != 0) {
             PLAYER.step = Player_StatusStone;
             PLAYER.velocityX = PLAYER.velocityY = 0;
-            func_80102CD8(1);
+            ShakeCamera(SHAKE_Y_SMALL);
             PlaySfx(SFX_WALL_DEBRIS_B);
             CreateEntFactoryFromEntity(g_CurrentEntity, BP_39, 0);
 
@@ -1725,7 +1721,7 @@ void PlayerStepStoned(s32 arg0) {
         }
 
         if (!(g_Player.unk04 & 1)) {
-            func_80102CD8(1);
+            ShakeCamera(SHAKE_Y_SMALL);
             PlaySfx(SFX_WALL_DEBRIS_B);
         }
 
@@ -1817,7 +1813,7 @@ void PlayerStepKill(DamageParam* damage, s16 arg_PlayerStep, s16 arg2) {
     nullifyVelY = false;
     PLAYER.drawFlags = DRAW_COLORS;
     plDraw = &g_PlayerDraw[0];
-    if ((g_unkGraphicsStruct.unk20 == 0xFFF) && (PLAYER.step_s)) {
+    if ((g_unkGraphicsStruct.unk28 == 0xFFF) && (PLAYER.step_s)) {
         SetPlayerStep(Player_Unk17);
         PLAYER.velocityX = PLAYER.velocityY = 0;
         return;
@@ -1999,7 +1995,7 @@ void PlayerStepUnk17(void) {
     PLAYER.velocityX = PLAYER.velocityY = 0;
     PLAYER.poseTimer = 4;
 
-    if (g_unkGraphicsStruct.unk20 == 0) {
+    if (g_unkGraphicsStruct.unk28 == 0) {
         if (g_Player.vram_flag & TOUCHING_GROUND) {
             func_8010E570(0);
         } else {
@@ -2022,7 +2018,7 @@ static void func_80115C50(void) {
             PLAYER.posX.i.hi++;
         }
     }
-    if (g_StageId == (STAGE_TOP | STAGE_INVERTEDCASTLE_FLAG)) {
+    if (g_StageId == STAGE_RTOP) {
         if (abs((g_Tilemap.left << 8) + g_PlayerX) - 8384 > 0) {
             PLAYER.posX.i.hi--;
         }
@@ -2123,7 +2119,7 @@ void PlayerStepKillWater(void) {
     var_s2 = false;
     PLAYER.drawFlags = ENTITY_ROTATE;
     plDraw = g_PlayerDraw;
-    if (g_unkGraphicsStruct.unk20 == 0xFFF && PLAYER.step_s) {
+    if (g_unkGraphicsStruct.unk28 == 0xFFF && PLAYER.step_s) {
         SetPlayerStep(Player_Unk17);
         PLAYER.velocityX = PLAYER.velocityY = 0;
         return;
@@ -2758,7 +2754,7 @@ void ControlBatForm(void) {
             PLAYER.facingLeft && (g_Player.vram_flag & TOUCHING_L_WALL)) {
             g_Player.padTapped = PAD_R1;
             BatFormFinished();
-            func_80102CD8(2);
+            ShakeCamera(SHAKE_X_MEDIUM);
             PlaySfx(SFX_WALL_DEBRIS_B);
             PLAYER.velocityX = 0;
             g_Player.demo_timer = 32;

@@ -133,7 +133,7 @@ static void EntityWeaponAttack(Entity* self) {
         self->posY.val += self->velocityY;
         self->posX.val += self->velocityX;
         self->velocityY += FIX(20.0 / 128);
-        self->rotate += 0x80;
+        self->rotate += ROT(11.25);
         if (--self->ext.timer.t < 0x10) {
             self->drawFlags |= ENTITY_BLINK;
         }
@@ -214,14 +214,14 @@ static void EntityWeaponShieldSpell(Entity* self) {
         SetSpriteBank1(g_Animset);
         if (g_HandId != 0) {
             self->animSet = ANIMSET_OVL(0x12);
-            self->palette = 0x128;
+            self->palette = PAL_UNK_128;
             self->ext.shield.childPalette = 0x137;
             self->unk5A = 0x66;
             self->ext.shield.unk7C = 0;
             self->ext.shield.unk7D = 0x80;
         } else {
             self->animSet = ANIMSET_OVL(0x10);
-            self->palette = 0x110;
+            self->palette = PAL_UNK_110;
             self->ext.shield.childPalette = 0x11F;
             self->unk5A = 0x64;
             self->ext.shield.unk7C = 0x80;
@@ -306,7 +306,7 @@ static void EntityWeaponShieldSpell(Entity* self) {
         self->velocityY = 0;
         DestroyEntityWeapon(1);
         g_api.PlaySfx(SFX_ANIME_SWORD_C);
-        g_unkGraphicsStruct.unk20 = 1;
+        g_unkGraphicsStruct.unk28 = 1;
         self->step++;
         break;
 
@@ -329,7 +329,7 @@ static void EntityWeaponShieldSpell(Entity* self) {
     case 2:
         if (--self->ext.shield.unk80 == 0) {
             self->ext.shield.unk80 = 0x10;
-            g_api.func_80102CD8(4);
+            g_api.ShakeCamera(SHAKE_Y_MEDIUM);
             self->step += 1;
         }
         break;
@@ -404,7 +404,7 @@ static void EntityWeaponShieldSpell(Entity* self) {
             // This should spawn the rocks that rise in the background?
             unusedEnt = g_api.CreateEntFactoryFromEntity(
                 self, ((g_HandId + 1) << 0xE) + 96, 0);
-            g_unkGraphicsStruct.unk20 = 0;
+            g_unkGraphicsStruct.unk28 = 0;
             SetWeaponProperties(self, 0);
             self->hitboxWidth = self->hitboxHeight = 0x7F;
         }

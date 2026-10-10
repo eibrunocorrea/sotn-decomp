@@ -1,93 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo2.h"
 
-// Donor: src/st/rare/e_werewolf.c (matched). EInit lives in this overlay's
-// own e_init.c under its raw D_us_ name - extern only. bo2 has no local
-// name for the main werewolf boss entity (its update function,
-// func_us_801B385C, isn't decompiled yet), so the entityId check below
-// uses E_UNK_1B, the local enum slot at the matching numeric index (0x1B),
-// same as the donor's E_WEREWOLF.
-extern EInit D_us_8018056C;
-extern EInit g_EInitWerewolfARE;
+INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B37D0);
+
+INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B385C);
+
+#include "e_werewolf_attack_hitbox.h"
+
+INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B503C);
+
+#include "e_werewolf_after_image.h"
+
+INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B52FC);
+
 extern EInit g_EInitInteractable;
 // Both tables already live in bo2's own raw .data blob (see
 // asm/us/boss/bo2/data/1850.data.s) - extern, never re-declare with values
 // even though the bytes happen to match the donor's (lesson 3).
 extern SVECTOR D_us_80181ACC[];
 extern s16* D_us_801A16F0[];
-
-Primitive* FindFirstUnkPrim2(Primitive* prim, u8 index);
-
-// { hitboxOffX, hitboxOffY, hitboxWidth, hitboxHeight }
-#define attack_hitboxes D_us_80181A3C
-extern s8 attack_hitboxes[][4];
-// Indexed based off animCurFrame
-#define attack_hitbox_indices D_us_80181A88
-extern u8 attack_hitbox_indices[];
-
-INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B37D0);
-
-INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B385C);
-
-void EntityWerewolfAttackHitbox(Entity* self) {
-    s32 animCurFrame;
-    s8* hitboxPtr;
-    Entity* werewolf;
-
-    if (!self->step) {
-        InitializeEntity(D_us_8018056C);
-        self->animCurFrame = 0;
-    }
-
-    werewolf = self - 1;
-    if (werewolf->entityId != E_UNK_1B) {
-        DestroyEntity(self);
-        return;
-    }
-
-    animCurFrame = werewolf->animCurFrame;
-    self->facingLeft = werewolf->facingLeft;
-    self->posX.val = werewolf->posX.val;
-    self->posY.val = werewolf->posY.val;
-
-    hitboxPtr = *attack_hitboxes;
-    hitboxPtr += attack_hitbox_indices[animCurFrame] * 4;
-    self->hitboxOffX = *hitboxPtr++;
-    self->hitboxOffY = *hitboxPtr++;
-    self->hitboxWidth = *hitboxPtr++;
-    self->hitboxHeight = *hitboxPtr++;
-}
-
-INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B503C);
-
-// Displays a trailing opaque effect behind the arcing spin jump attack
-// Params here is the animCurFrame of the main Werewolf entity
-void EntityWerewolfSpinAttackAfterImage(Entity* self) {
-    if (!self->step) {
-        InitializeEntity(g_EInitWerewolfARE);
-        self->palette = g_EInitWerewolfARE[3] + PAL_FLAG(9);
-        self->animCurFrame = self->params;
-        self->hitboxState = 0;
-        self->flags |= FLAG_UNK_00200000 | FLAG_UNK_2000;
-        self->blendMode = BLEND_TRANSP | BLEND_ADD;
-        self->drawFlags = ENTITY_OPACITY | ENTITY_ROTATE;
-        self->opacity = 0x60;
-    }
-
-    self->ext.werewolf.timer++;
-    if ((!self->ext.werewolf.timer) & 1) {
-        self->animCurFrame = 0;
-    } else {
-        self->animCurFrame = self->params;
-    }
-
-    self->opacity -= 8;
-    if (!self->opacity) {
-        DestroyEntity(self);
-    }
-}
-
-INCLUDE_ASM("boss/bo2/nonmatchings/unk_337D0", func_us_801B52FC);
 
 void EntityWerewolfDeathFlames(Entity* self) {
     long otz;

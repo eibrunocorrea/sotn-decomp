@@ -2,16 +2,14 @@
 #include "rchi.h"
 
 extern EInit g_EInitGaibon;
-extern EInit D_us_80180624;
-extern EInit D_us_80180630;
-#define g_EInitGaibonProjectile D_us_80180624
-#define g_EInitGaibonLargeProjectile D_us_80180630
+extern EInit g_EInitGaibonProjectile;
+extern EInit g_EInitGaibonLargeProjectile;
 
 #ifdef VERSION_PSP
 extern s32 E_ID(GAIBON);
 extern s32 E_ID(GAIBON_LEG);
-extern s32 E_ID(SMALL_GAIBON_PROJECTILE);
-extern s32 E_ID(LARGE_GAIBON_PROJECTILE);
+extern s32 E_ID(GAIBON_SMALL_FIREBALL);
+extern s32 E_ID(GAIBON_BIG_FIREBALL);
 #endif
 
 #define SLOGRA self[-8]
@@ -259,11 +257,11 @@ void EntityGaibon(Entity* self) {
                 if (other != NULL) {
                     if (self->ext.GS_Props.nearDeath) {
                         CreateEntityFromEntity(
-                            E_ID(LARGE_GAIBON_PROJECTILE), self, other);
+                            E_ID(GAIBON_BIG_FIREBALL), self, other);
                         PlaySfxPositional(SFX_EXPLODE_B);
                     } else {
                         CreateEntityFromEntity(
-                            E_ID(SMALL_GAIBON_PROJECTILE), self, other);
+                            E_ID(GAIBON_SMALL_FIREBALL), self, other);
                         PlaySfxPositional(SFX_EXPLODE_FAST_A);
                     }
                     other->posY.i.hi -= 2;
@@ -357,11 +355,11 @@ void EntityGaibon(Entity* self) {
                 if (other != NULL) {
                     if (!self->ext.GS_Props.nearDeath) {
                         CreateEntityFromEntity(
-                            E_ID(SMALL_GAIBON_PROJECTILE), self, other);
+                            E_ID(GAIBON_SMALL_FIREBALL), self, other);
                         PlaySfxPositional(SFX_EXPLODE_FAST_A);
                     } else {
                         CreateEntityFromEntity(
-                            E_ID(LARGE_GAIBON_PROJECTILE), self, other);
+                            E_ID(GAIBON_BIG_FIREBALL), self, other);
                         PlaySfxPositional(SFX_EXPLODE_B);
                     }
                     other->posY.i.hi -= 6;
@@ -394,7 +392,7 @@ void EntityGaibon(Entity* self) {
                 other = AllocEntity(&g_Entities[160], &g_Entities[192]);
                 if (other != NULL) {
                     CreateEntityFromEntity(
-                        E_ID(LARGE_GAIBON_PROJECTILE), self, other);
+                        E_ID(GAIBON_BIG_FIREBALL), self, other);
                     PlaySfxPositional(SFX_EXPLODE_B);
                     other->posY.i.hi -= 2;
                     if (self->facingLeft) {
@@ -710,7 +708,7 @@ void EntityLargeGaibonProjectile(Entity* self) {
             newEntity = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (newEntity != NULL) {
                 CreateEntityFromEntity(
-                    E_ID(LARGE_GAIBON_PROJECTILE), self, newEntity);
+                    E_ID(GAIBON_BIG_FIREBALL), self, newEntity);
                 newEntity->params = 1;
                 newEntity->rotate = self->rotate;
                 newEntity->zPriority = self->zPriority + 1;

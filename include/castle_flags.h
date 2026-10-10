@@ -1,7 +1,7 @@
 // Holds flags that maintain the persistant "state" of the castle.
 // These cover a wide range of uses, but what they have in common is a need to
 // track something across rooms or stages.
-extern GAME_IMPORT u8 g_CastleFlags[0x300]; // starts at 0x8003BDEC
+extern u8 g_CastleFlags[0x300]; // starts at 0x8003BDEC
 
 // All offsets and values included for organizational convenience.
 typedef enum {
@@ -117,8 +117,8 @@ typedef enum {
     /* 00100000 */ // BOTTOM_WALL_BROKEN  // Short room
     /* 00010000 */ // RIGHT_WALL_BROKEN   // Short room
 
-    /* 0xA9 */ RNZ1_UPPER_WALL_OPEN = 169, // Upper right wall of the long room
-    /* 0xAA */ RNZ1_LOWER_WALL_OPEN = 170, // Bottom of the right gear room
+    /* 0xA9 */ RNZ1_LOWER_WALL_OPEN = 169, // Upper right wall of the long room
+    /* 0xAA */ RNZ1_UPPER_WALL_OPEN = 170, // Bottom of the right gear room
     /* 0xAB */ RNZ1_STATUE_ROOM_BREAKABLE_WALLS = 171,
     /* 10000000 */ // SECRET_WALL_BROKEN  // Long room
     /* 01000000 */ // RIGHT_WALL_BROKEN   // Short room
