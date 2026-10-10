@@ -29,7 +29,8 @@ void MarSetStep(s16 step);
 void MarSetCrouch(s32 kind, s32 velocityX);
 void func_maria_8015CC28(void);
 void func_pspeu_0924EA50_from_rbo5(s32 velocityX);
-s32 func_pspeu_09248D20(SubweaponDef* subweapon, s32 isItemCrash, s32 useHearts);
+s32 func_pspeu_09248D20(
+    SubweaponDef* subweapon, s32 isItemCrash, s32 useHearts);
 s32 MarCheckSubwpnChainLimit(s16 subwpnId, s16 limit);
 
 // Maria's anim tables live in the raw data blobs of the overlay
@@ -52,7 +53,7 @@ extern AnimationFrame D_pspeu_0927A9B8[]; // slide kick
 extern AnimationFrame D_pspeu_0927A9C8[]; // slide kick bounce
 extern AnimationFrame D_pspeu_0927A9E0[]; // high jump
 extern AnimationFrame D_pspeu_0927AA20[]; // blade dash
-extern s32 D_pspeu_0927C760; // throw dagger timer (raw bss)
+extern s32 D_pspeu_0927C760;              // throw dagger timer (raw bss)
 
 // local copy of RicGetFreeEntity (see us_39144.c)
 Entity* MarGetFreeEntity(s16 start, s16 end) {
@@ -685,8 +686,7 @@ void func_pspeu_09258E60(void) {
         if (g_Maria.padPressed & PAD_LEFT) {
             MarDecelerateX(FIX(0.125));
         }
-        if (MARIA.velocityX < FIX(3) ||
-            (g_Maria.vram_flag & TOUCHING_R_WALL)) {
+        if (MARIA.velocityX < FIX(3) || (g_Maria.vram_flag & TOUCHING_R_WALL)) {
             MARIA.facingLeft++;
             MARIA.facingLeft &= 1;
             MARIA.velocityX /= 2;
@@ -819,7 +819,7 @@ void func_pspeu_09259860(void) {
         func_pspeu_0924EA50_from_rbo5(0xFFFF1000);
         MARIA.anim = D_pspeu_0927A8D0;
         g_api.PlaySfx(SFX_BOSS_RIC_DEATH);
-        g_Maria.damagePalette = 0x8166;
+        g_Maria.damagePalette = PAL_FLAG(PAL_CC_RED_EFFECT_A);
         g_Maria.timers[2] = 8;
         MarCreateEntFactoryFromEntity(
             g_CurrentEntity, FACTORY(E_ID_21, 0x58), 0);

@@ -187,8 +187,7 @@ void func_8010DA2C(AnimationFrame* frames) {
 #ifdef VERSION_PSP
 // K&R definition: the psp callers predate the prototype and pass
 // promoted ints
-void SetDopplegangerAnim(anim)
-u8 anim;
+void SetDopplegangerAnim(anim) u8 anim;
 {
 #else
 void SetDopplegangerAnim(u8 anim) {

@@ -1212,7 +1212,7 @@ void EntityBoatElevatorChains(Entity* self) {
                 prim = prim->next;
                 i++;
             }
-            self->rotate = 0x200;
+            self->rotate = ROT(45);
         } else {
             self->step = 0;
             return;
@@ -1222,10 +1222,10 @@ void EntityBoatElevatorChains(Entity* self) {
     if (self->ext.boatElevator_child.unk7C) {
         if (self->ext.boatElevator_child.unk7C < 0) {
             self->ext.boatElevator_child.unk7E++;
-            self->rotate += 0x10;
+            self->rotate += ROT(1.40625);
         } else {
             self->ext.boatElevator_child.unk7E--;
-            self->rotate -= 0x10;
+            self->rotate -= ROT(1.40625);
         }
     }
     self->ext.boatElevator_child.unk7E &= 0xF;

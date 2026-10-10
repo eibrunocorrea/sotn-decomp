@@ -56,12 +56,12 @@ void func_us_8019D950(Entity* self) {
         InitializeEntity(D_us_801804C4);
         params = self->params;
         rotate = self->rotate;
-        self->drawFlags = 8;
-        self->blendMode = 0x30;
+        self->drawFlags = ENTITY_OPACITY;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
         self->opacity = 0x60;
         self->animCurFrame = params;
         if (rotate) {
-            self->drawFlags |= 4;
+            self->drawFlags |= ENTITY_ROTATE;
         }
     }
     self->opacity -= 8;
@@ -90,12 +90,12 @@ void func_us_8019ECCC(Entity* self) {
         InitializeEntity(D_us_801804DC);
         params = self->params;
         rotate = self->rotate;
-        self->drawFlags = 8;
-        self->blendMode = 0x30;
+        self->drawFlags = ENTITY_OPACITY;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
         self->opacity = 0x60;
         self->animCurFrame = params;
         if (rotate) {
-            self->drawFlags |= 4;
+            self->drawFlags |= ENTITY_ROTATE;
         }
     }
     self->opacity -= 8;

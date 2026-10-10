@@ -263,7 +263,6 @@ void EntityStainedGlass(Entity* self) {
     }
 }
 
-
 #ifdef VERSION_PSP
 #define SETROTMATRIX(x) SetRotMatrix(x)
 #else

@@ -14,8 +14,8 @@ void func_us_801BE79C(Entity* self) {
             DestroyEntity(self);
             return;
         }
-        self->ext.ILLEGAL.s16[0] = 0x10;
-        self->ext.ILLEGAL.s16[1] = 0xC;
+        self->ext.ricGrowingSquare.halfWidth = 0x10;
+        self->ext.ricGrowingSquare.halfHeight = 0xC;
         prim = &g_PrimBuf[self->primIndex];
         prim->u0 = prim->u2 = 0x40;
         prim->v0 = prim->v1 = 0xC0;
@@ -33,9 +33,9 @@ void func_us_801BE79C(Entity* self) {
         self->step++;
         break;
     case 1:
-        self->ext.ILLEGAL.s16[0] += 2;
-        self->ext.ILLEGAL.s16[1] += 2;
-        if (self->ext.ILLEGAL.s16[0] >= 0x39) {
+        self->ext.ricGrowingSquare.halfWidth += 2;
+        self->ext.ricGrowingSquare.halfHeight += 2;
+        if (self->ext.ricGrowingSquare.halfWidth >= 0x39) {
             DestroyEntity(self);
             return;
         }
@@ -43,23 +43,24 @@ void func_us_801BE79C(Entity* self) {
     }
 
     prim = &g_PrimBuf[self->primIndex];
-    prim->x0 = self->posX.i.hi - self->ext.ILLEGAL.s16[0];
-    prim->y0 = self->posY.i.hi - self->ext.ILLEGAL.s16[1];
-    prim->x1 = self->posX.i.hi + self->ext.ILLEGAL.s16[0];
-    prim->y1 = self->posY.i.hi - self->ext.ILLEGAL.s16[1];
-    prim->x2 = self->posX.i.hi - self->ext.ILLEGAL.s16[0];
-    prim->y2 = self->posY.i.hi + self->ext.ILLEGAL.s16[1];
-    prim->x3 = self->posX.i.hi + self->ext.ILLEGAL.s16[0];
-    prim->y3 = self->posY.i.hi + self->ext.ILLEGAL.s16[1];
+    prim->x0 = self->posX.i.hi - self->ext.ricGrowingSquare.halfWidth;
+    prim->y0 = self->posY.i.hi - self->ext.ricGrowingSquare.halfHeight;
+    prim->x1 = self->posX.i.hi + self->ext.ricGrowingSquare.halfWidth;
+    prim->y1 = self->posY.i.hi - self->ext.ricGrowingSquare.halfHeight;
+    prim->x2 = self->posX.i.hi - self->ext.ricGrowingSquare.halfWidth;
+    prim->y2 = self->posY.i.hi + self->ext.ricGrowingSquare.halfHeight;
+    prim->x3 = self->posX.i.hi + self->ext.ricGrowingSquare.halfWidth;
+    prim->y3 = self->posY.i.hi + self->ext.ricGrowingSquare.halfHeight;
     if (prim->b3 >= 0xC) {
         prim->b3 -= 12;
     }
-    prim->r0 = prim->g0 = prim->b0 = prim->r1 = prim->g1 = prim->b1 =
-        prim->r2 = prim->g2 = prim->b2 = prim->r3 = prim->g3 = prim->b3;
+    prim->r0 = prim->g0 = prim->b0 = prim->r1 = prim->g1 = prim->b1 = prim->r2 =
+        prim->g2 = prim->b2 = prim->r3 = prim->g3 = prim->b3;
 }
 
-INCLUDE_ASM(
-    "boss/bo6/nonmatchings/us_3E79C", RicEntityShrinkingPowerUpRing);
+// clang-format off
+INCLUDE_ASM("boss/bo6/nonmatchings/us_3E79C", RicEntityShrinkingPowerUpRing);
+// clang-format on
 
 extern Point16* D_us_80181D54[];
 
@@ -80,7 +81,7 @@ void RicEntityHitByIce(Entity* self) {
     self->posX.i.hi = RIC.posX.i.hi;
     self->posY.i.hi = RIC.posY.i.hi;
     terminateFlag = 0;
-    if (!(g_Ric.status & 0x10000)) {
+    if (!(g_Ric.status & PLAYER_STATUS_UNK10000)) {
         terminateFlag = 1;
     }
     switch (self->step) {
@@ -113,22 +114,22 @@ void RicEntityHitByIce(Entity* self) {
         }
         if (RIC.velocityY != 0) {
             if (RIC.facingLeft) {
-                self->rotate = 0x100;
+                self->rotate = ROT(22.5);
             } else {
-                self->rotate = -0x100;
+                self->rotate = ROT(-22.5);
             }
         } else {
             if (RIC.velocityX > 0) {
-                self->rotate = 0x80;
+                self->rotate = ROT(11.25);
             } else {
-                self->rotate = 0xF80;
+                self->rotate = ROT(348.75);
             }
         }
         if (RIC.step == PL_S_DEAD) {
             if (RIC.facingLeft) {
-                self->rotate = 0x180;
+                self->rotate = ROT(33.75);
             } else {
-                self->rotate = -0x180;
+                self->rotate = ROT(-33.75);
             }
             self->ext.hitbyice.unk80 = 1;
             self->ext.hitbyice.unk82 = 0x3C;
@@ -143,23 +144,23 @@ void RicEntityHitByIce(Entity* self) {
         if (RIC.step == PL_S_DEAD) {
             if ((RIC.animCurFrame & 0x7FFF) == 0x21) {
                 if (RIC.facingLeft) {
-                    self->rotate = 0x280;
+                    self->rotate = ROT(56.25);
                 } else {
-                    self->rotate = -0x280;
+                    self->rotate = ROT(-56.25);
                 }
             }
             if ((RIC.animCurFrame & 0x7FFF) == 0x22) {
                 if (RIC.facingLeft) {
-                    self->rotate = 0x380;
+                    self->rotate = ROT(78.75);
                 } else {
-                    self->rotate = -0x380;
+                    self->rotate = ROT(-78.75);
                 }
             }
             if ((RIC.animCurFrame & 0x7FFF) == 0x20) {
                 if (RIC.facingLeft) {
-                    self->rotate = 0x180;
+                    self->rotate = ROT(33.75);
                 } else {
-                    self->rotate = -0x180;
+                    self->rotate = ROT(-33.75);
                 }
             }
         }
@@ -192,8 +193,7 @@ void RicEntityHitByIce(Entity* self) {
     for (i = 0; i < PrimCount; i++) {
         pos = D_us_80181D54[i * 3];
         if (prim->u0 < 2) {
-            distance =
-                SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
+            distance = SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
             angle = self->rotate + ratan2(pos->y, pos->x);
             deltaX = (((rcos(angle) >> 4) * distance) + 0x80000) >> 0x14;
             deltaY = (((rsin(angle) >> 4) * distance) + 0x80000) >> 0x14;
@@ -201,8 +201,7 @@ void RicEntityHitByIce(Entity* self) {
             prim->y0 = y + deltaY;
 
             pos = D_us_80181D54[i * 3 + 1];
-            distance =
-                SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
+            distance = SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
             angle = self->rotate + ratan2(pos->y, pos->x);
             deltaX = (((rcos(angle) >> 4) * distance) + 0x80000) >> 0x14;
             deltaY = (((rsin(angle) >> 4) * distance) + 0x80000) >> 0x14;
@@ -210,8 +209,7 @@ void RicEntityHitByIce(Entity* self) {
             prim->y1 = y + deltaY;
 
             pos = D_us_80181D54[i * 3 + 2];
-            distance =
-                SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
+            distance = SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
             angle = self->rotate + ratan2(pos->y, pos->x);
             deltaX = (((rcos(angle) >> 4) * distance) + 0x80000) >> 0x14;
             deltaY = (((rsin(angle) >> 4) * distance) + 0x80000) >> 0x14;
@@ -1183,8 +1181,9 @@ void RicEntitySubwpnHolyWater(Entity* self) {
     FntPrint("judge:%02x\n", self->hitboxState);
 }
 
-INCLUDE_ASM(
-    "boss/bo6/nonmatchings/us_3E79C", RicEntitySubwpnHolyWaterFlame);
+// clang-format off
+INCLUDE_ASM("boss/bo6/nonmatchings/us_3E79C", RicEntitySubwpnHolyWaterFlame);
+// clang-format on
 
 extern EInit D_us_8018049C;
 extern RECT D_us_80182968;
@@ -1560,11 +1559,11 @@ void RicEntitySubwpnCrossTrail(Entity* self) {
         self->facingLeft = RIC.facingLeft;
         self->zPriority = RIC.zPriority;
         self->drawFlags = ENTITY_ROTATE;
-        self->rotate = 0xC00;
+        self->rotate = ROT(270);
         self->step++;
         break;
     case 1:
-        self->rotate -= 0x80;
+        self->rotate -= ROT(11.25);
         if (self->ext.crossBoomerang.parent->step == 6 ||
             self->ext.crossBoomerang.parent->step == 7) {
             self->step++;
@@ -1572,7 +1571,7 @@ void RicEntitySubwpnCrossTrail(Entity* self) {
         }
         break;
     case 2:
-        self->rotate -= 0x80;
+        self->rotate -= ROT(11.25);
         if (--self->ext.crossBoomerang.timer == 0) {
             DestroyEntity(self);
             return;
@@ -2062,13 +2061,13 @@ void RicEntitySubwpnKnife(Entity* self) {
             angle2 = 0xD2;
             angle3 = 0x800 + 0xD2;
             angle4 = -0xD2;
-            self->rotate -= 0x80;
+            self->rotate -= ROT(11.25);
         } else {
             angle2 = 0x800 - 0xD2;
             angle1 = 0xD2;
             angle4 = 0x800 + 0xD2;
             angle3 = -0xD2;
-            self->rotate += 0x80;
+            self->rotate += ROT(11.25);
         }
         angle1 += self->rotate;
         angle2 += self->rotate;
@@ -2206,11 +2205,10 @@ void RicEntitySubwpnReboundStone(Entity* self) {
                 collX = FIX_TO_I(currX);
                 collY = FIX_TO_I(currY + deltaY);
                 g_api.CheckCollision(collX, collY, &collider, 0);
-                colliderFlags =
-                    collider.effects &
-                    (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_2000 |
-                     EFFECT_UNK_1000 | EFFECT_UNK_0800 | EFFECT_SIDE |
-                     EFFECT_SOLID);
+                colliderFlags = collider.effects &
+                                (EFFECT_UNK_8000 | EFFECT_UNK_4000 |
+                                 EFFECT_UNK_2000 | EFFECT_UNK_1000 |
+                                 EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID);
                 if (colliderFlags & EFFECT_SOLID) {
                     colliderFlags &= 0xFF00;
                     if (deltaY > 0) {
@@ -2275,11 +2273,10 @@ void RicEntitySubwpnReboundStone(Entity* self) {
                 collY = FIX_TO_I(currY);
                 collX = FIX_TO_I(currX + deltaX);
                 g_api.CheckCollision(collX, collY, &collider, 0);
-                colliderFlags =
-                    collider.effects &
-                    (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_2000 |
-                     EFFECT_UNK_1000 | EFFECT_UNK_0800 | EFFECT_SIDE |
-                     EFFECT_SOLID);
+                colliderFlags = collider.effects &
+                                (EFFECT_UNK_8000 | EFFECT_UNK_4000 |
+                                 EFFECT_UNK_2000 | EFFECT_UNK_1000 |
+                                 EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID);
                 if (colliderFlags & EFFECT_SOLID) {
                     colliderFlags &= 0xFF00;
                     if (deltaX > 0) {
@@ -3352,7 +3349,7 @@ void RicEntityCrashBibleBeam(Entity* self) {
         prim = prim->next;
     }
     self->hitboxOffX = self->facingLeft ? -(self->ext.bibleBeam.unk7E / 2)
-                                         : (self->ext.bibleBeam.unk7E / 2);
+                                        : (self->ext.bibleBeam.unk7E / 2);
     self->hitboxWidth = abs(self->hitboxOffX);
     self->hitboxHeight = var_s7 - self->posY.i.hi;
 }
@@ -3916,7 +3913,7 @@ void RicEntitySubwpnBible(Entity* self) {
                 sp40 = 0xC0000;
             }
             self->velocityX = sp40;
-            self->velocityY = -0xC0000;
+            self->velocityY = FIX(-12.0);
             self->ext.et_BibleSubwpn.unk86++;
             self->step++;
         }
@@ -3958,7 +3955,7 @@ void RicEntitySubwpnBible(Entity* self) {
     case 2:
         self->posX.val += self->velocityX;
         self->posY.val += self->velocityY;
-        self->velocityY -= 0x20000;
+        self->velocityY -= FIX(2.0);
         break;
     }
     if (self->ext.et_BibleSubwpn.unk86) {

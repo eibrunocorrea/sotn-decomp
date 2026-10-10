@@ -638,7 +638,7 @@ void RicEntityHitByDark(Entity* entity) {
 
     switch (entity->step) {
     case 0:
-        entity->flags = 0x28000000;
+        entity->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
         entity->unk5A = 0x79;
         entity->animSet = 0xE;
         entity->zPriority = RIC.zPriority + 2;
@@ -872,7 +872,7 @@ void func_us_801BD384(Entity* self) {
     case 0:
         self->animSet = ANIMSET_DRA(2);
         self->anim = D_us_80181A40;
-        self->flags = 0x28000000;
+        self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
         self->zPriority = RIC.zPriority + 4;
         self->velocityY = (rand() & 0x3FFF) - 0x10000;
         self->step++;

@@ -17,6 +17,12 @@ typedef union {
     s32 s32[0xF];
 } ET_Placeholder;
 
+// bo6 func_us_801BE79C: square around Richter that grows 2px a frame
+typedef struct {
+    /* 0x7C */ s16 halfWidth;
+    /* 0x7E */ s16 halfHeight;
+} ET_RicGrowingSquare;
+
 typedef struct {
     /* 0x7C */ u16 timer;
     /* 0x7E */ s16 : 16;
@@ -4523,6 +4529,7 @@ typedef struct {
 typedef union { // offset=0x7C
     struct Primitive* prim;
     ET_Placeholder ILLEGAL;
+    ET_RicGrowingSquare ricGrowingSquare;
     ET_RdaiArcher rdaiArcher;
     ET_801AE414 et_801AE414;
     ET_801AEFE0 et_801AEFE0;

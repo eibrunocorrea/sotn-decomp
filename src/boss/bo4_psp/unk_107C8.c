@@ -622,13 +622,11 @@ void func_pspeu_09248BE8_from_rbo5(void) {
     case 0:
         moveDirection = MarCheckFacing();
         if (moveDirection) {
-            if (MARIA.ext.player.anim == 22 ||
-                MARIA.ext.player.anim == 25) {
+            if (MARIA.ext.player.anim == 22 || MARIA.ext.player.anim == 25) {
                 SetDopplegangerAnim(24);
             }
             MarSetSpeedX(FIX(1.5));
-        } else if (MARIA.ext.player.anim == 26 ||
-                   MARIA.ext.player.anim == 24) {
+        } else if (MARIA.ext.player.anim == 26 || MARIA.ext.player.anim == 24) {
             SetDopplegangerAnim(25);
         }
         if (moveDirection <= 0) {
@@ -1436,7 +1434,7 @@ s32 func_pspeu_0924D108_from_rbo5(void) {
         g_Maria.unk46 = 0x8012;
         g_Maria.unk54 = 0xFF;
         MARIA.step_s = 0x51;
-        g_api.PlaySfx(0x7D7);
+        g_api.PlaySfx(SFX_VO_DOP_PAIN_A);
         return 1;
     }
     if (tapped == PAD_SQUARE) {
@@ -1576,9 +1574,8 @@ s32 func_pspeu_0924EA98_from_rbo5(s32 checks) {
         }
     }
     if (checks & 0x10000) {
-        if (MARIA.velocityY < FIX(3.0 / 8) &&
-            MARIA.velocityY > FIX(-1.0 / 8) && !(g_Maria.unk44 & 0x20) &&
-            (g_Maria.padPressed & PAD_CROSS)) {
+        if (MARIA.velocityY < FIX(3.0 / 8) && MARIA.velocityY > FIX(-1.0 / 8) &&
+            !(g_Maria.unk44 & 0x20) && (g_Maria.padPressed & PAD_CROSS)) {
             // 4.4 is precisely 1/5 of 22, like maria's 5.6 is of 28
             MARIA.velocityY += FIX(4.4 / 128);
         } else {
@@ -1593,8 +1590,7 @@ s32 func_pspeu_0924EA98_from_rbo5(s32 checks) {
         MARIA.velocityY = FIX(-1);
     }
     if (checks & 0x200) {
-        if (MARIA.velocityY < FIX(3.0 / 8) &&
-            MARIA.velocityY > FIX(-1.0 / 8)) {
+        if (MARIA.velocityY < FIX(3.0 / 8) && MARIA.velocityY > FIX(-1.0 / 8)) {
             MARIA.velocityY += FIX(11.0 / 128);
         } else {
             MARIA.velocityY += FIX(22.0 / 128);
@@ -1648,8 +1644,8 @@ s32 func_pspeu_0924EA98_from_rbo5(s32 checks) {
                 }
                 return 1;
             }
-        } else if ((checks & 0x20000) &&
-                   (g_Maria.vram_flag & TOUCHING_GROUND)) {
+        } else if (
+            (checks & 0x20000) && (g_Maria.vram_flag & TOUCHING_GROUND)) {
             func_pspeu_0924C9C8_from_rbo5(3, MARIA.velocityX);
             g_api.PlaySfx(SFX_STOMP_HARD_B);
             MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
@@ -1660,8 +1656,7 @@ s32 func_pspeu_0924EA98_from_rbo5(s32 checks) {
         func_pspeu_0924CE30_from_rbo5();
         return 1;
     }
-    if ((checks & 0x1000) &&
-        (g_Maria.padTapped & (PAD_SQUARE | PAD_CIRCLE))) {
+    if ((checks & 0x1000) && (g_Maria.padTapped & (PAD_SQUARE | PAD_CIRCLE))) {
         if (func_pspeu_0924D108_from_rbo5()) {
             return 1;
         }
@@ -1714,7 +1709,9 @@ void MarCheckFloor(void) {
     vramFlag = &g_Maria.vram_flag;
 
     if (MARIA.velocityY == 0 && g_Maria.unk04 & 1 &&
-        !(g_Maria.status & 0x40083)) {
+        !(g_Maria.status &
+          (PLAYER_STATUS_DEAD | PLAYER_STATUS_STONE | PLAYER_STATUS_MIST_FORM |
+           PLAYER_STATUS_BAT_FORM))) {
         yMod = 4;
     } else {
         i = 1;
@@ -1724,21 +1721,26 @@ void MarCheckFloor(void) {
             continue;
         }
         if (!(g_Maria.colFloor[i].effects & EFFECT_SIDE ||
-              MARIA.velocityY >= 0 || g_Maria.status & 3 ||
+              MARIA.velocityY >= 0 ||
+              g_Maria.status &
+                  (PLAYER_STATUS_MIST_FORM | PLAYER_STATUS_BAT_FORM) ||
               abs(MARIA.velocityX) >= FIX(2))) {
             continue;
         }
         effects2 = g_Maria.colFloor[i].effects &
                    (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SOLID);
         if ((effects2 == EFFECT_SOLID) || (effects2 & EFFECT_UNK_0800)) {
-            if (g_Maria.status & 3 && !(effects2 & EFFECT_SOLID)) {
+            if (g_Maria.status &
+                    (PLAYER_STATUS_MIST_FORM | PLAYER_STATUS_BAT_FORM) &&
+                !(effects2 & EFFECT_SOLID)) {
                 continue;
             }
             xCheck = *x + g_MarSensorsFloor[i].x;
             yCheck = *y + g_MarSensorsFloor[i].y;
             yCheck += g_Maria.colFloor[i].unk18 - 1;
             g_api.CheckCollision(xCheck, yCheck, &col, 0);
-            if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
+            if (g_Maria.status & PLAYER_STATUS_MIST_FORM &&
+                col.effects & EFFECT_MIST_ONLY) {
                 col.effects &= ~(EFFECT_SIDE | EFFECT_SOLID);
             }
             effects = col.effects;
@@ -1755,8 +1757,7 @@ void MarCheckFloor(void) {
                 }
                 continue;
             }
-            if ((effects &
-                 (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID)) ==
+            if ((effects & (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID)) ==
                 (EFFECT_UNK_8000 | EFFECT_SOLID)) {
                 if (i < 2) {
                     *vramFlag |= (effects & (EFFECT_UNK_4000 | EFFECT_UNK_2000 |
@@ -1873,20 +1874,24 @@ void MarCheckCeiling(void) {
         if (g_Maria.colCeiling[i].effects & EFFECT_SOLID_FROM_ABOVE) {
             continue;
         }
-        if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
+        if (g_Maria.status & PLAYER_STATUS_MIST_FORM &&
+            col.effects & EFFECT_MIST_ONLY) {
             col.effects &= ~(EFFECT_SIDE | EFFECT_SOLID);
         }
         effects2 = g_Maria.colCeiling[i].effects &
                    (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SOLID);
         if ((effects2 == EFFECT_SOLID) || (effects2 & EFFECT_UNK_8000)) {
-            if (g_Maria.status & 3 && !(effects2 & EFFECT_SOLID)) {
+            if (g_Maria.status &
+                    (PLAYER_STATUS_MIST_FORM | PLAYER_STATUS_BAT_FORM) &&
+                !(effects2 & EFFECT_SOLID)) {
                 continue;
             }
             xCheck = *x + g_MarSensorsCeiling[i].x;
-            yCheck = *y + g_MarSensorsCeiling[i].y +
-                     g_Maria.colCeiling[i].unk10 + 1;
+            yCheck =
+                *y + g_MarSensorsCeiling[i].y + g_Maria.colCeiling[i].unk10 + 1;
             g_api.CheckCollision((s16)xCheck, (s16)yCheck, &col, 0);
-            if (g_Maria.status & 2 && col.effects & EFFECT_MIST_ONLY) {
+            if (g_Maria.status & PLAYER_STATUS_MIST_FORM &&
+                col.effects & EFFECT_MIST_ONLY) {
                 col.effects &= ~(EFFECT_SIDE | EFFECT_SOLID);
             }
             effects = col.effects;
@@ -1905,8 +1910,7 @@ void MarCheckCeiling(void) {
                 }
                 continue;
             }
-            if ((effects &
-                 (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID)) ==
+            if ((effects & (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID)) ==
                 (EFFECT_UNK_0800 | EFFECT_SOLID)) {
                 if (i < 2) {
                     *vramFlag |=
@@ -2027,8 +2031,8 @@ void func_pspeu_09250260_from_rbo5(void) {
                          EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID);
     if ((effects == (EFFECT_UNK_8000 | EFFECT_SIDE | EFFECT_SOLID)) ||
         (effects == (EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID)) ||
-        (effects == (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE |
-                     EFFECT_SOLID))) {
+        (effects ==
+         (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SIDE | EFFECT_SOLID))) {
         *vramFlag |= 4;
         return;
     }
@@ -2097,10 +2101,10 @@ void MarCheckWallLeft(void) {
     effects =
         g_Maria.unk04 & (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
                          EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID);
-    if ((effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SIDE |
-                     EFFECT_SOLID)) ||
-        (effects == (EFFECT_UNK_0800 | EFFECT_UNK_0400 | EFFECT_SIDE |
-                     EFFECT_SOLID)) ||
+    if ((effects ==
+         (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_SIDE | EFFECT_SOLID)) ||
+        (effects ==
+         (EFFECT_UNK_0800 | EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID)) ||
         (effects == (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_0800 |
                      EFFECT_UNK_0400 | EFFECT_SIDE | EFFECT_SOLID))) {
         *vramFlag |= 8;

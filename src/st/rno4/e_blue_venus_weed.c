@@ -253,13 +253,6 @@ typedef enum VenusWeedTendrilAttack_Substep {
 # if defined(BLUE)
 #endif
 
-
-
-
-
-
-
-
 // clang-format on
 
 void EntityVenusWeed(Entity* self) {

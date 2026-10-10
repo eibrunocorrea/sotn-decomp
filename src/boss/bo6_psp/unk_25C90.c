@@ -684,11 +684,11 @@ void func_pspeu_0926A048(Entity* self) {
         self->facingLeft = RIC.facingLeft;
         self->zPriority = RIC.zPriority;
         self->drawFlags = ENTITY_ROTATE;
-        self->rotate = 0xC00;
+        self->rotate = ROT(270);
         self->step++;
         break;
     case 1:
-        self->rotate -= 0x80;
+        self->rotate -= ROT(11.25);
         if (self->ext.crossBoomerang.parent->step == 7 ||
             self->ext.crossBoomerang.parent->step == 6) {
             self->step++;
@@ -696,7 +696,7 @@ void func_pspeu_0926A048(Entity* self) {
         }
         break;
     case 2:
-        self->rotate -= 0x80;
+        self->rotate -= ROT(11.25);
         if (--self->ext.crossBoomerang.timer == 0) {
             DestroyEntity(self);
             return;

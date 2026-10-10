@@ -25,7 +25,6 @@ extern u8 D_us_80182A4C[];
 extern u8 D_us_80182A90[];
 extern u8 D_us_80182B6C[];
 
-
 INCLUDE_ASM("st/rno4/nonmatchings/unk_58A30", func_us_801BBE58_from_rnz1);
 
 INCLUDE_ASM("st/rno4/nonmatchings/unk_58A30", func_us_801BC650_from_rnz1);
@@ -50,7 +49,6 @@ INCLUDE_ASM("st/rno4/nonmatchings/unk_58A30", func_us_801BCFC8_from_rnz1);
 extern EInit g_EInitJackOBones;
 extern EInit g_EInitJackOBones2;
 extern EInit g_EInitJackOBones3;
-
 
 typedef enum {
     JACKO_INIT,
@@ -143,7 +141,7 @@ void EntityJackOBonesJack(Entity* self) {
     }
     MoveEntity();
     self->velocityY += FIX(0.1875);
-    self->rotate -= 0x40;
+    self->rotate -= ROT(5.625);
     xVar = self->posX.i.hi;
     yVar = self->posY.i.hi + 5;
     g_api.CheckCollision(xVar, yVar, &sp10, 0);
@@ -316,9 +314,9 @@ static void DrawLaserRing(void) {
     SetRotMatrix(&sp30);
     SetTransMatrix(&sp30);
     prim = g_CurrentEntity->ext.nova.prim;
-    RotTransPers4(&D_us_80182B4C, &D_us_80182B54, &D_us_80182B5C, &D_us_80182B64,
-                  (long*)&prim->x0, (long*)&prim->x1, (long*)&prim->x2,
-                  (long*)&prim->x3, (long*)&p, (long*)&flag);
+    RotTransPers4(&D_us_80182B4C, &D_us_80182B54, &D_us_80182B5C,
+                  &D_us_80182B64, (long*)&prim->x0, (long*)&prim->x1,
+                  (long*)&prim->x2, (long*)&prim->x3, (long*)&p, (long*)&flag);
 }
 
 void EntityNovaSkeleton(Entity* self) {
