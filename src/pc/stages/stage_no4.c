@@ -19,7 +19,8 @@ extern u8 cutscene_data_ferryman_left[];
 extern u8 cutscene_data_ferryman_right[];
 extern u8 gfx_portrait_ferryman[];
 
-s16 D_us_80180F1A[] = {0x00C0};
+// d_water.c is not built on PC; e_ferryman.c reads [23] (0x80180F1A)
+s16 D_us_80180EEC[24] = {[23] = 0x00C0};
 
 static void UnsupportedWaterEntity(Entity* self) { DestroyEntity(self); }
 
