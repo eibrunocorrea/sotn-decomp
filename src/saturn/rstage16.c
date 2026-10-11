@@ -2123,7 +2123,220 @@ void func_060E7400(Entity* self) {
         break;
     }
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E7698, func_060E7698);
+extern SaturnSpriteImage DAT_060EFC20[];
+extern SaturnSpriteFrameHeader* DAT_060EFB84[];
+extern u8 DAT_060EF5D4[], DAT_060EF5E4[], DAT_060EF5F4[], DAT_060EF600[],
+    DAT_060EF644[], DAT_060EF6EC[], DAT_060EF684[];
+extern s16 DAT_060EF5BC[], DAT_060EF5CC[], DAT_060EF6CC[], DAT_060EF6DC[];
+extern s32 DAT_060EF68C[], DAT_060EF6AC[];
+extern u16 DAT_0605AF54[][2], DAT_0605AF40[][2];
+void func_060E7400(Entity* self);
+u16 SPR_2LookupTblNoToVram(u16 tableNo);
+u16 LocalLookupTblNoToVram(u16 tableNo);
+
+/* Native resident prototypes verified in game_2b.c. Keep existing global
+ * generated sensor declarations unchanged; best0 casts only its scoped sensor
+ * call pointer. */
+void PlaySfxPositional(s32);
+s32 GetDistanceToPlayerX(Entity*);
+s32 func_06079C04(Entity*, s16*);
+
+void func_060E7698(Entity* self) {
+    Entity* entity;
+    Primitive* prim;
+    s32 primIndex;
+    u16 clut;
+    u16 clut2;
+    s32 i;
+    s32 j;
+    s32 index;
+    u16* facing;
+    s32 side;
+    u16* texture;
+    u16* texture2;
+
+    if (self->flags & 0x100) {
+        SetStep(8);
+    }
+    switch (self->step) {
+    case 0:
+        self->unk0 =
+            CreateSpriteObject(g_RStage16SpriteBank23.allocationIndex,
+                               g_RStage16SpriteBank23.flags, DAT_060EFC20, 5);
+        TekiInit(self, 0x7E);
+        self->unk0->flags |= 0x40;
+        self->ext.et_060E7698.unk7D = 80;
+        primIndex = AllocPrimitives(2, 2);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= 0x800000;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_060E7698.unk78 = prim;
+        texture = DAT_0605AF54[g_RStage16SpriteBank23.allocationIndex];
+        prim->unk8 = texture[0];
+        prim->unkA = texture[1];
+        clut = g_RStage16SpriteBank23.flags + 3;
+        prim->unk6 = LookupTblNoToVram(clut);
+        prim->priority = 0xB0;
+        prim->drawMode = 8;
+        prim = prim->next;
+        texture2 = DAT_0605AF40[g_RStage16SpriteBank23.allocationIndex];
+        prim->unk8 = texture2[0];
+        prim->unkA = texture2[1];
+        clut2 = g_RStage16SpriteBank23.flags + 2;
+        prim->unk6 = LookupTblNoToVram(clut2);
+        prim->priority = 0xA8;
+        prim->drawMode = 8;
+        prim->unk4 |= 0x100;
+        func_06079BB4(self);
+        self->animCurFrame = 0;
+        func_0600B004(self->unk0, (u32)DAT_060EFB84[0]);
+        self->step++;
+        break;
+    case 1:
+        if ((u16)func_06079C04(self, DAT_060EF5BC)) {
+            SetStep(2);
+        }
+        break;
+    case 2:
+        self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
+        AnimateEntityWithSpriteData(self, DAT_060EF5F4, (u32*)DAT_060EFB84);
+        if ((s16)GetDistanceToPlayerX(self) <= 111) {
+            SetStep(4);
+        }
+        break;
+    case 3:
+        if (AnimateEntityWithSpriteData(
+                self, DAT_060EF5D4, (u32*)DAT_060EFB84) == 0) {
+            self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
+        }
+        self->ext.et_060E7698.unk7C = (u8)self->facingLeft;
+        if (self->ext.et_060E7698.unk7C) {
+            self->velocityX = 0xA000;
+        } else {
+            self->velocityX = -0xA000;
+        }
+        if ((s16)GetDistanceToPlayerX(self) <= 94) {
+            self->step = 4;
+        }
+        {
+            s32 (*sensorFunc)(Entity*, s16*) =
+                (s32(*)(Entity*, s16*))func_06079DEC;
+            sensorFunc(self, DAT_060EF5CC);
+        }
+        if (self->ext.et_060E7698.unk7D == 0) {
+            if ((s16)GetDistanceToPlayerX(self) <= 159) {
+                facing = &self->facingLeft;
+                side = GetSideToPlayer(self) & 1;
+                if (*facing != side) {
+                    SetStep(6);
+                }
+            }
+        } else {
+            self->ext.et_060E7698.unk7D--;
+        }
+        break;
+    case 4:
+        if (AnimateEntityWithSpriteData(
+                self, DAT_060EF5E4, (u32*)DAT_060EFB84) == 0) {
+            self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
+        }
+        self->ext.et_060E7698.unk7C = (u8)self->facingLeft ^ 1;
+        if (self->ext.et_060E7698.unk7C) {
+            self->velocityX = 0xA000;
+        } else {
+            self->velocityX = -0xA000;
+        }
+        if ((s16)GetDistanceToPlayerX(self) > 115) {
+            self->step = 3;
+        }
+        {
+            s32 (*sensorFunc)(Entity*, s16*) =
+                (s32(*)(Entity*, s16*))func_06079DEC;
+            sensorFunc(self, DAT_060EF5CC);
+        }
+        if (self->ext.et_060E7698.unk7D == 0) {
+            if ((s16)GetDistanceToPlayerX(self) <= 159) {
+                facing = &self->facingLeft;
+                side = GetSideToPlayer(self) & 1;
+                if (*facing != side) {
+                    SetStep(6);
+                }
+            }
+        } else {
+            self->ext.et_060E7698.unk7D--;
+        }
+        break;
+    case 6:
+        if (AnimateEntityWithSpriteData(
+                self, DAT_060EF600, (u32*)DAT_060EFB84) == 0) {
+            self->ext.et_060E7698.unk84 = 0;
+            SetStep(7);
+        }
+        if (*(u32*)&self->pose == 0x20000) {
+            PlaySfxPositional(0x614);
+        }
+        break;
+    case 7:
+        switch (self->step_s) {
+        case 0:
+            entity = self + 1;
+            CreateEntityFromEntity(0x27, self, entity);
+            if (self->facingLeft) {
+                entity->posX.i.hi += 10;
+            } else {
+                entity->posX.i.hi -= 10;
+            }
+            entity->posY.i.hi -= 4;
+            entity->facingLeft = self->facingLeft;
+            self->step_s++;
+            break;
+        case 1:
+            prim = self->ext.et_060E7698.unk78;
+            break;
+        }
+        func_060E7400(self);
+        if (AnimateEntityWithSpriteData(
+                self, DAT_060EF644, (u32*)DAT_060EFB84) == 0) {
+            self->ext.et_060E7698.unk78->drawMode |= 8;
+            index = ++self->ext.et_060E7698.unk7E & 7;
+            self->ext.et_060E7698.unk7D = DAT_060EF6EC[index];
+            SetStep(4);
+        }
+        break;
+    case 8:
+        for (i = 0, j = 0; i < 6; i++, j++) {
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity == NULL) {
+                break;
+            }
+            CreateEntityFromCurrentEntity(0x29, entity);
+            entity->facingLeft = self->facingLeft;
+            entity->params = i;
+            entity->ext.et_060E7C60.timer = DAT_060EF684[i];
+            if (self->facingLeft) {
+                entity->posX.i.hi -= DAT_060EF6CC[j];
+            } else {
+                entity->posX.i.hi += DAT_060EF6CC[j];
+            }
+            entity->posY.i.hi += DAT_060EF6DC[j];
+            entity->velocityX = DAT_060EF68C[i];
+            entity->velocityY = DAT_060EF6AC[i];
+        }
+        PlaySfxPositional(0x62A);
+        DestroyEntity(self);
+        return;
+    }
+    if (self->facingLeft == 0) {
+        self->unk0->flags &= ~0x10;
+    } else {
+        self->unk0->flags |= 0x10;
+    }
+}
+
 extern s16 DAT_060EF674[];
 extern SaturnSpriteImage DAT_060EFC20[];
 extern SaturnSpriteFrameHeader* DAT_060EFB84[];

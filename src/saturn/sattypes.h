@@ -681,7 +681,10 @@ typedef struct {
 
 typedef struct {
     /* 0x78 */ Primitive* unk78;
-    /* 0x7C */ s32 : 32;
+    /* 0x7C */ u8 unk7C;
+    /* 0x7D */ u8 unk7D;
+    /* 0x7E */ u8 unk7E;
+    /* 0x7F */ u8 : 8;
     /* 0x80 */ u16 : 16;
     /* 0x82 */ s16 unk82;
     /* 0x84 */ u8 unk84;
