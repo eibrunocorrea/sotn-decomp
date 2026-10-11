@@ -2249,7 +2249,209 @@ void func_pspeu_092514F0(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09251748);
+extern EInit D_pspeu_092666F8;
+void func_pspeu_09251748(Entity* self) {
+    Collider collider;
+    Primitive* prim;
+    s16 offsetX;
+    s16 offsetY;
+    s16 angle1;
+    s16 angle2;
+    s16 angle3;
+    s16 angle4;
+    s16 x;
+    s16 y;
+    s16 xCol;
+    s32 modX;
+    s32 modY;
+    s32 i;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_092666F8);
+        if (g_Maria.status & PLAYER_STATUS_POISON) {
+            self->attack = self->attack / 2;
+        }
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 2);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->facingLeft = MARIA.facingLeft;
+        self->hitboxWidth = 4;
+        self->hitboxHeight = 2;
+        self->hitboxOffX = 4;
+        self->hitboxOffY = 0;
+        if (!(g_Maria.status & PLAYER_STATUS_CROUCH)) {
+            self->posY.i.hi -= 9;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        prim->tpage = 0x1C;
+        prim->clut = PAL_UNK_1AB;
+        prim->u0 = prim->u1 = 0x18;
+        prim->v0 = prim->v2 = 0x18;
+        prim->u2 = prim->u3 = 0x20;
+        prim->v1 = prim->v3 = 0;
+        prim->priority = MARIA.zPriority + 2;
+        prim->drawMode = DRAW_HIDE | DRAW_UNK02;
+
+        prim = prim->next;
+        prim->type = PRIM_LINE_G2;
+        prim->priority = MARIA.zPriority + 2;
+        prim->drawMode =
+            DRAW_TPAGE2 | DRAW_TPAGE | DRAW_HIDE | DRAW_UNK02 | DRAW_TRANSP;
+        prim->r0 = 0x7F;
+        prim->g0 = 0x3F;
+        prim->b0 = 0;
+        MarSetSpeedX(FIX(8));
+        g_api.PlaySfx(SFX_WEAPON_SWISH_C);
+        g_Maria.timers[ALU_T_USE_SUBWPN] = 4;
+        break;
+    case 1:
+        self->ext.subweapon.timer++;
+        if (self->velocityX > 0) {
+            xCol = 8;
+        }
+        if (self->velocityX < 0) {
+            xCol = -8;
+        }
+        for (i = 0; i < 8; i++) {
+            if (self->velocityX > 0) {
+                self->posX.i.hi++;
+            }
+            if (self->velocityX < 0) {
+                self->posX.i.hi--;
+            }
+            g_api.CheckCollision(
+                self->posX.i.hi + xCol, self->posY.i.hi, &collider, 0);
+            if (collider.effects & EFFECT_BLOCK || (self->flags & FLAG_DEAD)) {
+                self->ext.subweapon.timer = 64;
+                self->velocityX = -(self->velocityX >> 3);
+                self->velocityY = FIX(-2.5);
+                self->hitboxState = 0;
+                self->posX.i.hi += xCol;
+                MarCreateEntFactoryFromEntity(self, FACTORY(10, 0), 0);
+                self->posX.i.hi -= xCol;
+                if (collider.effects & EFFECT_BLOCK) {
+                    g_api.PlaySfx(SFX_UI_SUBWEAPON_TINK);
+                } else {
+                    g_api.PlaySfx(SFX_DOP_SUBWEAPON_TINK);
+                }
+                self->step++;
+                return;
+            }
+        }
+        if (self->hitFlags & 0x80) {
+            self->ext.subweapon.timer = 4;
+            self->step = 3;
+            self->hitboxState = 0;
+            return;
+        }
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        offsetX = 12;
+        offsetY = 8;
+        if (self->facingLeft) {
+            offsetX = -offsetX;
+            offsetY = -offsetY;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        prim->x0 = x - offsetX;
+        prim->y0 = y - 4;
+        prim->x1 = x + offsetX;
+        prim->y1 = y - 4;
+        prim->x2 = x - offsetX;
+        prim->y2 = y + 4;
+        prim->x3 = x + offsetX;
+        prim->y3 = y + 4;
+        prim->clut = PAL_UNK_1AB;
+        (g_GameTimer >> 1) & 1;
+        prim->drawMode &= ~DRAW_HIDE;
+        prim = prim->next;
+        prim->x0 = x - offsetY;
+        prim->y0 = y - 1;
+        prim->x1 = x - (offsetX * (self->ext.subweapon.timer / 2));
+        prim->y1 = y - 1;
+        prim->drawMode &= ~DRAW_HIDE;
+        if (self->step != 1) {
+            prim->drawMode |= DRAW_HIDE;
+            return;
+        }
+        break;
+    case 2:
+        prim = &g_PrimBuf[self->primIndex];
+        if (--self->ext.subweapon.timer == 0) {
+            DestroyEntity(self);
+            return;
+        }
+        if (self->ext.subweapon.timer == 0x20) {
+            prim->drawMode |=
+                DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            PGREY(prim, 0) = PGREY(prim, 1) = PGREY(prim, 2) = PGREY(prim, 3) =
+                0x60;
+        }
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        self->velocityY += FIX(0.125);
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        offsetX = 12;
+        if (self->facingLeft == 0) {
+            angle1 = 0x800 - 0xD2;
+            angle2 = 0xD2;
+            angle3 = 0x800 + 0xD2;
+            angle4 = -0xD2;
+            self->rotate -= ROT(11.25);
+        } else {
+            angle2 = 0x800 - 0xD2;
+            angle1 = 0xD2;
+            angle4 = 0x800 + 0xD2;
+            angle3 = -0xD2;
+            self->rotate += ROT(11.25);
+        }
+        angle1 += self->rotate;
+        angle2 += self->rotate;
+        angle3 += self->rotate;
+        angle4 += self->rotate;
+        if (self->facingLeft) {
+            offsetX = -offsetX;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        modX = (rcos(angle1) * 0xCA0) >> 0x14;
+        modY = -(rsin(angle1) * 0xCA0) >> 0x14;
+        prim->x0 = x + (s16)modX;
+        prim->y0 = y - (s16)modY;
+        modX = (rcos(angle2) * 0xCA0) >> 0x14;
+        modY = -(rsin(angle2) * 0xCA0) >> 0x14;
+        prim->x1 = x + (s16)modX;
+        prim->y1 = y - (s16)modY;
+        modX = (rcos(angle3) * 0xCA0) >> 0x14;
+        modY = -(rsin(angle3) * 0xCA0) >> 0x14;
+        prim->x2 = x + (s16)modX;
+        prim->y2 = y - (s16)modY;
+        modX = (rcos(angle4) * 0xCA0) >> 0x14;
+        modY = -(rsin(angle4) * 0xCA0) >> 0x14;
+        prim->x3 = x + (s16)modX;
+        prim->y3 = y - (s16)modY;
+        prim->clut = PAL_UNK_1AB;
+        (g_GameTimer >> 1) & 1;
+        if (self->ext.subweapon.timer < 0x21) {
+            prim->r0 -= 2;
+            prim->g0 = prim->b0 = PGREY(prim, 1) = PGREY(prim, 2) =
+                PGREY(prim, 3) = prim->r0;
+        }
+        prim->drawMode &= ~DRAW_HIDE;
+        prim = prim->next;
+        prim->drawMode |= DRAW_HIDE;
+        break;
+    case 3:
+        if (--self->ext.subweapon.timer == 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 // local copy of RicGetFreeEntity (see bo6/us_39144.c); byte-identical
 // across the three boss walls
