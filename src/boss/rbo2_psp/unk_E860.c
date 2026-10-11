@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo2/rbo2.h"
 
+extern s32 D_pspeu_09265CC8;
+extern EInit D_us_801804C4;
+
 extern s32 E_ID(UNK_17);
 
 typedef struct {
@@ -169,4 +172,23 @@ INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_us_8019C924);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_us_8019D4CC);
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_us_8019D950);
+void func_us_8019D950(Entity* self) {
+    if (D_pspeu_09265CC8 & 0x8) {
+        DestroyEntity(self);
+        return;
+    }
+    if (!self->step) {
+        InitializeEntity(D_us_801804C4);
+        self->animCurFrame = self->params;
+        self->drawFlags = ENTITY_OPACITY;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
+        self->opacity = 0x60;
+        if (self->rotate) {
+            self->drawFlags |= ENTITY_ROTATE;
+        }
+    }
+    self->opacity -= 8;
+    if (!self->opacity) {
+        DestroyEntity(self);
+    }
+}
