@@ -132,7 +132,36 @@ void EntityHarpyKick(Entity* self) {
 
 INCLUDE_ASM("boss/rbo7_psp/nonmatchings/rbo7_psp/unk_E738", func_us_80195A8C);
 
-INCLUDE_ASM("boss/rbo7_psp/nonmatchings/rbo7_psp/unk_E738", func_us_80195D04);
+extern EInit D_us_80180450;
+extern u8 D_pspeu_09255380[];
+
+void func_us_80195D04(Entity* self) {
+    if (D_us_801805C8 & 2) {
+        DestroyEntity(self);
+        return;
+    }
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180450);
+        self->animSet = 5;
+        self->palette += 0x8000;
+        self->unk5A = 0;
+        self->blendMode = BLEND_TRANSP;
+        self->velocityY = -FIX(0.375);
+        self->hitboxWidth = self->hitboxHeight = 3;
+        /* fall through */
+    case 1:
+        MoveEntity();
+        if (self->pose > 0x19) {
+            self->hitboxState = 0;
+        }
+        if (!AnimateEntity(D_pspeu_09255380, self)) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 extern u8 D_us_8018076C[];
 
