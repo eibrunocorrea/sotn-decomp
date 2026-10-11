@@ -682,6 +682,7 @@ void func_060E1C64(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_060E1E74(arg1, arg2, arg3);
     func_060E1FC0(arg0, arg1, arg3);
 }
+
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1CB4, func_060E1CB4);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1E74, func_060E1E74);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1FC0, func_060E1FC0);
@@ -857,7 +858,59 @@ void func_060E3244(Entity* self) {
     self->unk0->posX = self->posX.val;
     self->unk0->posY = self->posY.val + FIX(32);
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E3438, func_060E3438);
+void func_060E3438(Entity* self) {
+    switch (self->step) {
+    case 0:
+        self->unk0 =
+            CreateSpriteObject(g_RStage16SpriteBank18.allocationIndex,
+                               g_RStage16SpriteBank18.flags, DAT_060ECC10, 4);
+        func_06079BB4(self);
+        self->unk0->flags |= 0x40;
+        TekiInit(self, 5);
+        self->step++;
+        self->drawFlags = ENTITY_OPACITY;
+        self->opacity = 0x60;
+        self->ext.save.unk24 = 0;
+        self->unk0->zPriority = self->zPriority - 2;
+        func_0600B004(self->unk0, DAT_060ECA7C[self->animCurFrame]);
+        if (self->facingLeft == 0) {
+            self->unk0->flags &= ~0x10;
+        } else {
+            self->unk0->flags |= 0x10;
+        }
+        /* fallthrough */
+    case 1:
+        if (!(self->ext.save.unk24 & 3)) {
+            self->unk0->zPriority--;
+        }
+        if (self->facingLeft != 0) {
+            self->posX.val -= FIX(0.25);
+        } else {
+            self->posX.val += FIX(0.25);
+        }
+        self->posY.val -= FIX(0.75);
+        if (self->ext.save.unk24 <= 11) {
+            self->opacity = 0x60 - self->ext.save.unk24 * 6;
+        } else {
+            self->step++;
+        }
+        switch (self->ext.save.unk24) {
+        case 4:
+            self->unk0->flags |= 0x80;
+            break;
+        case 8:
+            self->drawFlags |= ENTITY_BLINK;
+            break;
+        }
+        self->ext.save.unk24++;
+        break;
+    case 2:
+        DestroyEntity(self);
+        return;
+    }
+    self->unk0->posX = self->posX.val;
+    self->unk0->posY = self->posY.val + FIX(32);
+}
 void func_060E35E0(Entity* entity, s16 step) {
     entity->pose = 0;
     entity->poseTimer = 0;
@@ -867,7 +920,64 @@ void func_060E35E0(Entity* entity, s16 step) {
 
 const u16 DAT_060E3600[] = {0x8888, 0x8889, 0xAAAA, 0xAAAB};
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E3608, func_060E3608);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4664, func_060E4664);
+extern SaturnSpriteImage DAT_060ED840[];
+extern u32 DAT_060ED788[];
+
+void func_060E4664(Entity* self) {
+    Entity* entity;
+
+    entity = self->ext.et_060E4664.unkA0;
+    switch (self->step) {
+    case 0:
+        self->unk0 = CreateSpriteObject(
+            g_RStage16SpriteBankWraith.allocationIndex,
+            g_RStage16SpriteBankWraith.flags, DAT_060ED840, 7);
+        func_06079BB4(self);
+        self->unk0->flags |= 0x40;
+        TekiInit(self, 5);
+        self->step++;
+        self->drawFlags = ENTITY_OPACITY | ENTITY_MASK_R;
+        self->opacity = 0x80;
+        self->ext.et_060E4664.unk9C = 0;
+        self->unk0->zPriority = entity->unk0->zPriority - 2;
+        func_0600B004(self->unk0, DAT_060ED788[self->animCurFrame]);
+        if (self->facingLeft == 0) {
+            self->unk0->flags &= ~0x10;
+        } else {
+            self->unk0->flags |= 0x10;
+        }
+        break;
+    case 1:
+        self->ext.et_060E4664.unk9C++;
+        if (!(self->ext.et_060E4664.unk9C & 3)) {
+            self->unk0->zPriority--;
+        }
+        if (self->facingLeft != 0) {
+            self->posX.val -= FIX(0.125);
+        } else {
+            self->posX.val += FIX(0.125);
+        }
+        self->posY.val += FIX(0.5);
+        if (self->ext.et_060E4664.unk9C <= 24) {
+            self->opacity = 0x80 - self->ext.et_060E4664.unk9C * 4;
+        } else {
+            self->step++;
+        }
+        switch (self->ext.et_060E4664.unk9C) {
+        case 8:
+            self->unk0->flags |= 0x80;
+            break;
+        case 16:
+            self->drawFlags |= ENTITY_BLINK;
+            break;
+        }
+        break;
+    case 2:
+        DestroyEntity(self);
+        return;
+    }
+    func_06079BB4(self);
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4804, func_060E4804);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4AFC, func_060E4AFC);
 void func_060E4E50(Entity* entity) {

@@ -25,7 +25,7 @@ void* g_RStage16SpriteBanks[] = {
     &g_RStage16SpriteBank16,
     g_RStage16SpriteBank17,
     &g_RStage16SpriteBank18,
-    g_RStage16SpriteBankWraith,
+    &g_RStage16SpriteBankWraith,
     &g_RStage16SpriteBankWight,
     g_RStage16SpriteBankGargoyle,
     &g_RStage16SpriteBank22,

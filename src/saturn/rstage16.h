@@ -76,7 +76,7 @@ extern SaturnSpriteResource g_RStage16SpriteBank23;
 extern SaturnSpriteResource g_RStage16SpriteBank22;
 extern SaturnSpriteResource g_RStage16SpriteBankGargoyle[];
 extern SaturnSpriteResource g_RStage16SpriteBankWight;
-extern u8 g_RStage16SpriteBankWraith[];
+extern SaturnSpriteResource g_RStage16SpriteBankWraith;
 extern SaturnSpriteResource g_RStage16SpriteBank18;
 extern u8 g_RStage16SpriteBank17[];
 extern SaturnSpriteResource g_RStage16SpriteBank16;
