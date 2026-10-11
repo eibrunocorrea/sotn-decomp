@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo0.h"
 
-s32 func_pspeu_0925E340(OlroxPrim* prim, s16 x, s16 y, s16 speed);
-
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925DBD0);
 
 void func_pspeu_0925E070(u8 step) {
@@ -70,7 +68,39 @@ s32 func_us_801B163C(s16* value, s16 target, s16 speed) {
     return 0;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E340);
+s32 func_pspeu_0925E340(OlroxPrim* prim, s16 x, s16 y, s16 speed) {
+    s16* value;
+    s16* delta;
+    s16 difference;
+    s16 target;
+    s32 i;
+    s32 moved;
+
+    moved = 0;
+    value = &prim->unk0C;
+    delta = &prim->unk0E;
+    target = x;
+    for (i = 0; i < 2; i++) {
+        difference = target - *value;
+        if (abs(difference) < speed) {
+            *value = target;
+            *delta = difference;
+        } else {
+            if (difference > 0) {
+                *value += speed;
+                *delta = speed;
+            } else {
+                *value -= speed;
+                *delta = -speed;
+            }
+            moved |= 1;
+        }
+        value = &prim->unk10;
+        delta = &prim->unk12;
+        target = y;
+    }
+    return moved ^ 1;
+}
 
 void func_pspeu_0925E488(OlroxPrim* prim) {
     switch (prim->step) {
