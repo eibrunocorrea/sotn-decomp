@@ -66,6 +66,29 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267730);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267E48);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267EF8);
+Primitive* func_pspeu_09267EF8(Primitive* prim, u8 count) {
+    s32 i;
+    Primitive* current = prim;
+
+    while (current != NULL) {
+        if (current->drawMode & DRAW_HIDE) {
+            prim = current;
+            for (i = 1; i < count; i++) {
+                current = current->next;
+                if (!current) {
+                    return NULL;
+                }
+                if (!(current->drawMode & DRAW_HIDE)) {
+                    break;
+                }
+            }
+            if (i == count) {
+                return prim;
+            }
+        }
+        current = current->next;
+    }
+    return NULL;
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267FC0);
