@@ -88,7 +88,66 @@ void func_us_80192B38_from_rbo3(Entity* self) {
 
 INCLUDE_ASM("boss/rbo7_psp/nonmatchings/rbo7_psp/unk_E738", func_us_801940B4);
 
-INCLUDE_ASM("boss/rbo7_psp/nonmatchings/rbo7_psp/unk_E738", func_us_801957C0);
+extern EInit D_us_80180444;
+
+void func_us_801957C0(Entity* self) {
+    Entity* harpy;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180444);
+        self->hitboxState = 0;
+        if (self->params == 2) {
+            self->step = 2;
+        }
+        if (self->params == 3) {
+            self->step = 3;
+        }
+        break;
+    case 2:
+        switch (self->step_s) {
+        case 0:
+            self->animCurFrame = 0;
+            harpy = self - self->params;
+            if (harpy->ext.harpy.unk84) {
+                self->animCurFrame = 4;
+                self->ext.harpy.unk80 = 0x40;
+                self->step_s++;
+            }
+            break;
+        case 1:
+            if (self->facingLeft) {
+                self->velocityX = FIX(0.75);
+            } else {
+                self->velocityX = -FIX(0.75);
+            }
+            self->step_s++;
+            /* fall through */
+        case 2:
+            MoveEntity();
+            if (!--self->ext.harpy.unk80) {
+                self->zPriority -= 2;
+                self->step_s++;
+            }
+            break;
+        }
+        break;
+    case 3:
+        switch (self->step_s) {
+        case 0:
+            self->animCurFrame = 0;
+            harpy = self - self->params;
+            if (harpy->ext.harpy.unk84) {
+                self->animCurFrame = 2;
+                self->step_s++;
+            }
+            break;
+        case 1:
+            break;
+        }
+        break;
+    }
+}
 
 extern EInit D_us_80180444;
 extern s8 D_us_8018074C[];
