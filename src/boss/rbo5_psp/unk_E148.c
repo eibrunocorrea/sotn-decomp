@@ -147,7 +147,120 @@ void func_pspeu_092457C8(void) {
         TIMEATTACK_EVENT_DOPPLEGANGER_40_DEFEAT, TIMEATTACK_SET_VISITED);
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09245AD8);
+extern s16 D_pspeu_09263078[];
+extern s16 D_pspeu_09263080[];
+extern s16 D_pspeu_09263088[];
+extern s16 D_pspeu_09263098[];
+extern s16 D_pspeu_092630A0[];
+extern s16 D_pspeu_092630A8[];
+void MarCheckFloor(void);
+void MarCheckCeiling(void);
+void func_pspeu_09250260(void);
+void MarCheckWallLeft(void);
+void func_pspeu_09245AD8(s32 checkSensors) {
+    s16 argX;
+    s16 argY;
+    s32 xVel;
+    s32 i;
+    s32* vram_ptr;
+    s32* unk04_ptr;
+    s32 status;
+    s32 unk04;
+
+    vram_ptr = &g_Maria.vram_flag;
+    unk04_ptr = &g_Maria.unk04;
+    *unk04_ptr = *vram_ptr;
+    *vram_ptr = 0;
+    status = g_Maria.status;
+
+    if (checkSensors) {
+        for (i = 0; i < NUM_HORIZONTAL_SENSORS; i++) {
+            if (status & Dop_Crouch) {
+                g_MarSensorsFloor[i].y = D_pspeu_09263080[i];
+                g_MarSensorsCeiling[i].y = D_pspeu_09263078[i];
+            } else {
+                g_MarSensorsFloor[i].y = D_pspeu_092630A0[i];
+                g_MarSensorsCeiling[i].y = D_pspeu_09263098[i];
+            }
+        }
+        for (i = 0; i < NUM_VERTICAL_SENSORS; i++) {
+            if (status & Dop_Crouch) {
+                g_MarSensorsWall[i].y = D_pspeu_09263088[i];
+                g_MarSensorsWall[i + NUM_VERTICAL_SENSORS].y =
+                    D_pspeu_09263088[i];
+            } else {
+                g_MarSensorsWall[i].y = D_pspeu_092630A8[i];
+                g_MarSensorsWall[i + NUM_VERTICAL_SENSORS].y =
+                    D_pspeu_092630A8[i];
+            }
+        }
+    }
+    xVel = MARIA.velocityX;
+    unk04 = (*unk04_ptr & 0xF000);
+    if (MARIA.velocityX < 0 && !(*unk04_ptr & 8)) {
+        if (unk04 == 0xC000) {
+            xVel = xVel * 10 / 16;
+        }
+        if (unk04 == 0xD000) {
+            xVel = xVel * 13 / 16;
+        }
+        MARIA.posX.val += xVel;
+    }
+    if (MARIA.velocityX > 0 && !(*unk04_ptr & 4)) {
+        if (unk04 == 0x8000) {
+            xVel = xVel * 10 / 16;
+        }
+        if (unk04 == 0x9000) {
+            xVel = xVel * 13 / 16;
+        }
+        MARIA.posX.val += xVel;
+    }
+    if ((MARIA.velocityY < 0) && !(*unk04_ptr & 2)) {
+        MARIA.posY.val += MARIA.velocityY;
+    }
+    if ((MARIA.velocityY > 0) && !(*unk04_ptr & 1)) {
+        MARIA.posY.val += MARIA.velocityY;
+    }
+    for (i = 0; i < NUM_HORIZONTAL_SENSORS; i++) {
+        argX = MARIA.posX.i.hi + g_MarSensorsFloor[i].x;
+        argY = MARIA.posY.i.hi + g_MarSensorsFloor[i].y;
+        g_api.CheckCollision(argX, argY, &g_Maria.colFloor[i], 0);
+    }
+    MarCheckFloor();
+    for (i = 0; i < NUM_HORIZONTAL_SENSORS; i++) {
+        argX = MARIA.posX.i.hi + g_MarSensorsCeiling[i].x;
+        argY = MARIA.posY.i.hi + g_MarSensorsCeiling[i].y;
+        g_api.CheckCollision(argX, argY, &g_Maria.colCeiling[i], 0);
+    }
+    MarCheckCeiling();
+    if ((*vram_ptr & 1) && (MARIA.velocityY >= 0)) {
+        MARIA.posY.i.lo = 0;
+    }
+    if ((*vram_ptr & 2) && (MARIA.velocityY <= 0)) {
+        MARIA.posY.i.lo = 0;
+    }
+    for (i = 0; i < NUM_VERTICAL_SENSORS * 2; i++) {
+        argX = MARIA.posX.i.hi + g_MarSensorsWall[i].x;
+        argY = MARIA.posY.i.hi + g_MarSensorsWall[i].y;
+        g_api.CheckCollision(argX, argY, &g_Maria.colWall[i], 0);
+    }
+    func_pspeu_09250260();
+    MarCheckWallLeft();
+    if ((*vram_ptr & 4) && (MARIA.velocityX > 0)) {
+        MARIA.posX.i.lo = 0;
+    }
+    if ((*vram_ptr & 8) && (MARIA.velocityX < 0)) {
+        MARIA.posX.i.lo = 0;
+    }
+    if (*vram_ptr & 0x8000) {
+        *vram_ptr |= 0x20;
+    }
+    if (!(g_Maria.colFloor[1].effects & EFFECT_SOLID) ||
+        !(g_Maria.colFloor[2].effects & EFFECT_SOLID) ||
+        !(g_Maria.colFloor[3].effects & EFFECT_SOLID)) {
+        *vram_ptr |= 0x20;
+    }
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09246210);
 
@@ -666,8 +779,6 @@ s32 func_pspeu_0924AAF0(void) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924AB20);
 
-extern s16 D_pspeu_09263098[];
-extern s16 D_pspeu_092630A0[];
 void func_pspeu_0924CD20(void);
 // local copy of DopplegangerStepUnmorphBat (see bo4/unk_46E7C.c)
 void func_pspeu_0924B918(void) {
