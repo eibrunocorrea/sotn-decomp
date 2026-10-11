@@ -491,7 +491,7 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09266AB0);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09266CE8);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", Unused09266E30);
+void Unused09266E30(Entity* self) {}
 
 // local copy of RicEntitySubwpnHolyWaterBreakGlass (see
 // ric/pl_subweapon_holywater.c); prim priority tracks the boss entity
