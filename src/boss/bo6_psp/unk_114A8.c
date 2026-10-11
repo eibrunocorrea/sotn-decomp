@@ -2552,7 +2552,48 @@ void func_pspeu_09247190_from_rbo5(s32 step) {
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09254F38);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09256610);
+extern s32 D_pspeu_0927C248;
+extern s32 D_pspeu_0927C148;
+extern s32 D_pspeu_0927C250;
+void func_pspeu_09256610(void) {
+    switch (D_pspeu_0927C248) {
+    case 0:
+        break;
+    case 10:
+        if (!g_CastleFlags[SHAFT_ORB_DEFEATED] &&
+            (g_DemoMode == Demo_None)) {
+            g_unkGraphicsStruct.pauseEnemies = true;
+            D_pspeu_0927C250 = 0;
+        }
+        D_pspeu_0927C248++;
+        break;
+    case 11:
+        if (++D_pspeu_0927C250 > 1) {
+            if (!g_CastleFlags[SHAFT_ORB_DEFEATED] &&
+                (g_DemoMode == Demo_None)) {
+                g_unkGraphicsStruct.unk28 = 0xFF;
+            }
+            D_pspeu_0927C248++;
+        }
+        break;
+    case 12:
+        break;
+    case 20:
+        if (D_pspeu_0927C148 & 4) {
+            D_pspeu_0927C248 = 0x1E;
+        }
+        break;
+    case 30:
+        break;
+    case 40:
+        D_pspeu_0927C148 |= 8;
+        break;
+    case 50:
+    default:
+        break;
+    }
+}
+
 
 extern EInit g_EInitRichterBelmont;
 extern s32 D_pspeu_0927C258;
