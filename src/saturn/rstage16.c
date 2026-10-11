@@ -792,8 +792,121 @@ void func_060E1C64(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_060E1FC0(arg0, arg1, arg3);
 }
 
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1CB4, func_060E1CB4);
+/* TU-local view of the model scratch buffer; keep DAT_060485E0 as s32[]. */
+typedef struct {
+    MthXyz vertices[14];
+    MthXyz faceVertices[24][3];
+    XyInt projected[72];
+    MthXyz* translations;
+    u8 (*faces)[4];
+    s32 faceCount;
+} RStage16ModelWorkspace;
+
+extern MthXyz DAT_06092FF8[];
+extern s32 DAT_060E9F70[];
+extern u8 DAT_060EA0A8[][4];
+extern u8 DAT_060EA108[][4];
+extern u8 DAT_060EA168[][4];
+extern u8 DAT_060EA210[][2];
+
+void func_060E1CB4(s32 arg0, s32 arg1) {
+    RStage16ModelWorkspace* workspace;
+    s32* destinationX;
+    s32* zeroDestinationY;
+    s32* oneDestinationY;
+    s32* threeDestinationY;
+    s32* zeroSource;
+    s32* zeroSourceY;
+    s32* oneSourceY;
+    s32* threeSource;
+    s32 zeroLast;
+    s32 oneLast;
+    s32* base;
+    s32* baseOrigin;
+    s32 i;
+    s32 threeLast;
+    MthXyz* translations;
+    u8* map0;
+    u8* map1;
+
+    workspace = (RStage16ModelWorkspace*)DAT_060485E0;
+    translations = DAT_06092FF8;
+    destinationX = &workspace->vertices[0].x;
+    switch (arg0) {
+    case 0:
+        workspace->translations = translations;
+        workspace->faceCount = 20;
+        workspace->faces = DAT_060EA0A8;
+        zeroSource = DAT_060E9F70;
+        i = 0;
+        zeroLast = 11;
+        zeroSourceY = zeroSource + 1;
+        zeroDestinationY = destinationX + 1;
+        do {
+            *destinationX = *zeroSource << 16;
+            destinationX += 3;
+            *zeroDestinationY = zeroSourceY[0] << 16;
+            zeroDestinationY[1] = zeroSourceY[1] << 16;
+            zeroSource += 3;
+            zeroDestinationY += 3;
+            zeroSourceY += 3;
+            i++;
+        } while (i <= zeroLast);
+        destinationX[0] = destinationX[1] = destinationX[2] = 0;
+        destinationX += 3;
+        destinationX[0] = destinationX[1] = destinationX[2] = 0;
+        break;
+    case 1:
+    case 2:
+        workspace->translations = translations + 20;
+        workspace->faceCount = 24;
+        workspace->faces = DAT_060EA108;
+        threeSource = DAT_060EA000;
+        i = 0;
+        oneLast = 13;
+        oneSourceY = threeSource + 1;
+        oneDestinationY = destinationX + 1;
+        do {
+            *destinationX = *threeSource << 16;
+            destinationX += 3;
+            *oneDestinationY = oneSourceY[0] << 16;
+            oneDestinationY[1] = oneSourceY[1] << 16;
+            threeSource += 3;
+            oneDestinationY += 3;
+            oneSourceY += 3;
+            i++;
+        } while (i <= oneLast);
+        break;
+    case 3:
+        workspace->translations = translations + 20;
+        workspace->faceCount = 24;
+        workspace->faces = DAT_060EA168;
+        map0 = &DAT_060EA210[0][0];
+        arg1 <<= 12;
+        i = 0;
+        baseOrigin = DAT_060EA000;
+        do {
+            map1 = map0 + 1;
+            threeDestinationY = destinationX + 1;
+            threeSource = baseOrigin + *map0 * 3;
+            base = DAT_060E9F70 + *map1 * 3;
+            *destinationX =
+                (base[0] << 16) + ((threeSource[0] - base[0]) * arg1) / 6;
+            *threeDestinationY =
+                (base[1] << 16) + ((threeSource[1] - base[1]) * arg1) / 6;
+            threeLast = 13;
+            threeDestinationY[1] =
+                (base[2] << 16) + ((threeSource[2] - base[2]) * arg1) / 6;
+            destinationX += 3;
+            map0 += 2;
+            i++;
+        } while (i <= threeLast);
+        break;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1E74, func_060E1E74);
+
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1FC0, func_060E1FC0);
 void func_060E22C4(Primitive* arg0, s32 arg1, s32 arg2) {
     func_060E2300(arg1, arg2);
@@ -838,16 +951,6 @@ void func_060E2300(s32 scale, s32 unused) {
 
     TransformAndProjectPoints((MthXyz*)base, (XyInt*)((char*)base + 0x408), 14);
 }
-
-/* TU-local view of the model scratch buffer; keep DAT_060485E0 as s32[]. */
-typedef struct {
-    MthXyz vertices[14];
-    MthXyz faceVertices[24][3];
-    XyInt projected[72];
-    MthXyz* translations;
-    u8 (*faces)[4];
-    s32 faceCount;
-} RStage16ModelWorkspace;
 
 extern u8 DAT_060EA1C8[][4];
 
