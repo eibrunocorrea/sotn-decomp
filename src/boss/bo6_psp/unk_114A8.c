@@ -515,7 +515,61 @@ bool func_maria_80162E9C(Entity* entity) {
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityPlayerBlinkWhite);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924D7F0);
+void func_pspeu_0924D7F0(Entity* self) {
+    Primitive* prim;
+    s16 primIndex;
+
+    self->posX.i.hi = MARIA.posX.i.hi - 0;
+    self->posY.i.hi = MARIA.posY.i.hi - 8;
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->ext.circleExpand.width = 16;
+        self->ext.circleExpand.height = 12;
+        prim = &g_PrimBuf[self->primIndex];
+        prim->u0 = prim->u2 = 64;
+        prim->v0 = prim->v1 = 192;
+        prim->u1 = prim->u3 = 127;
+        prim->v2 = prim->v3 = 255;
+        PGREY(prim, 0) = PGREY(prim, 1) = PGREY(prim, 2) = PGREY(prim, 3) = 128;
+        prim->tpage = 0x1A;
+        prim->clut = PAL_CC_FIRE_EFFECT;
+        prim->priority = MARIA.zPriority + 8;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+        self->flags =
+            FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+        self->step++;
+        break;
+
+    case 1:
+        self->ext.circleExpand.width += 2;
+        self->ext.circleExpand.height += 2;
+        if (self->ext.circleExpand.width > 56) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+
+    prim = &g_PrimBuf[self->primIndex];
+    prim->x0 = self->posX.i.hi - self->ext.circleExpand.width;
+    prim->y0 = self->posY.i.hi - self->ext.circleExpand.height;
+    prim->x1 = self->posX.i.hi + self->ext.circleExpand.width;
+    prim->y1 = self->posY.i.hi - self->ext.circleExpand.height;
+    prim->x2 = self->posX.i.hi - self->ext.circleExpand.width;
+    prim->y2 = self->posY.i.hi + self->ext.circleExpand.height;
+    prim->x3 = self->posX.i.hi + self->ext.circleExpand.width;
+    prim->y3 = self->posY.i.hi + self->ext.circleExpand.height;
+    if (prim->b3 >= 12) {
+        prim->b3 -= 12;
+    }
+    // remember last element of PGREY(prim,3) is prim->b3
+    PGREY(prim, 0) = PGREY(prim, 1) = PGREY(prim, 2) = PGREY(prim, 3);
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityShrinkingPowerUpRing);
 
