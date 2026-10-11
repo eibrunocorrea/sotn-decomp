@@ -1501,7 +1501,8 @@ void func_pspeu_0924D528_from_rbo5(void) {
     MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
 }
 
-// PSP copy of dop_anim.h; its three tables remain at their original raw-data VMAs.
+// PSP copy of dop_anim.h; its three tables remain at their original raw-data
+// VMAs.
 
 void SetDopplegangerStep(s16 step) {
     DOPPLEGANGER.step = step;
@@ -1751,29 +1752,63 @@ u32 UpdateAnim(s8* hitboxes, AnimationFrame** anims) {
     if (g_CurrentEntity->poseTimer == -1) {
         ret = -1;
     } else if (g_CurrentEntity->poseTimer == 0) {
-        g_CurrentEntity->poseTimer = (*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration;
+        g_CurrentEntity->poseTimer =
+            (*((AnimationFrame*)(&(
+                 ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                .duration;
         ret = 0;
     } else if ((--g_CurrentEntity->poseTimer) == 0) {
         g_CurrentEntity->pose++;
-        if ((*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration == 0) {
-            g_CurrentEntity->pose = (*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).pose;
-            g_CurrentEntity->poseTimer = (*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration;
+        if ((*((AnimationFrame*)(&(
+                 ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                .duration == 0) {
+            g_CurrentEntity->pose =
+                (*((AnimationFrame*)(&((
+                     (u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                    .pose;
+            g_CurrentEntity->poseTimer =
+                (*((AnimationFrame*)(&((
+                     (u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                    .duration;
             ret = 0;
-        } else if ((*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration == 0xFFFF) {
+        } else if (
+            (*((AnimationFrame*)(&(
+                 ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                .duration == 0xFFFF) {
             g_CurrentEntity->pose--;
             g_CurrentEntity->poseTimer = -1;
             ret = -1;
-        } else if ((*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration == 0xFFFE) {
-            g_CurrentEntity->anim = anims[(*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).pose];
+        } else if (
+            (*((AnimationFrame*)(&(
+                 ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                .duration == 0xFFFE) {
+            g_CurrentEntity->anim =
+                anims[(*((AnimationFrame*)(&(
+                           ((u16*)g_CurrentEntity
+                                ->anim)[g_CurrentEntity->pose * 2]))))
+                          .pose];
             g_CurrentEntity->pose = 0;
-            g_CurrentEntity->poseTimer = (*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration;
+            g_CurrentEntity->poseTimer =
+                (*((AnimationFrame*)(&((
+                     (u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                    .duration;
             ret = -2;
         } else {
-            g_CurrentEntity->poseTimer = (*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).duration;
+            g_CurrentEntity->poseTimer =
+                (*((AnimationFrame*)(&((
+                     (u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+                    .duration;
         }
     }
     if (hitboxes) {
-        hitboxes = &hitboxes[(((*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).pose >> 9) & 0x7F) << 2];
+        hitboxes =
+            &hitboxes[(((*((AnimationFrame*)(&(
+                             ((u16*)g_CurrentEntity
+                                  ->anim)[g_CurrentEntity->pose * 2]))))
+                            .pose >>
+                        9) &
+                       0x7F)
+                      << 2];
         g_CurrentEntity->hitboxOffX = *hitboxes;
         hitboxes++;
         g_CurrentEntity->hitboxOffY = *hitboxes;
@@ -1782,12 +1817,37 @@ u32 UpdateAnim(s8* hitboxes, AnimationFrame** anims) {
         hitboxes++;
         g_CurrentEntity->hitboxHeight = *hitboxes;
     }
-    g_CurrentEntity->animCurFrame = (*((AnimationFrame*)(&( ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2])))).pose & 0x1FF;
+    g_CurrentEntity->animCurFrame =
+        (*((AnimationFrame*)(&(
+             ((u16*)g_CurrentEntity->anim)[g_CurrentEntity->pose * 2]))))
+            .pose &
+        0x1FF;
     return ret;
 }
 
+void MarDisableAfterImage(s32 resetAnims, s32 arg1) {
+    Primitive* prim;
 
-INCLUDE_ASM("boss/bo4_psp/nonmatchings/bo4_psp/unk_107C8", MarDisableAfterImage);
+    if (resetAnims) {
+        g_Entities[E_ID_41].ext.disableAfterImage.resetFlag = 1;
+        g_Entities[E_ID_41].animCurFrame = g_Entities[E_ID_42].animCurFrame =
+            g_Entities[E_ID_43].animCurFrame = 0;
+        prim = &g_PrimBuf[g_Entities[E_AFTERIMAGE_1].primIndex];
+        while (prim != NULL) {
+            prim->x1 = 0;
+            prim = prim->next;
+        }
+    }
+    g_Entities[E_ID_41].ext.disableAfterImage.disableFlag = 1;
+    g_Entities[E_ID_41].ext.disableAfterImage.index = MaxAfterImageIndex;
+    if (arg1 != 0) {
+        if (arg1 < 4) {
+            g_Dop.timers[ALU_T_15] = 4;
+        } else {
+            g_Dop.timers[ALU_T_15] = arg1;
+        }
+    }
+}
 
 void func_pspeu_0924E770_from_rbo5(void) {
     g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.afterImage.resetFlag =

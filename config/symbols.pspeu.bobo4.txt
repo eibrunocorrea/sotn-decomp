@@ -107,6 +107,9 @@ rooms = 0x09263418;
 D_pspeu_09263438 = 0x09263438;
 D_pspeu_09263440 = 0x09263440;
 BackgroundBlockInit = 0x092680C0;
+g_afterImageTimerTable = 0x0926B1D0; // raw-data PSP afterimage tables
+g_shadowOpacityReductionTable = 0x0926B1E8;
+g_D_800ACF3C = 0x0926B1F8;
 g_MarSensorsCeiling = 0x0926B248;
 g_MarSensorsFloor = 0x0926B258;
 g_MarSensorsWall = 0x0926B268;
@@ -115,8 +118,3 @@ g_stone_flag = 0x0926BB10;
 D_us_801D4DF4 = 0x0926BB30;
 D_us_801D4DF0 = 0x0926BB38;
 D_psp_E_ID_1B = 0x0926BCA8;
-
-// Afterimage tables used by the local PSP animation block.
-g_afterImageTimerTable = 0x0926B1D0;
-g_shadowOpacityReductionTable = 0x0926B1E8;
-g_D_800ACF3C = 0x0926B1F8;
