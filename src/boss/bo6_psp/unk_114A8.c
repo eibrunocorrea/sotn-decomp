@@ -954,7 +954,209 @@ void func_pspeu_0924D7F0(Entity* self) {
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityShrinkingPowerUpRing);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityHitByIce);
+extern Point16* D_pspeu_0927A298[72];
+void MarEntityHitByIce(Entity* self) {
+    const int PrimCount = LEN(D_pspeu_0927A298) / 3;
+    s16 x;
+    s16 y;
+    s32 i;
+    bool terminateFlag;
+    s16 deltaX;
+    s16 deltaY;
+    s16 yMod;
+    s32 distance;
+    s16 angle;
+    Point16* pos;
+    Primitive* prim;
+
+    self->posX.i.hi = MARIA.posX.i.hi;
+    self->posY.i.hi = MARIA.posY.i.hi;
+    terminateFlag = 0;
+    if (!(g_Maria.status & PLAYER_STATUS_UNK10000)) {
+        terminateFlag = 1;
+    }
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT3, PrimCount);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags = FLAG_HAS_PRIMS | FLAG_POS_CAMERA_LOCKED;
+        prim = &g_PrimBuf[self->primIndex];
+        while (prim != NULL) {
+            prim->r0 = prim->r1 = prim->r2 = prim->r3 = (rand() & 0x0F) + 0x30;
+            prim->b0 = prim->b1 = prim->b2 = prim->b3 = (rand() & 0x7F) + 0x80;
+            prim->g0 = prim->g1 = prim->g2 = prim->g3 = (rand() & 0x1F) + 0x30;
+            if (rand() & 1) {
+                prim->drawMode = DRAW_UNK02 | DRAW_UNK_100 | DRAW_TPAGE2 |
+                                 DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            } else {
+                prim->drawMode = DRAW_UNK02 | DRAW_UNK_100 | DRAW_TPAGE |
+                                 DRAW_COLORS | DRAW_TRANSP;
+            }
+            prim->type = PRIM_G4;
+            prim->priority = MARIA.zPriority + 2;
+            prim = prim->next;
+        }
+        // Weird repeated conditional
+        if (MARIA.velocityY != 0) {
+            self->ext.hitbyice.unk7E = 1;
+        }
+        if (MARIA.velocityY != 0) {
+            if (MARIA.facingLeft) {
+                self->rotate = ROT(22.5);
+            } else {
+                self->rotate = ROT(-22.5);
+            }
+        } else {
+            if (MARIA.velocityX > 0) {
+                self->rotate = ROT(11.25);
+            } else {
+                self->rotate = ROT(348.75);
+            }
+        }
+        if (MARIA.step == PL_S_DEAD) {
+            if (MARIA.facingLeft) {
+                self->rotate = ROT(33.75);
+            } else {
+                self->rotate = ROT(-33.75);
+            }
+            self->ext.hitbyice.unk80 = 1;
+            self->ext.hitbyice.unk82 = 0x3C;
+            if (self->params & 0x7F00) {
+                self->ext.hitbyice.unk82 = 0x14;
+            }
+            self->ext.hitbyice.unk7E = 0;
+        }
+        self->step++;
+        break;
+    case 1:
+        if (MARIA.step == PL_S_DEAD) {
+            if ((MARIA.animCurFrame & 0x7FFF) == 0x21) {
+                if (MARIA.facingLeft) {
+                    self->rotate = ROT(56.25);
+                } else {
+                    self->rotate = ROT(-56.25);
+                }
+            }
+            if ((MARIA.animCurFrame & 0x7FFF) == 0x22) {
+                if (MARIA.facingLeft) {
+                    self->rotate = ROT(78.75);
+                } else {
+                    self->rotate = ROT(-78.75);
+                }
+            }
+            if ((MARIA.animCurFrame & 0x7FFF) == 0x20) {
+                if (MARIA.facingLeft) {
+                    self->rotate = ROT(33.75);
+                } else {
+                    self->rotate = ROT(-33.75);
+                }
+            }
+        }
+        if (self->ext.hitbyice.unk80 && --self->ext.hitbyice.unk82 == 0) {
+            terminateFlag = true;
+        }
+        if (self->ext.hitbyice.unk7E &&
+            g_Maria.vram_flag & (TOUCHING_L_WALL | TOUCHING_R_WALL)) {
+            terminateFlag = true;
+        }
+        if (terminateFlag) {
+            self->ext.hitbyice.unk7C = 0x40;
+            if (self->ext.hitbyice.unk80) {
+                self->ext.hitbyice.unk7C = 0x80;
+            }
+            self->step++;
+        }
+        break;
+    case 2:
+        if (--self->ext.hitbyice.unk7C == 0) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+
+    x = self->posX.i.hi;
+    y = self->posY.i.hi;
+    prim = &g_PrimBuf[self->primIndex];
+    for (i = 0; i < PrimCount; i++) {
+        pos = D_pspeu_0927A298[i * 3];
+        if (prim->u0 < 2) {
+            distance = SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
+            angle = self->rotate + ratan2(pos->y, pos->x);
+            deltaX = (((rcos(angle) >> 4) * distance) + 0x80000) >> 0x14;
+            deltaY = (((rsin(angle) >> 4) * distance) + 0x80000) >> 0x14;
+            prim->x0 = x + deltaX;
+            prim->y0 = y + deltaY;
+
+            pos = D_pspeu_0927A298[i * 3 + 1];
+            distance = SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
+            angle = self->rotate + ratan2(pos->y, pos->x);
+            deltaX = (((rcos(angle) >> 4) * distance) + 0x80000) >> 0x14;
+            deltaY = (((rsin(angle) >> 4) * distance) + 0x80000) >> 0x14;
+            prim->x1 = x + deltaX;
+            prim->y1 = y + deltaY;
+
+            pos = D_pspeu_0927A298[i * 3 + 2];
+            distance = SquareRoot12((pos->x * pos->x + pos->y * pos->y) << 0xC);
+            angle = self->rotate + ratan2(pos->y, pos->x);
+            deltaX = (((rcos(angle) >> 4) * distance) + 0x80000) >> 0x14;
+            deltaY = (((rsin(angle) >> 4) * distance) + 0x80000) >> 0x14;
+            prim->x2 = prim->x3 = x + deltaX;
+            prim->y2 = prim->y3 = y + deltaY;
+        }
+        if (prim->u0 == 0 && terminateFlag) {
+            prim->u0++;
+            prim->v0 = (rand() & 15) + 1;
+            if (self->ext.hitbyice.unk80) {
+                prim->v0 = (rand() % 60) + 1;
+            }
+        }
+        if (prim->u0 == 1) {
+            if (--prim->v0 == 0) {
+                prim->u0++;
+                prim->v0 = 0x20;
+                prim->u2 = 0xF0;
+                if (self->ext.hitbyice.unk80) {
+                    prim->v0 = (rand() & 31) + 0x28;
+                }
+            }
+        }
+        if (prim->u0 == 2) {
+            if (prim->u2 < 0x70 || prim->u2 > 0xD0) {
+                prim->u2 += 4;
+            }
+            yMod = (s8)prim->u2 >> 4;
+            if (self->ext.hitbyice.unk80) {
+                yMod = yMod >> 1;
+            }
+            prim->y0 += yMod;
+            prim->y1 += yMod;
+            prim->y2 += yMod;
+            prim->y3 += yMod;
+            if (prim->r3 < 4) {
+                prim->r3 -= 4;
+            }
+            if (prim->g3 < 4) {
+                prim->g3 -= 4;
+            }
+            if (prim->b3 < 4) {
+                prim->b3 -= 4;
+            }
+            prim->r0 = prim->r1 = prim->r2 = prim->r3;
+            prim->b0 = prim->b1 = prim->b2 = prim->b3;
+            prim->g0 = prim->g1 = prim->g2 = prim->g3;
+            prim->drawMode |= DRAW_UNK02;
+            prim->drawMode &= ~(DRAW_UNK02 | DRAW_UNK_100);
+            if (--prim->v0 == 0) {
+                prim->drawMode |= DRAW_HIDE;
+            }
+        }
+        prim = prim->next;
+    }
+}
 
 extern u16 D_pspeu_0927A3B8[];
 void MarEntityHitByLightning(Entity* self) {
