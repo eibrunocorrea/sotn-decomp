@@ -6,7 +6,8 @@ extern Dialogue g_Dialogue;
 
 #include "../../st/set_cutscene_events.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_DC80", RunCutsceneEvents);
+#define CUTSCENE_TILEMAP_SCROLL
+#include "../../st/cutscene_events.h"
 
 #include "../../st/cutscene_skip.h"
 

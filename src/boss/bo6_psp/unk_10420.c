@@ -18,7 +18,7 @@ bool func_pspeu_0924A168_from_rbo2(void) {
     return false;
 }
 
-extern u32 D_pspeu_0927C148;
+extern u32 g_CutsceneFlags;
 extern EInit g_EInitInteractable;
 
 void func_pspeu_09247B58(Entity* self) {
@@ -41,13 +41,13 @@ void func_pspeu_09247B58(Entity* self) {
         } else {
             g_Player.padSim = PAD_NONE;
             self->step++;
-            D_pspeu_0927C148 = 1;
+            g_CutsceneFlags = 1;
         }
         g_Player.demo_timer = 1;
         break;
 
     case 2:
-        if (D_pspeu_0927C148 & 2) {
+        if (g_CutsceneFlags & 2) {
             self->step++;
         }
         g_Player.padSim = PAD_NONE;
@@ -110,7 +110,7 @@ void func_pspeu_09247D10(Entity* self) {
         }
         break;
     case 2:
-        if (D_pspeu_0927C148 & 0x100) {
+        if (g_CutsceneFlags & 0x100) {
             g_unkGraphicsStruct.unk28 = 0;
             self->step++;
             self->ext.utimer.t = 0;
@@ -191,7 +191,7 @@ void func_pspeu_09248220(Entity* self) {
             self->step_s++;
         }
         g_Player.demo_timer = 1;
-        if (D_pspeu_0927C148 & 0x40) {
+        if (g_CutsceneFlags & 0x40) {
             self->step++;
         }
         break;
@@ -277,7 +277,7 @@ void func_pspeu_09248660(Entity* self) {
     case 2:
         g_Player.padSim = PAD_NONE;
         g_Player.demo_timer = 1;
-        if (D_pspeu_0927C148 & 8) {
+        if (g_CutsceneFlags & 8) {
             g_PauseAllowed = true;
             if (g_unkGraphicsStruct.pauseEnemies) {
                 g_unkGraphicsStruct.pauseEnemies = false;

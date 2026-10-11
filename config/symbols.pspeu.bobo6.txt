@@ -114,3 +114,4 @@ BackgroundBlockInit = 0x09279730;
 cutsceneUnk3Unknown = 0x0927BD58;
 g_Dialogue = 0x0927C100;
 g_SkipCutscene = 0x0927C140;
+g_CutsceneFlags = 0x0927C148;
