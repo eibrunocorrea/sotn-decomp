@@ -20,7 +20,6 @@ extern Dialogue g_Dialogue;
 
 #include "../../st/set_cutscene_events.h"
 
-extern Dialogue g_Dialogue;
 extern u32 g_CutsceneFlags;
 extern PfnEntityUpdate EntityUpdates[];
 

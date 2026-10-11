@@ -98,18 +98,18 @@ extern AbbreviatedOverlay2 g_BossOverlay;
 void InitEntityIds(void);
 
 void RBO6_Load(void) {
-    D_pspeu_0926BF28 = GetLangAt(0, D_pspeu_09255AE0, D_pspeu_09255578,
-                               D_pspeu_09255318, D_pspeu_09255818,
-                               D_pspeu_09255048);
-    D_pspeu_0926BF20 = GetLangAt(0, D_pspeu_09255AE0, D_pspeu_09255578,
-                               D_pspeu_09255318, D_pspeu_09255818,
-                               D_pspeu_09255048);
-    D_pspeu_0926BF18 = GetLangAt(0, D_pspeu_09256968, D_pspeu_09256308,
-                               D_pspeu_09256028, D_pspeu_09256638,
-                               D_pspeu_09255D28);
-    D_pspeu_0926BF10 = GetLangAt(0, D_pspeu_09256968, D_pspeu_09256308,
-                               D_pspeu_09256028, D_pspeu_09256638,
-                               D_pspeu_09255D28);
+    D_pspeu_0926BF28 =
+        GetLangAt(0, D_pspeu_09255AE0, D_pspeu_09255578, D_pspeu_09255318,
+                  D_pspeu_09255818, D_pspeu_09255048);
+    D_pspeu_0926BF20 =
+        GetLangAt(0, D_pspeu_09255AE0, D_pspeu_09255578, D_pspeu_09255318,
+                  D_pspeu_09255818, D_pspeu_09255048);
+    D_pspeu_0926BF18 =
+        GetLangAt(0, D_pspeu_09256968, D_pspeu_09256308, D_pspeu_09256028,
+                  D_pspeu_09256638, D_pspeu_09255D28);
+    D_pspeu_0926BF10 =
+        GetLangAt(0, D_pspeu_09256968, D_pspeu_09256308, D_pspeu_09256028,
+                  D_pspeu_09256638, D_pspeu_09255D28);
     InitEntityIds();
     PfnEntityUpdates = EntityUpdates;
     g_pStObjLayoutHorizontal = &D_8D2DE98;

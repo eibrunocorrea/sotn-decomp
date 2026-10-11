@@ -72,7 +72,8 @@ s32 DecreaseBrightness(Primitive* prim, s32 brightnessOffset) {
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4594);
 
-// Particle trail extension; offsets and six packed Y coordinates verified in PSP ASM.
+// Particle trail extension; offsets and six packed Y coordinates verified in
+// PSP ASM.
 typedef struct {
     /* 0x7C */ Primitive* prim;
     /* 0x80 */ s32 : 32;
@@ -133,7 +134,8 @@ void func_us_801A4F14(Entity* self) {
         LOW(prim->r2) = LOW(prim->r0);
         LOW(prim->r3) = LOW(prim->r0);
         prim->priority = self->zPriority;
-        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        prim->drawMode =
+            DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
         prim = prim->next;
         for (i = 0; i < 4; i++) {
             prim->tpage = 0x1A;
@@ -147,7 +149,8 @@ void func_us_801A4F14(Entity* self) {
             LOW(prim->r2) = LOW(prim->r0);
             LOW(prim->r3) = LOW(prim->r0);
             prim->priority = self->zPriority + 1;
-            prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+            prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS |
+                             DRAW_UNK02 | DRAW_TRANSP;
             prim = prim->next;
         }
         prim->tpage = 0x1A;
@@ -161,7 +164,8 @@ void func_us_801A4F14(Entity* self) {
         LOW(prim->r2) = LOW(prim->r0);
         LOW(prim->r3) = LOW(prim->r0);
         prim->priority = self->zPriority;
-        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        prim->drawMode =
+            DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
         prim = prim->next;
         ((Rbo6ParticleTrail*)&self->ext)->glow = prim;
         prim->tpage = 0x1A;
@@ -176,7 +180,8 @@ void func_us_801A4F14(Entity* self) {
         LOW(prim->r2) = LOW(prim->r0);
         LOW(prim->r3) = LOW(prim->r0);
         prim->priority = self->zPriority;
-        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP | DRAW_UNK_40;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 |
+                         DRAW_TRANSP | DRAW_UNK_40;
         if (self->hitboxWidth < 4) {
             prim->drawMode = DRAW_HIDE;
         }
@@ -345,7 +350,8 @@ void func_us_801A399C(Entity* self) {
         if (g_CutsceneFlags & 0x100) {
             prim = &g_PrimBuf[self->primIndex];
             PCOL(prim) = 0xFF;
-            prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            prim->drawMode =
+                DRAW_UNK_40 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
             self->step++;
         }
         break;
@@ -358,7 +364,6 @@ void func_us_801A399C(Entity* self) {
         break;
     }
 }
-
 
 void func_us_801A3BE0(Entity* self) {
     extern EInit g_EInitInteractable;
@@ -379,7 +384,8 @@ void func_us_801A3BE0(Entity* self) {
             prim->y0 = prim->y1 = 0x40;
             prim->y2 = prim->y3 = 0xC0;
             PCOL(prim) = 0xFF;
-            prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            prim->drawMode =
+                DRAW_UNK_40 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
             prim->priority = 0x82;
         }
         break;
@@ -577,7 +583,6 @@ void func_us_801A9208_from_bo6(Entity* self) {
     }
 }
 
-
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019DB9C);
 
 void func_us_8019EADC(Entity* self) {
@@ -657,7 +662,7 @@ void func_us_8019EADC(Entity* self) {
                 SetSubStep(1);
             }
             if (!self->poseTimer && self->pose == 2) {
-                PlaySfxPositional(0x662);
+                PlaySfxPositional(SFX_FIREBALL_SHOT_C);
             }
             break;
         case 1:
@@ -960,7 +965,8 @@ void func_us_8019FCB4(Entity* self) {
         self->posX.i.hi = entity->posX.i.hi;
         self->posY.i.hi = entity->posY.i.hi;
         ((Rbo6TransformationEffect*)&self->ext)->angle += 0x10;
-        angle = self->rotate = (rsin(((Rbo6TransformationEffect*)&self->ext)->angle) << 7) >> 12;
+        angle = self->rotate =
+            (rsin(((Rbo6TransformationEffect*)&self->ext)->angle) << 7) >> 12;
         prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
         for (i = 0; i < 2; i++) {
             if (!i) {
@@ -1071,7 +1077,8 @@ void func_us_801A01A4(Entity* self) {
     self->posY.i.hi = entity->posY.i.hi;
     if (!(g_Timer & 0xF)) {
         // The PSP call passes volume/pan through the PlaySfx slot.
-        ((void (*)(s32, s32, s32))g_api.PlaySfx)(0x869, 0x70, 0);
+        ((void (*)(s32, s32, s32))g_api.PlaySfx)(
+            SFX_DRACULA_ELECTRICITY, 0x70, 0);
     }
 
     switch (self->step) {
@@ -1319,7 +1326,7 @@ void func_us_801A0860(Entity* self) {
         break;
     case 3:
         if (D_pspeu_0926C070 == 4) {
-            g_api.PlaySfx(0x868);
+            g_api.PlaySfx(SFX_DRACULA_KARASUMAN_SQUISH);
             self->step++;
         }
         break;
@@ -1346,7 +1353,7 @@ void func_us_801A0860(Entity* self) {
         break;
     case 5:
         if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
-            g_api.PlaySfx(0x672);
+            g_api.PlaySfx(SFX_NOISE_SWEEP_DOWN_A);
             DestroyEntity(self);
         }
         break;
@@ -1380,7 +1387,8 @@ void func_us_801A0AB4(Entity* self) {
         self->velocityY = speed * rsin(angle);
         self->posX.val += self->velocityX * 4;
         self->posY.val += self->velocityY * 4;
-        ((Rbo6TransformationEffect*)&self->ext)->timer = (Random() & 0x1F) + 0x10;
+        ((Rbo6TransformationEffect*)&self->ext)->timer =
+            (Random() & 0x1F) + 0x10;
         // Fallthrough
     case 1:
         MoveEntity();
@@ -1468,13 +1476,14 @@ void func_us_801A0DC0(Entity* self) {
             self->step++;
         }
         if (!(g_Timer & 0x1F)) {
-            g_api.PlaySfxVolPan(0x6DE, 0x50, 0);
+            g_api.PlaySfxVolPan(SFX_RAPID_SYNTH_BUBBLE_SHORT, 0x50, 0);
         }
         break;
     case 2:
         AnimateEntity(D_pspeu_0926B408, self);
         MoveEntity();
-        scale = 0x6000 / (((Rbo6TransformationEffect*)&self->ext)->timer + 0x18);
+        scale =
+            0x6000 / (((Rbo6TransformationEffect*)&self->ext)->timer + 0x18);
         self->scaleX = self->scaleY = scale;
         if (!(((Rbo6TransformationEffect*)&self->ext)->timer & 3)) {
             entity = AllocEntity(&g_Entities[192], &g_Entities[256]);
@@ -1486,10 +1495,12 @@ void func_us_801A0DC0(Entity* self) {
             }
         }
         if (!(((Rbo6TransformationEffect*)&self->ext)->timer & 0xF)) {
-            g_api.PlaySfxVolPan(0x6E2, 0x80 - ((Rbo6TransformationEffect*)&self->ext)->timer / 2, 0);
+            g_api.PlaySfxVolPan(
+                SFX_RIC_SUC_REVIVE,
+                0x80 - ((Rbo6TransformationEffect*)&self->ext)->timer / 2, 0);
         }
         if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
-            g_api.PlaySfx(0x661);
+            g_api.PlaySfx(SFX_FIREBALL_SHOT_B);
             self->zPriority = g_unkGraphicsStruct.g_zEntityCenter + 8;
             entity = &PLAYER;
             deltaX = entity->posX.i.hi - self->posX.i.hi;
