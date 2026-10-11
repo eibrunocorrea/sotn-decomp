@@ -1,7 +1,7 @@
 EXTERN(_binary_assets_boss_bo4_mwo_header_bin_start);
 EXTERN(BO4_Load);
-doppleganger_sprites = 0x09263438;
-bat_form_sprites = 0x09263440;
+D_8D31FA0 = 0x08D31FA0;
+D_8D589B8 = 0x08D589B8;
 g_Clut = 0x091F5DF8;
 EXTERN(D_psp_E_ID_16);
 EXTERN(D_psp_E_ID_17);
@@ -16,5 +16,3 @@ D_pspeu_0926BB00 = 0x0926BB00;
 D_pspeu_0926BB70 = 0x0926BB70;
 D_pspeu_0926BB78 = 0x0926BB78;
 D_pspeu_0926BB80 = 0x0926BB80;
-g_Maria = 0x0926CA40;
-g_DopAnimationFrames = 0x0926B038;

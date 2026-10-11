@@ -1,83 +1,39 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-/*
- * File: e_demon_switch_wall.c
- * Overlay: RCHI
- * Description: ENTITY - Secret wall that is opened by the demon familiar
- *                       pressing a button (reverse castle: mirrored)
- */
-
 #include "rchi.h"
+
+extern EInit g_EInitBreakableWallDebris;
 
 #ifdef VERSION_PSP
 extern s32 E_ID(GREY_PUFF);
 #endif
 
-extern EInit D_us_80180648;
-
-// clang-format off
-// With Collision
+// D_us_801807EC
 static s16 WallTiles[] = {
-    0x039D, 0x03A0, 0x03A0, 0x039E, 0x03A0, 0x03A0, 0x03A0, 0x039F,
-    0x03A0, 0x03A0, 0x03A0, 0x03A0,
-};
-// Without Collision
-static s16 WallTilesOpened[] = {
-    0x01C2, 0x01BF, 0x01BF, 0x01D2, 0x01BF, 0x01BF, 0x01BF, 0x01D3,
-    0x01BF, 0x01BF, 0x01BF, 0x01BF,
-};
-// clang-format on
+    // With Collision
+    0x039D, 0x03A0, 0x03A0, 0x039E, 0x03A0, 0x03A0, 0x03A0, 0x039F, 0x03A0,
+    0x03A0, 0x03A0, 0x03A0,
+    // Without Collision
+    0x01C2, 0x01BF, 0x01BF, 0x01D2, 0x01BF, 0x01BF, 0x01BF, 0x01D3, 0x01BF,
+    0x01BF, 0x01BF, 0x01BF};
 
-static void UpdateFallingPebble(Primitive* prim) {
-    const int FallSpeed = 2;
-    const int MaxScrolledY = 160;
-
-    s32 newYScrolled;
-    u32 rand;
-
-    switch (prim->p3) {
-    case 1: // Init (and fallthru to Idle)
-        rand = (Random() & 1);
-        prim->u0 = rand + 1;
-        prim->v0 = rand + 1;
-        prim->r0 = 0x60;
-        prim->g0 = 0x80;
-        prim->b0 = 0x30;
-        prim->priority = 0xA0;
-        prim->drawMode = DRAW_UNK02;
-        prim->p2 = (Random() & 0x1F) + 0x10;
-        prim->p3 = 2;
-        // fallthrough
-    case 2: // Idle
-        prim->y0 += FallSpeed;
-        newYScrolled = g_Tilemap.scrollY.i.hi + prim->y0;
-        if (!--prim->p2 || newYScrolled > MaxScrolledY) {
-            prim->drawMode = DRAW_HIDE;
-            prim->p3 = 0; // Inactive
-        }
-        return;
-    }
-}
+#include "../e_falling_pebble.h"
 
 void EntityDemonSwitch(Entity* self) {
-    typedef enum Step {
-        INIT = 0,
-        PRESS = 1,
-    };
-
     switch (self->step) {
-    case INIT:
-        InitializeEntity(D_us_80180648);
+    case 0:
+        InitializeEntity(g_EInitBreakableWallDebris);
 
         self->animCurFrame = 3;
         self->hitPoints = 32767;
-        self->hitboxWidth = 6;
         self->hitboxState = 3;
+        self->hitboxWidth = 6;
         self->hitboxHeight = 8;
+
         if (g_CastleFlags[RCHI_DEMON_SWITCH]) {
             self->animCurFrame = 4;
         }
-        // Fallthrough
-    case PRESS:
+        /* fall through */
+    case 1:
         if (self->hitParams == 7) {
             g_api.PlaySfx(SFX_ANIME_SWORD_B);
             g_CastleFlags[RCHI_DEMON_SWITCH] = 1;
@@ -89,8 +45,9 @@ void EntityDemonSwitch(Entity* self) {
     }
 }
 
+extern Primitive* FindFirstUnkPrim(Primitive* poly);
 void EntityDemonSwitchWall(Entity* self) {
-    typedef enum Step {
+    enum Step {
         INIT = 0,
         IDLE_CLOSED = 1,
         PREP_TO_OPEN = 2,
@@ -108,12 +65,10 @@ void EntityDemonSwitchWall(Entity* self) {
     s32 remainingColumnCount;
     s32 xPos;
     s32 yPos;
-    Tilemap* tilemap;
-    Tilemap* tilemap2;
 
     switch (self->step) {
     case INIT:
-        InitializeEntity(D_us_80180648);
+        InitializeEntity(g_EInitBreakableWallDebris);
 
         self->animCurFrame = 1; // Default: Collision (closed)
 
@@ -123,12 +78,11 @@ void EntityDemonSwitchWall(Entity* self) {
             pSrcTile += 0xC; // No collision (opened)
         }
 
-        // Adjust tilemap (mirrored: columns walk left, rows walk up)
+        // Adjust tilemap
         tileIdx = 0x392;
         for (iCol = 0; iCol < 3; tileIdx--, iCol++) {
-            tilemap = &g_Tilemap;
             for (iRow = 0; iRow < 4; iRow++, pSrcTile++) {
-                *(&tilemap->fg[tileIdx] - iRow * 16) = *pSrcTile;
+                *(&g_Tilemap.fg[tileIdx] - iRow * 16) = *pSrcTile;
             }
         }
 
@@ -150,7 +104,7 @@ void EntityDemonSwitchWall(Entity* self) {
             self->flags |= FLAG_HAS_PRIMS;
             self->primIndex = primIdx;
             prim = &g_PrimBuf[primIdx];
-            self->ext.prim = prim;
+            self->ext.demonSwitchWall.prim = prim;
 
             while (prim != NULL) {
                 prim->drawMode = DRAW_HIDE;
@@ -177,11 +131,11 @@ void EntityDemonSwitchWall(Entity* self) {
         MoveEntity();
 
         if (self->velocityX > FIX(-0.25)) {
-            self->velocityX -= FIX(0.0078125);
+            self->velocityX += FIX(-0.0078125);
         }
 
         // Generate a "falling pebble" particle
-        prim = self->ext.prim;
+        prim = self->ext.demonSwitchWall.prim;
         prim = FindFirstUnkPrim(prim);
         if (prim != NULL) {
             prim->p3 = 1;
@@ -197,7 +151,7 @@ void EntityDemonSwitchWall(Entity* self) {
         }
 
         // Update ALL "falling pebble" particles
-        prim = self->ext.prim;
+        prim = self->ext.demonSwitchWall.prim;
         while (prim != NULL) {
             if (prim->p3) {
                 UpdateFallingPebble(prim);
@@ -226,12 +180,12 @@ void EntityDemonSwitchWall(Entity* self) {
         }
 
         // Update tilemap to remove collision as the wall moves out of the way
-        pSrcTile = WallTilesOpened;
+        pSrcTile = WallTiles;
         tileIdx = 0x392;
+        pSrcTile += 0xC;
         for (iCol = 0; iCol < remainingColumnCount; tileIdx--, iCol++) {
-            tilemap2 = &g_Tilemap;
             for (iRow = 0; iRow < 4; iRow++, pSrcTile++) {
-                *(&tilemap2->fg[tileIdx] - iRow * 16) = *pSrcTile;
+                *((&g_Tilemap.fg[tileIdx]) - iRow * 16) = *pSrcTile;
             }
         }
 

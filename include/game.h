@@ -2254,5 +2254,6 @@ extern s32 D_80098894;
 #include <game_psp.h>
 
 #include "palettes.h"
+#include "enemies.h"
 
 #endif

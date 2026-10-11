@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rchi.h"
 
-/*
- * RCHI's breakable is the inverted-castle sibling of CHI's
- * e_breakable_with_lighting.h implementation: the light aura and debris
- * position offsets are applied in the opposite direction, the light is not
- * destroyed before being recreated, and the debris pops up with less force.
- */
+enum BreakableDebrisSteps {
+    INIT,
+    UPDATE,
+};
+
+#define BREAKABLE_ZPRIORITY 112
+#define BASE_DEBRIS_COUNT 4
+#define TALL_EXTRA_DEBRIS 3
 
 #ifdef VERSION_PSP
 extern s32 E_ID(BACKGROUND_BLOCK);
@@ -15,19 +17,6 @@ extern s32 E_ID(BREAKABLE_DEBRIS);
 
 extern EInit g_EInitBreakable;
 
-void CreateEntityFromCurrentEntity(u16 entityId, Entity* entity);
-void ReplaceBreakableWithItemDrop(Entity*);
-
-#define CANDLE_HIT_SFX SFX_FIRE_SHOT
-#define BREAKABLE_ZPRIORITY 112
-
-#define LIGHT_AURA 1
-#define LIGHT_AURA_Y_OFFSET 16
-#define LIGHT_AURA_Y_OFFSET_TALL 32
-#define BASE_DEBRIS_COUNT 4
-#define TALL_EXTRA_DEBRIS 3
-#define DEBRIS_Y_OFFSET_TALL 20
-
 static AnimateEntityFrame anim_brazier_short[] = {
     {3, 14}, {4, 15}, {4, 16}, {4, 17},
     {4, 18}, {4, 19}, {3, 20}, POSE_LOOP(0)};
@@ -35,90 +24,83 @@ static AnimateEntityFrame anim_brazier_tall[] = {
     {3, 21}, {4, 22}, {4, 23}, {4, 24},
     {4, 25}, {4, 26}, {3, 27}, POSE_LOOP(0)};
 static AnimateEntityFrame* animations[] = {
-    anim_brazier_short, anim_brazier_tall};
-static u8 hitbox_heights[] = {12, 20};
-static u8 explosion_types[] = {EXPLOSION_BIG, EXPLOSION_BIG};
+    anim_brazier_short,
+    anim_brazier_tall,
+};
+static u8 hitbox_heights[] = {12, 20, 0, 0};
+static u8 explosion_types[] = {3, 3, 0, 0};
 static u16 anim_sets[] = {ANIMSET_OVL(2), ANIMSET_OVL(2)};
-static u8 blend_modes[] = {BLEND_TRANSP | BLEND_ADD, BLEND_TRANSP | BLEND_ADD};
+static u8 blend_modes[] = {
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_TRANSP | BLEND_ADD,
+    BLEND_NO,
+    BLEND_NO,
+};
 static s16 debris_offsets_y[] = {
     -4, -4, 3, -6, 2, 9, -4, 12, 0, 2, 0, 15, 0, 31};
 
-// params: (>> 12) selects breakableType (0 or 1 in this stage);
-//         a non-zero type is a "tall" breakable that breaks into more debris
 void EntityBreakable(Entity* self) {
+    u16 breakableType = self->params >> 12;
     Entity* entity;
-    s16* debrisOffsetsY;
-    u16 breakableType;
-    s32 debrisCount;
+    s32 i;
+    s16* debrisOffsets;
 
-    breakableType = self->params >> 12;
     if (!self->step) {
         InitializeEntity(g_EInitBreakable);
-        self->zPriority = BREAKABLE_ZPRIORITY;
+        self->zPriority = 0x70;
         self->blendMode = blend_modes[breakableType];
         self->hitboxHeight = hitbox_heights[breakableType];
         self->animSet = anim_sets[breakableType];
-
         entity = self + 1;
         CreateEntityFromEntity(E_ID(BACKGROUND_BLOCK), self, entity);
-        // The inverted castle shifts the light aura downwards
         if (breakableType) {
-            entity->posY.i.hi += LIGHT_AURA_Y_OFFSET_TALL;
+            entity->posY.i.hi += 0x20;
         } else {
-            entity->posY.i.hi += LIGHT_AURA_Y_OFFSET;
+            entity->posY.i.hi += 0x10;
         }
-        entity->params = LIGHT_AURA;
+        entity->params = 1;
     }
 
     AnimateEntity(animations[breakableType], self);
-
     if (self->hitParams) {
-        g_api.PlaySfx(CANDLE_HIT_SFX);
+        g_api.PlaySfx(SFX_FIRE_SHOT);
         entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
         if (entity != NULL) {
             CreateEntityFromCurrentEntity(E_EXPLOSION, entity);
             entity->params = explosion_types[breakableType];
-            entity->params |= 16;
+            entity->params |= 0x10;
         }
-        // The inverted castle scatters the debris in the opposite direction
-        debrisOffsetsY = debris_offsets_y;
-        for (debrisCount = 0; debrisCount < BASE_DEBRIS_COUNT; debrisCount++) {
+
+        debrisOffsets = debris_offsets_y;
+        for (i = 0; i < 4; i++) {
             entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (entity != NULL) {
                 CreateEntityFromEntity(E_ID(BREAKABLE_DEBRIS), self, entity);
-                entity->posX.i.hi -= *debrisOffsetsY++;
-                entity->posY.i.hi -= *debrisOffsetsY++;
+                entity->posX.i.hi -= *debrisOffsets++;
+                entity->posY.i.hi -= *debrisOffsets++;
                 if (breakableType) {
-                    entity->posY.i.hi += DEBRIS_Y_OFFSET_TALL;
+                    entity->posY.i.hi += 0x14;
                 }
-                entity->params = debrisCount;
+                entity->params = i;
             }
         }
-
         if (breakableType) {
-            for (debrisCount = 0; debrisCount < TALL_EXTRA_DEBRIS;
-                 debrisCount++) {
+            for (i = 0; i < 3; i++) {
                 entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
                 if (entity != NULL) {
                     CreateEntityFromEntity(
                         E_ID(BREAKABLE_DEBRIS), self, entity);
-                    entity->posX.i.hi -= *debrisOffsetsY++;
-                    entity->posY.i.hi -= *debrisOffsetsY++;
-                    entity->params = debrisCount + BASE_DEBRIS_COUNT;
+                    entity->posX.i.hi -= *debrisOffsets++;
+                    entity->posY.i.hi -= *debrisOffsets++;
+                    entity->params = i + 4;
                 }
             }
         }
-
         entity = self + 1;
         DestroyEntity(entity);
         ReplaceBreakableWithItemDrop(self);
     }
 }
-
-enum BreakableDebrisSteps {
-    INIT,
-    UPDATE,
-};
 
 // params: Index of breakable debris to use
 //         (>= 4) Considered a "tall" breakable debris
@@ -127,8 +109,10 @@ void EntityBreakableDebris(Entity* self) {
     Entity* entity;
     Collider collider;
     Primitive* prim;
-    s32 primIndex;
+    u32 primIndex;
     s32 facingLeft;
+    u32 posX;
+    u32 posY;
 
     switch (self->step) {
     case INIT:
@@ -144,6 +128,7 @@ void EntityBreakableDebris(Entity* self) {
         if (self->facingLeft) {
             self->ext.breakableDebris.angle = -self->ext.breakableDebris.angle;
         }
+
         if (self->params > BASE_DEBRIS_COUNT - 1) {
             self->ext.breakableDebris.angle = -self->ext.breakableDebris.angle;
         }
@@ -153,6 +138,7 @@ void EntityBreakableDebris(Entity* self) {
         } else {
             self->velocityX = FIX(-1);
         }
+
         self->velocityX += FIX(0.5) - (Random() << 8);
         self->velocityY = FIX(-2.25);
         self->velocityY += (self->params >> 1) * FIX(0.375);
@@ -167,32 +153,32 @@ void EntityBreakableDebris(Entity* self) {
         self->primIndex = 0;
         if (!self->params) {
             primIndex = g_api.AllocPrimitives(PRIM_GT4, 2);
-            if (primIndex == -1) {
+            if (primIndex != -1) {
+                self->flags |= FLAG_HAS_PRIMS;
+                self->primIndex = primIndex;
+                prim = &g_PrimBuf[primIndex];
+
+                UnkPolyFunc2(prim);
+
+                prim->tpage = 26;
+                prim->clut = PAL_BREAKABLE_DEBRIS;
+                prim->u0 = prim->u2 = 64;
+                prim->u1 = prim->u3 = 96;
+                prim->v0 = prim->v1 = 0;
+                prim->v2 = prim->v3 = 32;
+
+                prim->next->x1 = self->posX.i.hi - 4;
+                prim->next->y0 = self->posY.i.hi + 8;
+                LOH(prim->next->r2) = 32;
+                LOH(prim->next->b2) = 32;
+                prim->next->b3 = 16;
+
+                prim->priority = BREAKABLE_ZPRIORITY + 2;
+                prim->drawMode = DRAW_TRANSP | DRAW_UNK02 | DRAW_COLORS |
+                                 DRAW_TPAGE | DRAW_TPAGE2;
+            } else {
                 DestroyEntity(self);
-                return;
             }
-            self->flags |= FLAG_HAS_PRIMS;
-            self->primIndex = primIndex;
-            prim = &g_PrimBuf[primIndex];
-
-            UnkPolyFunc2(prim);
-
-            prim->tpage = 26;
-            prim->clut = 0x159;
-            prim->u0 = prim->u2 = 64;
-            prim->u1 = prim->u3 = 96;
-            prim->v0 = prim->v1 = 0;
-            prim->v2 = prim->v3 = 32;
-
-            prim->next->x1 = self->posX.i.hi - 4;
-            prim->next->y0 = self->posY.i.hi + 8;
-            LOH(prim->next->r2) = 32;
-            LOH(prim->next->b2) = 32;
-            prim->next->b3 = 16;
-
-            prim->priority = BREAKABLE_ZPRIORITY + 2;
-            prim->drawMode = DRAW_TRANSP | DRAW_UNK02 | DRAW_COLORS |
-                             DRAW_TPAGE | DRAW_TPAGE2;
         }
         break;
 
@@ -200,8 +186,9 @@ void EntityBreakableDebris(Entity* self) {
         MoveEntity();
         self->rotate += self->ext.breakableDebris.angle;
         self->velocityY += FIX(0.25);
-        g_api.CheckCollision(
-            self->posX.i.hi, self->posY.i.hi + 6, &collider, 0);
+        posX = self->posX.i.hi;
+        posY = self->posY.i.hi + 6;
+        g_api.CheckCollision(posX, posY, &collider, 0);
         if (collider.effects & EFFECT_SOLID) {
             self->posY.i.hi += collider.unk18;
             self->velocityY = -self->velocityY / 2;
