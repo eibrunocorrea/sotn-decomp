@@ -4269,7 +4269,7 @@ typedef struct {
 } ET_801B365C;
 
 typedef struct {
-    /* 0x7C */ u32 : 32;
+    /* 0x7C */ Primitive* prim;
     /* 0x80 */ s16 unk80;
     /* 0x82 */ s16 unk82;
     /* 0x84 */ s16 unk84;
@@ -4278,6 +4278,20 @@ typedef struct {
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ s16 unk8C;
     /* 0x8E */ s16 unk8E;
+    /* 0x90 */ s16 unk90;
+    /* 0x92 */ s16 unk92;
+    /* 0x94 */ s16 unk94;
+    /* 0x96 */ s16 unk96;
+    /* 0x98 */ s16 unk98;
+    /* 0x9A */ s16 unk9A;
+    /* 0x9C */ s16 unk9C;
+    /* 0x9E */ s16 unk9E;
+    /* 0xA0 */ s16 unkA0;
+    /* 0xA2 */ s16 unkA2;
+    /* 0xA4 */ s16 unkA4;
+    /* 0xA6 */ s16 unkA6;
+    /* 0xA8 */ s16 unkA8;
+    /* 0xAA */ s16 : 16;
 } ET_801B619C;
 
 typedef struct {

@@ -220,7 +220,84 @@ u8 func_pspeu_092652C0(s16* values, s16* targets, s16 speed) {
     return ret;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09265368);
+void func_pspeu_09265368(void) {
+    Primitive* prim;
+    s16 angle;
+    s16* angles;
+    s16 lower;
+    s16 upper;
+    s16 length;
+    s32 i;
+    s16 baseX;
+    s16 oldX0;
+    s16 x0;
+    s16 oldX1;
+    s16 x1;
+    s16 baseY;
+    s16 oldY0;
+    s16 oldY1;
+    s16 delta;
+    s16 y0;
+    s16 y1;
+
+    baseX = g_CurrentEntity->posX.i.hi;
+    baseY = g_CurrentEntity->posY.i.hi;
+    angles = &g_CurrentEntity->ext.et_801B619C.unk88;
+    prim = g_CurrentEntity->ext.et_801B619C.prim;
+    angle = ROT(-33.75);
+    for (i = 0; i < 9;) {
+        oldX0 = x0;
+        oldY0 = y0;
+        oldX1 = x1;
+        oldY1 = y1;
+        angle = (angle + *angles) / 2 + ROT(90);
+        upper = 8;
+        lower = 8;
+        delta = angle - *angles;
+        upper += rcos(delta) * 6 >> 12;
+        lower -= rcos(delta) * 6 >> 12;
+        if (!i) {
+            lower = 12;
+            angle = ROT(53.4375);
+        }
+        upper = upper * (g_CurrentEntity->ext.et_801B619C.unk84 / 2 + 0x800) >> 12;
+        lower = lower * (g_CurrentEntity->ext.et_801B619C.unk84 / 2 + 0x800) >> 12;
+        x0 = x1 = baseX;
+        y0 = y1 = baseY;
+        if (g_CurrentEntity->facingLeft) {
+            angle = ROT(180) - angle;
+        }
+        x0 += (s16)(upper * rcos(angle) >> 12);
+        y0 -= (s16)(upper * rsin(angle) >> 12);
+        x1 -= (s16)(lower * rcos(angle) >> 12);
+        y1 += (s16)(lower * rsin(angle) >> 12);
+        length = 11;
+        length = length * g_CurrentEntity->ext.et_801B619C.unk84 >> 12;
+        if (!g_CurrentEntity->facingLeft) {
+            baseX += (s16)(length * rcos(*angles) >> 12);
+        } else {
+            baseX -= (s16)(length * rcos(*angles) >> 12);
+        }
+        baseY -= (s16)(length * rsin(*angles) >> 12);
+        angle = *angles;
+        angles++;
+        if (i) {
+            prim->tpage = 0x14;
+            prim->clut = 0x20B;
+            prim->x0 = oldX0;
+            prim->x2 = oldX1;
+            prim->y0 = oldY0;
+            prim->y2 = oldY1;
+            prim->x1 = x0;
+            prim->x3 = x1;
+            prim->y1 = y0;
+            prim->y3 = y1;
+            prim = prim->next;
+        }
+        i++;
+        angles++;
+    }
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092657B8);
 
