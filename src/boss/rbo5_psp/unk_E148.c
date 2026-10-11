@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo5/rbo5.h"
+extern s32 D_pspeu_0926C910;
+extern s32 D_pspeu_0926C918;
+extern s16 D_pspeu_0926CAE0;
+extern s16 D_pspeu_0926CAE8;
+extern s16 D_pspeu_0926CAF0;
+extern s16 D_pspeu_0926CAF8;
+extern s16 D_pspeu_0926CB00;
+extern s16 D_pspeu_0926CB08;
+extern s16 D_pspeu_0926CB10;
+extern s16 D_pspeu_0926CB18;
+extern s16 D_pspeu_09263F68[32];
+extern s16 D_pspeu_09263F28[32];
 extern s32 D_pspeu_0926CCD8;
 extern s32 D_pspeu_0926CCF8;
 extern s32 D_pspeu_0926CD00;
@@ -5018,7 +5030,419 @@ Primitive* func_pspeu_09259480(
     return arg2;
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09259A20);
+void func_pspeu_09259A20(Entity* self) {
+    Primitive* prim;
+    Primitive* mistPrim;
+    mistStruct* mistStruct;
+    s16 xVar;
+    s16 yVar;
+    s16 angle;
+    s16 magnitude;
+    s16 angle2;
+    s16 angle3;
+    s16 xSize;
+    s16 ySize;
+    s16 baseSize;
+    s16 index;
+    s16 xVar2;
+    s16 yVar2;
+    s16 xVar3;
+    s16 yVar3;
+    s32 primColor1;
+    s32 primColor2;
+    s32 primColor3;
+    s32 primColor4;
+    s16 xVar4;
+    s16 yVar4;
+    s32 velX;
+    s32 velY;
+    s32 cosine;
+    s32 sine;
+    s32 i;
+    s32 j;
+    s16 xVar5;
+    s16 yVar5;
+
+    velX = DOPPLEGANGER.velocityX >> 1;
+    velY = DOPPLEGANGER.velocityY >> 1;
+    primColor1 = D_pspeu_0926CAF8 + (rsin(D_pspeu_0926CB18) >> 8);
+    primColor2 = D_pspeu_0926CAF0 + (rsin(D_pspeu_0926CB10) >> 8);
+    primColor3 = D_pspeu_0926CAE8 + (rsin(D_pspeu_0926CB08) >> 8);
+    primColor4 = D_pspeu_0926CAE0 + (rsin(D_pspeu_0926CB00) >> 8);
+    D_pspeu_0926CB18 += 0x20;
+    D_pspeu_0926CB10 -= 0x20;
+    D_pspeu_0926CB08 += 0x20;
+    D_pspeu_0926CB00 -= 0x20;
+    self->ext.mist.timer++;
+
+    self->facingLeft = DOPPLEGANGER.facingLeft;
+    if (DOPPLEGANGER.animSet == 0xF) {
+        self->facingLeft = 0;
+    }
+
+    switch (self->step) {
+    case 0:
+        // Weird that we set FLAG_DEAD here.
+        self->params = FLAG_UNK_4000 | FLAG_UNK_1000 | FLAG_UNK_800 |
+                       FLAG_UNK_400 | FLAG_DEAD;
+        func_pspeu_09254180(self);
+        if (self->primIndex == -1) {
+            goto block_147;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        mistPrim = D_pspeu_0926C920;
+        for (i = 0; i < LEN(D_pspeu_0926C920); i++, mistPrim++) {
+            *mistPrim = *prim;
+            prim = prim->next;
+        }
+        g_api.FreePrimitives(self->primIndex);
+        self->step = 0;
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 80);
+        if (self->primIndex == -1) {
+            goto block_147;
+        }
+
+        D_pspeu_0926CB18 = rand() & PSP_RANDMASK;
+        D_pspeu_0926CB10 = rand() & PSP_RANDMASK;
+        D_pspeu_0926CB08 = rand() & PSP_RANDMASK;
+        D_pspeu_0926CB00 = rand() & PSP_RANDMASK;
+
+        D_pspeu_0926CAF8 = 0xEF;
+        D_pspeu_0926CAF0 = 0xEF;
+        D_pspeu_0926CAE8 = 0xEF;
+        D_pspeu_0926CAE0 = 0xEF;
+        mistStruct = &D_pspeu_0926CB20[0];
+        for (i = 0; i < LEN(D_pspeu_0926CB20); i++, mistStruct++) {
+            if (self->facingLeft) {
+                mistPrim = &D_pspeu_0926C920[D_pspeu_09263FA8[i >> 1]];
+                xVar = mistPrim->x0;
+                yVar = mistPrim->y0;
+            } else {
+                mistPrim = &D_pspeu_0926C920[D_pspeu_09263FC8[i >> 1]];
+                xVar = mistPrim->x1;
+                yVar = mistPrim->y1;
+            }
+            xVar5 = (mistPrim->x0 + mistPrim->x1) / 2;
+            yVar5 = (mistPrim->y0 + mistPrim->y1) / 2;
+            if (!(i & 1)) {
+                mistStruct->posX.i.hi = xVar;
+                mistStruct->posY.i.hi = yVar;
+            } else {
+                mistStruct->posX.i.hi = xVar5;
+                mistStruct->posY.i.hi = yVar5;
+            }
+            xVar2 = mistPrim->x2;
+            yVar2 = mistPrim->y2;
+            angle = mistStruct->angle1 = (i * 4096) / 16;
+            mistStruct->angle2 = i << 9;
+            xVar3 = mistStruct->posX.i.hi - xVar2;
+            yVar3 = mistStruct->posY.i.hi - yVar2;
+            mistStruct->size =
+                (SquareRoot12(((xVar3 * xVar3) + (yVar3 * yVar3)) << 0xC) >>
+                 0xC);
+        }
+        xVar4 = xVar2;
+        yVar4 = yVar2;
+        self->ext.mist.xCurrent = xVar2 - DOPPLEGANGER.posX.i.hi;
+        self->ext.mist.yCurrent = yVar2 - DOPPLEGANGER.posY.i.hi;
+        self->posX.i.hi = xVar4;
+        self->posY.i.hi = yVar4;
+        prim = &g_PrimBuf[self->primIndex];
+        for (j = 0; j < 16; j++) {
+            prim = func_pspeu_09259480(0, j, prim, self->facingLeft);
+        }
+        for (j = 0; j < 16; j++) {
+            prim = func_pspeu_09259480(1, j, prim, self->facingLeft);
+        }
+        self->flags =
+            FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+        self->step++;
+        self->ext.mist.timer = 0;
+        D_pspeu_0926C918 = 0;
+        break;
+    case 1:
+        D_pspeu_0926CAF8 -= 1;
+        D_pspeu_0926CAF0 -= 2;
+        D_pspeu_0926CAE8 -= 3;
+        D_pspeu_0926CAE0 -= 4;
+        if (D_pspeu_0926CAF8 < 0xD0) {
+            D_pspeu_0926CAF8 = 0xD0;
+        }
+        if (D_pspeu_0926CAF0 < 0xA0) {
+            D_pspeu_0926CAF0 = 0xA0;
+        }
+        if (D_pspeu_0926CAE8 < 0x70) {
+            D_pspeu_0926CAE8 = 0x70;
+        }
+        if (D_pspeu_0926CAE0 < 0x30) {
+            D_pspeu_0926CAE0 = 0x30;
+        }
+        if (self->ext.mist.timer == 0x4F) {
+            self->step++;
+            g_api.func_800EA538(5);
+        }
+        // Fallthrough!
+    case 2:
+        j = 0;
+        if (self->ext.mist.timer < 16) {
+            j = 1;
+        }
+        xVar4 = DOPPLEGANGER.posX.i.hi + self->ext.mist.xCurrent;
+        yVar4 = DOPPLEGANGER.posY.i.hi + self->ext.mist.yCurrent;
+        xVar = xVar4 - self->posX.i.hi;
+        yVar = yVar4 - self->posY.i.hi;
+        angle = ratan2(-yVar, xVar);
+        magnitude = SquareRoot12(((xVar * xVar) + (yVar * yVar)) << 0xC) >> 0xC;
+        if (magnitude > 10) {
+            cosine = rcos(angle) * 8;
+            sine = -rsin(angle) * 8;
+            if (magnitude > 35) {
+                cosine *= 2;
+                sine *= 2;
+            }
+            if (magnitude > 60) {
+                cosine *= 2;
+                sine *= 2;
+            }
+            self->posX.val += (s32)cosine;
+            self->posY.val += (s32)sine;
+        }
+        angle3 = angle;
+        xVar3 = (self->posX.i.hi + xVar4) / 2;
+        yVar3 = (self->posY.i.hi + yVar4) / 2;
+        xVar2 = abs(xVar) / 2;
+        yVar2 = abs(yVar) / 2;
+        mistStruct = &D_pspeu_0926CB20[0];
+        for (i = 0; i < LEN(D_pspeu_0926CB20); i++, mistStruct++) {
+            if ((mistStruct->size < 0x28) && (g_GameTimer & 1)) {
+                mistStruct->size++;
+            }
+            angle2 = mistStruct->angle1;
+            index = ((angle3 - angle2) & 0xFFF);
+            index = (index >> 7) & 0x1F;
+            baseSize = D_pspeu_09263F28[index];
+            xSize = ((mistStruct->size + xVar2) * baseSize) / 80;
+            ySize = ((mistStruct->size + yVar2) * baseSize) / 80;
+            xVar = xVar3 + (((rcos(angle2) >> 4) * xSize) >> 8);
+            yVar = yVar3 - (((rsin(angle2) >> 4) * ySize) >> 8);
+            mistStruct->angle2 += 8;
+            angle = mistStruct->angle2;
+            if (j) {
+                xVar += (rcos(angle) >> 4) * 2 >> 8;
+                yVar -= (rsin(angle) >> 4) * 2 >> 8;
+            } else {
+                xVar += (((rcos(angle) >> 4) * 6) >> 8);
+                yVar -= (((rsin(angle) >> 4) * 6) >> 8);
+            }
+            xVar5 = xVar - mistStruct->posX.i.hi;
+            yVar5 = yVar - mistStruct->posY.i.hi;
+            angle = ratan2(-yVar5, xVar5) & 0xFFF;
+            mistStruct->posX.val += rcos(angle) << 5;
+            mistStruct->posY.val += -rsin(angle) << 5;
+            if (D_pspeu_09263F68[index] == -1) {
+                mistStruct->posX.val += (s32)velX;
+                mistStruct->posY.val += (s32)velY;
+            }
+        }
+        D_pspeu_0926C918 += 8;
+        if (D_pspeu_0926C918 >= 0xFF) {
+            D_pspeu_0926C918 = 0xFF;
+        }
+        break;
+    case 3:
+        g_api.FreePrimitives(self->primIndex);
+        self->step = 0;
+        xVar = self->ext.mist.xCurrent;
+        yVar = self->ext.mist.yCurrent;
+        self->params = FLAG_UNK_4000 | FLAG_UNK_1000 | FLAG_UNK_800 |
+                       FLAG_UNK_400 | FLAG_DEAD;
+        func_pspeu_09254180(self);
+        if (self->primIndex == -1) {
+            self->flags = 0;
+            DestroyEntity(self);
+            goto block_147;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        mistPrim = D_pspeu_0926C920;
+        for (i = 0; i < 8; i++, mistPrim++) {
+            *mistPrim = *prim;
+            prim = prim->next;
+        }
+        g_api.FreePrimitives(self->primIndex);
+        self->ext.mist.xCurrent = xVar;
+        self->ext.mist.yCurrent = yVar;
+        self->ext.mist.timer = 0;
+        self->step = 4;
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 80);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+        } else {
+            mistStruct = D_pspeu_0926CB20;
+            for (i = 0; i < LEN(D_pspeu_0926CB20); i++, mistStruct++) {
+                if (self->facingLeft) {
+                    mistPrim = &D_pspeu_0926C920[D_pspeu_09263FA8[i >> 1]];
+                    xVar = mistPrim->x0;
+                    yVar = mistPrim->y0;
+                } else {
+                    mistPrim = &D_pspeu_0926C920[D_pspeu_09263FC8[i >> 1]];
+                    xVar = mistPrim->x1;
+                    yVar = mistPrim->y1;
+                }
+                xVar5 = (mistPrim->x0 + mistPrim->x1) / 2;
+                yVar5 = (mistPrim->y0 + mistPrim->y1) / 2;
+                if (!(i & 1)) {
+                    mistStruct->xOffset = xVar;
+                    mistStruct->yOffset = yVar;
+                } else {
+                    mistStruct->xOffset = xVar5;
+                    mistStruct->yOffset = yVar5;
+                }
+                mistStruct->xOffset -= DOPPLEGANGER.posX.i.hi;
+                mistStruct->yOffset -= DOPPLEGANGER.posY.i.hi;
+                xVar2 = mistPrim->x2;
+                yVar2 = mistPrim->y2;
+            }
+            self->ext.mist.xTarget = xVar2 - DOPPLEGANGER.posX.i.hi;
+            self->ext.mist.yTarget = yVar2 - DOPPLEGANGER.posY.i.hi;
+            prim = &g_PrimBuf[self->primIndex];
+            for (j = 0; j < 16; j++) {
+                prim = func_pspeu_09259480(0, j, prim, self->facingLeft);
+            }
+            for (j = 0; j < 16; j++) {
+                prim = func_pspeu_09259480(1, j, prim, self->facingLeft);
+            }
+            self->flags =
+                FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+            xVar4 = DOPPLEGANGER.posX.i.hi + self->ext.mist.xCurrent;
+            yVar4 = DOPPLEGANGER.posY.i.hi + self->ext.mist.yCurrent;
+            self->posX.i.hi = DOPPLEGANGER.posX.i.hi;
+            self->posY.i.hi = DOPPLEGANGER.posY.i.hi;
+            D_pspeu_0926C918 = 0xFF;
+            break;
+        }
+        goto block_147;
+    case 4:
+        if (self->ext.mist.timer == 0xC) {
+            g_api.func_800EA538(5);
+            g_api.func_800EA5E4(0x8802);
+        }
+        j = 0;
+        // These if-statements seem to allow for the mist to stretch and move
+        // The mist's current location moves toward the target in X and Y.
+        if (self->ext.mist.xCurrent > self->ext.mist.xTarget) {
+            self->ext.mist.xCurrent--;
+        }
+        if (self->ext.mist.xCurrent < self->ext.mist.xTarget) {
+            self->ext.mist.xCurrent++;
+        }
+        if (self->ext.mist.yCurrent > self->ext.mist.yTarget) {
+            self->ext.mist.yCurrent--;
+        }
+        if (self->ext.mist.yCurrent < self->ext.mist.yTarget) {
+            self->ext.mist.yCurrent++;
+        }
+        xVar4 = DOPPLEGANGER.posX.i.hi + self->ext.mist.xCurrent;
+        yVar4 = DOPPLEGANGER.posY.i.hi + self->ext.mist.yCurrent;
+
+        xVar = xVar4 - self->posX.i.hi;
+        yVar = yVar4 - self->posY.i.hi;
+
+        mistStruct = D_pspeu_0926CB20;
+
+        for (i = 0; i < LEN(D_pspeu_0926CB20); i++, mistStruct++) {
+            xVar = (mistStruct->xOffset + DOPPLEGANGER.posX.i.hi) -
+                   mistStruct->posX.i.hi;
+            yVar = (mistStruct->yOffset + DOPPLEGANGER.posY.i.hi) -
+                   mistStruct->posY.i.hi;
+            if (xVar | yVar) {
+                angle = ratan2(-yVar, xVar);
+                mistStruct->posX.val += rcos(angle) << 5;
+                mistStruct->posY.val += -rsin(angle) << 5;
+            }
+            mistStruct->posX.val += DOPPLEGANGER.velocityX;
+            mistStruct->posY.val += DOPPLEGANGER.velocityY;
+        }
+        if (self->ext.mist.timer > 0x18) {
+            self->step++;
+            self->ext.mist.timer = 0x10;
+        }
+        D_pspeu_0926C918 -= 0x10;
+        if (D_pspeu_0926C918 <= 0) {
+            D_pspeu_0926C918 = 0;
+        }
+        break;
+    case 5:
+        if (self->ext.mist.timer <= 0) {
+            DestroyEntity(self);
+        }
+        return;
+    }
+    D_pspeu_0926C910 = 0xFF - D_pspeu_0926C918;
+
+    prim = &g_PrimBuf[self->primIndex];
+    for (j = 0; j < LEN(D_pspeu_0926CB20); j++) {
+        xVar5 = D_pspeu_0926CB20[j].posX.i.hi;
+        yVar5 = D_pspeu_0926CB20[j].posY.i.hi;
+        xVar2 = D_pspeu_0926CB20[(j + 1) % 16].posX.i.hi;
+        yVar2 = D_pspeu_0926CB20[(j + 1) % 16].posY.i.hi;
+        prim->x0 = xVar5;
+        prim->y0 = yVar5;
+        prim->x1 = xVar2;
+        prim->y1 = yVar2;
+        prim->x2 = xVar4;
+        prim->x3 = xVar4;
+        prim->y2 = yVar4;
+        prim->y3 = yVar4;
+        PGREY(prim, 0) = PGREY(prim, 1) = 0;
+        PGREY(prim, 2) = PGREY(prim, 3) = D_pspeu_0926C910;
+
+        prim = prim->next;
+    }
+    for (j = 0; j < LEN(D_pspeu_0926CB20); j++) {
+        xVar5 = D_pspeu_0926CB20[j].posX.i.hi;
+        yVar5 = D_pspeu_0926CB20[j].posY.i.hi;
+        xVar2 = D_pspeu_0926CB20[(j + 1) % 16].posX.i.hi;
+        yVar2 = D_pspeu_0926CB20[(j + 1) % 16].posY.i.hi;
+        for (i = 0; i < 4; prim = prim->next, i++) {
+            prim->x0 = xVar4 + (i + 1) * (xVar5 - xVar4) / 4;
+            prim->y0 = yVar4 + (i + 1) * (yVar5 - yVar4) / 4;
+            prim->x1 = xVar4 + (i + 1) * (xVar2 - xVar4) / 4;
+            prim->y1 = yVar4 + (i + 1) * (yVar2 - yVar4) / 4;
+            prim->x2 = xVar4 + i * (xVar5 - xVar4) / 4;
+            prim->y2 = yVar4 + i * (yVar5 - yVar4) / 4;
+            prim->x3 = xVar4 + i * (xVar2 - xVar4) / 4;
+            prim->y3 = yVar4 + i * (yVar2 - yVar4) / 4;
+            switch (i) {
+            case 0:
+                PGREY(prim, 0) = PGREY(prim, 1) =
+                    (D_pspeu_0926C918 * primColor2 / 256) & 0xFF;
+                PGREY(prim, 2) = PGREY(prim, 3) =
+                    (D_pspeu_0926C918 * primColor1 / 256) & 0xFF;
+                break;
+            case 1:
+                PGREY(prim, 0) = PGREY(prim, 1) =
+                    (D_pspeu_0926C918 * primColor3 / 256) & 0xFF;
+                PGREY(prim, 2) = PGREY(prim, 3) =
+                    (D_pspeu_0926C918 * primColor2 / 256) & 0xFF;
+                break;
+            case 2:
+                PGREY(prim, 0) = PGREY(prim, 1) =
+                    (D_pspeu_0926C918 * primColor4 / 256) & 0xFF;
+                PGREY(prim, 2) = PGREY(prim, 3) =
+                    (D_pspeu_0926C918 * primColor3 / 256) & 0xFF;
+                break;
+            case 3:
+                PGREY(prim, 0) = PGREY(prim, 1) = 0;
+                PGREY(prim, 2) = PGREY(prim, 3) =
+                    (D_pspeu_0926C918 * primColor4 / 256) & 0xFF;
+                break;
+            }
+        }
+    }
+
+block_147:
+    self->facingLeft = DOPPLEGANGER.facingLeft;
+}
 
 void func_pspeu_0925BA80(Entity* self) {
     const int PrimCount = 36;
