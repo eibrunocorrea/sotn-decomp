@@ -35,7 +35,7 @@ void func_pspeu_092540C8(void) {
             case PL_T_3:
                 break;
             case PL_T_4:
-                angle = (s16)((g_GameTimer & 0xF) << 8);
+                angle = ((g_GameTimer & 0xF) << 8);
                 playerDraw->r0 = playerDraw->g0 = playerDraw->b0 =
                     (rsin(angle) + FLT(1)) / 64 + 0x60;
 
@@ -182,12 +182,10 @@ void func_pspeu_092540C8(void) {
         func_pspeu_09259418();
         break;
     case PL_S_HIT:
-        func_pspeu_09257820(
-            damage.effects, damage.damageKind, (s16)step, (s16)step_s);
+        func_pspeu_09257820(damage.effects, damage.damageKind, step, step_s);
         break;
     case PL_S_DEAD:
-        func_pspeu_09258010(
-            damage.effects, damage.damageKind, (s16)step, (s16)step_s);
+        func_pspeu_09258010(damage.effects, damage.damageKind, step, step_s);
         break;
     case PL_S_STAND_IN_AIR:
         func_pspeu_09258830();
