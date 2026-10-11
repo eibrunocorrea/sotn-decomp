@@ -114,6 +114,8 @@ segments:
       - [0x443E0, bss, 443E0]
       - [0x443E8, .bss, bo6_psp/unk_4C78]
       - [0x44400, bss, '44400']
+      - [0x44458, .bss, bo6_psp/st_init]
+      - [0x444B0, .bss, bo6/e_breakable]
       - [0x444B8, .bss, bo6/d_prize_drops]
       - [0x444C0, bss, '444C0']
       - [0x44AD0, .bss, bo6/e_lock_camera]
