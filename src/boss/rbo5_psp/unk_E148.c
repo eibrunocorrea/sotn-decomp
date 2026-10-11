@@ -1670,6 +1670,123 @@ u32 UpdateAnim(s8* hitboxes, AnimationFrame** anims) {
     return ret;
 }
 
+typedef struct {
+    AnimationFrame* frames;
+    s8* frameProps;
+    u16 soundId;
+    u8 frameStart;
+    u8 soundFrame;
+} DopWeaponAnimation;
+
+s16 D_pspeu_09263078[] = {-8, -8, -8, -8};
+
+s16 D_pspeu_09263080[] = {8, 8, 8, 8};
+
+s16 D_pspeu_09263088[] = {7, 0, 0, 0, 0, 0, -7, 0};
+
+s16 D_pspeu_09263098[] = {-22, -22, -22, -22};
+
+s16 D_pspeu_092630A0[] = {29, 25, 25, 25};
+
+s16 D_pspeu_092630A8[] = {24, 17, 9, 1, -7, -14, -21, 0};
+
+Point16 g_MarSensorsCeiling[] = {{0, -22}, {0, -22}, {4, -22}, {-4, -22}};
+
+Point16 g_MarSensorsFloor[] = {{0, 29}, {0, 25}, {4, 25}, {-4, 25}};
+
+Point16 g_MarSensorsWall[] = {
+    {5, 24},  {5, 17},  {5, 9},  {5, 1},  {5, -7},  {5, -14},  {5, -21},
+    {-5, 24}, {-5, 17}, {-5, 9}, {-5, 1}, {-5, -7}, {-5, -14}, {-5, -21}};
+
+u8 D_pspeu_09263110[] = {
+    1, 2, 2,  4, 3,  4, 4,  4, 5,  4, 6,   6,   7, 6, 8, 6,
+    9, 6, 10, 8, 11, 8, 12, 8, 13, 8, 255, 255, 0, 0, 0, 0};
+
+u8 D_pspeu_09263130[] = {
+    14, 10, 15, 12, 16, 12, 17, 12, 18, 12, 19,  14,  20, 14, 21, 14,
+    22, 14, 31, 8,  32, 8,  33, 8,  34, 8,  255, 255, 0,  0,  0,  0};
+
+u8 D_pspeu_09263150[] = {
+    14, 10, 23, 16, 24, 18, 25, 16, 26, 18, 27,  20,  28, 20, 29, 20,
+    30, 20, 31, 8,  32, 8,  33, 8,  34, 8,  255, 255, 0,  0,  0,  0};
+
+u8 D_pspeu_09263170[] = {35, 22, 36, 24, 37, 24, 38, 24, 39,  24,  40, 26,
+                         41, 26, 42, 26, 43, 26, 44, 8,  255, 255, 0,  0};
+
+u8 D_pspeu_09263188[] = {45, 28, 46, 30, 47, 30, 48, 30, 49,  30,  50, 32,
+                         51, 32, 52, 32, 53, 32, 62, 8,  255, 255, 0,  0};
+
+u8 D_pspeu_092631A0[] = {45, 28, 54, 34, 55, 34, 56, 34, 57,  34,  58, 36,
+                         59, 36, 60, 36, 61, 36, 62, 8,  255, 255, 0,  0};
+
+s8 D_pspeu_092631B8[] = {
+    0,   0,   0,   0,   4,   -23, 8,  5,  30,  -17, 35, 8,  30,  -14, 18,
+    4,   -32, -31, 0,   0,   -4,  -6, 8,  5,   22,  0,  35, 8,   22,  3,
+    18,  4,   29,  22,  13,  11,  12, 7,  19,  12,  14, 14, 18,  4,   1,
+    -25, 8,   5,   27,  -19, 35,  8,  27, -16, 18,  4,  -8, -26, 8,   5,
+    24,  -17, 35,  8,   24,  -14, 18, 4,  23,  0,   27, 14, 18,  2,   21,
+    11,  29,  -14, 34,  4,   21,  3,  34, 4,   28,  21, 12, 10,  26,  -16,
+    34,  4,   23,  -14, 34,  4,   22, 3,  26,  10,  0,  0,  0,   0};
+
+u8 D_pspeu_09263220[] = {
+    1, 2, 2, 4, 3, 4, 4, 6, 5, 6, 6, 6, 7, 6, 8, 6, 9, 6, 255, 255, 0, 0, 0, 0};
+
+u8 D_pspeu_09263238[] = {10, 8, 11, 10, 12, 10, 13,  6,   14, 6, 19, 6,
+                         20, 6, 21, 6,  22, 6,  255, 255, 0,  0, 0,  0};
+
+u8 D_pspeu_09263250[] = {10, 8, 15, 12, 16, 14, 17,  16,  18, 6, 19, 6,
+                         20, 6, 21, 6,  22, 6,  255, 255, 0,  0, 0,  0};
+
+u8 D_pspeu_09263268[] = {
+    23, 18, 24, 20, 25, 20, 26, 6, 27, 6, 28, 6, 255, 255, 0, 0};
+
+u8 D_pspeu_09263278[] = {
+    29, 22, 30, 24, 31, 24, 32, 6, 33, 6, 38, 6, 255, 255, 0, 0};
+
+u8 D_pspeu_09263288[] = {
+    29, 22, 34, 26, 35, 28, 36, 6, 37, 6, 38, 6, 255, 255, 0, 0};
+
+s8 D_pspeu_09263298[] = {
+    0,  0,   0,  0, 3,  -24, 5,  4,  25, -13, 24, 3, -32, -31, 0,  0,
+    -5, -5,  5,  4, 17, 4,   24, 3,  7,  15,  14, 8, 19,  21,  15, 7,
+    13, 18,  17, 5, -1, -25, 5,  4,  23, -15, 24, 7, -9,  -27, 5,  4,
+    19, -14, 24, 7, 15, 2,   19, 10, 29, 8,   11, 8, 0,   0,   0,  0};
+
+AnimationFrame* D_pspeu_092632D8[] = {
+    (AnimationFrame*)D_pspeu_09263110, (AnimationFrame*)D_pspeu_09263110,
+    (AnimationFrame*)D_pspeu_09263130, (AnimationFrame*)D_pspeu_09263150,
+    (AnimationFrame*)D_pspeu_09263170, (AnimationFrame*)D_pspeu_09263188,
+    (AnimationFrame*)D_pspeu_092631A0, NULL};
+
+AnimationFrame* D_pspeu_092632F8[] = {
+    (AnimationFrame*)D_pspeu_09263220, (AnimationFrame*)D_pspeu_09263220,
+    (AnimationFrame*)D_pspeu_09263238, (AnimationFrame*)D_pspeu_09263250,
+    (AnimationFrame*)D_pspeu_09263268, (AnimationFrame*)D_pspeu_09263278,
+    (AnimationFrame*)D_pspeu_09263288, NULL};
+
+DopWeaponAnimation D_pspeu_09263318[] = {
+    {(AnimationFrame*)D_pspeu_092632D8, D_pspeu_092631B8, 0x60B, 0x41, 4},
+    {(AnimationFrame*)D_pspeu_092632F8, D_pspeu_09263298, 0x60B, 0xA7, 4},
+    {(AnimationFrame*)D_pspeu_092632D8, D_pspeu_092631B8, 0x60B, 0x41, 4},
+};
+
+u8 D_pspeu_09263340[][4] = {
+    {0x10, 0x7F, 0x3F, 0x00}, {0x10, 0x7F, 0x00, 0x00},
+    {0x10, 0x3F, 0x3F, 0x3F}, {0x10, 0x5F, 0x2F, 0x00},
+    {0x0C, 0x7F, 0x3F, 0x00}, {0x0C, 0x7F, 0x3F, 0x7F},
+    {0x02, 0x7F, 0x3F, 0x7F}, {0x06, 0x00, 0x3F, 0x7F},
+    {0x06, 0x3F, 0x3F, 0x3F}, {0x10, 0x3F, 0x3F, 0x7F},
+    {0x10, 0xFF, 0xFF, 0xFF}, {0x12, 0x7F, 0x00, 0x00},
+    {0x12, 0x7F, 0x7F, 0x7F}, {0x00, 0x00, 0x00, 0x00}};
+
+u8 D_pspeu_09263378[][8] = {
+    {0x00, 0x50, 0x10, 0x50, 0x00, 0x60, 0x10, 0x60},
+    {0x10, 0x50, 0x20, 0x50, 0x10, 0x60, 0x20, 0x60},
+    {0x70, 0x40, 0x80, 0x40, 0x70, 0x50, 0x80, 0x50},
+    {0x70, 0x30, 0x78, 0x30, 0x70, 0x38, 0x78, 0x38},
+    {0x78, 0x30, 0x80, 0x30, 0x78, 0x38, 0x80, 0x38},
+    {0x70, 0x38, 0x78, 0x38, 0x77, 0x40, 0x78, 0x40}};
+
 // local copy of func_us_801C4954 (see rbo5/unk_44954.c); the
 // primitive index still comes from the player afterimage slot.
 void MarDisableAfterImage(s32 resetAnims, s32 arg1) {
@@ -2413,7 +2530,7 @@ void func_pspeu_092509D0(Entity* self) {
             prim->priority = MARIA.zPriority + 2;
             prim->drawMode =
                 DRAW_TPAGE2 | DRAW_TPAGE | DRAW_UNK02 | DRAW_TRANSP;
-            if (i != 0) {
+            if (i) {
                 prim->drawMode |= DRAW_HIDE;
             }
             prim->x0 = prim->x1 = playerX;
@@ -2459,8 +2576,7 @@ void func_pspeu_092509D0(Entity* self) {
             if (colliderFlags & EFFECT_SOLID) {
                 colliderFlags &= 0xFF00;
                 if (deltaY > 0) {
-                    if ((colliderFlags == 0) ||
-                        (colliderFlags & EFFECT_UNK_0800)) {
+                    if (!colliderFlags || (colliderFlags & EFFECT_UNK_0800)) {
                         func_pspeu_092508C0(0x800);
                     }
                     if (colliderFlags == EFFECT_UNK_8000) {
@@ -2485,8 +2601,7 @@ void func_pspeu_092509D0(Entity* self) {
                     }
                 }
                 if (deltaY < 0) {
-                    if ((colliderFlags == 0) ||
-                        (colliderFlags & EFFECT_UNK_8000)) {
+                    if (!colliderFlags || (colliderFlags & EFFECT_UNK_8000)) {
                         func_pspeu_092508C0(0x800);
                     }
                     if (colliderFlags == EFFECT_UNK_0800) {
@@ -2522,8 +2637,7 @@ void func_pspeu_092509D0(Entity* self) {
                 colliderFlags &= 0xFF00;
                 // Cases when traveling right
                 if (deltaX > 0) {
-                    if ((colliderFlags == 0) ||
-                        TEST_BITS(colliderFlags, 0x4800) ||
+                    if (!colliderFlags || TEST_BITS(colliderFlags, 0x4800) ||
                         TEST_BITS(colliderFlags, 0xC000)) {
                         func_pspeu_092508C0(0x400);
                     }
@@ -2548,8 +2662,7 @@ void func_pspeu_092509D0(Entity* self) {
                 }
                 // Cases when traveling left
                 if (deltaX < 0) {
-                    if ((colliderFlags == 0) ||
-                        ((colliderFlags & 0x4800) == 0x800) ||
+                    if (!colliderFlags || ((colliderFlags & 0x4800) == 0x800) ||
                         ((colliderFlags & 0xC000) == 0x8000)) {
                         func_pspeu_092508C0(0x400);
                     }
@@ -2656,14 +2769,6 @@ void func_pspeu_092509D0(Entity* self) {
         }
     }
 }
-
-typedef struct {
-    AnimationFrame* frames;
-    s8* frameProps;
-    u16 soundId;
-    u8 frameStart;
-    u8 soundFrame;
-} DopWeaponAnimation;
 
 extern EInit D_pspeu_09266718;
 extern EInit D_pspeu_09266728;
