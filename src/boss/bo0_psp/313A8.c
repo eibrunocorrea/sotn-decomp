@@ -118,7 +118,19 @@ s32 func_pspeu_0925EA30(OlroxPrim* part) {
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925EAD8);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925EC00);
+s32 func_pspeu_0925EC00(OlroxPrim* part) {
+    s32 result;
+    OlroxPrim* other;
+
+    other = part->unk18;
+    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0x0, 0xC);
+    result = func_pspeu_0925E340(part, ROT(-61.875), ROT(61.875), 0x28);
+    result += func_pspeu_0925E340(other, ROT(-22.5), ROT(84.375), 0x38);
+    if (result == 2) {
+        return true;
+    }
+    return false;
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925ECA8);
 
