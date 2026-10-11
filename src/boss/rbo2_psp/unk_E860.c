@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo2/rbo2.h"
 
+void func_pspeu_09246448(Entity* self);
+
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_us_8019F4AC);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", EntityBreakable);
@@ -28,7 +30,17 @@ void func_801CE1E8(s32 step) {
     }
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", polarPlacePartsList);
+void polarPlacePartsList(s16* offsets) {
+    Entity* entity;
+
+    while (*offsets) {
+        entity = g_CurrentEntity + *offsets;
+        if (!entity->ext.GH_Props.unkA8) {
+            func_pspeu_09246448(entity);
+        }
+        offsets++;
+    }
+}
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_us_8019A98C);
 
