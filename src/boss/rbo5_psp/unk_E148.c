@@ -77,8 +77,8 @@ s32 func_pspeu_0924D108(void);
 void func_pspeu_0924D4E8(void);
 void func_pspeu_0924D528(void);
 
-extern s32 D_pspeu_0926BC38[];
-extern s32 D_pspeu_0926BBB8[];
+extern s32 D_pspeu_0926BC38[32];
+extern s32 D_pspeu_0926BBB8[32];
 // local copy of func_us_801C096C (see rbo5/doppleganger.c)
 void func_pspeu_092457C8(void) {
     Entity* entity;
@@ -3164,7 +3164,144 @@ void func_pspeu_09253500(Entity* self) {
     self->posX.i.hi = MARIA.posX.i.hi;
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09253620);
+extern s16 D_pspeu_09263778[6];
+extern s32 D_pspeu_09263788[6];
+extern s16 D_pspeu_092637A0[6];
+extern AnimationFrame D_pspeu_092637B0[];
+extern u8 D_pspeu_09263818[14];
+extern u8 D_pspeu_09263828[10];
+void func_pspeu_09253620(Entity* self) {
+    s16 posX;
+    s32 i;
+    s16 paramsLo;
+    s16 paramsHi;
+
+    switch (self->step) {
+    case 0:
+        paramsHi = self->params >> 8;
+        paramsLo = self->params & 0xFF;
+        self->animSet = ANIMSET_DRA(5);
+        self->anim = D_pspeu_092637B0;
+        self->zPriority = MARIA.zPriority + 2;
+        self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        self->palette = PAL_FLAG(PAL_UNK_195);
+        self->blendMode = BLEND_TRANSP;
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+
+        posX = D_pspeu_09263778[paramsLo];
+        if (paramsHi == 0) {
+            posX += 6;
+        }
+        if (paramsHi == 1) {
+            posX -= 8;
+        }
+        if ((paramsHi == 2) || (paramsHi == 0xA)) {
+            posX -= 2;
+        }
+        if (paramsHi == 5) {
+            posX = -6;
+        }
+        if (paramsHi == 6) {
+            posX = -24;
+        }
+        if (paramsHi == 3) {
+            posX = (rand() % 30) - 0xE;
+            paramsLo = (rand() & 3) + 2;
+            self->posY.i.hi -= rand() % 4;
+        }
+        if (paramsHi == 7) {
+            posX = (rand() % 60) - 0x1E;
+            paramsLo = (rand() & 3) + 2;
+            self->posY.i.hi -= rand() % 4;
+        }
+        if (paramsHi == 9) {
+            posX = rand() % 16 - 8;
+            paramsLo = (rand() & 3) + 2;
+            self->posY.i.hi -= (20 + (rand() % 4));
+        }
+        if (paramsHi == 4) {
+            for (i = paramsLo * 2; i < LEN(D_pspeu_09263818); i++) {
+                if (g_Maria.colWall[D_pspeu_09263818[i]].effects &
+                    EFFECT_BLOCK) {
+                    break;
+                }
+            }
+            if (i == LEN(D_pspeu_09263818)) {
+                DestroyEntity(self);
+                return;
+            }
+            self->posX.i.hi =
+                MARIA.posX.i.hi + g_MarSensorsWall[D_pspeu_09263818[i]].x;
+            self->posY.i.hi =
+                MARIA.posY.i.hi + g_MarSensorsWall[D_pspeu_09263818[i]].y;
+            self->velocityY = FIX(-0.25);
+            self->scaleX = D_pspeu_092637A0[1] + 0x40;
+            self->scaleY = self->scaleX;
+            self->step++;
+            return;
+        }
+        if (paramsHi == 8) {
+            for (i = paramsLo * 2; i < LEN(D_pspeu_09263828); i++) {
+                if (g_Maria.colWall[D_pspeu_09263828[i]].effects &
+                    EFFECT_BLOCK) {
+                    break;
+                }
+            }
+            if (i == LEN(D_pspeu_09263828)) {
+                DestroyEntity(self);
+                return;
+            }
+            self->posX.i.hi =
+                MARIA.posX.i.hi + g_MarSensorsWall[D_pspeu_09263828[i]].x;
+            self->posY.i.hi =
+                MARIA.posY.i.hi + g_MarSensorsWall[D_pspeu_09263828[i]].y;
+            self->velocityY = D_pspeu_09263788[paramsLo];
+            self->scaleX = D_pspeu_092637A0[paramsLo] + 0x20;
+            self->scaleY = self->scaleX;
+            self->step++;
+            return;
+        }
+        if (paramsHi == 1) {
+            if (g_Maria.vram_flag & TOUCHING_ANY_SLOPE) {
+                posX /= 2;
+            }
+        }
+        if (paramsHi == 6) {
+            if (MARIA.velocityX > 0) {
+                posX = -posX;
+            }
+        } else {
+            if (self->facingLeft) {
+                posX = -posX;
+            }
+        }
+        self->posX.i.hi += posX;
+        self->posY.i.hi += 0x18;
+        self->scaleX = D_pspeu_092637A0[paramsLo] + 0x40;
+        self->velocityY = D_pspeu_09263788[paramsLo];
+        if (paramsHi == 1) {
+            self->velocityY = FIX(-0.25);
+            MarSetSpeedX(-0x3000);
+            self->scaleX = D_pspeu_092637A0[1] + 0x40;
+        }
+        if (paramsHi == 5) {
+            self->velocityY = D_pspeu_09263788[4 - paramsLo * 2];
+        }
+        self->scaleY = self->scaleX;
+        if (paramsHi == 10) {
+            self->posY.i.hi -= 6;
+        }
+        self->step++;
+        break;
+    case 1:
+        self->posY.val += self->velocityY;
+        self->posX.val += self->velocityX;
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 extern AnimationFrame D_pspeu_09263838[];
 extern s32 D_pspeu_0926CC60;
