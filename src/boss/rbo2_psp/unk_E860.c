@@ -1,13 +1,30 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo2/rbo2.h"
 
-void func_pspeu_09246448(Entity* self);
+typedef struct {
+    u8 pad[0xAC];
+    s16 unkAC;
+} unkStr_09246448;
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_us_8019F4AC);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", EntityBreakable);
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_pspeu_09246448);
+void func_pspeu_09246448(Entity* self) {
+    s16 angle = self->ext.GH_Props.rotate;
+    Entity* src;
+
+    angle += ((unkStr_09246448*)self)->unkAC;
+    if (g_CurrentEntity->facingLeft) {
+        angle = -angle;
+    }
+    src = self->ext.GH_Props.parent;
+    self->posX.val = src->posX.val;
+    self->posY.val = src->posY.val;
+    self->posX.val -= self->ext.GH_Props.length * rsin(angle) * 16;
+    self->posY.val += self->ext.GH_Props.length * rcos(angle) * 16;
+    self->ext.GH_Props.unkA8 |= 1;
+}
 
 void polarPlacePartsWithAngvel(s16* entOffsets) {
     Entity* ent;
