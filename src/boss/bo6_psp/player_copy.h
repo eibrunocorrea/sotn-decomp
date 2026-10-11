@@ -131,7 +131,6 @@ void func_pspeu_0924EA50_from_rbo5(s32 velocityX);
 s32 func_pspeu_09248D20(
     SubweaponDef* subweapon, s32 isItemCrash, s32 useHearts);
 s32 MarCheckSubwpnChainLimit(s16 subwpnId, s16 limit);
-s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY);
 void func_pspeu_0925B4E0(s32 kind, s16 invincibilityFrames);
 void func_pspeu_09259EA8(void);
 void MarDisableAfterImage(s32 resetAnims, s32 arg1);

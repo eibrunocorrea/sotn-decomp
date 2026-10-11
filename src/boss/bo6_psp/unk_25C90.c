@@ -678,7 +678,36 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09268D98);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09269428);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09269E60);
+void func_pspeu_09269E60(Entity* self) {
+    Primitive* prim;
+
+    if (self->step == 0) {
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+        self->velocityY = FIX(0.5);
+        self->posX.i.hi += (rand() & 0xF) - 8;
+        self->posY.i.hi += (rand() & 0xF) - 4;
+        prim = &g_PrimBuf[self->primIndex];
+        prim->clut = PAL_UNK_1B0;
+        prim->tpage = 0x1A;
+        prim->b0 = 0;
+        prim->b1 = 0;
+        prim->priority = self->zPriority + 4;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
+        func_8015FDB0(prim, self->posX.i.hi, self->posY.i.hi);
+        self->step++;
+    } else {
+        prim = &g_PrimBuf[self->primIndex];
+        self->posY.val += self->velocityY;
+        if (func_8015FDB0(prim, self->posX.i.hi, self->posY.i.hi)) {
+            DestroyEntity(self);
+        }
+    }
+}
 
 // local copy of RicEntitySubwpnCrossTrail (see us_3E79C.c)
 void func_pspeu_0926A048(Entity* self) {
