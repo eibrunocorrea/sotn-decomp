@@ -1,7 +1,28 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo0.h"
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_09258DE0);
+s16 func_pspeu_09258DE0(s16 delta, s16 current, s16 target) {
+    s16 diff;
+
+    current &= ROT(360) - 1;
+    target &= ROT(360) - 1;
+    diff = target - current;
+    if (diff > ROT(180)) {
+        diff = diff - ROT(360);
+    }
+    if (diff < ROT(-180)) {
+        diff = diff + ROT(360);
+    }
+    if (diff < -delta) {
+        diff = -delta;
+    }
+    if (diff > delta) {
+        diff = delta;
+    }
+    target = current + diff;
+    target &= ROT(360) - 1;
+    return target;
+}
 
 s32 func_pspeu_09258EF0(s16 x, s16 y) {
     Collider collider;
