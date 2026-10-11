@@ -727,7 +727,133 @@ void func_pspeu_09256C28(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09256D28);
+extern AnimationFrame D_pspeu_0927A980[];
+extern AnimationFrame D_pspeu_0927A758[];
+void MarDisableAfterImage(s32 resetAnims, s32 arg1);
+void func_pspeu_09256D28(void) {
+    s32 facing;
+
+    if ((g_Maria.vram_flag & TOUCHING_CEILING) &&
+        (MARIA.velocityY < FIX(-1))) {
+        MARIA.velocityY = FIX(-0.25);
+        g_Maria.unk44 |= 0x20;
+    }
+    if (func_pspeu_0925B680(
+            CHECK_GROUND | CHECK_FACING | CHECK_ATTACK | CHECK_GRAVITY_JUMP)) {
+        return;
+    }
+    switch (MARIA.step_s) {
+    case 0:
+        MarDecelerateX(FIX(0.0625));
+        facing = MarCheckFacing();
+        if (facing) {
+            if (g_Maria.unk44 & 0x10) {
+                MarSetSpeedX(FIX(2.25));
+            } else {
+                MarSetSpeedX(FIX(1.25));
+            }
+            g_Maria.unk44 &= ~4;
+        } else {
+            g_Maria.unk44 &= ~0x10;
+            if ((MARIA.pose < 2) && !(g_Maria.unk44 & 8) &&
+                (g_Maria.unk44 & 4) && (g_Maria.padTapped & PAD_CROSS)) {
+                MarSetAnimation(D_pspeu_0927A790);
+                MarSetSpeedX(FIX(-1.5));
+                MARIA.velocityY = FIX(-2.625);
+                g_Maria.unk44 |= 0xA;
+                g_Maria.unk44 &= ~4;
+                MARIA.step_s = 2;
+            }
+        }
+        break;
+    case 2:
+        break;
+    case 0x40:
+        MarDisableAfterImage(1, 1);
+        if (MARIA.pose < 3) {
+            facing = MarCheckFacing();
+            if (facing) {
+                if (g_Maria.unk44 & 0x10) {
+                    MarSetSpeedX(FIX(2.25));
+                } else {
+                    MarSetSpeedX(FIX(1.25));
+                }
+                g_Maria.unk44 &= ~4;
+            } else {
+                g_Maria.unk44 &= ~0x10;
+            }
+        } else {
+            if (((g_Maria.padPressed & PAD_RIGHT) && MARIA.facingLeft == 0) ||
+                ((g_Maria.padPressed & PAD_LEFT) && MARIA.facingLeft)) {
+                if (g_Maria.unk44 & 0x10) {
+                    MarSetSpeedX(FIX(2.25));
+                } else {
+                    MarSetSpeedX(FIX(1.25));
+                }
+                MarSetSpeedX(FIX(1.25));
+                g_Maria.unk44 &= ~4;
+            } else {
+                g_Maria.unk44 &= ~0x10;
+            }
+        }
+        if (MARIA.poseTimer < 0) {
+            if (g_Maria.padPressed & PAD_SQUARE) {
+                MARIA.step_s += 1;
+                g_Maria.unk46 = 2;
+                MarSetAnimation(D_pspeu_0927A980);
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, BP_ARM_BRANDISH_WHIP, 0);
+            } else {
+                g_Maria.unk46 = 0;
+                MARIA.step_s = 0;
+                MarSetAnimation(D_pspeu_0927A758);
+            }
+        }
+        break;
+    case 0x41:
+        MarDisableAfterImage(1, 1);
+        if (!(g_Maria.padPressed & PAD_SQUARE)) {
+            g_Maria.unk46 = 0;
+            MARIA.step_s = 0;
+            MarSetAnimation(D_pspeu_0927A758);
+        }
+        break;
+    case 0x42:
+        MarDisableAfterImage(1, 1);
+        if (MARIA.pose < 3) {
+            facing = MarCheckFacing();
+            if (facing) {
+                if (g_Maria.unk44 & 0x10) {
+                    MarSetSpeedX(FIX(2.25));
+                } else {
+                    MarSetSpeedX(FIX(1.25));
+                }
+                g_Maria.unk44 &= ~4;
+            } else {
+                g_Maria.unk44 &= ~0x10;
+            }
+        } else {
+            if (((g_Maria.padPressed & PAD_RIGHT) && MARIA.facingLeft == 0) ||
+                ((g_Maria.padPressed & PAD_LEFT) && MARIA.facingLeft)) {
+                if (g_Maria.unk44 & 0x10) {
+                    MarSetSpeedX(FIX(2.25));
+                } else {
+                    MarSetSpeedX(FIX(1.25));
+                }
+                MarSetSpeedX(FIX(1.25));
+                g_Maria.unk44 &= ~4;
+            } else {
+                g_Maria.unk44 &= ~0x10;
+            }
+        }
+        if (MARIA.poseTimer < 0) {
+            g_Maria.unk46 = 0;
+            MARIA.step_s = 0;
+            MarSetAnimation(D_pspeu_0927A758);
+        }
+        break;
+    }
+}
 
 // local copy of RicStepFall (see boss/bo6/richter.c)
 void MarStepFall(void) {
