@@ -728,6 +728,7 @@ void func_060E2300(s32 scale, s32 unused) {
 
     TransformAndProjectPoints((MthXyz*)base, (XyInt*)((char*)base + 0x408), 14);
 }
+
 /* TU-local view of the model scratch buffer; keep DAT_060485E0 as s32[]. */
 typedef struct {
     MthXyz vertices[14];
@@ -1086,5 +1087,64 @@ void func_060E7C60(Entity* self) {
     }
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E7DB8, func_060E7DB8);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E81F4, func_060E81F4);
+void func_060E81F4(Entity* self) {
+    SaturnSpriteResource* bank;
+    SaturnSpriteImage* images;
+    s32 remaining;
+    s32* distance;
+
+    switch (self->step) {
+    case 0:
+        self->step++;
+        images = DAT_060EFC20;
+        bank = &g_RStage16SpriteBank23;
+        self->unk0 =
+            CreateSpriteObject(bank->allocationIndex, bank->flags, images, 1);
+        self->unk0->flags |= 0x40;
+        TekiInit(self, 0x7F);
+        self->hitboxState = 0;
+        self->animCurFrame = 0x24;
+        self->drawFlags |= 3;
+        self->scaleX = self->scaleY = 0x10;
+        if (self->facingLeft) {
+            self->velocityX = FIX(10);
+        } else {
+            self->velocityX = FIX(-10);
+        }
+        self->unk0->zPriority = 0xA8;
+        func_06079BB4(self);
+        func_0600B004(self->unk0, (u32)DAT_060EFB84[self->animCurFrame]);
+
+        /* fallthrough */
+    case 1:
+        MoveEntity(self);
+        distance = &self->ext.et_060E81F4.unk90;
+        remaining = ABS(self->velocityX);
+        *distance += remaining;
+        self->scaleX = self->scaleY += 0x40;
+        if (self->scaleX < 0x100) {
+            return;
+        }
+        self->step++;
+        return;
+    case 2:
+        MoveEntity(self);
+        distance = &self->ext.et_060E81F4.unk90;
+        remaining = ABS(self->velocityX);
+        *distance += remaining;
+        remaining = ((self->ext.et_060E81F4.unk8C + 0x20) << 16) - *distance;
+        if (remaining < 0) {
+            DestroyEntity(self);
+            return;
+        }
+        remaining >>= 16;
+        remaining <<= 3;
+        if (remaining > 0x100) {
+            remaining = 0x100;
+        }
+        break;
+    }
+}
+
+const u16 DAT_060E8364[] = {0xCCCC, 0xCCCD};
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E8368, func_060E8368);
