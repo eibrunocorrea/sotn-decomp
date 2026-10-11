@@ -91,6 +91,8 @@ segments:
       - [0x42150, data, 42150]
       - [0x42540, .data, bo6_psp/unk_118B8]
       - [0x42550, data, 42550]
+      - [0x42D68, .data, bo6_psp/unk_19728]
+      - [0x42D78, data, 42D78]
       - [0x42EA0, .data, bo6_psp/unk_1CA48]
       - [0x42ED8, data, 42ED8]
       - [0x43F80, .rodata, bo6/e_red_door]

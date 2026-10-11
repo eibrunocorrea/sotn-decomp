@@ -1,7 +1,76 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_19728", func_pspeu_09250DA8);
+extern s32 D_pspeu_0927C148;
+void func_pspeu_09250DA8(Entity* self) {
+    Entity* entity;
+    FntPrint("I AM SHAFT\n");
+    switch (self->step) {
+    case 0:
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->animSet = -0x7FFB;
+        self->animCurFrame = 0x8B;
+        self->unk5A = 0x48;
+        self->palette = PAL_FLAG(0x250);
+        self->zPriority = MARIA.zPriority + 2;
+        self->opacity = 0;
+        self->drawFlags = ENTITY_OPACITY;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
+        self->step++;
+        break;
+
+    case 1:
+        self->opacity += 4;
+        if (self->opacity > 48) {
+            self->step++;
+            entity = &g_Entities[0xC8];
+            CreateEntityFromCurrentEntity(E_ID(ID_17), entity);
+            entity->params = 3;
+            self->ext.shaft.timer = 0x100;
+        }
+        self->posY.val += rsin(self->ext.shaft.bobAngle) * 4;
+        self->ext.shaft.bobAngle += 0x20;
+        break;
+
+    case 2:
+        if (!self->ext.shaft.timer) {
+            if ((D_pspeu_0927C148 & 0x40) || (g_DemoMode != Demo_None)) {
+                self->drawFlags |= ENTITY_SCALEY | ENTITY_SCALEX;
+                self->scaleX = self->scaleY = 0x100;
+                self->step++;
+            }
+        } else {
+            self->ext.shaft.timer--;
+        }
+        self->posY.val += rsin(self->ext.shaft.bobAngle) * 4;
+        self->ext.shaft.bobAngle += 0x20;
+        break;
+
+    case 3:
+        self->scaleX -= 0x20;
+        if (self->scaleX < 0x10) {
+            self->scaleX = 0x10;
+        }
+
+        self->scaleY += 64;
+        if (self->scaleY > 0x800) {
+            self->scaleY = 0x800;
+        }
+        self->opacity += 6;
+        if (self->opacity > 0xF0) {
+            self->step++;
+        }
+        break;
+
+    case 4:
+        self->opacity -= 3;
+        if (self->opacity < 4) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
+
 
 extern u8 D_pspeu_0927A3F8[];
 void func_pspeu_09251100(Entity* self) {
