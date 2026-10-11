@@ -30,7 +30,28 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092608C0);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092611E8);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09264380);
+void func_pspeu_09264380(Entity* self) {
+    OlroxPrim* part;
+
+    self->facingLeft = (self - 1)->facingLeft;
+    if (self->flags & FLAG_DEAD) {
+        self->hitboxState = 0;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09275F90);
+        self->hitboxWidth = 12;
+        self->hitboxHeight = 4;
+        self->hitboxOffX = -12;
+        self->animCurFrame = 0;
+        break;
+    case 1:
+        part = self->ext.et_801B5470.unk8C;
+        self->posX.val = part->unk1C.val;
+        self->posY.val = part->unk20.val;
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09264460);
 
