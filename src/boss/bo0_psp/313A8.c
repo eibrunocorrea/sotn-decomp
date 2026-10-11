@@ -9,7 +9,42 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E070);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_psp_09239568);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_us_801B163C);
+s32 func_us_801B163C(s16* value, s16 target, s16 speed) {
+    s16* velocity;
+    s16 delta;
+    s16 difference;
+    s32 acceleration;
+
+    velocity = value + 1;
+    acceleration = speed / 16;
+    if (!acceleration) {
+        acceleration = 1;
+    }
+    difference = target - *value;
+    delta = *velocity;
+    if (difference > 0) {
+        if (delta < speed) {
+            delta += (s16)acceleration;
+        } else {
+            delta -= (s16)acceleration;
+        }
+    } else {
+        if (delta > -speed) {
+            delta -= (s16)acceleration;
+        } else {
+            delta += (s16)acceleration;
+        }
+    }
+    if (abs(difference) < abs(delta)) {
+        *value = target;
+        *velocity = difference;
+        return 1;
+    }
+    *value += delta;
+    *velocity = delta;
+    return 0;
+}
+
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E340);
 
