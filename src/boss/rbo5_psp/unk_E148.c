@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo5/rbo5.h"
+extern s32 D_pspeu_0926BBB0;
 void func_pspeu_09249838(void);
 extern s16 D_pspeu_09262FD8[7];
 extern s16 D_pspeu_09263B40[24][5];
@@ -1172,9 +1173,155 @@ s32 func_pspeu_0924BB78(void) {
     return 0;
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924BBE8);
+void func_pspeu_0924BBE8(void) {
+    u32 padDirection;
 
-char D_pspeu_09262FF8[16] = "error step\n";
+    if (func_pspeu_0924BB78() == 0) {
+        padDirection = g_Maria.padPressed & PAD_DIRECTION_MASK;
+        switch (MARIA.step_s) {
+        case 0:
+            MarCheckFacing();
+            g_Maria.unk44 = g_Maria.unk46 = g_Maria.unk48 = 0;
+            g_api.func_800EA5E4(0x8003U);
+            func_pspeu_0924D4E8();
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x49U, 0);
+            if (MARIA.velocityX > 0) {
+                MARIA.velocityX = FIX(1);
+            }
+            if (MARIA.velocityX < 0) {
+                MARIA.velocityX = FIX(-1);
+            }
+            if (MARIA.velocityY > 0) {
+                MARIA.velocityY = FIX(1);
+            }
+            if (MARIA.velocityY < 0) {
+                MARIA.velocityY = FIX(-1);
+            }
+            func_pspeu_0924DCB8(0xCA);
+            D_pspeu_092629BA = MARIA.animCurFrame;
+            g_api.func_800EA538(5);
+            g_api.func_800EA5E4(0x8801U);
+            MARIA.step_s++;
+            break;
+
+        case 1:
+            switch (padDirection) {
+            case PAD_NONE:
+            default:
+                MarDecelerateX_0924E7C8(FIX(3.0 / 256.0));
+                MarDecelerateX_0924E868(FIX(3.0 / 256.0));
+                break;
+            case PAD_UP:
+                if (MARIA.velocityY < FIX(-1.0)) {
+                    MarDecelerateX_0924E868(FIX(3.0 / 256.0));
+                } else {
+                    MARIA.velocityY = FIX(-1.0);
+                }
+                MarDecelerateX_0924E7C8(FIX(3.0 / 256.0));
+                break;
+            case PAD_DOWN:
+                if (MARIA.velocityY > FIX(1.0)) {
+                    MarDecelerateX_0924E868(FIX(3.0 / 256.0));
+                } else {
+                    MARIA.velocityY = FIX(1.0);
+                }
+                MarDecelerateX_0924E7C8(FIX(3.0 / 256.0));
+                break;
+            case PAD_RIGHT:
+                MARIA.facingLeft = false;
+                if (MARIA.velocityX > FIX(1.0)) {
+                    MarDecelerateX_0924E7C8(FIX(3.0 / 256.0));
+                } else {
+                    MARIA.velocityX = FIX(1.0);
+                }
+                MarDecelerateX_0924E868(FIX(3.0 / 256.0));
+                break;
+            case PAD_LEFT:
+                MARIA.facingLeft = true;
+                if (MARIA.velocityX < FIX(-1.0)) {
+                    MarDecelerateX_0924E7C8(FIX(3.0 / 256.0));
+                } else {
+                    MARIA.velocityX = FIX(-1.0);
+                }
+                MarDecelerateX_0924E868(FIX(3.0 / 256.0));
+                break;
+
+            case (PAD_UP | PAD_RIGHT):
+                MARIA.facingLeft = false;
+                if (MARIA.velocityX > FIX(0.625)) {
+                    MarDecelerateX_0924E7C8(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityX = FIX(0.625);
+                }
+
+                if (MARIA.velocityY < FIX(-0.625)) {
+                    MarDecelerateX_0924E868(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityY = FIX(-0.625);
+                }
+                break;
+            case (PAD_UP | PAD_LEFT):
+                MARIA.facingLeft = true;
+                if (MARIA.velocityX < FIX(-0.625)) {
+                    MarDecelerateX_0924E7C8(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityX = FIX(-0.625);
+                }
+
+                if (MARIA.velocityY < FIX(-0.625)) {
+                    MarDecelerateX_0924E868(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityY = FIX(-0.625);
+                }
+                break;
+
+            case (PAD_DOWN | PAD_RIGHT):
+                MARIA.facingLeft = false;
+                if (MARIA.velocityX > FIX(0.625)) {
+                    MarDecelerateX_0924E7C8(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityX = FIX(0.625);
+                }
+                if (MARIA.velocityY > FIX(0.625)) {
+                    MarDecelerateX_0924E868(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityY = FIX(0.625);
+                }
+                break;
+            case (PAD_DOWN | PAD_LEFT):
+                MARIA.facingLeft = 1;
+                if (MARIA.velocityX < FIX(-0.625)) {
+                    MarDecelerateX_0924E7C8(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityX = FIX(-0.625);
+                }
+
+                if (MARIA.velocityY > FIX(0.625)) {
+                    MarDecelerateX_0924E868(FIX(1.0 / 128.0));
+                } else {
+                    MARIA.velocityY = FIX(0.625);
+                }
+                break;
+            }
+            break;
+
+        default:
+            FntPrint("error step\n");
+            break;
+        }
+
+        if (D_pspeu_0926BBB0 != 0) {
+            if (D_pspeu_0926BBB0 > 0) {
+                D_pspeu_0926BBB0--;
+                MARIA.posY.i.hi++;
+            } else {
+                D_pspeu_0926BBB0++;
+                MARIA.posY.i.hi--;
+            }
+        }
+    }
+}
+
 s16 D_pspeu_09263008[] = {
     0, 0, 256, 0, -256, 0, 256, 0, -256, -512, -256, 0, 256, 512, 256, 0};
 u8 D_pspeu_09263028[] = {0, 17, 4, 21, 1, 16, 3, 35};
