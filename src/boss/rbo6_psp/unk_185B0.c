@@ -2,10 +2,14 @@
 #include "../rbo6/rbo6.h"
 
 extern s32 D_91FC480;
+extern EInit g_EInitInteractable;
+extern s32 D_pspeu_0926C6C8;
+extern u8 D_pspeu_0926BB70;
+
 void EntityCutscene(Entity* self);
 
 void func_us_801A362C(Entity* self) {
-    if (D_91FC480 != 0) {
+    if (D_91FC480) {
         EntityCutscene(self);
     }
     if (self->entityId) {
@@ -19,15 +23,11 @@ void func_us_801A362C(Entity* self) {
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_185B0", func_us_801B1738);
 
 void func_us_801B2864(Entity* self) {
-    extern u16 g_EInitInteractable;
-    extern s32 D_pspeu_0926C6C8;
-    extern u8 D_pspeu_0926BB70;
-
     s16 angle;
 
     switch (self->step) {
     case 0:
-        InitializeEntity(&g_EInitInteractable);
+        InitializeEntity(g_EInitInteractable);
         self->flags |= FLAG_UNK_10000;
         self->palette = PAL_UNK_19E;
         self->palette = 0x2E2;

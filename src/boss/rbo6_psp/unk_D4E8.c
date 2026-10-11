@@ -1,22 +1,50 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo6/rbo6.h"
 
-// Extension used by the transformation effects; offsets verified in PSP ASM.
-typedef struct {
-    /* 0x7C */ Primitive* prim;
-    /* 0x80 */ s16 timer;
-    /* 0x82 */ s16 angle;
-    /* 0x84 */ s32 : 32;
-    /* 0x88 */ s32 : 32;
-    /* 0x8C */ s32 speed;
-} Rbo6TransformationEffect;
-
 extern EInit g_EInitBreakable;
 extern u8* D_pspeu_09256C38[];
 extern u8 D_pspeu_09256C58[];
 extern u16 D_pspeu_09256C60[];
 extern u8 D_pspeu_0926C040[];
 extern u8 D_pspeu_09256C70[];
+extern EInit g_EInitParticle;
+extern s32 D_pspeu_0926C048;
+extern EInit g_EInitInteractable;
+extern u32 g_CutsceneFlags;
+extern EInit D_us_80180540;
+extern u8 D_pspeu_0926B438[];
+extern u8 D_pspeu_0926B448[];
+extern u8 D_pspeu_0926B458[];
+extern u8 D_pspeu_0926B468[];
+extern s32 E_ID(UNK_1B);
+extern s32 D_pspeu_0926C060;
+extern s32 D_pspeu_0926C068;
+extern s32 D_pspeu_0926C070;
+extern s32 D_pspeu_0926C088;
+extern s32 D_pspeu_0926C0A0;
+extern EInit D_us_80180558;
+extern u8 D_pspeu_0926B418[];
+extern u8 D_pspeu_0926B420[];
+extern u8 D_pspeu_0926B430[];
+extern Point16 D_pspeu_0926B518[];
+extern s8 D_pspeu_0926B550[];
+extern u8 D_pspeu_0926B570[];
+extern s32 E_ID(UNK_1F);
+extern u8* D_pspeu_0926B500[];
+extern Entity g_Entities[256];
+extern u8 D_pspeu_0926B4A8[];
+extern s32 E_ID(UNK_21);
+extern s32 D_pspeu_0926C078;
+extern s32 E_ID(UNK_22);
+extern u8 D_pspeu_0926B4E8[];
+extern EInit D_us_80180564;
+extern u8 D_pspeu_0926B408[];
+extern s32 D_pspeu_0926C080;
+extern s32 E_ID(UNK_26);
+extern u8 D_us_80180724;
+extern u8 D_pspeu_0926B410;
+extern s32 D_pspeu_0926C098;
+extern u8 D_pspeu_0926B4F8[];
 
 void EntityBreakable(Entity* self) {
     Entity* entity;
@@ -72,23 +100,7 @@ s32 DecreaseBrightness(Primitive* prim, s32 brightnessOffset) {
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4594);
 
-// Particle trail extension; offsets and six packed Y coordinates verified in
-// PSP ASM.
-typedef struct {
-    /* 0x7C */ Primitive* prim;
-    /* 0x80 */ s32 : 32;
-    /* 0x84 */ Primitive* glow;
-    /* 0x88 */ s32 : 32;
-    /* 0x8C */ s32 : 32;
-    /* 0x90 */ s32 acceleration;
-    /* 0x94 */ s32 : 32;
-    /* 0x98 */ s32 : 32;
-    /* 0x9C */ s16 yPositions[6];
-} Rbo6ParticleTrail;
-
 void func_us_801A4F14(Entity* self) {
-    extern EInit g_EInitParticle;
-    extern s32 D_pspeu_0926C048;
     s32 primIndex;
     s32 size;
     s32 y;
@@ -106,7 +118,7 @@ void func_us_801A4F14(Entity* self) {
         self->hitboxWidth = size + 2;
         size++;
         self->velocityY = FIX(-1.5) - ((Random() % (size + 2)) << 17);
-        ((Rbo6ParticleTrail*)&self->ext)->acceleration =
+        self->ext.et_801A4F14.accelerationY =
             -0x1000 - (Random() % (size + 1)) * 0x3000;
         self->opacity = (Random() % size) * 8 + 0x20;
         if (size < D_pspeu_0926C048 / 2) {
@@ -122,7 +134,7 @@ void func_us_801A4F14(Entity* self) {
         self->flags |= FLAG_HAS_PRIMS;
         self->primIndex = primIndex;
         prim = &g_PrimBuf[primIndex];
-        ((Rbo6ParticleTrail*)&self->ext)->prim = prim;
+        self->ext.et_801A4F14.prim = prim;
         prim->tpage = 0x1A;
         prim->clut = 0x2EC;
         prim->u0 = prim->u2 = 0;
@@ -167,7 +179,7 @@ void func_us_801A4F14(Entity* self) {
         prim->drawMode =
             DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
         prim = prim->next;
-        ((Rbo6ParticleTrail*)&self->ext)->glow = prim;
+        self->ext.et_801A4F14.unk84 = prim;
         prim->tpage = 0x1A;
         prim->clut = 0x15F;
         prim->clut = 0x2EC;
@@ -185,7 +197,7 @@ void func_us_801A4F14(Entity* self) {
         if (self->hitboxWidth < 4) {
             prim->drawMode = DRAW_HIDE;
         }
-        positions = ((Rbo6ParticleTrail*)&self->ext)->yPositions;
+        positions = self->ext.et_801A4F14.yPositions;
         for (i = 0; i < 6; i++) {
             *positions = self->posY.i.hi;
             positions++;
@@ -193,30 +205,29 @@ void func_us_801A4F14(Entity* self) {
         break;
     case 1:
         MoveEntity();
-        // accelerationY is the existing signed field at extension offset 0x90.
-        self->velocityY += (s32)self->ext.et_801A518C.accelerationY;
+        self->velocityY += (s32)self->ext.et_801A4F14.accelerationY;
         break;
     }
-    positions = &((Rbo6ParticleTrail*)&self->ext)->yPositions[5];
+    positions = &self->ext.et_801A4F14.yPositions[5];
     for (i = 0; i < 5; i++) {
         *positions = positions[-1];
         positions--;
     }
-    positions = ((Rbo6ParticleTrail*)&self->ext)->yPositions;
+    positions = self->ext.et_801A4F14.yPositions;
     *positions = self->posY.i.hi;
     width = self->hitboxWidth;
-    prim = ((Rbo6ParticleTrail*)&self->ext)->prim;
+    prim = self->ext.et_801A4F14.prim;
     x = self->posX.i.hi;
     y = self->posY.i.hi - self->hitboxWidth;
     prim->x0 = x - width;
     prim->x1 = x + width;
     prim->y0 = prim->y1 = y;
-    prim = ((Rbo6ParticleTrail*)&self->ext)->glow;
+    prim = self->ext.et_801A4F14.unk84;
     prim->x0 = x - width * 2;
     prim->x1 = x + width * 2;
     prim->y0 = prim->y1 = y - width;
-    prim = ((Rbo6ParticleTrail*)&self->ext)->prim;
-    positions = ((Rbo6ParticleTrail*)&self->ext)->yPositions;
+    prim = self->ext.et_801A4F14.prim;
+    positions = self->ext.et_801A4F14.yPositions;
     for (i = 0; i < 5; i++) {
         y = *positions;
         prim->x2 = x - width;
@@ -235,7 +246,7 @@ void func_us_801A4F14(Entity* self) {
     prim->y2 = prim->y3 = y;
     prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
     prim = prim->next;
-    prim = ((Rbo6ParticleTrail*)&self->ext)->glow;
+    prim = self->ext.et_801A4F14.unk84;
     prim->x2 = x - width * 2;
     prim->x3 = x + width * 2;
     prim->y2 = prim->y3 = y + self->hitboxWidth * 2;
@@ -245,8 +256,6 @@ void func_us_801A4F14(Entity* self) {
 }
 
 void func_us_801A367C(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern u32 g_CutsceneFlags;
     Tilemap* tilemap = &g_Tilemap;
     Entity* player = &PLAYER;
     s16 playerX = player->posX.i.hi + g_Tilemap.scrollX.i.hi;
@@ -286,8 +295,6 @@ void func_us_801A367C(Entity* self) {
 }
 
 void func_us_801A37B4(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern u32 g_CutsceneFlags;
     Primitive* prim;
     s32 primIndex;
 
@@ -324,8 +331,6 @@ void func_us_801A37B4(Entity* self) {
 }
 
 void func_us_801A399C(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern u32 g_CutsceneFlags;
     Primitive* prim;
     s32 primIndex;
 
@@ -366,8 +371,6 @@ void func_us_801A399C(Entity* self) {
 }
 
 void func_us_801A3BE0(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern u32 g_CutsceneFlags;
     Primitive* prim;
     s32 primIndex;
 
@@ -461,8 +464,6 @@ void func_us_801A3BE0(Entity* self) {
 }
 
 void func_us_801A4028(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern u32 g_CutsceneFlags;
 
     switch (self->step) {
     case 0:
@@ -495,8 +496,6 @@ void func_us_801A4028(Entity* self) {
 }
 
 void func_us_801A9208_from_bo6(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern u32 g_CutsceneFlags;
     Primitive* prim;
     s32 primIndex;
 
@@ -586,17 +585,6 @@ void func_us_801A9208_from_bo6(Entity* self) {
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019DB9C);
 
 void func_us_8019EADC(Entity* self) {
-    extern EInit D_us_80180540;
-    extern u8 D_pspeu_0926B438[];
-    extern u8 D_pspeu_0926B448[];
-    extern u8 D_pspeu_0926B458[];
-    extern u8 D_pspeu_0926B468[];
-    extern s32 D_pspeu_0926BFE8;
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C068;
-    extern s32 D_pspeu_0926C070;
-    extern s32 D_pspeu_0926C088;
-    extern s32 D_pspeu_0926C0A0;
     Entity* entity;
 
     entity = &g_Entities[80];
@@ -618,7 +606,7 @@ void func_us_8019EADC(Entity* self) {
         InitializeEntity(D_us_80180540);
         self->facingLeft = self->params;
         entity = self + 1;
-        CreateEntityFromCurrentEntity(D_pspeu_0926BFE8, entity);
+        CreateEntityFromCurrentEntity(E_ID(UNK_1B), entity);
         entity->params = self->params;
         entity->zPriority = self->zPriority + 1;
         // Fallthrough
@@ -702,19 +690,6 @@ void func_us_8019EADC(Entity* self) {
 }
 
 void func_us_8019EE30(Entity* self) {
-    extern EInit D_us_80180558;
-    extern u8 D_pspeu_0926B418[];
-    extern u8 D_pspeu_0926B420[];
-    extern u8 D_pspeu_0926B430[];
-    extern Point16 D_pspeu_0926B518[];
-    extern s8 D_pspeu_0926B550[];
-    extern u8 D_pspeu_0926B570[];
-    extern s32 D_pspeu_0926BFC8;
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C068;
-    extern s32 D_pspeu_0926C070;
-    extern s32 D_pspeu_0926C088;
-    extern s32 D_pspeu_0926C0A0;
     s32 index;
     s8* hitbox;
     s32 i;
@@ -750,7 +725,7 @@ void func_us_8019EE30(Entity* self) {
             for (i = 0; i < 2; i++) {
                 entity = AllocEntity(&g_Entities[144], &g_Entities[152]);
                 if (entity != NULL) {
-                    CreateEntityFromCurrentEntity(D_pspeu_0926BFC8, entity);
+                    CreateEntityFromCurrentEntity(E_ID(UNK_1F), entity);
                     entity->params = self->params;
                     entity->zPriority = self->zPriority + 4;
                 }
@@ -821,15 +796,12 @@ void func_us_8019EE30(Entity* self) {
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019F1CC);
 
 void func_us_8019FA78(Entity* self) {
-    extern u16 D_us_80180540;
-    extern u32 D_pspeu_0926C0A0;
-    extern s32 D_pspeu_0926C068;
 
     self->palette = (u16)D_pspeu_0926C0A0;
 
     switch (self->step) {
     case 0:
-        InitializeEntity(&D_us_80180540);
+        InitializeEntity(D_us_80180540);
         self->animCurFrame = 0x11;
         /* fall through */
     case 1:
@@ -844,12 +816,6 @@ void func_us_8019FA78(Entity* self) {
 }
 
 void func_us_8019FB04(Entity* self) {
-    extern s32 D_pspeu_0926C0A0;
-    extern u8* D_pspeu_0926B500[];
-    extern s32 D_pspeu_0926C068;
-    extern Entity g_Entities[256];
-    extern u16 D_us_80180540;
-    extern void InitializeEntity(u16*);
 
     u8* anim;
     Entity* source;
@@ -857,7 +823,7 @@ void func_us_8019FB04(Entity* self) {
     self->palette = D_pspeu_0926C0A0;
     switch (self->step) {
     case 0:
-        InitializeEntity(&D_us_80180540);
+        InitializeEntity(D_us_80180540);
         /* fall through */
     case 1:
         anim = D_pspeu_0926B500[self->params];
@@ -875,11 +841,6 @@ void func_us_8019FB04(Entity* self) {
 }
 
 void func_us_8019FBC0(Entity* self) {
-    extern u16 D_us_80180540;
-    extern u8 D_pspeu_0926B4A8[];
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C068;
-    extern s32 D_pspeu_0926C0A0;
     Entity* source = &g_Entities[80];
 
     self->posX.i.hi = source->posX.i.hi;
@@ -890,7 +851,7 @@ void func_us_8019FBC0(Entity* self) {
     }
     switch (self->step) {
     case 0:
-        InitializeEntity(&D_us_80180540);
+        InitializeEntity(D_us_80180540);
         /* fall through */
     case 1:
         AnimateEntity(D_pspeu_0926B4A8, self);
@@ -906,9 +867,6 @@ void func_us_8019FBC0(Entity* self) {
 }
 
 void func_us_8019FCB4(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern s32 D_pspeu_0926C068;
-    extern s32 D_pspeu_0926C0A0;
     s32 primIndex;
     Entity* entity;
     s32 palette;
@@ -929,7 +887,7 @@ void func_us_8019FCB4(Entity* self) {
         self->flags |= FLAG_HAS_PRIMS;
         self->primIndex = primIndex;
         prim = &g_PrimBuf[primIndex];
-        ((Rbo6TransformationEffect*)&self->ext)->prim = prim;
+        self->ext.et_8019FCB4.prim = prim;
         while (prim != NULL) {
             prim->tpage = 0x14;
             prim->clut = 0x201;
@@ -937,7 +895,7 @@ void func_us_8019FCB4(Entity* self) {
             prim->drawMode = DRAW_HIDE;
             prim = prim->next;
         }
-        prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
+        prim = self->ext.et_8019FCB4.prim;
         for (i = 0; i < 2; i++) {
             prim->u0 = 0xC1;
             prim->u1 = 0xFF;
@@ -964,10 +922,9 @@ void func_us_8019FCB4(Entity* self) {
         entity = &g_Entities[80];
         self->posX.i.hi = entity->posX.i.hi;
         self->posY.i.hi = entity->posY.i.hi;
-        ((Rbo6TransformationEffect*)&self->ext)->angle += 0x10;
-        angle = self->rotate =
-            (rsin(((Rbo6TransformationEffect*)&self->ext)->angle) << 7) >> 12;
-        prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
+        self->ext.et_8019FCB4.angle += 0x10;
+        angle = self->rotate = (rsin(self->ext.et_8019FCB4.angle) << 7) >> 12;
+        prim = self->ext.et_8019FCB4.prim;
         for (i = 0; i < 2; i++) {
             if (!i) {
                 x = self->posX.i.hi - 8;
@@ -1024,7 +981,7 @@ void func_us_8019FCB4(Entity* self) {
         }
         break;
     }
-    prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
+    prim = self->ext.et_8019FCB4.prim;
     palette = D_pspeu_0926C0A0 & 0xFFF;
     if (palette == 0x200) {
         palette = 0x201;
@@ -1040,9 +997,6 @@ void func_us_8019FCB4(Entity* self) {
 }
 
 void func_us_801A01A4(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C070;
     Primitive* prim;
     Primitive* primTwo;
     s32 posX;
@@ -1235,10 +1189,6 @@ void func_us_801A01A4(Entity* self) {
 }
 
 void func_us_801A0710(Entity* self) {
-    extern u16 D_us_80180540;
-    extern s32 D_pspeu_0926BFB8;
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C070;
     Entity* entity;
     s32 scale;
 
@@ -1251,7 +1201,7 @@ void func_us_801A0710(Entity* self) {
     self->posY.i.hi = entity->posY.i.hi + 0x10;
     switch (self->step) {
     case 0:
-        InitializeEntity(&D_us_80180540);
+        InitializeEntity(D_us_80180540);
         self->animCurFrame = 0x2A;
         self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
         self->scaleX = self->scaleY = 0;
@@ -1264,7 +1214,7 @@ void func_us_801A0710(Entity* self) {
         break;
     case 2:
         entity = &g_Entities[130];
-        CreateEntityFromCurrentEntity(D_pspeu_0926BFB8, entity);
+        CreateEntityFromCurrentEntity(E_ID(UNK_21), entity);
         entity->zPriority = self->zPriority + 1;
         self->step++;
         break;
@@ -1285,11 +1235,6 @@ void func_us_801A0710(Entity* self) {
 }
 
 void func_us_801A0860(Entity* self) {
-    extern EInit D_us_80180540;
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C070;
-    extern s32 D_pspeu_0926C078;
-    extern s32 D_pspeu_0926BFB0;
     Entity* entity;
     s32 i;
     s32 scale;
@@ -1341,18 +1286,18 @@ void func_us_801A0860(Entity* self) {
         for (i = 0; i < 16; i++) {
             entity = AllocEntity(&g_Entities[192], &g_Entities[256]);
             if (entity != NULL) {
-                CreateEntityFromEntity(D_pspeu_0926BFB0, self, entity);
+                CreateEntityFromEntity(E_ID(UNK_22), self, entity);
                 entity->zPriority = self->zPriority + 1;
             }
         }
         if (!scale) {
             self->animCurFrame = 0;
-            ((Rbo6TransformationEffect*)&self->ext)->timer = 0x50;
+            self->ext.et_8019FCB4.timer = 0x50;
             self->step++;
         }
         break;
     case 5:
-        if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
+        if (!--self->ext.et_8019FCB4.timer) {
             g_api.PlaySfx(SFX_NOISE_SWEEP_DOWN_A);
             DestroyEntity(self);
         }
@@ -1361,10 +1306,6 @@ void func_us_801A0860(Entity* self) {
 }
 
 void func_us_801A0AB4(Entity* self) {
-    extern EInit D_us_80180540;
-    extern u8 D_pspeu_0926B4E8[];
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C070;
     s32 deltaX;
     s32 deltaY;
     Entity* entity;
@@ -1387,8 +1328,7 @@ void func_us_801A0AB4(Entity* self) {
         self->velocityY = speed * rsin(angle);
         self->posX.val += self->velocityX * 4;
         self->posY.val += self->velocityY * 4;
-        ((Rbo6TransformationEffect*)&self->ext)->timer =
-            (Random() & 0x1F) + 0x10;
+        self->ext.et_8019FCB4.timer = (Random() & 0x1F) + 0x10;
         // Fallthrough
     case 1:
         MoveEntity();
@@ -1403,7 +1343,7 @@ void func_us_801A0AB4(Entity* self) {
         break;
     case 2:
         AnimateEntity(D_pspeu_0926B4E8, self);
-        if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
+        if (!--self->ext.et_8019FCB4.timer) {
             self->step++;
         }
         if (!(g_Timer & 7)) {
@@ -1419,10 +1359,10 @@ void func_us_801A0AB4(Entity* self) {
         deltaX = entity->posX.i.hi - self->posX.i.hi;
         deltaY = entity->posY.i.hi - 0x18 - self->posY.i.hi;
         angle = ratan2(deltaY, deltaX);
-        if (((Rbo6TransformationEffect*)&self->ext)->speed < FIX(3)) {
-            ((Rbo6TransformationEffect*)&self->ext)->speed += FIX(0.0625);
+        if (self->ext.et_8019FCB4.speed < FIX(3)) {
+            self->ext.et_8019FCB4.speed += FIX(0.0625);
         }
-        speed = ((Rbo6TransformationEffect*)&self->ext)->speed;
+        speed = self->ext.et_8019FCB4.speed;
         self->velocityX = (speed * rcos(angle)) >> 12;
         self->velocityY = (speed * rsin(angle)) >> 12;
         speed = deltaX * deltaX + deltaY * deltaY;
@@ -1434,11 +1374,6 @@ void func_us_801A0AB4(Entity* self) {
 }
 
 void func_us_801A0DC0(Entity* self) {
-    extern EInit D_us_80180564;
-    extern u8 D_pspeu_0926B408[];
-    extern s32 D_pspeu_0926C060;
-    extern s32 D_pspeu_0926C080;
-    extern s32 D_pspeu_0926BF90;
     s32 deltaX;
     s32 deltaY;
     s32 scale;
@@ -1467,7 +1402,7 @@ void func_us_801A0DC0(Entity* self) {
         }
         self->scaleX = self->scaleY = scale;
         if (D_pspeu_0926C080) {
-            ((Rbo6TransformationEffect*)&self->ext)->timer = 0x60;
+            self->ext.et_8019FCB4.timer = 0x60;
             entity = &PLAYER;
             deltaX = entity->posX.val - self->posX.val;
             deltaY = entity->posY.val - self->posY.val;
@@ -1482,24 +1417,22 @@ void func_us_801A0DC0(Entity* self) {
     case 2:
         AnimateEntity(D_pspeu_0926B408, self);
         MoveEntity();
-        scale =
-            0x6000 / (((Rbo6TransformationEffect*)&self->ext)->timer + 0x18);
+        scale = 0x6000 / (self->ext.et_8019FCB4.timer + 0x18);
         self->scaleX = self->scaleY = scale;
-        if (!(((Rbo6TransformationEffect*)&self->ext)->timer & 3)) {
+        if (!(self->ext.et_8019FCB4.timer & 3)) {
             entity = AllocEntity(&g_Entities[192], &g_Entities[256]);
             if (entity != NULL) {
-                CreateEntityFromEntity(D_pspeu_0926BF90, self, entity);
+                CreateEntityFromEntity(E_ID(UNK_26), self, entity);
                 entity->scaleX = entity->scaleY = self->scaleX;
                 entity->zPriority = self->zPriority;
                 entity->opacity = self->opacity;
             }
         }
-        if (!(((Rbo6TransformationEffect*)&self->ext)->timer & 0xF)) {
+        if (!(self->ext.et_8019FCB4.timer & 0xF)) {
             g_api.PlaySfxVolPan(
-                SFX_RIC_SUC_REVIVE,
-                0x80 - ((Rbo6TransformationEffect*)&self->ext)->timer / 2, 0);
+                SFX_RIC_SUC_REVIVE, 0x80 - self->ext.et_8019FCB4.timer / 2, 0);
         }
-        if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
+        if (!--self->ext.et_8019FCB4.timer) {
             g_api.PlaySfx(SFX_FIREBALL_SHOT_B);
             self->zPriority = g_unkGraphicsStruct.g_zEntityCenter + 8;
             entity = &PLAYER;
@@ -1521,13 +1454,10 @@ void func_us_801A0DC0(Entity* self) {
 }
 
 void func_us_801A1150(Entity* self) {
-    extern u16 D_us_80180540;
-    extern u8 D_us_80180724;
-    extern u8 D_pspeu_0926B410;
     s32 var_v0;
 
     if (!self->step) {
-        InitializeEntity(&D_us_80180540);
+        InitializeEntity(D_us_80180540);
         self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
         self->drawFlags |= ENTITY_OPACITY;
         self->blendMode = BLEND_ADD | BLEND_TRANSP;
@@ -1549,23 +1479,23 @@ INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A11DC);
 void func_us_801A1B38(Entity* self) {
     Entity* real;
 
-    if (*(s32*)0x0926C060 & 1) {
+    if (D_pspeu_0926C060 & 1) {
         DestroyEntity(self);
         return;
     }
 
     if (!self->step) {
-        InitializeEntity((u16*)((u8*)(void*)func_us_801A1B38 + 0x80F8));
+        InitializeEntity(D_us_80180540);
         self->blendMode = BLEND_ADD | BLEND_TRANSP;
     }
 
-    AnimateEntity((u8*)((u8*)(void*)func_us_801A1B38 + 0x1E620), self);
+    AnimateEntity(D_pspeu_0926B4F8, self);
 
     real = self->ext.succubus.real;
     self->posX.i.hi = real->posX.i.hi;
     self->posY.i.hi = real->posY.i.hi + 0xC;
 
-    if (*(s32*)0x0926C098 == 5) {
+    if (D_pspeu_0926C098 == 5) {
         DestroyEntity(self);
     }
 }

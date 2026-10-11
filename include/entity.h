@@ -3650,6 +3650,27 @@ typedef struct {
 typedef struct {
     /* 0x7C */ Primitive* prim;
     /* 0x80 */ s16 timer;
+    /* 0x82 */ s16 angle;
+    /* 0x84 */ s32 : 32;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 speed;
+} ET_8019FCB4;
+
+typedef struct {
+    /* 0x7C */ Primitive* prim;
+    /* 0x80 */ s32 : 32;
+    /* 0x84 */ Primitive* unk84;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 : 32;
+    /* 0x90 */ s32 accelerationY;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
+    /* 0x9C */ s16 yPositions[6];
+} ET_801A4F14;
+
+typedef struct {
+    /* 0x7C */ Primitive* prim;
+    /* 0x80 */ s16 timer;
     /* 0x82 */ s16 : 16;
     /* 0x84 */ u16 unk84;
     /* 0x86 */ u8 unk86;
@@ -4847,6 +4868,8 @@ typedef union { // offset=0x7C
     ET_BoneArk boneArk;
     ET_Harpy harpy;
     ET_80195A8C et_80195A8C;
+    ET_8019FCB4 et_8019FCB4;
+    ET_801A4F14 et_801A4F14;
     ET_CloakedKnight cloakedKnight;
     ET_CloakedKnightAura cloakedKnightAura;
     ET_CloakedKnightSword cloakedKnightSword;

@@ -2,24 +2,29 @@
 #include "../rbo6/rbo6.h"
 #include <scratchpad.h>
 
-void func_us_8019D330_from_rcen(Entity* self) {
-    typedef struct {
-        u16 animSet;
-        u16 unk2;
-        u16 palette;
-        u16 blendMode;
-        u32 animation;
-    } Borbo6ParticleData;
-    extern Borbo6ParticleData D_pspeu_0926BC10[];
-    extern u16 g_EInitParticle;
+typedef struct {
+    u16 animSet;
+    u16 unk2;
+    u16 palette;
+    u16 blendMode;
+    u32 animation;
+} Borbo6ParticleData;
 
+extern Borbo6ParticleData D_pspeu_0926BC10[];
+extern EInit g_EInitParticle;
+extern EInit g_EInitInteractable;
+extern SVECTOR D_pspeu_0926C700[0x100];
+extern u8 D_pspeu_0926CF00[0x100];
+extern u32 g_CutsceneFlags;
+
+void func_us_8019D330_from_rcen(Entity* self) {
     u32 index;
     Borbo6ParticleData* particle;
     s16 angle;
 
     switch (self->step) {
     case 0:
-        InitializeEntity(&g_EInitParticle);
+        InitializeEntity(g_EInitParticle);
         index = self->params & 0xF;
         particle = &D_pspeu_0926BC10[index];
         self->palette = particle->palette + 0x2E0;
@@ -107,10 +112,6 @@ void func_us_8019D330_from_rcen(Entity* self) {
 }
 
 void EntityBackgroundVortex(Entity* self) {
-    extern EInit g_EInitInteractable;
-    extern SVECTOR D_pspeu_0926C700[0x100];
-    extern u8 D_pspeu_0926CF00[0x100];
-    extern s32 g_CutsceneFlags;
     u8 brightness; // writes into an array, later that array is used for colors
     u8 leftV;
     u8 rightV;
