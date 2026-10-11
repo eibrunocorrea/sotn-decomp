@@ -123,7 +123,6 @@ g_Overlay = 0x0928F1C8;
 BackgroundBlockInit = 0x0928F488;
 g_animFireballAttack1 = 0x0928F898;
 g_animFireballAttack2 = 0x0928F8B0;
-D_pspeu_0928FB98 = 0x0928FB98;
 D_psp_E_LASER_EXPLOSION = 0x092903B8;
 D_psp_E_LIFE_UP_SPAWN = 0x092903F8;
 D_psp_E_UNK_3E = 0x09290400;

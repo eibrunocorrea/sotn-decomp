@@ -4,8 +4,8 @@
 s16 func_pspeu_09258DE0(s16 delta, s16 current, s16 target) {
     s16 diff;
 
-    current &= ROT(360) - 1;
-    target &= ROT(360) - 1;
+    current &= 0xFFF;
+    target &= 0xFFF;
     diff = target - current;
     if (diff > ROT(180)) {
         diff = diff - ROT(360);
@@ -20,7 +20,7 @@ s16 func_pspeu_09258DE0(s16 delta, s16 current, s16 target) {
         diff = delta;
     }
     target = current + diff;
-    target &= ROT(360) - 1;
+    target &= 0xFFF;
     return target;
 }
 
