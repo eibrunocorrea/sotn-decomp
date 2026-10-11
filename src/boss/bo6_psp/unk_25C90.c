@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+extern EInit D_pspeu_0926EBB8;
+
 extern EInit D_pspeu_0926EC08;
 extern RECT D_pspeu_0927B018;
 extern u16 D_pspeu_0927AFB8[];
@@ -1182,9 +1184,141 @@ s32 func_pspeu_09267A60(s16 height, s16 width) {
 // remaining INCLUDE_ASM stubs can reference the symbol. The US declares it
 // unprototyped but calls it as a collision stub with (height, width);
 // declaring both args reproduces mwcc's 0x20 stack frame
-s32 func_801B2E5C(s32 height, s32 width) { return EFFECT_NONE; }
+s32 func_801B2E5C(s16 height, s16 width) { return EFFECT_NONE; }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09267D20);
+void func_pspeu_09267D20(Entity* self) {
+    s16 xMod;
+    s32 colRes;
+
+    colRes = 0;
+    if (self->step > 2) {
+        self->posY.i.hi += 5;
+    }
+    switch (self->step) {
+    case 0:
+        self->ext.holywater.subweaponId = PL_W_HOLYWATER;
+        InitializeEntity(D_pspeu_0926EBB8);
+        self->flags = FLAG_POS_CAMERA_LOCKED;
+        self->animSet = ANIMSET_OVL(3);
+        self->animCurFrame = 0x23;
+        self->zPriority = MARIA.zPriority + 2;
+        self->unk5A = 0x24;
+        self->palette = PAL_FLAG(0x22F);
+        xMod = 0;
+        if (self->facingLeft) {
+            xMod = -xMod;
+        }
+        self->posX.i.hi += xMod;
+        self->posY.i.hi += -16;
+        self->ext.holywater.angle = (rand() & 0x7F) + ROT(309.375);
+        if (MARIA.facingLeft == true) {
+            self->ext.holywater.angle = (rand() & 0x7F) + ROT(219.375);
+        }
+        self->velocityX =
+            ((rcos(self->ext.holywater.angle) << 4) * FIX(3.0 / 128.0)) >>
+            8;
+        self->velocityY =
+            -((rsin(self->ext.holywater.angle) << 4) * FIX(3.0 / 128.0)) >>
+            8;
+        self->hitboxWidth = 4;
+        self->hitboxHeight = 4;
+        self->ext.holywater.unk80 = 0x200;
+        self->step = 1;
+        break;
+    case 1:
+        self->posY.val += self->velocityY;
+        colRes = func_pspeu_09267A60(0, 0);
+        self->posX.val += self->velocityX;
+        if ((colRes & EFFECT_SOLID) || self->hitFlags) {
+            MarCreateEntFactoryFromEntity(self, BP_HOLYWATER_GLASS, 0);
+            g_api.PlaySfx(SFX_RIC_HOLY_WATER_ATTACK);
+            self->animSet = 0;
+            self->velocityX = self->velocityX >> 2;
+            self->ext.holywater.timer = 80;
+            self->step = 3;
+        } else if (self->flags & FLAG_DEAD) {
+            MarCreateEntFactoryFromEntity(self, BP_HOLYWATER_GLASS, 0);
+            g_api.PlaySfx(SFX_RIC_HOLY_WATER_ATTACK);
+            self->animSet = 0;
+            self->velocityX = self->velocityX >> 2;
+            self->velocityX = -self->velocityX;
+            self->ext.holywater.timer = 80;
+            self->step = 3;
+        }
+        break;
+    case 2:
+        if (self->flags & FLAG_DEAD) {
+            DestroyEntity(self);
+            return;
+        }
+        if (--self->ext.holywater.timer == 0) {
+            self->velocityX = self->velocityX >> 2;
+            self->ext.holywater.timer = 80;
+            self->step++;
+        }
+        break;
+    case 3:
+        if (self->flags & FLAG_DEAD) {
+            self->velocityX = 0;
+        }
+        if (!(self->ext.holywater.timer & 3)) {
+            MarCreateEntFactoryFromEntity(
+                self, FACTORY(BP_HOLYWATER_FIRE, self->ext.holywater.unk82), 0);
+            self->ext.holywater.unk82 += 1;
+            self->velocityX -= (self->velocityX / 32);
+        }
+        self->posX.val += self->velocityX;
+        colRes = func_pspeu_09267A60(6, 0);
+        if (!(colRes & EFFECT_SOLID)) {
+            self->velocityX = self->velocityX >> 1;
+            self->step++;
+        }
+        break;
+    case 4:
+        if (self->flags & FLAG_DEAD) {
+            self->velocityX = 0;
+        }
+        if (!(self->ext.holywater.timer & 3)) {
+            MarCreateEntFactoryFromEntity(
+                self, FACTORY(BP_HOLYWATER_FIRE, self->ext.holywater.unk82), 0);
+            self->ext.holywater.unk82 += 1;
+        }
+        self->velocityY += FIX(12.0 / 128);
+        if (self->velocityY > FIX(4)) {
+            self->velocityY = FIX(4);
+        }
+        self->posY.val += self->velocityY;
+        colRes = func_pspeu_09267A60(0, 0);
+        self->posX.val += self->velocityX;
+        xMod = 4;
+        if (self->velocityX < 0) {
+            xMod = -xMod;
+        }
+        colRes |= func_801B2E5C(-7, xMod);
+        if (colRes & EFFECT_SOLID) {
+            self->velocityX = self->velocityX << 1;
+            self->step--;
+        }
+        break;
+    case 5:
+        break;
+    }
+    if (self->step > 2) {
+        if (--self->ext.holywater.timer < 0) {
+            DestroyEntity(self);
+            return;
+        }
+        if (self->ext.holywater.timer == 2) {
+            self->step = 5;
+        }
+        self->posY.i.hi -= 5;
+        self->animCurFrame = 0;
+    }
+    g_Maria.timers[PL_T_3] = 2;
+    self->hitFlags = 0;
+    self->flags &= ~FLAG_DEAD;
+    FntPrint("judge:%02x\n", self->hitboxState);
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09268448);
 

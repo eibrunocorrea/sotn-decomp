@@ -97,6 +97,8 @@ segments:
       - [0x42E70, .data, bo6_psp/pl_main]
       - [0x42E80, .data, bo6_psp/unk_1D890]
       - [0x42ED8, data, 42ED8]
+      - [0x438E8, .data, bo6_psp/unk_25C90]
+      - [0x438F8, data, 438F8]
       - [0x43F80, .rodata, bo6/e_red_door]
       - [0x43F98, .rodata, bo6/e_collect]
       - [0x43FF8, .rodata, bo6_psp/unk_DC80]
