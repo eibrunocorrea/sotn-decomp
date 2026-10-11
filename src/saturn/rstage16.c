@@ -883,7 +883,72 @@ void func_060E4EA4(Entity* self) {
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4EDC, func_060E4EDC);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E56DC, func_060E56DC);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E5CB0, func_060E5CB0);
+extern s16 DAT_060EDA28[];
+extern s16 DAT_060EDA2C[];
+u8 func_0607A118(Entity* self, s16* sensors, s32 count);
+
+void func_060E5CB0(Entity* self) {
+    s32 primIndex;
+    s32 idx;
+    SprGourTbl* temp;
+    Primitive* prim;
+    u16* flags;
+    void (*syncSpriteObjectPos)(Entity*, s16*);
+    SaturnSpriteImage* images = DAT_060EDE4C;
+    switch (self->step) {
+    case 0:
+        flags = &g_RStage16SpriteBankWight.flags;
+        self->unk0 = CreateSpriteObject(
+            g_RStage16SpriteBankWight.allocationIndex, *flags, images, 1);
+        syncSpriteObjectPos = SyncSpriteObjectPosUnchecked;
+        syncSpriteObjectPos(self, DAT_060EDA28);
+        TekiInit(self, 2);
+        self->animCurFrame = 0;
+        primIndex = AllocPrimitives(0x8005, 1);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->primIndex = primIndex;
+        self->flags |= FLAG_HAS_PRIMS;
+        self->hitboxState = 0;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_060E5CB0.prim = prim;
+        prim->x0 = prim->x1 = self->posX.i.hi;
+        prim->y0 = prim->y1 = self->posY.i.hi;
+        idx = prim->unk1C;
+        temp = &SpGourTbl[idx];
+        temp->entry[0] = RGB16_COLOR(31, 0, 6);
+        temp->entry[1] = RGB16_COLOR(4, 0, 2);
+        prim->unk6 = 0xC210;
+        prim->priority = 0x80;
+        prim->drawMode = 0x37;
+        self->step = 1;
+        break;
+    case 1:
+        prim = self->ext.et_060E5CB0.prim;
+        if (func_0607A118(self, DAT_060EDA2C, 0)) {
+            prim->y1 += 2;
+            if (self->step_s == 0) {
+                self->step_s = 1;
+            }
+        } else {
+            self->velocityY += 0x1800;
+            self->posY.val += self->velocityY;
+            if (prim->y0 - prim->y1 > 8) {
+                prim->y1 = prim->y0 - 8;
+            }
+        }
+        prim->x0 = self->posX.i.hi;
+        prim->x1 = self->posX.i.hi;
+        prim->y0 = self->posY.i.hi;
+        if (prim->y0 < prim->y1) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+}
 void func_060E5E70(Entity* entity) {
     SpriteObject* (*createSpriteObject)(u16, u16, SaturnSpriteImage*, s32);
     void (*syncSpriteObjectPos)(Entity*, s16*);
