@@ -510,9 +510,7 @@ typedef struct {
     /* 0xA8 */ s32 : 32;
     /* 0xAC */ s32 : 32;
     /* 0xB0 */ u16 clutBase;
-} ET_060E5F48;
-
-typedef ET_060E5F48 ET_Gargoyle;
+} ET_Gargoyle;
 
 typedef struct {
     /* 0x78 */ s32 : 32;
@@ -672,8 +670,6 @@ typedef struct {
     /* 0x80 */ Primitive* prim;
 } ET_060E4EDC;
 
-typedef ET_060E4EDC ET_060E5CB0;
-
 typedef struct {
     /* 0x78 */ s32 : 32;
     /* 0x7C */ s32 : 32;
@@ -798,7 +794,6 @@ typedef union { // offset=0x78
     ET_060E411C et_060E411C;
     ET_060E6F38 et_060E6F38;
     ET_060E7C60 et_060E7C60;
-    ET_060E5CB0 et_060E5CB0;
     ET_060E81F4 et_060E81F4;
     ET_060E4664 et_060E4664;
     ET_060E7698 et_060E7698;
@@ -806,7 +801,6 @@ typedef union { // offset=0x78
     ET_060E0104 et_060E0104;
     ET_060E8368 et_060E8368;
     ET_060E4EDC et_060E4EDC;
-    ET_060E5F48 et_060E5F48;
 } Ext;
 
 // Flags for entity->drawFlags

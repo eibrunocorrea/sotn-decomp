@@ -2027,7 +2027,7 @@ void func_060E5CB0(Entity* self) {
         self->flags |= FLAG_HAS_PRIMS;
         self->hitboxState = 0;
         prim = &g_PrimBuf[primIndex];
-        self->ext.et_060E5CB0.prim = prim;
+        self->ext.et_060E4EDC.prim = prim;
         prim->x0 = prim->x1 = self->posX.i.hi;
         prim->y0 = prim->y1 = self->posY.i.hi;
         idx = prim->unk1C;
@@ -2040,7 +2040,7 @@ void func_060E5CB0(Entity* self) {
         self->step = 1;
         break;
     case 1:
-        prim = self->ext.et_060E5CB0.prim;
+        prim = self->ext.et_060E4EDC.prim;
         if (func_0607A118(self, DAT_060EDA2C, 0)) {
             prim->y1 += 2;
             if (self->step_s == 0) {
@@ -2129,22 +2129,22 @@ void func_060E5F48(Entity* self) {
             TekiInit(self, 0x1A0);
         }
         self->animCurFrame = 2;
-        self->ext.et_060E5F48.variant = self->params;
-        self->ext.et_060E5F48.clutBase = self->unk0->clutBase;
-        switch (self->ext.et_060E5F48.variant) {
+        self->ext.gargoyle.variant = self->params;
+        self->ext.gargoyle.clutBase = self->unk0->clutBase;
+        switch (self->ext.gargoyle.variant) {
         case 1:
-            self->unk0->clutBase = self->ext.et_060E5F48.clutBase;
+            self->unk0->clutBase = self->ext.gargoyle.clutBase;
             break;
         case 2:
-            self->unk0->clutBase = self->ext.et_060E5F48.clutBase + 9;
+            self->unk0->clutBase = self->ext.gargoyle.clutBase + 9;
             break;
         case 0:
-            self->unk0->clutBase = self->ext.et_060E5F48.clutBase + 0x12;
+            self->unk0->clutBase = self->ext.gargoyle.clutBase + 0x12;
             break;
         }
         entity = self + 1;
         CreateEntityFromCurrentEntity(34, entity);
-        entity->ext.et_060E5F48.variant = self->ext.et_060E5F48.variant;
+        entity->ext.gargoyle.variant = self->ext.gargoyle.variant;
         self->posY.i.hi -= 27;
         func_06079BB4(self);
         func_0600B004(self->unk0, DAT_060EEFD0[self->animCurFrame]);
@@ -2158,10 +2158,10 @@ void func_060E5F48(Entity* self) {
         }
         SetStep(2);
         self->posY.i.hi -= 12;
-        self->ext.et_060E5F48.unk80 = g_Tilemap.scrollX.i.hi + self->posX.i.hi;
+        self->ext.gargoyle.unk80 = g_Tilemap.scrollX.i.hi + self->posX.i.hi;
         self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
-        self->ext.et_060E5F48.unk7C = 0;
-        self->ext.et_060E5F48.unk8A = 16;
+        self->ext.gargoyle.unk7C = 0;
+        self->ext.gargoyle.unk8A = 16;
         break;
     case 2:
         if (g_Timer % 24 == 0) {
@@ -2177,30 +2177,30 @@ void func_060E5F48(Entity* self) {
             if (angle > 0x800) {
                 angle -= 0x1000;
             }
-            switch (self->ext.et_060E5F48.variant) {
+            switch (self->ext.gargoyle.variant) {
             case 0:
-                self->ext.et_060E5F48.unk7E =
-                    func_0607B134(16, self->ext.et_060E5F48.unk7E, angle);
+                self->ext.gargoyle.unk7E =
+                    func_0607B134(16, self->ext.gargoyle.unk7E, angle);
                 self->velocityX =
-                    (rcos(self->ext.et_060E5F48.unk7E) * 0x20000) >> 12;
+                    (rcos(self->ext.gargoyle.unk7E) * 0x20000) >> 12;
                 self->velocityY =
-                    (rsin(self->ext.et_060E5F48.unk7E) * 0x20000) >> 12;
+                    (rsin(self->ext.gargoyle.unk7E) * 0x20000) >> 12;
                 break;
             case 1:
-                self->ext.et_060E5F48.unk7E =
-                    func_0607B134(40, self->ext.et_060E5F48.unk7E, angle);
+                self->ext.gargoyle.unk7E =
+                    func_0607B134(40, self->ext.gargoyle.unk7E, angle);
                 self->velocityX =
-                    (rcos(self->ext.et_060E5F48.unk7E) * 0x10000) >> 12;
+                    (rcos(self->ext.gargoyle.unk7E) * 0x10000) >> 12;
                 self->velocityY =
-                    (rsin(self->ext.et_060E5F48.unk7E) * 0x10000) >> 12;
+                    (rsin(self->ext.gargoyle.unk7E) * 0x10000) >> 12;
                 break;
             case 2:
-                self->ext.et_060E5F48.unk7E =
-                    func_0607B134(32, self->ext.et_060E5F48.unk7E, angle);
+                self->ext.gargoyle.unk7E =
+                    func_0607B134(32, self->ext.gargoyle.unk7E, angle);
                 self->velocityX =
-                    (rcos(self->ext.et_060E5F48.unk7E) * 0x30000) >> 12;
+                    (rcos(self->ext.gargoyle.unk7E) * 0x30000) >> 12;
                 self->velocityY =
-                    (rsin(self->ext.et_060E5F48.unk7E) * 0x30000) >> 12;
+                    (rsin(self->ext.gargoyle.unk7E) * 0x30000) >> 12;
                 break;
             }
             if (self->velocityX > 0) {
@@ -2221,14 +2221,14 @@ void func_060E5F48(Entity* self) {
             }
             break;
         }
-        if (--self->ext.et_060E5F48.unk8A == 0) {
-            self->ext.et_060E5F48.unk8A = 2;
+        if (--self->ext.gargoyle.unk8A == 0) {
+            self->ext.gargoyle.unk8A = 2;
             if ((s16)GetDistanceToPlayerY(self) < 16 &&
                 (s16)GetDistanceToPlayerX(self) < 32) {
                 SetStep(3);
                 self->velocityX = 0;
                 self->velocityY = 0;
-                self->ext.et_060E5F48.unk88 = 0;
+                self->ext.gargoyle.unk88 = 0;
                 self->facingLeft = (u8)((GetSideToPlayer(self) & 1) ^ 1);
                 if (self->facingLeft) {
                     self->unk0->flags |= 0x10;
@@ -2244,20 +2244,20 @@ void func_060E5F48(Entity* self) {
         }
         result = AnimateEntityWithSpriteData(self, DAT_060EDF02, DAT_060EEFD0);
         if (result == 0) {
-            if (self->ext.et_060E5F48.unk88 == 1) {
+            if (self->ext.gargoyle.unk88 == 1) {
                 SetStep(4);
                 self->velocityX = result;
                 self->velocityY = result;
-                self->ext.et_060E5F48.unk88 = 0;
+                self->ext.gargoyle.unk88 = 0;
             } else {
                 SetStep(2);
-                self->ext.et_060E5F48.unk8A = 16;
+                self->ext.gargoyle.unk8A = 16;
                 self->velocityX = result;
                 self->velocityY = result;
             }
         }
         if (g_Player.status & 0x10000) {
-            self->ext.et_060E5F48.unk88 = 1;
+            self->ext.gargoyle.unk88 = 1;
         }
         if ((u16)(self->animCurFrame - 24) <= 2) {
             self->hitboxWidth = 22;
@@ -2273,14 +2273,14 @@ void func_060E5F48(Entity* self) {
     case 4:
         if (AnimateEntityWithSpriteData(self, DAT_060EDF18, DAT_060EEFD0) ==
             0) {
-            self->ext.et_060E5F48.unk88++;
+            self->ext.gargoyle.unk88++;
         }
-        if (self->ext.et_060E5F48.unk88 > 1) {
+        if (self->ext.gargoyle.unk88 > 1) {
             SetStep(2);
             self->velocityX = 0;
             self->velocityY = 0;
-            self->ext.et_060E5F48.unk88 = 0;
-            self->ext.et_060E5F48.unk8A = 16;
+            self->ext.gargoyle.unk88 = 0;
+            self->ext.gargoyle.unk8A = 16;
         }
         break;
     case 5:
@@ -2297,8 +2297,7 @@ void func_060E5F48(Entity* self) {
                 if (entity) {
                     CreateEntityFromEntity(33, self, entity);
                     entity->params = i + 41;
-                    entity->ext.et_060E5F48.variant =
-                        self->ext.et_060E5F48.variant;
+                    entity->ext.gargoyle.variant = self->ext.gargoyle.variant;
                     DAT_060EDEA4 = ((u32)((Random() & 15) << 8) >> 2) << 8;
                     entity->velocityX = (DAT_060EDEA4 * rcos(angle)) >> 12;
                     entity->velocityY = (DAT_060EDEA8 * rsin(angle)) >> 12;
@@ -3086,8 +3085,8 @@ void func_060E8368(Entity* self) {
     self->ext.et_060E8368.unkA0 = g_Tilemap.scrollX.val;
 }
 
-const u32 D_saturn_060E859C = 0x08E8DE06;
-const u16 D_saturn_060E85A0[] = {
+const u32 DAT_060E859C = 0x08E8DE06;
+const u16 DAT_060E85A0[] = {
     0x0009, 0x8000, 0x81D8, 0x8154, 0x80D0, 0x804C, 0x8008, 0x8006, 0x8004,
     0x82DA, 0x8256, 0x81D4, 0x810E, 0x8088, 0x8046, 0x8004, 0x8001, 0x8000,
     0xA98D, 0xA14B, 0x9909, 0x90C7, 0x8885, 0x8443, 0x8000, 0x9EC6, 0x9604,
@@ -3106,11 +3105,11 @@ const u16 D_saturn_060E85A0[] = {
     0x90E9, 0x8024, 0x80E9, 0x80E9, 0x8084, 0x8024, 0x8006, 0x800E, 0x8017,
     0x801F,
 };
-const u16 D_saturn_060E86C2[] = {
+const u16 DAT_060E86C2[] = {
     0x4001, 0x8000, 0xC294, 0xBA31, 0xB1CE, 0xA96B, 0xA129, 0x98E7, 0x90A5,
     0x8000, 0x8863, 0x8002, 0x8024, 0x8046, 0x8088, 0x80CA, 0xDB18,
 };
-const SaturnSpriteImage D_saturn_060E86E4[] = {
+const SaturnSpriteImage DAT_060E86E4[] = {
     {8, 8, 0x0000},   {16, 26, 0x0010}, {12, 8, 0x0078},  {16, 10, 0x0090},
     {8, 8, 0x00B8},   {8, 7, 0x00C8},   {12, 18, 0x00D8}, {16, 16, 0x0110},
     {16, 16, 0x0150}, {20, 10, 0x0190}, {12, 16, 0x01C4}, {20, 14, 0x01F4},
@@ -3118,15 +3117,15 @@ const SaturnSpriteImage D_saturn_060E86E4[] = {
     {48, 16, 0x0400}, {44, 17, 0x04C0}, {28, 31, 0x057C}, {20, 31, 0x0658},
     {0, 0, 0x06F4},
 };
-const SaturnSpriteFrameHeader D_saturn_060E8738 = {0x0000, 0x0000};
-const SaturnSpriteFrame2 D_saturn_060E873C = {
+const SaturnSpriteFrameHeader DAT_060E8738 = {0x0000, 0x0000};
+const SaturnSpriteFrame2 DAT_060E873C = {
     {0x0200, 0x0000},
     {
         {48, 0, 40, 0},
         {304, 0, 25, 1},
     },
 };
-const SaturnSpriteFrame3 D_saturn_060E8750 = {
+const SaturnSpriteFrame3 DAT_060E8750 = {
     {0x0300, 0x0000},
     {
         {48, -3, 40, 2},
@@ -3134,14 +3133,14 @@ const SaturnSpriteFrame3 D_saturn_060E8750 = {
         {560, -1, 38, 3},
     },
 };
-const SaturnSpriteFrame2 D_saturn_060E876C = {
+const SaturnSpriteFrame2 DAT_060E876C = {
     {0x0200, 0x0000},
     {
         {48, 0, 40, 4},
         {304, 0, 25, 1},
     },
 };
-const SaturnSpriteFrame3 D_saturn_060E8780 = {
+const SaturnSpriteFrame3 DAT_060E8780 = {
     {0x0300, 0x0000},
     {
         {48, -1, 39, 5},
@@ -3149,20 +3148,20 @@ const SaturnSpriteFrame3 D_saturn_060E8780 = {
         {560, -1, 38, 3},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E879C = {
+const SaturnSpriteFrame1 DAT_060E879C = {
     {0x0100, 0x0000},
     {
         {304, -1, 17, 6},
     },
 };
-const SaturnSpriteFrame2 D_saturn_060E87A8 = {
+const SaturnSpriteFrame2 DAT_060E87A8 = {
     {0x0200, 0x0000},
     {
         {816, -2, 0, 7},
         {48, -3, 24, 2},
     },
 };
-const SaturnSpriteFrame3 D_saturn_060E87BC = {
+const SaturnSpriteFrame3 DAT_060E87BC = {
     {0x0300, 0x0000},
     {
         {816, -2, 0, 7},
@@ -3170,14 +3169,14 @@ const SaturnSpriteFrame3 D_saturn_060E87BC = {
         {1072, -2, 0, 8},
     },
 };
-const SaturnSpriteFrame2 D_saturn_060E87D8 = {
+const SaturnSpriteFrame2 DAT_060E87D8 = {
     {0x0200, 0x0000},
     {
         {816, -2, 0, 7},
         {48, 0, 24, 4},
     },
 };
-const SaturnSpriteFrame3 D_saturn_060E87EC = {
+const SaturnSpriteFrame3 DAT_060E87EC = {
     {0x0300, 0x0000},
     {
         {816, -2, 0, 7},
@@ -3185,104 +3184,103 @@ const SaturnSpriteFrame3 D_saturn_060E87EC = {
         {1072, -2, 0, 8},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8808 = {
+const SaturnSpriteFrame1 DAT_060E8808 = {
     {0x0100, 0x0000},
     {
         {816, -2, 0, 7},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8814 = {
+const SaturnSpriteFrame1 DAT_060E8814 = {
     {0x0100, 0x0000},
     {
         {1328, -2, 8, 9},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8820 = {
+const SaturnSpriteFrame1 DAT_060E8820 = {
     {0x0100, 0x0000},
     {
         {560, -3, 16, 10},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E882C = {
+const SaturnSpriteFrame1 DAT_060E882C = {
     {0x0100, 0x0000},
     {
         {1584, -3, 20, 11},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8838 = {
+const SaturnSpriteFrame1 DAT_060E8838 = {
     {0x0100, 0x0000},
     {
         {1584, 0, 20, 12},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8844 = {
+const SaturnSpriteFrame1 DAT_060E8844 = {
     {0x0100, 0x0000},
     {
         {1584, -1, 20, 13},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8850 = {
+const SaturnSpriteFrame1 DAT_060E8850 = {
     {0x0100, 0x0000},
     {
         {1840, 28, 16, 14},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E885C = {
+const SaturnSpriteFrame1 DAT_060E885C = {
     {0x0100, 0x0000},
     {
         {1840, -18, 20, 15},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8868 = {
+const SaturnSpriteFrame1 DAT_060E8868 = {
     {0x0100, 0x0000},
     {
         {1840, -32, 16, 16},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8874 = {
+const SaturnSpriteFrame1 DAT_060E8874 = {
     {0x0100, 0x0000},
     {
         {1840, -29, 17, 17},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E8880 = {
+const SaturnSpriteFrame1 DAT_060E8880 = {
     {0x0100, 0x0000},
     {
         {2096, -5, -31, 18},
     },
 };
-const SaturnSpriteFrame1 D_saturn_060E888C = {
+const SaturnSpriteFrame1 DAT_060E888C = {
     {0x0100, 0x0000},
     {
         {2096, -13, -31, 19},
     },
 };
 SaturnSpriteFrameHeader* const DAT_060E8898[] = {
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8738,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E873C,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8750,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E876C,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8780,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E879C,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E87A8,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E87BC,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E87D8,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E87EC,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8808,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8814,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8820,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E882C,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8838,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8844,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8850,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E885C,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8868,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8874,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E8880,
-    (SaturnSpriteFrameHeader*)&D_saturn_060E888C,
+    (SaturnSpriteFrameHeader*)&DAT_060E8738,
+    (SaturnSpriteFrameHeader*)&DAT_060E873C,
+    (SaturnSpriteFrameHeader*)&DAT_060E8750,
+    (SaturnSpriteFrameHeader*)&DAT_060E876C,
+    (SaturnSpriteFrameHeader*)&DAT_060E8780,
+    (SaturnSpriteFrameHeader*)&DAT_060E879C,
+    (SaturnSpriteFrameHeader*)&DAT_060E87A8,
+    (SaturnSpriteFrameHeader*)&DAT_060E87BC,
+    (SaturnSpriteFrameHeader*)&DAT_060E87D8,
+    (SaturnSpriteFrameHeader*)&DAT_060E87EC,
+    (SaturnSpriteFrameHeader*)&DAT_060E8808,
+    (SaturnSpriteFrameHeader*)&DAT_060E8814,
+    (SaturnSpriteFrameHeader*)&DAT_060E8820,
+    (SaturnSpriteFrameHeader*)&DAT_060E882C,
+    (SaturnSpriteFrameHeader*)&DAT_060E8838,
+    (SaturnSpriteFrameHeader*)&DAT_060E8844,
+    (SaturnSpriteFrameHeader*)&DAT_060E8850,
+    (SaturnSpriteFrameHeader*)&DAT_060E885C,
+    (SaturnSpriteFrameHeader*)&DAT_060E8868,
+    (SaturnSpriteFrameHeader*)&DAT_060E8874,
+    (SaturnSpriteFrameHeader*)&DAT_060E8880,
+    (SaturnSpriteFrameHeader*)&DAT_060E888C,
 };
 const SaturnSpriteResource g_RStage16SpriteBank16 = {
-    (SaturnSpriteImage*)D_saturn_060E86E4, (u16*)D_saturn_060E85A0, 0xFFFF,
-    0xFFFF};
+    (SaturnSpriteImage*)DAT_060E86E4, (u16*)DAT_060E85A0, 0xFFFF, 0xFFFF};
 const SaturnSpriteResource g_RStage16SpriteBank17[] = {
-    {NULL, (u16*)D_saturn_060E86C2, 0xFFFF, 0xFFFF}};
+    {NULL, (u16*)DAT_060E86C2, 0xFFFF, 0xFFFF}};
