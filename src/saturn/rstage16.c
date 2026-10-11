@@ -978,7 +978,125 @@ void func_060E4664(Entity* self) {
     }
     func_06079BB4(self);
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4804, func_060E4804);
+/* Function/global declarations and TU-local primitive scratch view. */
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    SotnFixed32 posX;
+    SotnFixed32 posY;
+    s32 velocityX;
+    s32 velocityY;
+    s32 : 32;
+    s32 : 32;
+    s16 : 16;
+    u16 drawMode;
+    Primitive* next;
+} RStage16ParticleWork;
+extern Primitive g_PrimBuf[];
+
+void func_060E4804(Entity* self) {
+    Primitive* prim;
+    Primitive** primPtr;
+    RStage16ParticleWork* work;
+    s32 primIndex;
+    s32 magnitude;
+    s16 angle;
+    s32 initialAngle;
+    s16 speed;
+    s32 deltaX;
+    s32 deltaY;
+    u16 blue;
+    u16 green;
+    u16 red;
+    u16 color;
+
+    primPtr = &self->ext.et_060E3608.unk7C;
+    switch (self->step) {
+    case 0:
+        TekiInit(self, 5);
+        primIndex = AllocPrimitives(3, 64);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        *primPtr = prim;
+        while (prim != NULL) {
+            work = (RStage16ParticleWork*)prim->next;
+            work->unk0 = 0x100F;
+            work->drawMode = 8;
+            prim->priority = 0x80;
+            prim->drawMode = 0;
+            Random();
+            prim->unk6 = 0x8008;
+            magnitude = (MTH_GetRand() & 0x7FFF) + 0x8000;
+            initialAngle = MTH_GetRand() % 0xFFF;
+            work->velocityX = (magnitude * rcos(initialAngle)) >> 13;
+            work->velocityY =
+                ((magnitude * rsin(initialAngle)) >> 12) - 0x12000;
+            if (self->facingLeft == 0) {
+                work->posX.val = self->posX.val - FIX(64);
+            } else {
+                work->posX.val = self->posX.val + FIX(61);
+            }
+            work->posY.val = self->posY.val;
+            prim = prim->next;
+            prim = prim->next;
+        }
+        self->ext.et_060E3608.unk90 = 0;
+        self->step++;
+        /* fallthrough */
+    case 1:
+        self->ext.et_060E3608.unk90++;
+        blue = self->ext.et_060E3608.unk90 / 2 + 16;
+        green = self->ext.et_060E3608.unk90 / 3 + 16;
+        if (green > 31) {
+            green = 31;
+        }
+        if (blue > 31) {
+            blue = 31;
+        }
+        red = 0;
+        if (blue == 31) {
+            red = self->ext.et_060E3608.unk90 / 2;
+        }
+        if (red > 31) {
+            red = 31;
+        }
+        color = RGB16_COLOR(red, green, blue);
+        prim = self->ext.et_060E3608.unk7C;
+        while (prim != NULL) {
+            if (!(prim->drawMode & 8)) {
+                work = (RStage16ParticleWork*)prim->next;
+                deltaX = self->posX.val - work->posX.val;
+                deltaY = self->posY.val - work->posY.val;
+                if ((u32)(deltaX + 15) <= 30 && (u32)(deltaY + 15) <= 30) {
+                    prim->drawMode |= 8;
+                }
+                angle = ratan2(deltaY, deltaX);
+                speed = self->ext.et_060E3608.unk90 / 5;
+                work->velocityX += speed * rcos(angle) / 8;
+                work->velocityY += speed * rsin(angle) / 4;
+                work->posX.val += work->velocityX;
+                work->posY.val += work->velocityY;
+                prim->x0 = prim->x3 = work->posX.i.hi;
+                prim->x1 = prim->x2 = prim->x0 + 2;
+                prim->y0 = prim->y1 = work->posY.i.hi;
+                prim->y3 = prim->y2 = prim->y0 + 2;
+                prim->unk6 = color;
+            }
+            prim = prim->next;
+            prim = prim->next;
+        }
+        if (self->ext.et_060E3608.unk90 > 58) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4AFC, func_060E4AFC);
 void func_060E4E50(Entity* entity) {
     entity->unk0 =
