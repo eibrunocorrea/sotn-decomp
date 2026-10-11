@@ -1113,7 +1113,7 @@ void func_060E81F4(Entity* self) {
         }
         self->unk0->zPriority = 0xA8;
         func_06079BB4(self);
-        func_0600B004(self->unk0, (u32)DAT_060EFB84[self->animCurFrame]);
+        func_0600B004(self->unk0, DAT_060EFB84[self->animCurFrame]);
 
         /* fallthrough */
     case 1:
@@ -1146,5 +1146,5 @@ void func_060E81F4(Entity* self) {
     }
 }
 
-const u16 DAT_060E8364[] = {0xCCCC, 0xCCCD};
+const u32 DAT_060E8364 = 0xCCCCCCCD;
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E8368, func_060E8368);
