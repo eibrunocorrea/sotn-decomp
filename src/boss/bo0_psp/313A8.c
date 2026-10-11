@@ -195,7 +195,29 @@ s32 func_pspeu_0925ED50(OlroxPrim* part) {
     return false;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925EDF8);
+u8 func_pspeu_0925EDF8(OlroxPrim* prim) {
+    s32 result;
+    OlroxPrim* other;
+
+    other = prim->unk18;
+    switch (prim->step) {
+    case 0:
+        result = func_pspeu_0925E340(prim, ROT(-11.25), ROT(11.25), 0x20);
+        result += func_pspeu_0925E340(other, ROT(0), ROT(33.75), 0xC);
+        if (result == 2) {
+            prim->step++;
+        }
+        break;
+    case 1:
+        result = func_pspeu_0925E340(prim, ROT(-67.5), ROT(0), 0x28);
+        result += func_pspeu_0925E340(other, ROT(11.25), ROT(22.5), 0xC);
+        if (result == 2) {
+            return true;
+        }
+        break;
+    }
+    return false;
+}
 
 void func_pspeu_0925EF08(OlroxPrim* prim) {
     switch (prim->step) {
