@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
-// Maria's anim tables live in the raw data blobs of the overlay
-
 // local copy of RicGetFreeEntity (see us_39144.c)
 Entity* MarGetFreeEntity(s16 start, s16 end) {
     Entity* entity = &g_Entities[start];
@@ -48,15 +46,15 @@ s32 func_pspeu_09248D20(
 
     if (isItemCrash == 0) {
         if (distanceX < 0x50) {
-            subweaponId = 3;
+            subweaponId = PL_W_HOLYWATER;
         } else {
-            subweaponId = 4;
+            subweaponId = PL_W_CROSS;
         }
         if ((MARIA.posY.i.hi - PLAYER.posY.i.hi) > 0x18) {
             subweaponId = PL_W_AXE;
         }
         if ((MARIA.posY.i.hi - PLAYER.posY.i.hi) < -0x18) {
-            subweaponId = 3;
+            subweaponId = PL_W_HOLYWATER;
         }
         if (g_Player.status & PLAYER_STATUS_BAT_FORM) {
             subweaponId = PL_W_AXE;
@@ -64,18 +62,18 @@ s32 func_pspeu_09248D20(
 
         *actualSubwpn = D_pspeu_092797E8[subweaponId];
     } else {
-        subweaponId = 4;
+        subweaponId = PL_W_CROSS;
         if (g_Maria.padPressed & PAD_L1) {
             subweaponId = PL_W_AXE;
         } else {
             if (g_Maria.padPressed & PAD_L2) {
-                subweaponId = 3;
+                subweaponId = PL_W_HOLYWATER;
             }
             if (g_Maria.padPressed & PAD_START) {
-                subweaponId = 9;
+                subweaponId = PL_W_AGUNEA;
             }
             if (g_Maria.padPressed & PAD_SELECT) {
-                subweaponId = 5;
+                subweaponId = PL_W_BIBLE;
             }
         }
 
