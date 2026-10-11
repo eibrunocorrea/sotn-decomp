@@ -3,8 +3,6 @@
 #include "sattypes.h"
 #include "rstage16.h"
 
-#include "rstage16.h"
-
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC040, func_060DC040);
 typedef struct {
     u32 unk0[2];
@@ -16,11 +14,6 @@ typedef struct {
 } RStage16BreakableData;
 
 extern RStage16BreakableData DAT_060E99C8[];
-Entity* AllocEntity(Entity* start, Entity* end);
-void func_0607B4B8(Entity* self);
-void FreePrimitives(s16 primIndex);
-void CreateEntityFromCurrentEntity(u16 entityId, Entity* entity);
-void PreventEntityFromRespawning(Entity* self);
 
 void func_060DC1A8(Entity* self) {
     Entity* entity;
@@ -28,7 +21,7 @@ void func_060DC1A8(Entity* self) {
     u16 variant;
 
     variant = self->params >> 12;
-    data = &DAT_060E99C8[(u16)variant];
+    data = &DAT_060E99C8[variant];
     if (data->unk8 != 0) {
         FreePrimitives(self->primIndex);
         self->flags &= ~FLAG_HAS_PRIMS;
@@ -39,13 +32,13 @@ void func_060DC1A8(Entity* self) {
         entity->posY.i.hi -= data->offsetY;
         entity->params = data->explosionParams;
     }
-    switch ((s32)variant) {
+    switch (variant) {
     case 0:
     case 1:
         entity = AllocEntity(&g_Entities[0xE0], &g_Entities[0x100]);
         if (entity != NULL) {
             CreateEntityFromCurrentEntity(0x12, entity);
-            entity->params = (u16)variant;
+            entity->params = variant;
         }
         self->posY.i.hi -= data->offsetY;
         PlaySfx(0x634);
@@ -243,8 +236,6 @@ void func_060DFB7C(Entity* self) {
     }
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DFC68, func_060DFC68);
-extern SaturnSpriteResource g_EntitySpriteBank05;
-extern u16 DAT_060466EA;
 extern SaturnSpriteFrameHeader* DAT_060465F4[];
 extern u8 DAT_060E9EE1[];
 extern s32 DAT_060E9EC8[];
@@ -263,7 +254,7 @@ void func_060DFDD4(Entity* self) {
                 g_EntitySpriteBank05.flags, g_EntitySpriteBank05.images, 1);
         }
         self->unk0 = sprite;
-        sprite->clutBase = DAT_060466EA | 0x8000;
+        sprite->clutBase = g_EntitySpriteBank05.flags | 0x8000;
         self->animCurFrame = 1;
         func_0600AFA8(sprite, DAT_060465F4[1]);
         sprite->flags |= 0x40;
@@ -278,7 +269,7 @@ void func_060DFDD4(Entity* self) {
         self->poseTimer++;
         if (!(self->poseTimer & 1)) {
             self->animCurFrame++;
-            func_0600B004(self->unk0, (u32)DAT_060465F4[self->animCurFrame]);
+            func_0600B004(self->unk0, DAT_060465F4[self->animCurFrame]);
         }
         if (self->poseTimer > 36) {
             DestroyEntity(self);
@@ -288,10 +279,7 @@ void func_060DFDD4(Entity* self) {
 }
 #define SPAWN_DESTRUCT_ANIM_ID 19
 #include "spawn_destruct_anim.h"
-Entity* AllocEntity(Entity* start, Entity* end);
-extern SaturnSpriteResource g_EntitySpriteBank05;
 extern u16 DAT_060466E8;
-void func_060DFDD4(Entity* self);
 
 void func_060E0024(
     Entity* self, u8 count, u8 params, s16 x, s16 y, u8 variant, s16 xStep) {
@@ -318,8 +306,7 @@ void func_060E0024(
                 entity->params = i;
                 clut = &DAT_060466E8;
                 sprite = CreateSpriteObject(
-                    (u16)*clut, (u16)(s16)resource->flags,
-                    resource->images, 1);
+                    (u16)*clut, (u16)(s16)resource->flags, resource->images, 1);
                 entity->unk0 = sprite;
                 if (self->unk0 != NULL) {
                     sprite->zPriority = self->unk0->zPriority + 1;
@@ -623,9 +610,9 @@ void func_060E6F38(Entity* self) {
     } else {
         self->step++;
         images = DAT_060EF568;
-        bank = (SaturnSpriteResource*)g_RStage16SpriteBank22;
-        self->unk0 = CreateSpriteObject(
-            bank->allocationIndex, bank->flags, images, 1);
+        bank = &g_RStage16SpriteBank22;
+        self->unk0 =
+            CreateSpriteObject(bank->allocationIndex, bank->flags, images, 1);
         self->unk0->flags |= 0x40;
         TekiInit(self, 2);
         self->animCurFrame = (self->params & 0xFF) + 0xF;
@@ -700,9 +687,9 @@ void func_060E7C60(Entity* self) {
     } else {
         self->step++;
         images = DAT_060EFC20;
-        bank = (SaturnSpriteResource*)g_RStage16SpriteBank23;
-        self->unk0 = CreateSpriteObject(
-            bank->allocationIndex, bank->flags, images, 1);
+        bank = &g_RStage16SpriteBank23;
+        self->unk0 =
+            CreateSpriteObject(bank->allocationIndex, bank->flags, images, 1);
         self->unk0->flags |= 0x40;
         TekiInit(self, 0x7E);
         self->hitboxState = 0;

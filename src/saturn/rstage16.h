@@ -72,8 +72,8 @@ extern LayoutEntity g_RStage16LayoutHorizontal51[];
 extern LayoutEntity g_RStage16LayoutHorizontal50[];
 extern LayoutEntity g_RStage16LayoutHorizontal48[];
 extern LayoutEntity g_RStage16LayoutHorizontal49[];
-extern u8 g_RStage16SpriteBank23[];
-extern u8 g_RStage16SpriteBank22[];
+extern SaturnSpriteResource g_RStage16SpriteBank23;
+extern SaturnSpriteResource g_RStage16SpriteBank22;
 extern SaturnSpriteResource g_RStage16SpriteBankGargoyle[];
 extern SaturnSpriteResource g_RStage16SpriteBankWight;
 extern u8 g_RStage16SpriteBankWraith[];
@@ -124,6 +124,14 @@ s32 AnimateEntityWithSpriteData(
 SpriteObject* CreateSpriteObject(
     u16 charBase, u16 clutBase, SaturnSpriteImage* images, s32 maxParts);
 /* End moved declarations */
+
+Entity* AllocEntity(Entity* start, Entity* end);
+void func_0607B4B8(Entity* self);
+void FreePrimitives(s16 primIndex);
+void CreateEntityFromCurrentEntity(u16 entityId, Entity* entity);
+void PreventEntityFromRespawning(Entity* self);
+void func_060DFDD4(Entity* self);
+extern SaturnSpriteResource g_EntitySpriteBank05;
 
 void EntityDestructAnim(Entity* self);
 extern s16 g_ExplosionVariantSizes[];

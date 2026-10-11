@@ -28,7 +28,7 @@ void* g_RStage16SpriteBanks[] = {
     g_RStage16SpriteBankWraith,
     &g_RStage16SpriteBankWight,
     g_RStage16SpriteBankGargoyle,
-    g_RStage16SpriteBank22,
-    g_RStage16SpriteBank23,
+    &g_RStage16SpriteBank22,
+    &g_RStage16SpriteBank23,
     NULL,
 };

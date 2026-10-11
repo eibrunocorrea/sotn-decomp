@@ -67,5 +67,4 @@ _SetEntityCollisionTiles = 0x060DF150;
 _SpawnDestructAnim = 0x060DFF08;
 _EntityDestructAnim = 0x060DFC68;
 _g_ExplosionVariantSizes = 0x060E9EEE;
-
 _InitSolidProp = 0x060E08C8;
