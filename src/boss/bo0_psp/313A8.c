@@ -45,7 +45,6 @@ s32 func_us_801B163C(s16* value, s16 target, s16 speed) {
     return 0;
 }
 
-
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E340);
 
 void func_pspeu_0925E488(Primitive* prim) {
@@ -68,7 +67,6 @@ void func_pspeu_0925E488(Primitive* prim) {
     }
 }
 
-
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E578);
 
 void func_pspeu_0925E688(Primitive* prim) {
@@ -90,7 +88,6 @@ void func_pspeu_0925E688(Primitive* prim) {
         break;
     }
 }
-
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E778);
 
@@ -127,7 +124,6 @@ void func_pspeu_0925EF08(Primitive* prim) {
         break;
     }
 }
-
 
 void func_pspeu_0925EFF8(Primitive* prim) {
     switch (prim->u2) {

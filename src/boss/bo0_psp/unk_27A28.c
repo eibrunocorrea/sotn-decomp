@@ -56,7 +56,6 @@ u8 func_pspeu_09265170(s16* values, s16* targets, s16 speed) {
     return ret;
 }
 
-
 s32 func_us_801B163C(s16* value, s16 target, s16 speed);
 
 u8 func_pspeu_092652C0(s16* values, s16* targets, s16 speed) {
