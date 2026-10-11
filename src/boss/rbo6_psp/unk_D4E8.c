@@ -544,7 +544,77 @@ void func_us_801A0860(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0AB4);
+void func_us_801A0AB4(Entity* self) {
+    extern EInit D_us_80180540;
+    extern u8 D_pspeu_0926B4E8[];
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C070;
+    s32 deltaX;
+    s32 deltaY;
+    Entity* entity;
+    s16 angle;
+    s32 speed;
+
+    if (D_pspeu_0926C060 & 1) {
+        DestroyEntity(self);
+        return;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180540);
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+        self->scaleX = self->scaleY = (Random() & 0x7F) + 0x80;
+        self->blendMode = BLEND_TRANSP;
+        angle = rand() & 0xFFF;
+        speed = (Random() & 0x1F) + 0x10;
+        self->velocityX = speed * rcos(angle);
+        self->velocityY = speed * rsin(angle);
+        self->posX.val += self->velocityX * 4;
+        self->posY.val += self->velocityY * 4;
+        ((Rbo6TransformationEffect*)&self->ext)->timer = (Random() & 0x1F) + 0x10;
+        // Fallthrough
+    case 1:
+        MoveEntity();
+        AnimateEntity(D_pspeu_0926B4E8, self);
+        self->velocityX -= self->velocityX >> 5;
+        self->velocityY -= self->velocityY >> 5;
+        if (D_pspeu_0926C070 == 5) {
+            self->velocityX = 0;
+            self->velocityY = 0;
+            self->step++;
+        }
+        break;
+    case 2:
+        AnimateEntity(D_pspeu_0926B4E8, self);
+        if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
+            self->step++;
+        }
+        if (!(g_Timer & 7)) {
+            g_api.PlaySfx(SFX_NOISE_SWEEP_DOWN_B);
+        }
+        break;
+    case 3:
+        MoveEntity();
+        if (self->scaleX > 0x20) {
+            self->scaleX = self->scaleY -= 2;
+        }
+        entity = &g_Entities[80];
+        deltaX = entity->posX.i.hi - self->posX.i.hi;
+        deltaY = entity->posY.i.hi - 0x18 - self->posY.i.hi;
+        angle = ratan2(deltaY, deltaX);
+        if (((Rbo6TransformationEffect*)&self->ext)->speed < FIX(3)) {
+            ((Rbo6TransformationEffect*)&self->ext)->speed += FIX(0.0625);
+        }
+        speed = ((Rbo6TransformationEffect*)&self->ext)->speed;
+        self->velocityX = (speed * rcos(angle)) >> 12;
+        self->velocityY = (speed * rsin(angle)) >> 12;
+        speed = deltaX * deltaX + deltaY * deltaY;
+        if (speed < 0x40) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0DC0);
 
