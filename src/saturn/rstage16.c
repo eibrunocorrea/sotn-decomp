@@ -1215,7 +1215,107 @@ void func_060E7338(MthXyz* rotation, MthXyz* position) {
         MTH_RotateMatrixZ(&DAT_06061DF0, angle);
     }
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E7400, func_060E7400);
+extern MthXy DAT_06061DE0;
+extern XyInt DAT_06061DE8;
+extern MthXyz DAT_060EF6F4[];
+extern s32 DAT_060EFCE0;
+
+void func_060E7400(Entity* self) {
+    MthXyz position;
+    MthXyz rotation;
+    XyInt projected[4];
+    s32 count;
+    s16* source;
+    s16* dest;
+    s16* destNext;
+    s16 i;
+    s32 x;
+    s32 y;
+    Primitive* prim;
+    Primitive* next;
+    s32 angle;
+    s32 remainder;
+    MthXy* projection;
+
+    prim = self->ext.et_060E7698.unk78;
+    next = prim->next;
+    switch (self->ext.et_060E7698.unk84) {
+    case 0:
+        self->ext.et_060E7698.unk88 = 0;
+        prim->drawMode = 2;
+        next->drawMode = 2;
+        self->ext.et_060E7698.unk98.val = 0;
+        self->ext.et_060E7698.unk9C = 0;
+        self->ext.et_060E7698.unk84 = 1;
+        goto draw;
+    case 1:
+        self->ext.et_060E7698.unk8A -= 0x55;
+        self->ext.et_060E7698.unk88 += 0x200;
+        self->ext.et_060E7698.unk98.val += 0x20;
+        if (++self->ext.et_060E7698.unk9C > 40) {
+            prim->drawMode |= 8;
+            next->drawMode |= 8;
+            self->ext.et_060E7698.unk84 = 16;
+            return;
+        }
+    draw:
+        angle = (s16)(self->ext.et_060E7698.unk98.i.lo + 0x200);
+        projection = &DAT_06061DE0;
+        projection->x = projection->y = angle << 8;
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        if (self->facingLeft) {
+            x += 10;
+            y -= 2;
+        } else {
+            x -= 10;
+            y -= 2;
+        }
+        DAT_06061DE8.x = x;
+        DAT_06061DE8.y = y;
+        rotation.x = 0;
+        if (self->facingLeft) {
+            rotation.y = -0x2E0;
+        } else {
+            rotation.y = 0x2E0;
+        }
+        rotation.z = self->ext.et_060E7698.unk8A;
+        position.x = 0;
+        position.y = 0;
+        position.z = 0x2000000;
+        func_060E7338(&rotation, &position);
+        prim = self->ext.et_060E7698.unk78;
+        next = prim->next;
+        source = (s16*)projected;
+        TransformAndProjectPoints(DAT_060EF6F4, projected, 4);
+        dest = &prim->x0;
+        destNext = &next->x0;
+        i = 0;
+        do {
+            *dest = *destNext = *source++;
+            i++;
+            dest++;
+            destNext++;
+        } while (i <= 7);
+        count = self->ext.et_060E7698.unk9C;
+        remainder = count % (count >> 3);
+        if (remainder == 0) {
+            prim->drawMode = 2;
+            DAT_060EFCE0 = remainder;
+        } else {
+            prim->drawMode |= 8;
+            DAT_060EFCE0++;
+        }
+        if (DAT_060EFCE0 == 1 || DAT_060EFCE0 == 3) {
+            next->drawMode = 2;
+        } else {
+            next->drawMode |= 8;
+        }
+        break;
+    case 16:
+        break;
+    }
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E7698, func_060E7698);
 extern s16 DAT_060EF674[];
 extern SaturnSpriteImage DAT_060EFC20[];
