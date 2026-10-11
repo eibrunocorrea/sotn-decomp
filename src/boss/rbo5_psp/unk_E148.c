@@ -94,7 +94,46 @@ void func_pspeu_09247190(s32 step) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092471B8);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09248698);
+extern EInit g_EInitDoppleganger40;
+void func_pspeu_092457C8(void);
+void func_pspeu_09247190(s32 step);
+void func_pspeu_092471B8(void);
+void func_pspeu_09246210(void);
+void func_pspeu_09252B48(void);
+// local copy of EntityUnkId16 (see rbo5/doppleganger.c)
+void func_pspeu_09248698(Entity* self) {
+    Entity* entity;
+    s32 i;
+
+    g_Dop.unk6A = DOPPLEGANGER.hitPoints;
+    if (self->step == 0) {
+        InitializeEntity(g_EInitDoppleganger40);
+        if (PLAYER.posX.i.hi > 0x80) {
+            DOPPLEGANGER.posX.i.hi = 0x10;
+        } else {
+            DOPPLEGANGER.posX.i.hi = 0xF0;
+        }
+        func_pspeu_092457C8();
+        entity = &g_Entities[68];
+        self = &DOPPLEGANGER;
+        for (i = 68; i < 144; i++, entity++) {
+            DestroyEntity(entity);
+        }
+        g_Dop.unk6E = g_Dop.unk6A = g_Dop.unk6C = DOPPLEGANGER.hitPoints;
+        g_Dop.unk70 = DOPPLEGANGER.hitboxState;
+        if (PLAYER.posX.i.hi > 0x80) {
+            func_pspeu_09247190(0x12);
+        } else {
+            func_pspeu_09247190(0x14);
+        }
+        MarDisableAfterImage(1, 0x30);
+    } else {
+        func_pspeu_092471B8();
+        func_pspeu_09246210();
+        func_pspeu_09252B48();
+    }
+    g_Dop.unk6C = g_Dop.unk6A;
+}
 
 void func_pspeu_09248828(void) {
     if (g_Maria.timers[1]) {
