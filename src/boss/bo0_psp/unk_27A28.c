@@ -2,6 +2,7 @@
 #include "bo0.h"
 
 extern EInit D_pspeu_09275F90;
+extern s32 D_pspeu_092907A8;
 extern s32 D_us_801CE5B0;
 extern s16 D_pspeu_0928FC40[];
 extern s16 D_pspeu_0928FC50[];
@@ -449,7 +450,158 @@ s32 func_pspeu_09265CA0(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     return false;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09265D78);
+Primitive* func_pspeu_09265D78(f32 pos, s16* angles, Primitive* prim, u8 side) {
+    s16 baseX;
+    s16 baseY;
+    s16 angle;
+    s16 length;
+    s16 tipX0;
+    s16 midX0;
+    s16 midX2;
+    s16 midY0;
+    u8* value;
+    Entity* child;
+    s16 midY2;
+    s16 rootX1;
+    s16 tipX2;
+    s16 rootX3;
+    s16 tipY0;
+    s16 rootY1;
+    s16 tipY2;
+    s16 rootY3;
+    u16 clut;
+
+    if (side) {
+        clut = 0x20B;
+        value = &g_CurrentEntity->ext.et_801B6CA4.unk93;
+    } else {
+        clut = 0x218;
+        value = &g_CurrentEntity->ext.et_801B6CA4.unk92;
+    }
+    side *= 6;
+    baseX = pos.i.lo;
+    baseY = pos.i.hi;
+    angle = *angles;
+    if (g_CurrentEntity->facingLeft) {
+        angle = ROT(180) - angle;
+    }
+    rootX1 = rootX3 = baseX;
+    rootY1 = rootY3 = baseY;
+    rootX1 += (s16)(-(rcos(angle) * 8) >> 12);
+    rootX3 += (s16)(rcos(angle) * 8 >> 12);
+    rootY1 += (s16)(rsin(angle) * 8 >> 12);
+    rootY3 += (s16)(-(rsin(angle) * 8) >> 12);
+    length = (*value + 0x100) * 32 / 0x100;
+    if (!g_CurrentEntity->facingLeft) {
+        baseX += (s16)(length * rcos(*angles - ROT(90)) >> 12);
+    } else {
+        baseX -= (s16)(length * rcos(*angles - ROT(90)) >> 12);
+    }
+    baseY += (s16)(-length * rsin(*angles - ROT(90)) >> 12);
+    midX0 = midX2 = baseX;
+    midY0 = midY2 = baseY;
+    angle = *angles;
+    angles += 2;
+    if (g_CurrentEntity->facingLeft) {
+        angle = ROT(180) - angle;
+    }
+    midX0 += (s16)(-(rcos(angle) * 6) >> 12);
+    midY0 += (s16)(rsin(angle) * 6 >> 12);
+    midX2 += (s16)(rcos(angle) * 6 >> 12);
+    midY2 += (s16)(-(rsin(angle) * 6) >> 12);
+    prim->tpage = 0x14;
+    prim->clut = clut;
+    prim->u0 = 0xC8;
+    prim->u1 = 0xC8;
+    prim->u2 = 0xD4;
+    prim->u3 = 0xDA;
+    prim->v0 = 0x1E;
+    prim->v1 = 4;
+    prim->v2 = 0x20;
+    prim->v3 = 4;
+    prim->x0 = midX0;
+    prim->x1 = rootX1;
+    prim->x2 = midX2;
+    prim->x3 = rootX3;
+    prim->y0 = midY0;
+    prim->y1 = rootY1;
+    prim->y2 = midY2;
+    prim->y3 = rootY3;
+    prim->priority = D_pspeu_092907A8 - 3 + side;
+    prim->drawMode = DRAW_UNK02;
+    prim = prim->next;
+    if (!g_CurrentEntity->facingLeft) {
+        baseX += (s16)(rcos(*angles + ROT(90)) * 6 >> 12);
+    } else {
+        baseX -= (s16)(rcos(*angles + ROT(90)) * 6 >> 12);
+    }
+    baseY += (s16)(-(rsin(*angles + ROT(90)) * 6) >> 12);
+    midX0 = midX2 = baseX;
+    midY0 = midY2 = baseY;
+    angle = *angles;
+    if (g_CurrentEntity->facingLeft) {
+        angle = ROT(180) - angle;
+    }
+    midX0 += (s16)(-(rcos(angle) * 6) >> 12);
+    midY0 += (s16)(rsin(angle) * 6 >> 12);
+    midX2 += (s16)(rcos(angle) * 6 >> 12);
+    midY2 += (s16)(-(rsin(angle) * 6) >> 12);
+    length = (*value + 0x100) * 24 / 0x100;
+    if (!g_CurrentEntity->facingLeft) {
+        baseX += (s16)(length * rcos(*angles - ROT(90)) >> 12);
+    } else {
+        baseX -= (s16)(length * rcos(*angles - ROT(90)) >> 12);
+    }
+    baseY += (s16)(-length * rsin(*angles - ROT(90)) >> 12);
+    angle = *angles;
+    if (g_CurrentEntity->facingLeft) {
+        angle = ROT(180) - angle;
+    }
+    tipX0 = tipX2 = baseX;
+    tipY0 = tipY2 = baseY;
+    tipX0 += (s16)(-(rcos(angle) * 6) >> 12);
+    tipY0 += (s16)(rsin(angle) * 6 >> 12);
+    tipX2 += (s16)(rcos(angle) * 6 >> 12);
+    tipY2 += (s16)(-(rsin(angle) * 6) >> 12);
+    if (side) {
+        child = g_CurrentEntity + 2;
+        value = &g_CurrentEntity->ext.et_801B6CA4.unk91;
+    } else {
+        child = g_CurrentEntity + 1;
+        value = &g_CurrentEntity->ext.et_801B6CA4.unk90;
+    }
+    child->posX.i.hi = baseX;
+    child->posY.i.hi = baseY;
+    child->animCurFrame = *value;
+    angle = *angles;
+    if (g_CurrentEntity->ext.et_801B6CA4.unk94) {
+        child->rotate = -(angle + ROT(67.5));
+    } else {
+        child->rotate = 0;
+    }
+    prim->tpage = 0x14;
+    prim->clut = clut;
+    prim->u0 = 0x88;
+    prim->u1 = 0x9C;
+    prim->u2 = 0x8C;
+    prim->u3 = 0xA2;
+    prim->v0 = 0x74;
+    prim->v1 = 0x6D;
+    prim->v2 = 0x80;
+    prim->v3 = 0x77;
+    prim->x0 = tipX0;
+    prim->x1 = midX0;
+    prim->x2 = tipX2;
+    prim->x3 = midX2;
+    prim->y0 = tipY0;
+    prim->y1 = midY0;
+    prim->y2 = tipY2;
+    prim->y3 = midY2;
+    prim->priority = D_pspeu_092907A8 - 3 + side;
+    prim->drawMode = DRAW_UNK02;
+    prim = prim->next;
+    return prim;
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092667C8);
 
