@@ -64,7 +64,46 @@ INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4594);
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4F14);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A367C);
+void func_us_801A367C(Entity* self) {
+    extern EInit g_EInitInteractable;
+    extern u32 g_CutsceneFlags;
+    Tilemap* tilemap = &g_Tilemap;
+    Entity* player = &PLAYER;
+    s16 playerX = player->posX.i.hi + g_Tilemap.scrollX.i.hi;
+    s16 posY = self->posY.i.hi + g_Tilemap.scrollY.i.hi;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        g_PauseAllowed = false;
+        g_unkGraphicsStruct.pauseEnemies = true;
+        player->facingLeft = 0;
+        if (g_Status.wornEquipment[RIGHT_HAND_SLOT] != ITEM_MAGIC_MISSILE) {
+            player->animCurFrame = 0xBF;
+        }
+        player->posX.i.hi = 0x70;
+        g_Player.padSim = PAD_NONE;
+        g_Player.demo_timer = 1;
+        break;
+    case 1:
+        if (g_Status.wornEquipment[RIGHT_HAND_SLOT] != ITEM_MAGIC_MISSILE) {
+            player->animCurFrame = 0xBF;
+        }
+        player->posX.i.hi = 0x70;
+        if (g_CutsceneFlags & 2) {
+            self->step++;
+        }
+        g_Player.padSim = PAD_NONE;
+        g_Player.demo_timer = 1;
+        break;
+    case 2:
+        g_PauseAllowed = true;
+        g_unkGraphicsStruct.pauseEnemies = false;
+        g_Entities[E_AFTERIMAGE_1].ext.afterImage.disableFlag = 1;
+        DestroyEntity(self);
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A37B4);
 
