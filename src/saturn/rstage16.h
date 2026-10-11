@@ -125,6 +125,23 @@ SpriteObject* CreateSpriteObject(
     u16 charBase, u16 clutBase, SaturnSpriteImage* images, s32 maxParts);
 /* End moved declarations */
 
+typedef struct {
+    SaturnSpriteResource* resource;
+    const u32* spriteFrames;
+    const s16* primitiveFrames;
+    const u8* animation;
+    u8 explosionParams;
+    u8 hitboxHeight;
+    u8 entityColor;
+    u8 maxParts;
+    s16 paletteOffset;
+    s16 offsetY;
+} RStage16BreakableData;
+
+void func_060DC318(Entity* self, RStage16BreakableData* data);
+void func_060DC1A8(Entity* self);
+s32 AllocPrimitives(s32 type, s32 count);
+
 Entity* AllocEntity(Entity* start, Entity* end);
 void func_0607B4B8(Entity* self);
 void FreePrimitives(s16 primIndex);

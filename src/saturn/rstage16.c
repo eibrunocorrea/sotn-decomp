@@ -3,17 +3,55 @@
 #include "sattypes.h"
 #include "rstage16.h"
 
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC040, func_060DC040);
-typedef struct {
-    u32 unk0[2];
-    u32 unk8;
-    u32 unkC;
-    u8 explosionParams;
-    u8 padding[5];
-    s16 offsetY;
-} RStage16BreakableData;
-
 extern RStage16BreakableData DAT_060E99C8[];
+
+void func_060DC040(Entity* self) {
+    RStage16BreakableData* data;
+    SaturnSpriteResource* resource;
+    SpriteObject* sprite;
+    Primitive* prim;
+    s32 primIndex;
+
+    data = &DAT_060E99C8[self->params >> 12];
+    if (self->step == 0) {
+        resource = data->resource;
+        TekiInit(self, 0);
+        self->step++;
+        sprite = CreateSpriteObject(resource->allocationIndex, resource->flags,
+                                    resource->images, data->maxParts);
+        self->unk0 = sprite;
+        sprite->zPriority = 0x7C;
+        sprite->posX = self->posX.val;
+        sprite->posY = self->posY.val;
+        self->unk1C = data->entityColor;
+        self->hitboxHeight = data->hitboxHeight;
+        if ((u16)data->paletteOffset != 0) {
+            sprite->clutBase = (resource->flags + data->paletteOffset) | 0x8000;
+            self->palette = data->paletteOffset;
+        }
+        self->hitboxOffY = -data->offsetY;
+        if (data->primitiveFrames != NULL) {
+            primIndex = AllocPrimitives(0, 1);
+            if (primIndex == -1) {
+                DestroyEntity(self);
+                return;
+            }
+            self->primIndex = primIndex;
+            self->flags |= FLAG_HAS_PRIMS;
+            prim = &g_PrimBuf[primIndex];
+            prim->unk4 &= ~0x38;
+            prim->priority = 0x20;
+            prim->drawMode = DRAW_HIDE;
+        }
+    }
+    AnimateEntityWithSpriteData(self, data->animation, data->spriteFrames);
+    if (data->primitiveFrames != NULL) {
+        func_060DC318(self, data);
+    }
+    if (self->hitParams != 0) {
+        func_060DC1A8(self);
+    }
+}
 
 void func_060DC1A8(Entity* self) {
     Entity* entity;
@@ -22,7 +60,7 @@ void func_060DC1A8(Entity* self) {
 
     variant = self->params >> 12;
     data = &DAT_060E99C8[variant];
-    if (data->unk8 != 0) {
+    if (data->primitiveFrames != NULL) {
         FreePrimitives(self->primIndex);
         self->flags &= ~FLAG_HAS_PRIMS;
     }
