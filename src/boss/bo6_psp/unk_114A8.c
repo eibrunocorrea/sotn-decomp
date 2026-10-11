@@ -2540,7 +2540,89 @@ void func_pspeu_09251748_from_rbo5(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09253AA8);
+extern AnimationFrame D_pspeu_0927A6A8[];
+extern s32 D_pspeu_0927C308[];
+extern s32 D_pspeu_0927C288[];
+void func_pspeu_09253AA8(void) {
+    Entity* self;
+    PlayerDraw* draw;
+    s32 i;
+    Entity* var_s1;
+    Entity* e;
+    PlayerState* var_a0;
+    Primitive* prim;
+    s32* memset_ptr;
+    s32 memset_len;
+    s16 temp_v0;
+    s16 primIndex;
+    s16 radius;
+    s16 intensity;
+    s32 temp_v1;
+    s32 var_s2;
+    s32 var_s2_2;
+    s32 var_s2_3;
+    s32* var_s0;
+    s32* var_s3;
+
+    self = &MARIA;
+    MARIA.animSet = ANIMSET_OVL(1);
+    MARIA.zPriority = g_unkGraphicsStruct.g_zEntityCenter + 8;
+    self->unk5A = 8;
+    MARIA.facingLeft = 0;
+    MARIA.palette = PAL_FLAG(0x220);
+    MARIA.scaleY = 0x100;
+    MARIA.scaleX = 0x100;
+    MARIA.rotPivotY = 0x18;
+    MARIA.blendMode = BLEND_NO;
+    MARIA.flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED |
+                FLAG_SUPPRESS_STUN | FLAG_UNK_2000;
+
+
+    draw = &g_PlayerDraw[8];
+    draw->r0 = draw->r1 = draw->r2 =
+        draw->r3 = draw->g0 = draw->g1 =
+            draw->g2 = draw->g3 = draw->b0 =
+                draw->b1 = draw->b2 = draw->b3 =
+                    0x80;
+
+    draw->enableColorBlend = 0;
+
+    memset_len = sizeof(PlayerState) / sizeof(s32);
+    memset_ptr = (s32*)&g_Maria;
+    for (i = 0; i < memset_len; i++) {
+        *memset_ptr++ = 0;
+    }
+
+    g_Maria.vram_flag = g_Maria.unk04 = 1;
+
+    func_pspeu_09259AD8(0);
+    MARIA.anim = D_pspeu_0927A6A8;
+
+    for (i = 0; i < 32; i++) {
+        radius = (rand() & 0x3FF) + FLT(1.0 / 16.0);
+        intensity = (rand() & 0xFF) + FLT(1.0 / 16.0);
+        D_pspeu_0927C308[i] = ((rcos(radius) << 4) * intensity) >> 8;
+        D_pspeu_0927C288[i] = -(((rsin(radius) << 4) * intensity) >> 7);
+    }
+
+    for (e = &g_Entities[STAGE_ENTITY_START + 1], i = 0; i < 3; i++, e++) {
+        DestroyEntity(e);
+        e->animSet = ANIMSET_OVL(1);
+        e->unk5A = i + 9;
+        e->palette = PAL_FLAG(0x220);
+        e->flags = FLAG_POS_CAMERA_LOCKED;
+    }
+
+    g_Entities[65].primIndex = g_api.AllocPrimitives(PRIM_TILE, 6);
+    g_Entities[65].flags |= FLAG_HAS_PRIMS;
+    prim = &g_PrimBuf[g_Entities[65].primIndex];
+    for (i = 0; prim != NULL; i++, prim = prim->next) {
+        prim->drawMode = DRAW_UNK_100 | DRAW_HIDE | DRAW_UNK02;
+    }
+    g_api.TimeAttackController(
+        TIMEATTACK_EVENT_SAVE_RICHTER, TIMEATTACK_SET_VISITED);
+}
+
 
 // local copy of func_us_801B4EAC (see richter.c) - integrate velocity
 // and clamp to the arena walls
