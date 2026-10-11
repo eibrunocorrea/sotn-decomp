@@ -575,7 +575,6 @@ void func_060E0024(
 }
 extern u16 DAT_06046734;
 extern u16 DAT_06046736;
-u16 func_06007CE0(u16 index);
 u16 func_0607B0D0(Entity* self, Entity* target);
 u16 func_0607B134(u16 step, u16 angle, u16 target);
 void func_0607B04C(Entity* self, u16 angle, s16 speed);
@@ -583,10 +582,11 @@ extern u8 DAT_060E9F0C[];
 extern s16 DAT_060E9F1A[];
 extern s16 DAT_060E9F4A[];
 
-/* LookupTblNoToVram counterpart: src/saturn/game_1.c. */
+u16 LocalLookupTblNoToVram(u16 tableNo);
+
 static u16 LookupTblNoToVram(u16 clut) {
     if ((clut >> 14) & 1) {
-        return func_06007CE0(clut & 0xFFF);
+        return LocalLookupTblNoToVram(clut & 0xFFF);
     } else {
         return SPR_2LookupTblNoToVram(clut & 0xFFF);
     }
@@ -617,7 +617,7 @@ void func_060E0104(Entity* self) {
         prim->drawMode = 8;
         prim->unk6 = LookupTblNoToVram(DAT_06046736);
         prim->priority = 0x80;
-        self->flags |= 0x800000;
+        self->flags |= FLAG_HAS_PRIMS;
         self->primIndex = primIndex;
         self->animSet = 0;
         angle = func_0607B0D0(self, player);
@@ -1190,7 +1190,6 @@ void func_060E4664(Entity* self) {
     }
     func_06079BB4(self);
 }
-/* Function/global declarations and TU-local primitive scratch view. */
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -1204,7 +1203,6 @@ typedef struct {
     u16 drawMode;
     Primitive* next;
 } RStage16ParticleWork;
-extern Primitive g_PrimBuf[];
 
 void func_060E4804(Entity* self) {
     Primitive* prim;
