@@ -22,6 +22,6 @@ extern Dialogue g_Dialogue;
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", RunCutsceneEvents);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", CutsceneSkip);
+#include "../../st/cutscene_skip.h"
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/e_cutscene_dialogue", EntityCutscene);
