@@ -228,7 +228,7 @@ void func_060E0024(
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E0104, func_060E0104);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E03F0, func_060E03F0);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E08C8, func_060E08C8);
+#include "init_solid_prop.h"
 void func_060E09D4(void) { DestroyEntity(); }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E09EC, func_060E09EC);
 
