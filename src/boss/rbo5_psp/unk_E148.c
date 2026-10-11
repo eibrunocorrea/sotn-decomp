@@ -4059,7 +4059,117 @@ void func_pspeu_09258A50(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09259480);
+typedef struct {
+    f32 posX;
+    f32 posY;
+    s16 angle1;
+    s16 angle2;
+    s16 size;
+    s16 xOffset;
+    s16 yOffset;
+    s16 pad;
+} mistStruct;
+
+extern Primitive D_pspeu_0926C920[8];
+extern u32 D_pspeu_09263FA8[8];
+extern u32 D_pspeu_09263FC8[8];
+extern mistStruct D_pspeu_0926CB20[16];
+Primitive* func_pspeu_09259480(
+    bool arg0, s32 arg1, Primitive* arg2, s16 facingLeft) {
+    s32 primU0;
+    s32 tempU;
+    s32 tempV;
+    s32 primU1;
+    s32 primV0;
+    s32 primV1;
+    s16 angle1;
+    s16 angle2;
+    Primitive* prim;
+    s32 i;
+
+    if (!arg0) {
+        if (facingLeft) {
+            prim = &D_pspeu_0926C920[D_pspeu_09263FA8[arg1 >> 1]];
+            primU0 = prim->u0;
+            tempU = prim->u1;
+            primV0 = prim->v0;
+            tempV = prim->v1;
+        } else {
+            prim = &D_pspeu_0926C920[D_pspeu_09263FC8[arg1 >> 1]];
+            primU0 = prim->u1;
+            tempU = prim->u0;
+            primV0 = prim->v1;
+            tempV = prim->v0;
+        }
+
+        primU1 = (prim->u0 + prim->u1) / 2;
+        primV1 = (prim->v0 + prim->v1) / 2;
+
+        if (arg1 & 1) {
+            primU0 = primU1;
+            primU1 = tempU;
+            primV0 = primV1;
+            primV1 = tempV;
+        }
+        arg2->u0 = primU0;
+        arg2->v0 = primV0;
+        arg2->u1 = primU1;
+        arg2->v1 = primV1;
+        arg2->u3 = arg2->u2 = prim->u2;
+        arg2->v3 = arg2->v2 = prim->v2;
+        if (DOPPLEGANGER.animSet == 0xF) {
+            arg2->tpage = 0x118;
+        } else {
+            arg2->tpage = 0x18;
+        }
+        arg2->clut = 0x20F;
+        arg2->priority = DOPPLEGANGER.zPriority + 2;
+        arg2->drawMode = DRAW_DITHERING | DRAW_UNK_100 | DRAW_TPAGE2 |
+                         DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        arg2 = arg2->next;
+    } else {
+        angle1 = D_pspeu_0926CB20[arg1].angle1;
+        angle2 = D_pspeu_0926CB20[(arg1 + 1) % 16].angle1;
+
+        for (i = 0; i < 4; i++) {
+            // nb: the cos/sin arguments seem to be invariant, could've been
+            // extracted outside the loop
+            arg2->u0 = 0x60 + ((((rcos(angle1) >> 4) * 8) * (i + 1)) >> 8);
+            arg2->v0 = 0xA0 - ((((rsin(angle1) >> 4) * 8) * (i + 1)) >> 8);
+            arg2->u1 = 0x60 + ((((rcos(angle2) >> 4) * 8) * (i + 1)) >> 8);
+            arg2->v1 = 0xA0 - ((((rsin(angle2) >> 4) * 8) * (i + 1)) >> 8);
+
+            if (i == 3) {
+                if (arg2->u0 < 4) {
+                    arg2->u0 = -1;
+                }
+                if (arg2->u1 < 4) {
+                    arg2->u1 = -1;
+                }
+                if (arg2->v0 < 4) {
+                    arg2->v0 = -1;
+                }
+                if (arg2->v1 < 4) {
+                    arg2->v1 = -1;
+                }
+            }
+
+            arg2->u2 = 0x60 + ((((rcos(angle1) >> 4) * 8) * i) >> 8);
+            arg2->v2 = 0xA0 - ((((rsin(angle1) >> 4) * 8) * i) >> 8);
+            arg2->u3 = 0x60 + ((((rcos(angle2) >> 4) * 8) * i) >> 8);
+            arg2->v3 = 0xA0 - ((((rsin(angle2) >> 4) * 8) * i) >> 8);
+
+            arg2->tpage = 0x18;
+            arg2->clut = 0x20F;
+            arg2->priority = DOPPLEGANGER.zPriority + 4;
+            arg2->drawMode =
+                DRAW_DITHERING | DRAW_UNK_100 | DRAW_TPAGE2 | DRAW_TPAGE |
+                DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+            arg2 = arg2->next;
+        }
+    }
+    return arg2;
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09259A20);
 
