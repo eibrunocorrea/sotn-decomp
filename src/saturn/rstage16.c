@@ -242,7 +242,56 @@ INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DED98, func_060DED98);
 const u32 DAT_060DF1D4 = 0xCCCCCCCD;
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DF1D8, func_060DF1D8);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DF8AC, func_060DF8AC);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DFA14, func_060DFA14);
+void func_060DFA14(Entity* self) {
+    SpriteObject* sprite;
+    SaturnSpriteResource* resource;
+    u32 priority;
+
+    if (self->step == 0) {
+        TekiInit(self, 2);
+        resource = &g_EntitySpriteBank05;
+        self->step++;
+        sprite = CreateSpriteObject(
+            resource->allocationIndex, g_EntitySpriteBank01.flags,
+            resource->images, 1);
+        self->unk0 = sprite;
+        func_0600B004(sprite, DAT_060465F4[1]);
+        self->animCurFrame = 1;
+        self->unk1C = 0x30;
+        if (self->scaleX != 0) {
+            sprite->flags |= 0x40;
+            sprite->scaleX = (u32)self->scaleX >> 2;
+        }
+        if (self->scaleY != 0) {
+            sprite->flags |= 0x40;
+            sprite->scaleY = (u32)self->scaleY >> 2;
+        }
+        if (self->drawFlags & 4) {
+            sprite->flags |= 0x40;
+            sprite->rotate = self->rotate;
+        }
+        if (self->params & 0xF0) {
+            sprite->clutBase = resource->flags | 0x8000;
+            self->unk1C = 0x10;
+        }
+        priority = self->params & 0xFF00;
+        if (priority != 0) {
+            sprite->zPriority = priority >> 8;
+        }
+        sprite->zPriority += 8;
+    } else {
+        self->poseTimer++;
+        self->posY.val -= FIX(0.25);
+        if (!(self->poseTimer & 1)) {
+            self->animCurFrame++;
+            func_0600B004(self->unk0, DAT_060465F4[self->animCurFrame]);
+        }
+        if (self->poseTimer > 0x24) {
+            DestroyEntity(self);
+        }
+    }
+    func_06079BB4(self);
+}
 void func_060DFB7C(Entity* self) {
     Entity* particle;
 
@@ -321,7 +370,6 @@ void EntityDestructAnim(Entity* self) {
     }
     func_06079BB4(self);
 }
-extern SaturnSpriteFrameHeader* DAT_060465F4[];
 extern u8 DAT_060E9EE1[];
 extern s32 DAT_060E9EC8[];
 

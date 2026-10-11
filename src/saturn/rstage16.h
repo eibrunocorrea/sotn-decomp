@@ -149,6 +149,7 @@ void CreateEntityFromCurrentEntity(u16 entityId, Entity* entity);
 void PreventEntityFromRespawning(Entity* self);
 void func_060DFDD4(Entity* self);
 extern SaturnSpriteResource g_EntitySpriteBank05;
+extern SaturnSpriteFrameHeader* DAT_060465F4[];
 
 void EntityDestructAnim(Entity* self);
 extern s16 g_ExplosionVariantSizes[];
