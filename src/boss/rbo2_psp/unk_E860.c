@@ -9,7 +9,18 @@ INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", EntityBreakable);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_pspeu_09246448);
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", polarPlacePartsWithAngvel);
+void polarPlacePartsWithAngvel(s16* entOffsets) {
+    Entity* ent;
+
+    while (*entOffsets) {
+        if (*entOffsets != 0xFF) {
+            ent = g_CurrentEntity + *entOffsets;
+            ent->ext.GH_Props.rotate += ent->ext.GH_Props.rotVel;
+            func_pspeu_09246448(ent);
+        }
+        entOffsets++;
+    }
+}
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDD00);
 
