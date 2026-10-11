@@ -1945,7 +1945,310 @@ void MarEntityHitByLightning(Entity* self) {
     prim->v2 = prim->v3 = 0xCF;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924FFB8);
+extern EInit D_pspeu_0926EC28;
+extern AnimationFrame D_pspeu_0927A3C0[];
+extern s32 D_pspeu_0927C1C8;
+extern s32 D_pspeu_0927C1C0;
+extern s32 D_pspeu_0927C1A0[8];
+void func_pspeu_0924FFB8(Entity* self) {
+    Primitive* prim; // s0
+    s32 i;           // s1
+
+    u16 palette;   // 0x6E(sp)
+    s32 temp_s0_5; // 0x68(sp)
+    s32 temp_v0_7; // 0x64(sp)
+    s32 var_v1_2;  // 0x60(sp)
+    s32 var_a0_2;  // 0x5C(sp)
+
+    s32 distanceX; // 0x58(sp)
+    s32 distanceY; // 0x54(sp)
+
+    s32 scale;   // 0x50(sp)
+    s32 posX;    // 0x4C(sp)
+    s32 posY;    // 0x48(sp)
+    s32 ricPosX; // 0x44(sp)
+    s32 ricPosY; // s8
+
+    long anotherX;
+    s32 anotherY;
+
+    s32 var_s4;    // 0x38(sp)
+    s32 sp30;      // 0x34(sp)
+    s32 j;         // 0x30(sp)
+    s32 angle;     // s7
+    s32 distance;  // s6
+    s32 direction; // s5
+    s32 primX;     // s4
+    s32 primY;     // s3
+    s32 temp_s0_2; // s2
+
+    scale = 4;
+    D_pspeu_0927C1C8 = 0;
+    var_s4 = 0;
+    sp30 = 0;
+
+    if (self->flags & FLAG_DEAD) {
+        if (self->step < 0x14) {
+            D_pspeu_0927C1C8 = 1;
+            self->step = 0x14;
+        }
+    } else {
+        if ((self->hitFlags) && (self->step != 10)) {
+            self->ext.et_801C03E8.hitTimer = 10;
+            self->step = 0xA;
+        }
+        self->hitFlags = 0;
+    }
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_0926EC28);
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 0x20);
+
+        if (self->primIndex == -1) {
+            self->step = 0;
+            return;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+
+        for (i = 0; i < 8; i++) {
+            prim->clut = 0x252;
+            prim->tpage = 0x12;
+            prim->u0 = prim->u2 = 0;
+            prim->u1 = prim->u3 = 0x1F;
+            prim->v0 = prim->v1 = 0;
+            prim->v2 = prim->v3 = 0x1F;
+            prim->priority = MARIA.zPriority + 4;
+            prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE |
+                             DRAW_HIDE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+            D_pspeu_0927C1A0[i] = 0;
+            prim = prim->next;
+        }
+
+        for (i = 0; i < 24; i++) {
+            prim->priority = MARIA.zPriority - 2;
+            prim->r0 = prim->g0 = prim->r1 = prim->g1 = 0x3F;
+            prim->b0 = prim->b1 = 0x7F;
+            prim->drawMode =
+                DRAW_TPAGE2 | DRAW_TPAGE | DRAW_HIDE | DRAW_UNK02 | DRAW_TRANSP;
+            prim->type = PRIM_LINE_G2;
+            prim = prim->next;
+        }
+
+        self->flags |= FLAG_UNK_20000000 | FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->posX.i.hi = 0x80;
+        self->posY.i.hi = 0x30;
+        self->ext.et_801C03E8.orbitAngle = 0x400;
+        self->ext.et_801C03E8.orbitAngleStep = 0x10;
+        self->ext.et_801C03E8.maxTurnRate = 0x30;
+        self->ext.et_801C03E8.moveAngle = 0xC00;
+        self->animSet = ANIMSET_OVL(5);
+        self->animCurFrame = 0;
+        self->unk5A = 0x48;
+        self->palette = PAL_FLAG(0x252);
+        self->ext.et_801C03E8.savedHitboxState = self->hitboxState;
+        self->anim = D_pspeu_0927A3C0;
+        self->zPriority = MARIA.zPriority + 4;
+        self->step = 1;
+        self->opacity = 0;
+        self->drawFlags = ENTITY_OPACITY;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
+        break;
+
+    case 1:
+        self->opacity++;
+        if (self->opacity >= 0x80) {
+            self->drawFlags = ENTITY_DEFAULT;
+            self->blendMode = BLEND_NO;
+            self->step++;
+        }
+        break;
+
+    case 2:
+        distanceX = MARIA.posX.i.hi + MARIA.hitboxOffX;
+        distanceY = (MARIA.posY.i.hi + MARIA.hitboxOffY) - 0x40;
+
+        angle = self->ext.et_801C03E8.orbitAngle;
+
+        distanceX += (((rcos(angle) >> 4) * scale) >> 8);
+        distanceY -= (((rsin(angle) >> 4) * scale) >> 8);
+        self->ext.et_801C03E8.orbitAngle +=
+            self->ext.et_801C03E8.orbitAngleStep;
+
+        posX = distanceX - self->posX.i.hi;
+        posY = distanceY - self->posY.i.hi;
+        angle = ratan2(-posY, posX) & 0xFFF;
+
+        temp_s0_2 = (self->ext.et_801C03E8.moveAngle & 0xFFF);
+        var_v1_2 = abs(temp_s0_2 - angle);
+
+        var_a0_2 = self->ext.et_801C03E8.maxTurnRate;
+        if (self->ext.et_801C03E8.maxTurnRate > var_v1_2) {
+            var_a0_2 = var_v1_2;
+        }
+
+        if (temp_s0_2 < angle) {
+            if (var_v1_2 < 0x800) {
+                temp_s0_2 += var_a0_2;
+            } else {
+                temp_s0_2 -= var_a0_2;
+            }
+        } else {
+            if (var_v1_2 < 0x800) {
+                temp_s0_2 -= var_a0_2;
+            } else {
+                distance = var_a0_2;
+                temp_s0_2 += distance;
+            }
+        }
+        self->ext.et_801C03E8.moveAngle = temp_s0_2 & 0xFFF;
+        temp_s0_5 = rcos(temp_s0_2) * 0x10;
+        temp_v0_7 = rsin(temp_s0_2) * 0x10;
+        self->posX.val += (long)temp_s0_5;
+        self->posY.val -= temp_v0_7;
+        break;
+    case 10:
+        if (g_Timer & 1) {
+            self->palette = PAL_FLAG(PAL_FILL_WHITE);
+        } else {
+            self->palette = PAL_FLAG(PAL_CC_GREEN_EFFECT_A);
+        }
+
+        self->poseTimer++;
+        if (--self->ext.et_801C03E8.hitTimer == 0) {
+            self->step = 2;
+        }
+
+        break;
+    case 20:
+        MarCreateEntFactoryFromEntity(self, 0x49, 0);
+        MarCreateEntFactoryFromEntity(self, 0x4B, 0);
+        self->step++;
+        break;
+    case 21:
+        DestroyEntity(self);
+        return;
+    }
+
+    if (g_api.CheckEquipmentItemCount(0x22U, 1U) != 0) {
+        palette = PAL_FLAG(0x252);
+        self->hitboxState = self->ext.et_801C03E8.savedHitboxState;
+        self->ext.et_801C03E8.showPrims = 1;
+    } else {
+        palette = PAL_FLAG(PAL_PLAYER_HIDDEN);
+        self->hitboxState = 0;
+        self->ext.et_801C03E8.showPrims = 0;
+    }
+    if (MARIA.step == PL_S_DEAD || MARIA.step == PL_S_ENDING_1) {
+        self->hitboxState = 0;
+    }
+    if (self->step != PL_S_9) {
+        self->palette = palette;
+    }
+    if (!(g_Timer % 4) && (self->step == 2)) {
+        D_pspeu_0927C1C0++;
+        D_pspeu_0927C1C0 %= 8;
+        var_s4 = 1;
+    }
+
+    if (g_Timer % 0x100 == 0) {
+        if (self->step == 2) {
+            if ((abs(self->posX.i.hi - MARIA.posX.i.hi) < 0x20) &&
+                (MARIA.step != PL_S_DEAD)) {
+                sp30 = 1;
+                if (self->ext.et_801C03E8.showPrims) {
+                    MarCreateEntFactoryFromEntity(self, 0x590021, 0);
+                }
+            }
+        }
+    }
+
+    posX = self->posX.i.hi;
+    posY = self->posY.i.hi;
+    prim = &g_PrimBuf[self->primIndex];
+
+    for (i = 0; i < 8; i++) {
+        if (D_pspeu_0927C1A0[i] == 0) {
+            if ((var_s4 != 0) && (D_pspeu_0927C1C0 == i)) {
+                prim->x0 = prim->x2 = posX - 0x10;
+                prim->x1 = prim->x3 = posX + 0xF;
+                prim->y0 = prim->y1 = posY - 0x10;
+                prim->y2 = prim->y3 = posY + 0xF;
+                prim->drawMode &= ~DRAW_HIDE;
+                prim->r0 = prim->r1 = prim->r2 = prim->r3 = prim->g0 =
+                    prim->g1 = prim->g2 = prim->g3 = prim->b0 = prim->b1 =
+                        prim->b2 = prim->b3 = 0x80;
+                D_pspeu_0927C1A0[i] += 1;
+            }
+        } else {
+            prim->b3 -= 4;
+            if (prim->b3 < 0x10) {
+                D_pspeu_0927C1A0[i] = 0;
+            }
+            prim->r0 = prim->r1 = prim->r2 = prim->r3 = prim->g0 = prim->g1 =
+                prim->g2 = prim->g3 = prim->b0 = prim->b1 = prim->b2 = prim->b3;
+        }
+        if (!self->ext.et_801C03E8.showPrims) {
+            prim->drawMode |= DRAW_HIDE;
+        }
+        prim = prim->next;
+    }
+
+    ricPosX = MARIA.posX.i.hi;
+    ricPosY = MARIA.posY.i.hi;
+
+    if (g_Timer & 1) {
+        direction = -1;
+    } else {
+        direction = 1;
+    }
+    posX -= 3;
+
+    for (j = 0; j < 3; j++, posX += 3) {
+        primX = posX;
+        primY = posY;
+        distance = 3;
+        // > lw a1, 0x48(sp)
+        anotherY = ricPosY - posY;
+        anotherX = ricPosX - posX;
+        angle = ratan2(-anotherY, anotherX);
+        distance = (SquareRoot12(I_TO_FLT(
+                        (anotherX * anotherX) + (anotherY * anotherY))) /
+                    7);
+        distance = FLT_TO_I(distance);
+
+        for (i = 0; i < 8; i++) {
+            direction = -direction;
+            if (prim->r2 == 0) {
+                if (sp30 != 0) {
+                    prim->r2++;
+                    prim->b2 = 0xC;
+                    prim->drawMode &= ~DRAW_HIDE;
+                }
+            } else if (--prim->b2 == 0) {
+                prim->drawMode |= DRAW_HIDE;
+                prim->r2 = 0;
+            }
+            prim->x0 = primX;
+            prim->y0 = primY;
+            temp_s0_2 = angle + (rand() & 0x1FF) * direction;
+            prim->x1 = (((rcos(temp_s0_2) >> 4) * distance) >> 8) + primX;
+            prim->y1 = -(((rsin(temp_s0_2) >> 4) * distance) >> 8) + primY;
+            primX = prim->x1;
+            primY = prim->y1;
+
+            if (i == 7) {
+                prim->x1 = ricPosX;
+                prim->y1 = ricPosY;
+            }
+            if (!self->ext.et_801C03E8.showPrims) {
+                prim->drawMode |= DRAW_HIDE;
+            }
+            prim = prim->next;
+        }
+    }
+}
+
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09250DA8);
 
