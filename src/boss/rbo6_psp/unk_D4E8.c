@@ -46,60 +46,6 @@ extern u8 D_pspeu_0926B410;
 extern s32 D_pspeu_0926C098;
 extern u8 D_pspeu_0926B4F8[];
 
-void EntityBreakable(Entity* self) {
-    Entity* entity;
-    u16 breakableType;
-
-    breakableType = self->params >> 12;
-    if (self->step) {
-        AnimateEntity(D_pspeu_09256C38[breakableType], self);
-        if (self->hitParams) {
-            g_api.PlaySfx(SFX_CANDLE_HIT);
-            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
-            if (entity != NULL) {
-                CreateEntityFromCurrentEntity(E_EXPLOSION, entity);
-                entity->params = D_pspeu_0926C040[breakableType];
-            }
-            ReplaceBreakableWithItemDrop(self);
-        }
-    } else {
-        InitializeEntity(g_EInitBreakable);
-        self->zPriority = g_unkGraphicsStruct.g_zEntityCenter - 20;
-        self->blendMode = D_pspeu_09256C70[breakableType];
-        self->hitboxHeight = D_pspeu_09256C58[breakableType];
-        self->animSet = D_pspeu_09256C60[breakableType];
-    }
-}
-
-s32 DecreaseBrightness(Primitive* prim, s32 brightnessOffset) {
-    s32 newColor;
-    s32 i;
-    s32 j;
-    u8* rgbVal;
-    u8* rPtr;
-    s32 ret;
-
-    ret = 0;
-    rPtr = &prim->r0;
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 3; j++) {
-            rgbVal = &rPtr[j];
-            newColor = *rgbVal;
-            newColor += brightnessOffset;
-            if (newColor > 0xFF) {
-                newColor = 0xFF;
-            } else {
-                ret |= 1;
-            }
-            *rgbVal = newColor;
-        }
-        rPtr += 0xC;
-    }
-    return ret;
-}
-
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4594);
-
 void func_us_801A4F14(Entity* self) {
     s32 primIndex;
     s32 size;
