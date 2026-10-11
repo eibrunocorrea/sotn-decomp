@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo0.h"
 
+extern EInit D_pspeu_09275F90;
+
 s16 func_pspeu_0925F0A8(OlroxPrim* prim) {
     s16 posY;
     u16 hitKind;
@@ -86,7 +88,23 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092667C8);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267730);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267E48);
+void func_pspeu_09267E48(Entity* self) {
+    OlroxPrim* part;
+
+    if (self->flags & FLAG_DEAD) {
+        self->hitboxState = 0;
+    }
+    if (!self->step) {
+        InitializeEntity(D_pspeu_09275F90);
+        self->animCurFrame = 0;
+        self->hitboxOffY = 4;
+        self->hitboxWidth = 4;
+        self->hitboxHeight = 0x10;
+    }
+    part = self->ext.et_801B5470.unk8C;
+    self->posX.i.hi = part->unk28.i.hi;
+    self->posY.i.hi = part->unk2C.i.hi;
+}
 
 Primitive* func_pspeu_09267EF8(Primitive* prim, u8 count) {
     s32 i;
