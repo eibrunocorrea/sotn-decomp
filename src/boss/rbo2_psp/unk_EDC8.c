@@ -67,7 +67,7 @@ void func_801CDD80(s16* entOffsets, unkStr_801CDD80* arg1) {
 
 void func_801CDF1C(s16 entIndices[], unkStr_801CDD80* arg1, s32 arg2) {
 
-    arg1 += (u16)g_CurrentEntity->ext.GH_Props.unkB0[arg2];
+    arg1 += g_CurrentEntity->ext.GH_Props.unkB0[arg2];
 
     if (!g_CurrentEntity->ext.GH_Props.unkB4[arg2]) {
         func_801CDD80(entIndices, arg1);
