@@ -2747,7 +2747,168 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925BA80)
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925CA08);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_us_801BDA0C);
+extern s16 D_pspeu_09264038[];
+extern s16 D_pspeu_09264048[];
+extern s16 D_pspeu_09264058[];
+extern EInit D_pspeu_09266738;
+extern u8 D_pspeu_092640A8[];
+extern u8 D_pspeu_092640B0[];
+extern u8 D_pspeu_092640B8[];
+extern u8 D_pspeu_092640C0[];
+// local copy of func_us_801BDA0C (see no1/unk_3D8AC.c), with
+// the rbo5 timer trigger from EntityUnkId17 (see rbo5/doors.c).
+void func_us_801BDA0C(Entity* self) {
+    s32 flag;
+    s32 primIndex;
+    s16 xOffset, yOffset;
+    s16 magnitude;
+    Entity* tempEntity;
+    Primitive* prim;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09266738);
+        self->drawFlags |=
+            ENTITY_OPACITY | ENTITY_ROTATE | ENTITY_SCALEY | ENTITY_SCALEX;
+        if ((self->params & 0xF) > 1) {
+            self->opacity = 0x20;
+        } else {
+            self->opacity = 0x80;
+        }
+        self->scaleX = D_pspeu_09264058[self->params & 0xF];
+        self->scaleY = self->scaleX;
+        if ((self->params & 0xF) % 2) {
+            self->rotate = ROT(-90);
+        } else {
+            self->rotate = ROT(0);
+        }
+        self->zPriority = (0x40 - self->params) & 0xF;
+        if (self->params & 0x100) {
+            self->animCurFrame = 100;
+        } else {
+            self->animCurFrame = 98;
+        }
+        primIndex = g_api.AllocPrimitives(PRIM_TILE, 1);
+        if (primIndex != -1) {
+            self->flags |= FLAG_HAS_PRIMS;
+            self->primIndex = primIndex;
+            prim = &g_PrimBuf[primIndex];
+            self->ext.et_801BDA0C.unk7C = prim;
+            prim->x0 = self->posX.i.hi;
+            prim->y0 = self->posY.i.hi;
+            prim->priority = self->zPriority;
+            prim->drawMode = DRAW_HIDE | DRAW_UNK02;
+        } else {
+            DestroyEntity(self);
+            return;
+        }
+        self->ext.et_801BDA0C.unk84 = 0;
+        self->ext.et_801BDA0C.unk80 = 0;
+        break;
+    case 1:
+        self->palette = PAL_FLAG(0x4F);
+        if (self->ext.et_801BDA0C.unk84) {
+            self->ext.et_801BDA0C.unk9C = 64;
+            self->step++;
+        }
+        break;
+
+    case 2:
+        flag = self->params & 0xFF;
+        if (flag != 1) {
+            self->step++;
+        } else {
+            if (self->params & 0x100) {
+                AnimateEntity(D_pspeu_092640B0, self);
+            } else {
+                AnimateEntity(D_pspeu_092640A8, self);
+            }
+            if ((g_Timer & 0xF) == 0) {
+                g_api.PlaySfx(SFX_STONE_MOVE_B);
+            }
+            if (--self->ext.et_801BDA0C.unk9C == 0) {
+                self->step++;
+            }
+        }
+        break;
+
+    case 3:
+        if (g_Timer % 2 == 0) {
+            self->palette++;
+            if (self->palette > PAL_FLAG(0x58)) {
+                g_api.PlaySfx(SFX_ELECTRICITY);
+                self->palette = PAL_FLAG(0x4F);
+                self->step++;
+                if (self->params == 5) {
+                    (self + 1)->ext.et_801BDA0C.unk84 = 1;
+                }
+            }
+        }
+        break;
+
+    case 4:
+        magnitude = self->ext.et_801BDA0C.unk80 / FIX(1.0);
+        xOffset = FLT_TO_I(rcos(self->rotate - ROT(90)) * magnitude);
+        yOffset = FLT_TO_I(rsin(self->rotate - ROT(90)) * magnitude);
+        prim = self->ext.et_801BDA0C.unk7C;
+        self->posX.i.hi = prim->x0 + xOffset;
+        self->posY.i.hi = prim->y0 + yOffset;
+        if (self->params & 0x100) {
+            AnimateEntity(D_pspeu_092640B0, self);
+        } else {
+            AnimateEntity(D_pspeu_092640A8, self);
+        }
+        if ((g_Timer & 0xF) == 0) {
+            g_api.PlaySfx(SFX_STONE_MOVE_B);
+        }
+        if (self->params & 0x100) {
+            self->ext.et_801BDA0C.unk88 -= D_pspeu_09264038[self->params & 0xF];
+        } else {
+            self->ext.et_801BDA0C.unk88 += D_pspeu_09264038[self->params & 0xF];
+        }
+        self->ext.et_801BDA0C.unk80 += self->ext.et_801BDA0C.unk88;
+        if (abs(self->ext.et_801BDA0C.unk80) > FIX(12)) {
+            (self + 2)->ext.et_801BDA0C.unk84 = 1;
+            self->step++;
+            if (self->params == 5) {
+                (self + 1)->ext.et_801BDA0C.unk84 = 1;
+            }
+        }
+        tempEntity = self + 2;
+        if (tempEntity->opacity < 0x80) {
+            tempEntity->opacity++;
+        }
+        break;
+
+    case 5:
+        tempEntity = self + 2;
+        if (tempEntity->opacity < 0x80) {
+            tempEntity->opacity += 2;
+        }
+        magnitude = self->ext.et_801BDA0C.unk80 / FIX(1.0);
+        xOffset = FLT_TO_I(rcos(self->rotate - ROT(90)) * magnitude);
+        yOffset = FLT_TO_I(rsin(self->rotate - ROT(90)) * magnitude);
+        prim = self->ext.et_801BDA0C.unk7C;
+        self->posX.i.hi = prim->x0 + xOffset;
+        self->posY.i.hi = prim->y0 + yOffset;
+        if (self->params & 0x100) {
+            AnimateEntity(D_pspeu_092640C0, self);
+        } else {
+            AnimateEntity(D_pspeu_092640B8, self);
+        }
+        self->rotate += D_pspeu_09264048[self->params & 0xF];
+        if (self->params & 0x100) {
+            self->ext.et_801BDA0C.unk88 -= D_pspeu_09264038[self->params & 0xF];
+        } else {
+            self->ext.et_801BDA0C.unk88 += D_pspeu_09264038[self->params & 0xF];
+        }
+        self->ext.et_801BDA0C.unk80 += self->ext.et_801BDA0C.unk88;
+        if (self->ext.et_801BDA0C.unk80 > FIX(64)) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 extern EInit D_pspeu_09266738;
 extern u8 D_pspeu_092640A8[];
