@@ -15,9 +15,9 @@ void func_pspeu_0925DBD0(Primitive* prim) {
     data = D_pspeu_092723C8[g_CurrentEntity->animCurFrame];
     data += 2;
     u = g_CurrentEntity->unk5A & 1;
-    u = (s16)u * 0x7F;
+    u = u * 0x7F;
     v = (g_CurrentEntity->unk5A & 2) >> 1;
-    v = (s16)v * 0x7F;
+    v = v * 0x7F;
     x = g_CurrentEntity->posX.i.hi;
     if (g_CurrentEntity->facingLeft) {
         x -= *data++;
@@ -111,15 +111,15 @@ s32 func_us_801B163C(s16* value, s16 target, s16 speed) {
     delta = *velocity;
     if (difference > 0) {
         if (delta < speed) {
-            delta += (s16)acceleration;
+            delta += acceleration;
         } else {
-            delta -= (s16)acceleration;
+            delta -= acceleration;
         }
     } else {
         if (delta > -speed) {
-            delta -= (s16)acceleration;
+            delta -= acceleration;
         } else {
-            delta += (s16)acceleration;
+            delta += acceleration;
         }
     }
     if (abs(difference) < abs(delta)) {

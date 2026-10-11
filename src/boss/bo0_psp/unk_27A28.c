@@ -283,18 +283,18 @@ void func_pspeu_09265368(void) {
         if (g_CurrentEntity->facingLeft) {
             angle = ROT(180) - angle;
         }
-        x0 += (s16)(upper * rcos(angle) >> 12);
-        y0 -= (s16)(upper * rsin(angle) >> 12);
-        x1 -= (s16)(lower * rcos(angle) >> 12);
-        y1 += (s16)(lower * rsin(angle) >> 12);
+        x0 += (upper * rcos(angle) >> 12);
+        y0 -= (upper * rsin(angle) >> 12);
+        x1 -= (lower * rcos(angle) >> 12);
+        y1 += (lower * rsin(angle) >> 12);
         length = 11;
         length = length * g_CurrentEntity->ext.et_801B619C.unk84 >> 12;
         if (!g_CurrentEntity->facingLeft) {
-            baseX += (s16)(length * rcos(*angles) >> 12);
+            baseX += (length * rcos(*angles) >> 12);
         } else {
-            baseX -= (s16)(length * rcos(*angles) >> 12);
+            baseX -= (length * rcos(*angles) >> 12);
         }
-        baseY -= (s16)(length * rsin(*angles) >> 12);
+        baseY -= (length * rsin(*angles) >> 12);
         angle = *angles;
         angles++;
         if (i) {
