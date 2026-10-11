@@ -21,6 +21,7 @@ void MarDecelerateX(s32 speed);
 void MarSetSpeedX(s32 speed);
 s32 MarCheckFacing(void);
 bool func_pspeu_0925B680(s32 checks);
+void func_pspeu_09259BB0(s32 arg0);
 void func_pspeu_09259AD8(s32 velocityX);
 void func_pspeu_09259D48(void);
 void func_pspeu_09259C58(void);
@@ -2681,7 +2682,80 @@ void func_pspeu_09256778(Entity* self) {
     g_Maria.unk6C = g_Maria.unk6A;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092568D0);
+extern AnimationFrame D_pspeu_0927A5B8[];
+extern AnimationFrame D_pspeu_0927A7E0[];
+extern AnimationFrame D_pspeu_0927A970[];
+void func_pspeu_092568D0(void) {
+    s16 xMod;
+    s32 facing;
+
+    if (!func_pspeu_0925B680(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
+                       CHECK_ATTACK | CHECK_CROUCH | CHECK_SLIDE)) {
+        MarDecelerateX(FIX(0.125));
+        switch (MARIA.step_s) {
+        case 0:
+            if (MarCheckFacing()) {
+                func_pspeu_09259BB0(0);
+            } else if (g_Maria.padPressed & PAD_UP) {
+                MarSetAnimation(D_pspeu_0927A5B8);
+                MARIA.step_s = 1;
+                break;
+            }
+            break;
+        case 1:
+            if (MarCheckFacing()) {
+                func_pspeu_09259BB0(0);
+            } else if (g_Maria.padPressed & PAD_UP) {
+            } else {
+                func_pspeu_09259AD8(0);
+            }
+            break;
+        case 64:
+            MarDisableAfterImage(1, 1);
+            if (MARIA.pose < 3) {
+                facing = MarCheckFacing();
+                if (g_Maria.padPressed & PAD_DOWN) {
+                    MARIA.step = PL_S_CROUCH;
+                    MARIA.anim = D_pspeu_0927A7E0;
+                    break;
+                }
+            }
+
+            if (MARIA.poseTimer < 0) {
+                if (g_Maria.padPressed & PAD_SQUARE) {
+                    MARIA.step_s++;
+                    g_Maria.unk46 = 2;
+                    MarSetAnimation(D_pspeu_0927A970);
+                    MarCreateEntFactoryFromEntity(
+                        g_CurrentEntity, 0x11, 0);
+                    break;
+                }
+                g_Maria.unk46 = 0;
+                func_pspeu_09259AD8(0);
+            }
+            break;
+        case 65:
+            MarDisableAfterImage(1, 1);
+            if (g_Maria.padPressed & PAD_SQUARE) {
+                break;
+            }
+            g_Maria.unk46 = 0;
+            func_pspeu_09259AD8(0);
+            break;
+        case 66:
+            MarDisableAfterImage(1, 1);
+            if (MARIA.pose < 3) {
+                MarCheckFacing();
+            }
+            if (MARIA.poseTimer < 0) {
+                g_Maria.unk46 = 0;
+                func_pspeu_09259AD8(0);
+            }
+            break;
+        }
+    }
+}
+
 
 // local copy of RicStepWalk (see ric/pl_steps.c) driving Maria
 void func_pspeu_09256BA0(void) {
