@@ -1,7 +1,37 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo6/rbo6.h"
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", EntityBreakable);
+extern EInit g_EInitBreakable;
+extern u8* D_pspeu_09256C38[];
+extern u8 D_pspeu_09256C58[];
+extern u16 D_pspeu_09256C60[];
+extern u8 D_pspeu_0926C040[];
+extern u8 D_pspeu_09256C70[];
+
+void EntityBreakable(Entity* self) {
+    Entity* entity;
+    u16 breakableType;
+
+    breakableType = self->params >> 12;
+    if (self->step) {
+        AnimateEntity(D_pspeu_09256C38[breakableType], self);
+        if (self->hitParams) {
+            g_api.PlaySfx(SFX_CANDLE_HIT);
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity != NULL) {
+                CreateEntityFromCurrentEntity(E_EXPLOSION, entity);
+                entity->params = D_pspeu_0926C040[breakableType];
+            }
+            ReplaceBreakableWithItemDrop(self);
+        }
+    } else {
+        InitializeEntity(g_EInitBreakable);
+        self->zPriority = g_unkGraphicsStruct.g_zEntityCenter - 20;
+        self->blendMode = D_pspeu_09256C70[breakableType];
+        self->hitboxHeight = D_pspeu_09256C58[breakableType];
+        self->animSet = D_pspeu_09256C60[breakableType];
+    }
+}
 
 s32 DecreaseBrightness(Primitive* prim, s32 brightnessOffset) {
     s32 newColor;
