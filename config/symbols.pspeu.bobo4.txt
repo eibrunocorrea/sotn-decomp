@@ -115,3 +115,8 @@ g_stone_flag = 0x0926BB10;
 D_us_801D4DF4 = 0x0926BB30;
 D_us_801D4DF0 = 0x0926BB38;
 D_psp_E_ID_1B = 0x0926BCA8;
+
+// Afterimage tables used by the local PSP animation block.
+g_afterImageTimerTable = 0x0926B1D0;
+g_shadowOpacityReductionTable = 0x0926B1E8;
+g_D_800ACF3C = 0x0926B1F8;
