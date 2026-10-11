@@ -266,8 +266,10 @@ void func_pspeu_09265368(void) {
             lower = 12;
             angle = ROT(53.4375);
         }
-        upper = upper * (g_CurrentEntity->ext.et_801B619C.unk84 / 2 + 0x800) >> 12;
-        lower = lower * (g_CurrentEntity->ext.et_801B619C.unk84 / 2 + 0x800) >> 12;
+        upper =
+            upper * (g_CurrentEntity->ext.et_801B619C.unk84 / 2 + 0x800) >> 12;
+        lower =
+            lower * (g_CurrentEntity->ext.et_801B619C.unk84 / 2 + 0x800) >> 12;
         x0 = x1 = baseX;
         y0 = y1 = baseY;
         if (g_CurrentEntity->facingLeft) {
@@ -377,26 +379,32 @@ void func_pspeu_092657B8(Entity* self) {
         }
         break;
     case 3:
-        result = func_pspeu_092652C0(&self->ext.et_801B619C.unk88,
+        result = func_pspeu_092652C0(
+            &self->ext.et_801B619C.unk88,
             D_pspeu_0928FC80[LOBU(self->ext.et_801B619C.unk80)], 0x20);
         if (result) {
             LOBU(self->ext.et_801B619C.unk80) ^= 1;
         }
         break;
     case 4:
-        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC40, 0x20);
+        func_pspeu_092652C0(
+            &self->ext.et_801B619C.unk88, D_pspeu_0928FC40, 0x20);
         break;
     case 6:
-        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC50, 0x60);
+        func_pspeu_092652C0(
+            &self->ext.et_801B619C.unk88, D_pspeu_0928FC50, 0x60);
         break;
     case 7:
-        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC60, 0x80);
+        func_pspeu_092652C0(
+            &self->ext.et_801B619C.unk88, D_pspeu_0928FC60, 0x80);
         break;
     case 8:
-        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC70, 0x60);
+        func_pspeu_092652C0(
+            &self->ext.et_801B619C.unk88, D_pspeu_0928FC70, 0x60);
         break;
     case 9:
-        result = func_pspeu_09265170(&self->ext.et_801B619C.unk88,
+        result = func_pspeu_09265170(
+            &self->ext.et_801B619C.unk88,
             D_pspeu_0928FC80[LOBU(self->ext.et_801B619C.unk80)], 0x40);
         if (result) {
             LOBU(self->ext.et_801B619C.unk80) ^= 1;

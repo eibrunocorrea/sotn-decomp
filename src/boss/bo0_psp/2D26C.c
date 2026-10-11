@@ -64,26 +64,27 @@ void func_pspeu_0925C178(Entity* self) {
         self->posY.i.hi -= 0xC;
         primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
         if (primIndex != -1) {
-        self->flags |= FLAG_HAS_PRIMS;
-        self->primIndex = primIndex;
-        prim = &g_PrimBuf[primIndex];
-        self->ext.et_801AF31C.prim = prim;
-        prim->tpage = 0x12;
-        prim->clut = 0x212;
-        prim->u0 = prim->u2 = 0xA0;
-        prim->u1 = prim->u3 = 0xD0;
-        prim->v0 = prim->v1 = 0;
-        prim->v2 = prim->v3 = 0x10;
-        prim->x0 = prim->x2 = self->posX.i.hi;
-        prim->x1 = prim->x3 = prim->x0;
-        prim->y0 = prim->y1 = self->posY.i.hi;
-        prim->y2 = prim->y3 = prim->y0;
-        PGREY(prim, 0) = 0;
-        LOW(prim->r2) = LOW(prim->r0);
-        PGREY(prim, 1) = 0xA0;
-        LOW(prim->r3) = LOW(prim->r1);
-        prim->priority = self->zPriority + 4;
-        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+            self->flags |= FLAG_HAS_PRIMS;
+            self->primIndex = primIndex;
+            prim = &g_PrimBuf[primIndex];
+            self->ext.et_801AF31C.prim = prim;
+            prim->tpage = 0x12;
+            prim->clut = 0x212;
+            prim->u0 = prim->u2 = 0xA0;
+            prim->u1 = prim->u3 = 0xD0;
+            prim->v0 = prim->v1 = 0;
+            prim->v2 = prim->v3 = 0x10;
+            prim->x0 = prim->x2 = self->posX.i.hi;
+            prim->x1 = prim->x3 = prim->x0;
+            prim->y0 = prim->y1 = self->posY.i.hi;
+            prim->y2 = prim->y3 = prim->y0;
+            PGREY(prim, 0) = 0;
+            LOW(prim->r2) = LOW(prim->r0);
+            PGREY(prim, 1) = 0xA0;
+            LOW(prim->r3) = LOW(prim->r1);
+            prim->priority = self->zPriority + 4;
+            prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS |
+                             DRAW_UNK02 | DRAW_TRANSP;
         } else {
             DestroyEntity(self);
             return;
@@ -110,12 +111,14 @@ void func_pspeu_0925C178(Entity* self) {
             self->ext.et_801AF31C.unkA8.val += FIX(5);
         }
         prim = self->ext.et_801AF31C.prim;
-        prim->x1 = prim->x3 = self->posX.i.hi + self->ext.et_801AF31C.unkA8.i.hi;
+        prim->x1 = prim->x3 =
+            self->posX.i.hi + self->ext.et_801AF31C.unkA8.i.hi;
         prim->x0 = prim->x2 = self->posX.i.hi;
         prim->y0 = prim->y1 = self->posY.i.hi - 8;
         prim->y2 = prim->y3 = prim->y0 + 0x10;
         self->hitboxWidth = abs(self->ext.et_801AF31C.unkA8.i.hi) / 4;
-        self->hitboxOffX = abs(self->ext.et_801AF31C.unkA8.i.hi) - self->hitboxWidth - 4;
+        self->hitboxOffX =
+            abs(self->ext.et_801AF31C.unkA8.i.hi) - self->hitboxWidth - 4;
         break;
     }
     if (abs(self->posX.i.hi) > 0x280) {
@@ -351,7 +354,8 @@ void func_pspeu_0925CBE8(Entity* self) {
         x = x - self->posX.i.hi;
         y = y - self->posY.i.hi;
         angle2 = Ratan2Shifted(x, y);
-        self->ext.et_801AF8C0.unkA8 = AdjustValueWithinThreshold(2, self->ext.et_801AF8C0.unkA8, angle2);
+        self->ext.et_801AF8C0.unkA8 =
+            AdjustValueWithinThreshold(2, self->ext.et_801AF8C0.unkA8, angle2);
         SetEntityVelocityFromAngle(self->ext.et_801AF8C0.unkA8, 0x10);
         if (entity->ext.et_801AD338.unk84) {
             if (!--self->ext.et_801AF8C0.unk80) {
