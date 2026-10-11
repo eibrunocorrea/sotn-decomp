@@ -235,7 +235,54 @@ void func_060DFB7C(Entity* self) {
         break;
     }
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DFC68, func_060DFC68);
+extern u16 DAT_060E9E70[];
+extern u8 DAT_060E9EBC[];
+extern s32 DAT_060E9EA4[];
+extern u16 DAT_060E9EC0[];
+
+void EntityDestructAnim(Entity* self) {
+    SpriteObject* sprite;
+    s32 variant;
+
+    variant = self->params & 0xF;
+    if (self->step == 0) {
+        if (self->unk0 != NULL) {
+            sprite = self->unk0;
+        } else {
+            sprite = CreateSpriteObject(
+                g_EntitySpriteBank01.allocationIndex,
+                g_EntitySpriteBank01.flags, g_EntitySpriteBank01.images,
+                DAT_060E9E70[variant]);
+        }
+        self->unk0 = sprite;
+        sprite->clutBase = g_EntitySpriteBank05.flags | 0x8000;
+        self->animCurFrame = DAT_060E9EBC[variant];
+        func_0600AFA8(sprite, DAT_06045E14[self->animCurFrame]);
+        if (self->scaleX != 0) {
+            sprite->flags |= 0x40;
+            sprite->scaleX = (u32)self->scaleX >> 2;
+        }
+        if (self->scaleY != 0) {
+            sprite->flags |= 0x40;
+            sprite->scaleY = (u32)self->scaleY >> 2;
+        }
+        self->velocityY = DAT_060E9EA4[self->ext.destructAnim.index];
+        self->flags = 0x0C002000;
+        self->unk1C = 0x10;
+        self->step++;
+    } else {
+        self->posY.val -= self->velocityY;
+        self->poseTimer++;
+        if (!(self->poseTimer & 1)) {
+            self->animCurFrame++;
+            func_0600B004(self->unk0, DAT_06045E14[self->animCurFrame]);
+        }
+        if (self->poseTimer > DAT_060E9EC0[variant]) {
+            DestroyEntity(self);
+        }
+    }
+    func_06079BB4(self);
+}
 extern SaturnSpriteFrameHeader* DAT_060465F4[];
 extern u8 DAT_060E9EE1[];
 extern s32 DAT_060E9EC8[];
