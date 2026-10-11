@@ -2,6 +2,12 @@
 #include "bo0.h"
 
 extern EInit D_pspeu_09275F90;
+extern s32 D_us_801CE5B0;
+extern s16 D_pspeu_0928FC40[];
+extern s16 D_pspeu_0928FC50[];
+extern s16 D_pspeu_0928FC60[];
+extern s16 D_pspeu_0928FC70[];
+extern s16* D_pspeu_0928FC80[];
 
 s16 func_pspeu_0925F0A8(OlroxPrim* prim) {
     s16 posY;
@@ -299,7 +305,122 @@ void func_pspeu_09265368(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092657B8);
+void func_pspeu_092657B8(Entity* self) {
+    Primitive* prim;
+    s32 i;
+    s16* angles;
+    Entity* parent;
+    s32 primIndex;
+    u8 result;
+
+    parent = self - 4;
+    self->facingLeft = parent->facingLeft;
+    self->palette = parent->palette;
+    if (!D_us_801CE5B0) {
+        self->posX.val = parent->posX.val;
+        self->posY.val = parent->posY.val;
+        if (!self->facingLeft) {
+            self->posX.i.hi += 4;
+        } else {
+            self->posX.i.hi -= 4;
+        }
+    }
+    if (self->flags & FLAG_DEAD) {
+        self->hitboxState = 0;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09275F90);
+        self->hitboxState = 0;
+        self->animCurFrame = 0;
+        self->flags |= FLAG_POS_CAMERA_LOCKED;
+        primIndex = g_api.AllocPrimitives(PRIM_GT4, 8);
+        if (primIndex == -1) {
+            self->step = 0;
+            break;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_801B619C.prim = prim;
+        for (i = 0; i < 8; i++) {
+            prim->tpage = 0x14;
+            prim->clut = 0x20B;
+            prim->u0 = prim->u2 = i * 11 + 0x80;
+            prim->u1 = prim->u3 = prim->u0 + 11;
+            prim->v0 = prim->v1 = 0x50;
+            prim->v2 = prim->v3 = 0x60;
+            prim->priority = 0xA1;
+            prim->drawMode = DRAW_UNK02;
+            prim = prim->next;
+        }
+        angles = &self->ext.et_801B619C.unk88;
+        for (i = 0; i < 8;) {
+            *angles = ROT(-33.75);
+            angles++;
+            i++;
+            angles++;
+        }
+        self->ext.et_801B619C.unk84 = 0;
+        // fallthrough
+    case 1:
+        if (!D_us_801CE5B0) {
+            self->step++;
+        }
+        break;
+    case 2:
+        if (self->ext.et_801B619C.unk84 < 0x1000) {
+            self->ext.et_801B619C.unk84 += 0x200;
+        } else {
+            self->ext.et_801B619C.unk84 = 0x1000;
+            self->step++;
+        }
+        break;
+    case 3:
+        result = func_pspeu_092652C0(&self->ext.et_801B619C.unk88,
+            D_pspeu_0928FC80[LOBU(self->ext.et_801B619C.unk80)], 0x20);
+        if (result) {
+            LOBU(self->ext.et_801B619C.unk80) ^= 1;
+        }
+        break;
+    case 4:
+        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC40, 0x20);
+        break;
+    case 6:
+        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC50, 0x60);
+        break;
+    case 7:
+        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC60, 0x80);
+        break;
+    case 8:
+        func_pspeu_092652C0(&self->ext.et_801B619C.unk88, D_pspeu_0928FC70, 0x60);
+        break;
+    case 9:
+        result = func_pspeu_09265170(&self->ext.et_801B619C.unk88,
+            D_pspeu_0928FC80[LOBU(self->ext.et_801B619C.unk80)], 0x40);
+        if (result) {
+            LOBU(self->ext.et_801B619C.unk80) ^= 1;
+        }
+        break;
+    }
+    func_pspeu_09265368();
+    if (self->palette & PAL_FLAG(0)) {
+        prim = self->ext.et_801B619C.prim;
+        while (prim) {
+            prim->clut = self->palette & 0xFFF;
+            prim = prim->next;
+        }
+    }
+    parent = self - 4;
+    if (parent->ext.et_801B365C.unk9B) {
+        prim = self->ext.et_801B619C.prim;
+        while (prim) {
+            prim->tpage = 0x15;
+            prim->clut = PAL_BREAKABLE;
+            prim = prim->next;
+        }
+    }
+}
 
 s32 func_pspeu_09265CA0(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 result;

@@ -4266,6 +4266,10 @@ typedef struct {
     /* 0x8C */ u32 : 32;
     /* 0x90 */ s16 unk90;
     /* 0x92 */ s16 unk92;
+    /* 0x94 */ u32 : 32;
+    /* 0x98 */ u16 : 16;
+    /* 0x9A */ u8 : 8;
+    /* 0x9B */ u8 unk9B;
 } ET_801B365C;
 
 typedef struct {
