@@ -3080,7 +3080,92 @@ void func_pspeu_09252768(Entity* entity) {
 
 void func_pspeu_09252B20(Entity* self) { FntPrint("dummy set\n"); }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09252B48);
+void func_pspeu_09252E78(Entity* self);
+void func_pspeu_09253620(Entity* self);
+void func_pspeu_09256D30(Entity* self);
+void func_pspeu_09257298(Entity* self);
+void func_pspeu_09254180(Entity* self);
+void func_maria_80161C2C(Entity* self);
+void MarEntityHitByLightning(Entity* self);
+void func_pspeu_09256258(Entity* self);
+void func_pspeu_0925BA80(Entity* self);
+void func_pspeu_09258A50(Entity* self);
+void func_pspeu_09259A20(Entity* self);
+void func_pspeu_092570B8(Entity* self);
+void func_pspeu_09253500(Entity* self);
+void func_pspeu_09253EA0(Entity* self);
+PfnEntityUpdate D_pspeu_092633B8[] = {
+    func_pspeu_09252B20,     func_pspeu_09252E78, func_pspeu_09253620,
+    func_pspeu_09256D30,     func_pspeu_09251748, func_pspeu_09257298,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09254180,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_maria_80161C2C, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_092509D0,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    MarEntityHitByLightning, func_pspeu_09256258, func_pspeu_0925BA80,
+    func_pspeu_09258A50,     func_pspeu_09259A20, func_pspeu_092570B8,
+    func_pspeu_09253500,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252768,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09252B20,     func_pspeu_09252B20, func_pspeu_09252B20,
+    func_pspeu_09253EA0,     func_pspeu_092514F0,
+};
+extern AnimationFrame* D_pspeu_0926C0C0[];
+void func_pspeu_09252B48(void) {
+    Entity* entity;
+    PfnEntityUpdate entityUpdate;
+    s32 i;
+
+    entity = g_CurrentEntity = &g_Entities[68];
+
+    for (i = 68; i < 144; i++, g_CurrentEntity++, entity++) {
+        if (i == 16 && entity->entityId == 0) {
+            g_Dop.unk48 = 0;
+        }
+
+        if (entity->entityId == 0) {
+            continue;
+        }
+
+        entityUpdate = D_pspeu_092633B8[entity->entityId];
+        entityUpdate(entity);
+
+        entity = g_CurrentEntity;
+        if (entity->entityId != 0) {
+            if (!(entity->flags & FLAG_UNK_10000000) &&
+                (entity->posX.i.hi > 288 || entity->posX.i.hi < -32 ||
+                 entity->posY.i.hi > 256 || entity->posY.i.hi < -16)) {
+                DestroyEntity(g_CurrentEntity);
+            } else {
+                if (entity->flags & FLAG_UNK_20000000) {
+                    UpdateAnim(0, D_pspeu_0926C0C0);
+                }
+                entity->flags |= FLAG_NOT_AN_ENEMY;
+            }
+        }
+    }
+
+    if (D_pspeu_0926CCC0) {
+        D_pspeu_0926CCC0--;
+        if (D_pspeu_0926CCC0 & 1) {
+            g_api.func_800EA5AC(
+                1, D_pspeu_0926CCB8, D_pspeu_0926CCB0, D_pspeu_0926CCA8);
+        }
+    }
+
+    if (g_Dop.status & (PLAYER_STATUS_DEAD | PLAYER_STATUS_UNK80000)) {
+        FntPrint("dead boss\n");
+        entity = &g_Entities[68];
+        for (i = 68; i < 144; i++, entity++) {
+            entity->hitboxState = 0;
+        }
+    }
+}
 
 // local copy of RicCreateEntFactoryFromEntity (see bo6/us_39144.c);
 // same (68, 80) slot range as bo6
