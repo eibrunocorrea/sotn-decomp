@@ -106,13 +106,14 @@ void func_060DC1A8(Entity* self) {
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC318, func_060DC318);
 void func_060DC418(Entity* self) {
     SpriteObject* sprite;
+    SaturnSpriteResource* bank;
 
     if (self->step == 0) {
         TekiInit(self, 5);
         self->step++;
+        bank = (SaturnSpriteResource*)&g_RStage16SpriteBank16;
         sprite = CreateSpriteObject(
-            g_RStage16SpriteBank16.allocationIndex,
-            g_RStage16SpriteBank16.flags, g_RStage16SpriteBank16.images, 1);
+            bank->allocationIndex, bank->flags, bank->images, 1);
         self->unk0 = sprite;
         if (self->params == 0) {
             self->animCurFrame = 10;
@@ -2381,5 +2382,270 @@ void func_060E81F4(Entity* self) {
     }
 }
 
-const u32 DAT_060E8364 = 0xCCCCCCCD;
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E8368, func_060E8368);
+void func_060E8368(Entity* self) {
+    Primitive* prim;
+    s32 primIndex;
+    u16 timer;
+
+    switch (self->step) {
+    case 0:
+        primIndex = AllocPrimitives(5, 24);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= 0xC0202000;
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_060E8368.unk78 = prim;
+        while (prim != NULL) {
+            prim->unk6 = 0xFA90;
+            prim->drawMode = 0;
+            prim->priority = 0x90;
+            prim->y0 = prim->y1 = self->posY.i.hi + (Random() & 7) - 4;
+            if (self->facingLeft) {
+                prim->x0 = self->posX.i.hi + (u8)((u8)Random() % 160);
+            } else {
+                prim->x0 = self->posX.i.hi - (u8)((u8)Random() % 160);
+            }
+            prim->x1 = prim->x0;
+            LOW(prim->x2) = ((Random() & 7) + 1) << 15;
+            if (self->facingLeft) {
+                LOW(prim->x2) = -LOW(prim->x2);
+            }
+            LOW(prim->x3) = prim->x0 << 16;
+            prim->unk8 = Random() & 15;
+            prim = prim->next;
+        }
+        self->step++;
+        break;
+    case 1:
+        prim = self->ext.et_060E8368.unk78;
+        while (prim != NULL) {
+            timer = ++prim->unk8;
+            if ((u16)(timer % (timer >> 2))) {
+                prim->drawMode |= DRAW_HIDE;
+            } else {
+                prim->drawMode = 2;
+            }
+            LOW(prim->x3) +=
+                self->ext.et_060E8368.unkA0 - g_Tilemap.scrollX.val;
+            LOW(prim->x3) -= LOW(prim->x2);
+            prim->x0 = LOW(prim->x3) >> 16;
+            if (Random() & 7) {
+                prim->x1 = prim->x0;
+            } else {
+                prim->x1 = prim->x0 + 1;
+            }
+            if ((u16)prim->unk8 > 150) {
+                DestroyEntity(self);
+                return;
+            }
+            prim = prim->next;
+        }
+        break;
+    }
+    self->ext.et_060E8368.unkA0 = g_Tilemap.scrollX.val;
+}
+
+const u32 D_saturn_060E859C = 0x08E8DE06;
+const u16 D_saturn_060E85A0[] = {
+    0x0009, 0x8000, 0x81D8, 0x8154, 0x80D0, 0x804C, 0x8008, 0x8006, 0x8004,
+    0x82DA, 0x8256, 0x81D4, 0x810E, 0x8088, 0x8046, 0x8004, 0x8001, 0x8000,
+    0xA98D, 0xA14B, 0x9909, 0x90C7, 0x8885, 0x8443, 0x8000, 0x9EC6, 0x9604,
+    0x8942, 0x80A0, 0xCA95, 0xC253, 0xBA11, 0xB1CF, 0x8000, 0xA193, 0x9951,
+    0x910F, 0x88CD, 0x848B, 0x8049, 0x8026, 0x96EB, 0x8E4A, 0x8588, 0x80C6,
+    0xBE9B, 0xBA59, 0xB217, 0xA9D5, 0x80A0, 0xEF5A, 0xE718, 0xDED6, 0xD694,
+    0xCE52, 0xC610, 0xBDCE, 0xB58C, 0xAD4A, 0xA508, 0x9CC6, 0x98A5, 0x9484,
+    0x9063, 0x8842, 0x8880, 0x8882, 0xE318, 0xDAD6, 0xD6B5, 0xCE73, 0xCA52,
+    0xC210, 0xBDEF, 0xB5AD, 0xAD6B, 0xA94A, 0xA108, 0x9CE7, 0x94A5, 0x9084,
+    0x80A0, 0x890D, 0x99B3, 0xA215, 0xAA99, 0x8154, 0x8216, 0x86B9, 0x8421,
+    0x8089, 0xFBBD, 0xCA95, 0xBD0C, 0xA4E4, 0xCD89, 0xF24F, 0x8000, 0xC294,
+    0xBA31, 0xB1CE, 0xA96B, 0xA129, 0x98E7, 0x90A5, 0x8000, 0x8863, 0x8002,
+    0x8024, 0x8046, 0x8088, 0x80CA, 0xDB18, 0xA870, 0x8000, 0x8865, 0x990C,
+    0xADB2, 0xBE57, 0xCABA, 0xA54F, 0xA54B, 0x8444, 0x94C8, 0x8C87, 0x8886,
+    0x8884, 0x8906, 0xDF7D, 0x80A0, 0xA5D3, 0x9D90, 0x952D, 0x90CA, 0x8888,
+    0x90E9, 0x8024, 0x80E9, 0x80E9, 0x8084, 0x8024, 0x8006, 0x800E, 0x8017,
+    0x801F,
+};
+const u16 D_saturn_060E86C2[] = {
+    0x4001, 0x8000, 0xC294, 0xBA31, 0xB1CE, 0xA96B, 0xA129, 0x98E7, 0x90A5,
+    0x8000, 0x8863, 0x8002, 0x8024, 0x8046, 0x8088, 0x80CA, 0xDB18,
+};
+const SaturnSpriteImage D_saturn_060E86E4[] = {
+    {8, 8, 0x0000},   {16, 26, 0x0010}, {12, 8, 0x0078},  {16, 10, 0x0090},
+    {8, 8, 0x00B8},   {8, 7, 0x00C8},   {12, 18, 0x00D8}, {16, 16, 0x0110},
+    {16, 16, 0x0150}, {20, 10, 0x0190}, {12, 16, 0x01C4}, {20, 14, 0x01F4},
+    {16, 13, 0x023C}, {16, 12, 0x0270}, {48, 16, 0x02A0}, {32, 20, 0x0360},
+    {48, 16, 0x0400}, {44, 17, 0x04C0}, {28, 31, 0x057C}, {20, 31, 0x0658},
+    {0, 0, 0x06F4},
+};
+const SaturnSpriteFrameHeader D_saturn_060E8738 = {0x0000, 0x0000};
+const SaturnSpriteFrame2 D_saturn_060E873C = {
+    {0x0200, 0x0000},
+    {
+        {48, 0, 40, 0},
+        {304, 0, 25, 1},
+    },
+};
+const SaturnSpriteFrame3 D_saturn_060E8750 = {
+    {0x0300, 0x0000},
+    {
+        {48, -3, 40, 2},
+        {304, 0, 25, 1},
+        {560, -1, 38, 3},
+    },
+};
+const SaturnSpriteFrame2 D_saturn_060E876C = {
+    {0x0200, 0x0000},
+    {
+        {48, 0, 40, 4},
+        {304, 0, 25, 1},
+    },
+};
+const SaturnSpriteFrame3 D_saturn_060E8780 = {
+    {0x0300, 0x0000},
+    {
+        {48, -1, 39, 5},
+        {304, 0, 25, 1},
+        {560, -1, 38, 3},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E879C = {
+    {0x0100, 0x0000},
+    {
+        {304, -1, 17, 6},
+    },
+};
+const SaturnSpriteFrame2 D_saturn_060E87A8 = {
+    {0x0200, 0x0000},
+    {
+        {816, -2, 0, 7},
+        {48, -3, 24, 2},
+    },
+};
+const SaturnSpriteFrame3 D_saturn_060E87BC = {
+    {0x0300, 0x0000},
+    {
+        {816, -2, 0, 7},
+        {48, 0, 24, 0},
+        {1072, -2, 0, 8},
+    },
+};
+const SaturnSpriteFrame2 D_saturn_060E87D8 = {
+    {0x0200, 0x0000},
+    {
+        {816, -2, 0, 7},
+        {48, 0, 24, 4},
+    },
+};
+const SaturnSpriteFrame3 D_saturn_060E87EC = {
+    {0x0300, 0x0000},
+    {
+        {816, -2, 0, 7},
+        {48, -1, 23, 5},
+        {1072, -2, 0, 8},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8808 = {
+    {0x0100, 0x0000},
+    {
+        {816, -2, 0, 7},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8814 = {
+    {0x0100, 0x0000},
+    {
+        {1328, -2, 8, 9},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8820 = {
+    {0x0100, 0x0000},
+    {
+        {560, -3, 16, 10},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E882C = {
+    {0x0100, 0x0000},
+    {
+        {1584, -3, 20, 11},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8838 = {
+    {0x0100, 0x0000},
+    {
+        {1584, 0, 20, 12},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8844 = {
+    {0x0100, 0x0000},
+    {
+        {1584, -1, 20, 13},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8850 = {
+    {0x0100, 0x0000},
+    {
+        {1840, 28, 16, 14},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E885C = {
+    {0x0100, 0x0000},
+    {
+        {1840, -18, 20, 15},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8868 = {
+    {0x0100, 0x0000},
+    {
+        {1840, -32, 16, 16},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8874 = {
+    {0x0100, 0x0000},
+    {
+        {1840, -29, 17, 17},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E8880 = {
+    {0x0100, 0x0000},
+    {
+        {2096, -5, -31, 18},
+    },
+};
+const SaturnSpriteFrame1 D_saturn_060E888C = {
+    {0x0100, 0x0000},
+    {
+        {2096, -13, -31, 19},
+    },
+};
+SaturnSpriteFrameHeader* const DAT_060E8898[] = {
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8738,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E873C,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8750,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E876C,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8780,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E879C,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E87A8,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E87BC,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E87D8,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E87EC,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8808,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8814,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8820,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E882C,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8838,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8844,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8850,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E885C,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8868,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8874,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E8880,
+    (SaturnSpriteFrameHeader*)&D_saturn_060E888C,
+};
+const SaturnSpriteResource g_RStage16SpriteBank16 = {
+    (SaturnSpriteImage*)D_saturn_060E86E4, (u16*)D_saturn_060E85A0, 0xFFFF,
+    0xFFFF};
+const SaturnSpriteResource g_RStage16SpriteBank17[] = {
+    {NULL, (u16*)D_saturn_060E86C2, 0xFFFF, 0xFFFF}};
