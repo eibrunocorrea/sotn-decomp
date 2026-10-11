@@ -3,7 +3,15 @@
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_09258DE0);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_09258EF0);
+s32 func_pspeu_09258EF0(s16 x, s16 y) {
+    Collider collider;
+
+    g_api.CheckCollision(x, y, &collider, 0);
+    if (collider.effects & EFFECT_SOLID) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_us_801AD338);
 
