@@ -12,7 +12,7 @@ void func_pspeu_09247190_from_rbo5(s32 step) {
 
 char D_pspeu_0927A500[] = "think_step:%02x\n";
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_1CA48", func_pspeu_09254F38);
+INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_1D890", func_pspeu_09254F38);
 
 extern s32 D_pspeu_0927C248;
 extern s32 D_pspeu_0927C148;
