@@ -360,7 +360,30 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityHitByCutBloo
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_maria_80161C2C);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924B8D0);
+extern AnimationFrame D_pspeu_09279F78[];
+void func_pspeu_0924B8D0(Entity* self) {
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_DRA(2);
+        self->anim = D_pspeu_09279F78;
+        self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        self->zPriority = MARIA.zPriority + 4;
+        self->velocityY = (rand() & 0x3FFF) - 0x10000;
+        self->step++;
+        break;
+    case 1:
+        if (self->pose == 6) {
+            if (self->poseTimer == 1 && (rand() & 1)) {
+                MarCreateEntFactoryFromEntity(self, 4, 0);
+            }
+        }
+        self->posY.val += self->velocityY;
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 // local copy of func_us_801BD47C (see us_39144.c) - true when another
 // live entity shares this id and params
