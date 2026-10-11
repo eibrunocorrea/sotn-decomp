@@ -870,7 +870,7 @@ void func_060E3438(Entity* self) {
         self->step++;
         self->drawFlags = ENTITY_OPACITY;
         self->opacity = 0x60;
-        self->ext.save.unk24 = 0;
+        self->ext.et_060E4664.unk9C = 0;
         self->unk0->zPriority = self->zPriority - 2;
         func_0600B004(self->unk0, DAT_060ECA7C[self->animCurFrame]);
         if (self->facingLeft == 0) {
@@ -880,7 +880,7 @@ void func_060E3438(Entity* self) {
         }
         /* fallthrough */
     case 1:
-        if (!(self->ext.save.unk24 & 3)) {
+        if (!(self->ext.et_060E4664.unk9C & 3)) {
             self->unk0->zPriority--;
         }
         if (self->facingLeft != 0) {
@@ -889,12 +889,12 @@ void func_060E3438(Entity* self) {
             self->posX.val += FIX(0.25);
         }
         self->posY.val -= FIX(0.75);
-        if (self->ext.save.unk24 <= 11) {
-            self->opacity = 0x60 - self->ext.save.unk24 * 6;
+        if (self->ext.et_060E4664.unk9C <= 11) {
+            self->opacity = 0x60 - self->ext.et_060E4664.unk9C * 6;
         } else {
             self->step++;
         }
-        switch (self->ext.save.unk24) {
+        switch (self->ext.et_060E4664.unk9C) {
         case 4:
             self->unk0->flags |= 0x80;
             break;
@@ -902,7 +902,7 @@ void func_060E3438(Entity* self) {
             self->drawFlags |= ENTITY_BLINK;
             break;
         }
-        self->ext.save.unk24++;
+        self->ext.et_060E4664.unk9C++;
         break;
     case 2:
         DestroyEntity(self);
