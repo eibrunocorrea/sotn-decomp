@@ -308,7 +308,61 @@ INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DED98, func_060DED98);
 
 const u32 DAT_060DF1D4 = 0xCCCCCCCD;
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DF1D8, func_060DF1D8);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DF8AC, func_060DF8AC);
+extern s32 DAT_060E9DB0[];
+extern const u8* DAT_060E9E5C[];
+
+void func_060DF8AC(Entity* self) {
+    SpriteObject* sprite;
+    s32 paramsSnapshot;
+    s32 variant;
+    s32 priority;
+    SpriteObject* current;
+
+    paramsSnapshot = self->params;
+    variant = 0xF & paramsSnapshot;
+    if (self->step == 0) {
+        TekiInit(self, 2);
+        sprite = CreateSpriteObject(
+            g_EntitySpriteBank01.allocationIndex, g_EntitySpriteBank01.flags,
+            g_EntitySpriteBank01.images, DAT_060E9E70[variant]);
+        self->unk0 = sprite;
+        self->step++;
+        self->pose = 0;
+        self->poseTimer = 0;
+        self->animSet = 2;
+        self->unk1C = 0x30;
+        if (paramsSnapshot & 0xF0) {
+            sprite->clutBase = g_EntitySpriteBank05.flags | 0x8000;
+            self->unk1C = 0x10;
+        }
+        priority = paramsSnapshot & 0xFF00;
+        if (priority != 0) {
+            sprite->zPriority = priority >> 8;
+        }
+        if (self->scaleX != 0) {
+            sprite->flags |= 0x40;
+            sprite->scaleX = (u32)self->scaleX >> 2;
+        }
+        if (self->scaleY != 0) {
+            sprite->flags |= 0x40;
+            sprite->scaleY = (u32)self->scaleY >> 2;
+        }
+        self->params &= 0xF;
+        self->velocityY = DAT_060E9DB0[variant];
+    } else {
+        self->posY.val += self->velocityY;
+        if (AnimateEntityWithSpriteData(
+                self, DAT_060E9E5C[variant], (const u32*)DAT_06045E14) == 0) {
+            DestroyEntity(self);
+        }
+    }
+    current = self->unk0;
+    if (current != NULL) {
+        current->posX = self->posX.val;
+        current->posY = self->posY.val;
+    }
+}
+
 void func_060DFA14(Entity* self) {
     SpriteObject* sprite;
     SaturnSpriteResource* resource;
@@ -389,7 +443,6 @@ void func_060DFB7C(Entity* self) {
         break;
     }
 }
-extern u16 DAT_060E9E70[];
 extern u8 DAT_060E9EBC[];
 extern s32 DAT_060E9EA4[];
 extern u16 DAT_060E9EC0[];

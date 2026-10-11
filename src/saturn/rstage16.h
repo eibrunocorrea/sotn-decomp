@@ -147,6 +147,8 @@ s32 AllocPrimitives(s32 type, s32 count);
 bool func_0600E61C(XyInt* p0, XyInt* p1, XyInt* p2);
 extern SprGourTbl* SpGourTbl;
 
+extern u16 DAT_060E9E70[];
+
 Entity* AllocEntity(Entity* start, Entity* end);
 void func_0607B4B8(Entity* self);
 void FreePrimitives(s16 primIndex);
