@@ -19,7 +19,6 @@ extern s32 D_pspeu_0926CD00;
 extern u8 D_pspeu_09263FF8[][8];
 extern RECT D_pspeu_09263FF0;
 extern s32 D_pspeu_0926BBB0;
-extern s16 D_pspeu_09263B40[24][5];
 extern u8** D_pspeu_09266768;
 extern s16* D_pspeu_092641C8[];
 
