@@ -868,7 +868,199 @@ void func_us_8019FCB4(Entity* self) {
     FntPrint("color %x\n", D_pspeu_0926C0A0);
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A01A4);
+void func_us_801A01A4(Entity* self) {
+    extern EInit g_EInitInteractable;
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C070;
+    Primitive* prim;
+    Primitive* primTwo;
+    s32 posX;
+    Entity* entity;
+    s32 posY;
+    s16 tempAngle;
+    s16 boltAngle;
+    s32 i;
+    u8 closeToTarget;
+    s16 angle;
+    s32 primIndex;
+    s32 sp34;
+
+    if (D_pspeu_0926C060 & 1) {
+        DestroyEntity(self);
+        return;
+    }
+
+    if (D_pspeu_0926C070 == 2) {
+        DestroyEntity(self);
+        return;
+    }
+    if (!self->params) {
+        self->ext.shaftLightning.sourceOrb = &g_Entities[86];
+        self->ext.shaftLightning.targetOrb = &g_Entities[88];
+    } else {
+        self->ext.shaftLightning.targetOrb = &g_Entities[86];
+        self->ext.shaftLightning.sourceOrb = &g_Entities[88];
+    }
+    entity = self->ext.shaftLightning.sourceOrb;
+    self->posX.i.hi = entity->posX.i.hi;
+    self->posY.i.hi = entity->posY.i.hi;
+    if (!(g_Timer & 0xF)) {
+        // The PSP call passes volume/pan through the PlaySfx slot.
+        ((void (*)(s32, s32, s32))g_api.PlaySfx)(0x869, 0x70, 0);
+    }
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        primIndex = (s16)g_api.AllocPrimitives(PRIM_GT4, 0x14);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.shaftLightning.prim = prim;
+        self->ext.shaftLightning.primTwo = prim;
+
+        i = 0;
+        while (prim != NULL) {
+            prim->tpage = 0x1A;
+            prim->clut = 0x194;
+            prim->u0 = prim->u1 = (i * 0x10) + 0x90;
+            prim->u2 = prim->u3 = prim->u0 + 0x10;
+            prim->v0 = prim->v2 = 0xD0;
+            prim->v1 = prim->v3 = 0xC0;
+            PGREY(prim, 0) = 0x50;
+            LOW(prim->r1) = LOW(prim->r0);
+            LOW(prim->r2) = LOW(prim->r0);
+            LOW(prim->r3) = LOW(prim->r0);
+            prim->priority = self->zPriority + 1;
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+
+            if (++i > 5) {
+                i = 0;
+            }
+        }
+    case 1:
+        prim = self->ext.shaftLightning.prim;
+        prim->x0 = self->posX.i.hi;
+        prim->y0 = self->posY.i.hi;
+        prim->x1 = prim->x0;
+        prim->y1 = prim->y1 - 0x10;
+        prim->x2 = self->posX.i.hi;
+        prim->y2 = self->posY.i.hi;
+        prim->x3 = prim->x2;
+        prim->y3 = prim->y2 - 0x10;
+        self->ext.shaftLightning.primTwo = prim;
+
+        self->ext.shaftLightning.boltAngle = Random() * 0x10;
+
+        while (prim != NULL) {
+            PGREY(prim, 0) = 0x50;
+            LOW(prim->r1) = LOW(prim->r0);
+            LOW(prim->r2) = LOW(prim->r0);
+            LOW(prim->r3) = LOW(prim->r0);
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        self->ext.shaftLightning.segmentsBeforeAim = 0;
+        self->step++;
+        // fallthrough
+    case 2:
+        // nb. loop indefinitely until break
+        for (i = 0;; i = i + 1) {
+            prim = self->ext.shaftLightning.primTwo;
+            boltAngle = self->ext.shaftLightning.boltAngle;
+            entity = self->ext.shaftLightning.targetOrb;
+            posX = entity->posX.i.hi;
+            posY = entity->posY.i.hi;
+            posX = posX - prim->x2;
+            posY = posY - prim->y2;
+
+            if (abs(posX) < 0x10 && abs(posY) < 0x10) {
+                self->step = 1;
+                return;
+            }
+
+            if (abs(posX) < 0x20 && abs(posY) < 0x20) {
+                closeToTarget = true;
+            } else {
+                closeToTarget = false;
+            }
+
+            if (!self->ext.shaftLightning.segmentsBeforeAim) {
+                self->ext.shaftLightning.segmentsBeforeAim = 4;
+
+                if (closeToTarget) {
+                    self->ext.shaftLightning.segmentsBeforeAim = 2;
+                }
+
+                angle = ratan2(-posY, posX);
+                tempAngle = angle - boltAngle;
+                if (tempAngle > ROT(180)) {
+                    tempAngle = tempAngle - ROT(360);
+                }
+
+                if (tempAngle < ROT(-180)) {
+                    tempAngle = tempAngle + ROT(360);
+                }
+
+                // If the bolt is getting close to the target orb we turn more
+                // sharply to hit it
+                if (!closeToTarget) {
+                    tempAngle /= 4;
+                } else {
+                    tempAngle /= 2;
+                }
+                self->ext.shaftLightning.angleStep = tempAngle;
+            }
+
+            boltAngle += self->ext.shaftLightning.angleStep;
+            if (!closeToTarget) {
+                // Add some jitter to the bolt if we're not close to our target
+                // orb yet
+                boltAngle += (0x60 - ((Random() & 3) << 6));
+            }
+            boltAngle &= 0xFFF;
+
+            primTwo = prim->next;
+            if (primTwo == NULL) {
+                self->step = 1;
+                return;
+            }
+
+            LOW(primTwo->x0) = LOW(prim->x2);
+            LOW(primTwo->x1) = LOW(prim->x3);
+            self->ext.shaftLightning.boltAngle = boltAngle;
+            self->ext.shaftLightning.primTwo = primTwo;
+            posX = (rcos(boltAngle) * 0xC) >> 0xC;
+            posY = -((rsin(boltAngle) * 0xC) >> 0xC);
+            primTwo->x2 = primTwo->x0 + posX;
+            primTwo->y2 = primTwo->y0 + posY;
+
+            tempAngle = boltAngle - ROT(90);
+            sp34 = 0x10;
+            posX = (sp34 * rcos(tempAngle)) >> 0xC;
+            posY = -((sp34 * rsin(tempAngle)) >> 0xC);
+            posX = primTwo->x3 = primTwo->x2 + posX;
+            posY = primTwo->y3 = primTwo->y2 + posY;
+            primTwo->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS |
+                                DRAW_UNK02 | DRAW_TRANSP | DRAW_UNK_40;
+            self->ext.shaftLightning.segmentsBeforeAim--;
+        }
+        // fallthrough
+    case 3:
+        prim = self->ext.shaftLightning.prim;
+        while (prim != NULL) {
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        self->step = 1;
+        break;
+    }
+}
 
 void func_us_801A0710(Entity* self) {
     extern u16 D_us_80180540;
