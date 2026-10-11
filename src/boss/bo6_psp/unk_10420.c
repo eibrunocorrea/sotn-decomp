@@ -69,4 +69,65 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_10420", func_pspeu_09247D10);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_10420", func_pspeu_09248220);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_10420", func_pspeu_09248660);
+void func_pspeu_09248660(Entity* self) {
+    Entity* player = &PLAYER;
+    Entity* richter = &RIC;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        g_PauseAllowed = false;
+        g_unkGraphicsStruct.pauseEnemies = true;
+        self->animSet = 0;
+        if (richter->posX.i.hi < 0x80) {
+            if (player->posX.i.hi < 0xC0) {
+                g_Player.padSim = PAD_RIGHT;
+            } else {
+                g_Player.padSim = PAD_LEFT;
+            }
+        } else {
+            if (player->posX.i.hi > 0x40) {
+                g_Player.padSim = PAD_LEFT;
+            } else {
+                g_Player.padSim = PAD_RIGHT;
+            }
+        }
+        break;
+
+    case 1:
+        g_Player.padSim = PAD_NONE;
+        if (!func_pspeu_0924A168_from_rbo2()) {
+            if (richter->posX.i.hi < 0x80) {
+                if (player->posX.i.hi < 0xC0) {
+                    g_Player.padSim = PAD_RIGHT;
+                } else {
+                    if (!player->facingLeft) {
+                        g_Player.padSim = PAD_LEFT;
+                    }
+                    self->step++;
+                }
+            } else if (player->posX.i.hi > 0x40) {
+                g_Player.padSim = PAD_LEFT;
+            } else {
+                if (player->facingLeft) {
+                    g_Player.padSim = PAD_RIGHT;
+                }
+                self->step++;
+            }
+        }
+        g_Player.demo_timer = 1;
+        break;
+
+    case 2:
+        g_Player.padSim = PAD_NONE;
+        g_Player.demo_timer = 1;
+        if (D_pspeu_0927C148 & 8) {
+            g_PauseAllowed = true;
+            if (g_unkGraphicsStruct.pauseEnemies) {
+                g_unkGraphicsStruct.pauseEnemies = false;
+            }
+            DestroyEntity(self);
+        }
+        return;
+    }
+}
