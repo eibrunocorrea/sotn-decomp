@@ -434,13 +434,13 @@ void func_us_801B001C(Entity* self) {
             self->hitPoints = *data++;
             self->zPriority = *data++;
         } else {
-            self->step += (u16)params;
+            self->step += params;
         }
         break;
     case 1:
         if (self->flags & FLAG_DEAD) {
             self->hitboxState = 0;
-            self->step += (u16)(self->params & 0xFF);
+            self->step += (self->params & 0xFF);
         }
         break;
     case 2:
@@ -457,8 +457,8 @@ void func_us_801B001C(Entity* self) {
             entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (entity) {
                 CreateEntityFromEntity(E_ID(ID_2A), self, entity);
-                entity->params = (u16)(i + 5);
-                entity->posX.i.hi += (s16)(i * -0x1E + 0x30);
+                entity->params = (i + 5);
+                entity->posX.i.hi += (i * -0x1E + 0x30);
             }
         }
         if (entity) {
@@ -469,7 +469,7 @@ void func_us_801B001C(Entity* self) {
             if (entity) {
                 CreateEntityFromEntity(E_EXPLOSION, self, entity);
                 entity->params = 0x13;
-                entity->posX.i.hi += (s16)(i * -0x1E + 0x30);
+                entity->posX.i.hi += (i * -0x1E + 0x30);
             }
         }
         entity = self;
@@ -485,8 +485,8 @@ void func_us_801B001C(Entity* self) {
             entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (entity) {
                 CreateEntityFromEntity(E_ID(ID_2A), self, entity);
-                entity->params = (u16)(i + 8);
-                entity->posY.i.hi += (s16)(i * 8);
+                entity->params = (i + 8);
+                entity->posY.i.hi += (i * 8);
                 if (i) {
                     if (GetSideToPlayer() & 1) {
                         entity->velocityX = FIX(0.5);
@@ -506,8 +506,8 @@ void func_us_801B001C(Entity* self) {
             entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
             if (entity) {
                 CreateEntityFromEntity(E_ID(ID_2A), self, entity);
-                entity->params = (u16)(i + 11);
-                entity->posY.i.hi += (s16)(i * 0x1C - 0x1C);
+                entity->params = (i + 11);
+                entity->posY.i.hi += (i * 0x1C - 0x1C);
             }
         }
         PlaySfxPositional(SFX_CANDLE_HIT_WHOOSH_B);

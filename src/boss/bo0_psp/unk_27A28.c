@@ -487,17 +487,17 @@ Primitive* func_pspeu_09265D78(f32 pos, s16* angles, Primitive* prim, u8 side) {
     }
     rootX1 = rootX3 = baseX;
     rootY1 = rootY3 = baseY;
-    rootX1 += (s16)(-(rcos(angle) * 8) >> 12);
-    rootX3 += (s16)(rcos(angle) * 8 >> 12);
-    rootY1 += (s16)(rsin(angle) * 8 >> 12);
-    rootY3 += (s16)(-(rsin(angle) * 8) >> 12);
+    rootX1 += (-(rcos(angle) * 8) >> 12);
+    rootX3 += (rcos(angle) * 8 >> 12);
+    rootY1 += (rsin(angle) * 8 >> 12);
+    rootY3 += (-(rsin(angle) * 8) >> 12);
     length = (*value + 0x100) * 32 / 0x100;
     if (!g_CurrentEntity->facingLeft) {
-        baseX += (s16)(length * rcos(*angles - ROT(90)) >> 12);
+        baseX += (length * rcos(*angles - ROT(90)) >> 12);
     } else {
-        baseX -= (s16)(length * rcos(*angles - ROT(90)) >> 12);
+        baseX -= (length * rcos(*angles - ROT(90)) >> 12);
     }
-    baseY += (s16)(-length * rsin(*angles - ROT(90)) >> 12);
+    baseY += (-length * rsin(*angles - ROT(90)) >> 12);
     midX0 = midX2 = baseX;
     midY0 = midY2 = baseY;
     angle = *angles;
@@ -505,10 +505,10 @@ Primitive* func_pspeu_09265D78(f32 pos, s16* angles, Primitive* prim, u8 side) {
     if (g_CurrentEntity->facingLeft) {
         angle = ROT(180) - angle;
     }
-    midX0 += (s16)(-(rcos(angle) * 6) >> 12);
-    midY0 += (s16)(rsin(angle) * 6 >> 12);
-    midX2 += (s16)(rcos(angle) * 6 >> 12);
-    midY2 += (s16)(-(rsin(angle) * 6) >> 12);
+    midX0 += (-(rcos(angle) * 6) >> 12);
+    midY0 += (rsin(angle) * 6 >> 12);
+    midX2 += (rcos(angle) * 6 >> 12);
+    midY2 += (-(rsin(angle) * 6) >> 12);
     prim->tpage = 0x14;
     prim->clut = clut;
     prim->u0 = 0xC8;
@@ -531,38 +531,38 @@ Primitive* func_pspeu_09265D78(f32 pos, s16* angles, Primitive* prim, u8 side) {
     prim->drawMode = DRAW_UNK02;
     prim = prim->next;
     if (!g_CurrentEntity->facingLeft) {
-        baseX += (s16)(rcos(*angles + ROT(90)) * 6 >> 12);
+        baseX += (rcos(*angles + ROT(90)) * 6 >> 12);
     } else {
-        baseX -= (s16)(rcos(*angles + ROT(90)) * 6 >> 12);
+        baseX -= (rcos(*angles + ROT(90)) * 6 >> 12);
     }
-    baseY += (s16)(-(rsin(*angles + ROT(90)) * 6) >> 12);
+    baseY += (-(rsin(*angles + ROT(90)) * 6) >> 12);
     midX0 = midX2 = baseX;
     midY0 = midY2 = baseY;
     angle = *angles;
     if (g_CurrentEntity->facingLeft) {
         angle = ROT(180) - angle;
     }
-    midX0 += (s16)(-(rcos(angle) * 6) >> 12);
-    midY0 += (s16)(rsin(angle) * 6 >> 12);
-    midX2 += (s16)(rcos(angle) * 6 >> 12);
-    midY2 += (s16)(-(rsin(angle) * 6) >> 12);
+    midX0 += (-(rcos(angle) * 6) >> 12);
+    midY0 += (rsin(angle) * 6 >> 12);
+    midX2 += (rcos(angle) * 6 >> 12);
+    midY2 += (-(rsin(angle) * 6) >> 12);
     length = (*value + 0x100) * 24 / 0x100;
     if (!g_CurrentEntity->facingLeft) {
-        baseX += (s16)(length * rcos(*angles - ROT(90)) >> 12);
+        baseX += (length * rcos(*angles - ROT(90)) >> 12);
     } else {
-        baseX -= (s16)(length * rcos(*angles - ROT(90)) >> 12);
+        baseX -= (length * rcos(*angles - ROT(90)) >> 12);
     }
-    baseY += (s16)(-length * rsin(*angles - ROT(90)) >> 12);
+    baseY += (-length * rsin(*angles - ROT(90)) >> 12);
     angle = *angles;
     if (g_CurrentEntity->facingLeft) {
         angle = ROT(180) - angle;
     }
     tipX0 = tipX2 = baseX;
     tipY0 = tipY2 = baseY;
-    tipX0 += (s16)(-(rcos(angle) * 6) >> 12);
-    tipY0 += (s16)(rsin(angle) * 6 >> 12);
-    tipX2 += (s16)(rcos(angle) * 6 >> 12);
-    tipY2 += (s16)(-(rsin(angle) * 6) >> 12);
+    tipX0 += (-(rcos(angle) * 6) >> 12);
+    tipY0 += (rsin(angle) * 6 >> 12);
+    tipX2 += (rcos(angle) * 6 >> 12);
+    tipY2 += (-(rsin(angle) * 6) >> 12);
     if (side) {
         child = g_CurrentEntity + 2;
         value = &g_CurrentEntity->ext.et_801B6CA4.unk91;
