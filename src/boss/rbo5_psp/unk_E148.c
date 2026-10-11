@@ -2196,7 +2196,49 @@ void func_pspeu_09252480(s32 arg0) {
     D_pspeu_0926CCA8 = D_pspeu_09263340[arg0][3];
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_8015FDB0);
+extern u8 D_pspeu_09263378[][8];
+// local copy of Maria func_8015FDB0 (see maria/pl_blueprints.c);
+// this boss copy stops at frame six instead of restarting the animation.
+s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY) {
+    s16 offset;
+    u8* uvAnim;
+
+    uvAnim = D_pspeu_09263378[0];
+    uvAnim = &uvAnim[prim->b0 * 8];
+
+    if (prim->b0 >= 3) {
+        offset = 4;
+    } else {
+        offset = 6;
+    }
+
+    if (prim->b0 == 6) {
+        return -1;
+    }
+
+    prim->x0 = posX - offset;
+    prim->y0 = posY - offset;
+    prim->x1 = posX + offset;
+    prim->y1 = posY - offset;
+    prim->x2 = posX - offset;
+    prim->y2 = posY + offset;
+    prim->x3 = posX + offset;
+    prim->y3 = posY + offset;
+    prim->u0 = *uvAnim++;
+    prim->v0 = *uvAnim++;
+    prim->u1 = *uvAnim++;
+    prim->v1 = *uvAnim++;
+    prim->u2 = *uvAnim++;
+    prim->v2 = *uvAnim++;
+    prim->u3 = *uvAnim++;
+    prim->v3 = *uvAnim;
+
+    prim->b1++;
+    if (!(prim->b1 & 1)) {
+        prim->b0++;
+    }
+    return 0;
+}
 
 s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY);
 extern Point16 D_pspeu_0926CC68[16];
