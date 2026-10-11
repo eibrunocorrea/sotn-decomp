@@ -931,7 +931,20 @@ void func_pspeu_0924CE30(void) {
     g_Maria.unk44 = 0x10;
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924CEB0);
+// local copy of func_us_801C504C (see rbo5/unk_44954.c)
+void func_pspeu_0924CEB0(void) {
+    if (MarCheckFacing() != 0) {
+        MarSetSpeedX(FIX(3));
+    } else {
+        DOPPLEGANGER.velocityX = 0;
+    }
+    SetDopplegangerStep(9);
+    DOPPLEGANGER.velocityY = FIX(-12);
+    SetDopplegangerAnim(0x21);
+    g_Dop.gravBootTimer = 0;
+    g_Dop.unk44 &= 0xFFFE;
+    MarCreateEntFactoryFromEntity(g_CurrentEntity, 2, 0);
+}
 
 // local variant of the up-throw subweapon check (see rbo5/unk_44954.c
 // func_us_801C5168): counts live rebound stones before spawning another
