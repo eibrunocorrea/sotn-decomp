@@ -251,7 +251,32 @@ Entity* MarCreateEntFactoryFromEntity(
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityFactory);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntitySlideKick);
+extern EInit D_pspeu_0926EB88;
+void MarEntitySlideKick(Entity* entity) {
+    if (MARIA.step != PL_S_SLIDE) {
+        DestroyEntity(entity);
+    } else {
+        entity->posX.i.hi = MARIA.posX.i.hi;
+        entity->posY.i.hi = MARIA.posY.i.hi;
+        entity->facingLeft = MARIA.facingLeft;
+        if (entity->step == 0) {
+            InitializeEntity(D_pspeu_0926EB88);
+            entity->flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+            entity->hitboxOffX = 0x14;
+            entity->hitboxOffY = 0xC;
+            entity->hitboxWidth = entity->hitboxHeight = 9;
+            entity->ext.subweapon.timer = entity->hitboxState;
+            entity->step = 1;
+        }
+        entity->hitboxState = entity->ext.subweapon.timer;
+        if (MARIA.pose < 2) {
+            entity->hitboxState = 0;
+        }
+        if (MARIA.pose > 7) {
+            DestroyEntity(entity);
+        }
+    }
+}
 
 // local copy of func_us_801BC3E0 (see us_39144.c) - slide kick hitbox
 void func_pspeu_0924A2E0(Entity* self) {
