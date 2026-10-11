@@ -63,7 +63,95 @@ void func_pspeu_0925E330(Entity* entity) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925E578);
+void func_pspeu_0925E578(Entity* self) {
+    FakePrim* prim;
+    s32 angle;
+    s32 magnitude;
+    s32 i;
+    s32 facing;
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_TILE, 9);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            g_Maria.unk4E = 1;
+            return;
+        }
+        self->flags =
+            FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        prim = (FakePrim*)&g_PrimBuf[self->primIndex];
+        for (i = 0; i < 9; i++) {
+            prim->r0 = prim->g0 = prim->b0 = 0xFF;
+            prim->w = prim->h = 1;
+            prim->priority = MARIA.zPriority + 8;
+            prim->drawMode = DRAW_HIDE | DRAW_UNK02;
+            prim = prim->next;
+        }
+        self->step++;
+        break;
+    case 1:
+        self->ext.vibhutiCrash.unk7E++;
+        if (!(self->ext.vibhutiCrash.unk7E % 2) &&
+            self->ext.vibhutiCrash.timer < 8) {
+            self->ext.vibhutiCrash.timer++;
+            self->ext.vibhutiCrash.unk80++;
+            if (self->ext.vibhutiCrash.unk80 >= 0x30) {
+                self->step++;
+            }
+            prim = (FakePrim*)&g_PrimBuf[self->primIndex];
+            for (i = 0; i < 9; i++) {
+                if (prim->drawMode & DRAW_HIDE) {
+                    break;
+                }
+                prim = prim->next;
+            }
+            prim->posX.val = MARIA.posX.val;
+            prim->posY.val = MARIA.posY.val - FIX(24);
+            angle = rand() % 0x200 + 0x300;
+            magnitude = (rand() % 24) + 0x20;
+            prim->velocityX.val = (rcos(angle) * magnitude);
+            prim->velocityY.val = -(rsin(angle) * magnitude);
+            prim->drawMode &= ~DRAW_HIDE;
+            prim->delay = 0x10;
+        }
+    case 2:
+        prim = (FakePrim*)&g_PrimBuf[self->primIndex];
+        for (i = 0; i < 9; i++) {
+            if (!(prim->drawMode & DRAW_HIDE)) {
+                if (!--prim->delay) {
+                    prim->drawMode |= DRAW_HIDE;
+                    self->ext.vibhutiCrash.timer--;
+                    self->ext.vibhutiCrash.x = prim->posX.val;
+                    self->ext.vibhutiCrash.y = prim->posY.val;
+                    if (prim->velocityX.val > 0) {
+                        facing = false;
+                    } else {
+                        facing = true;
+                    }
+                    self->ext.vibhutiCrash.facing = facing;
+                    MarCreateEntFactoryFromEntity(
+                        self, BP_VITHUBI_CRASH_CLOUD, 0);
+                } else {
+                    prim->posX.val += prim->velocityX.val;
+                    prim->posY.val += prim->velocityY.val;
+                    prim->velocityY.val += FIX(0.25);
+                    prim->x0 = prim->posX.i.hi;
+                    prim->y0 = prim->posY.i.hi;
+                }
+            }
+            prim = prim->next;
+        }
+        if (self->step == 2 && !self->ext.vibhutiCrash.timer) {
+            self->step++;
+        }
+        break;
+    case 3:
+        g_Maria.unk4E = 1;
+        g_Maria.unk4E = 1;
+        DestroyEntity(self);
+        break;
+    }
+}
 
 // local copy of func_us_801C8590 (see us_3E79C.c); the similarly-placed
 // ric function has a different body
