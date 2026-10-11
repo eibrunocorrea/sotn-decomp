@@ -913,7 +913,6 @@ typedef struct {
     /* 0xA0 */ struct Entity* unkA0;
 } ET_8019D4CC;
 
-
 typedef struct {
     /* 0x7C */ s32 : 32;
     /* 0x80 */ s16 unk80;
