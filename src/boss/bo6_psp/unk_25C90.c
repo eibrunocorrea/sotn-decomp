@@ -2812,7 +2812,7 @@ void func_pspeu_0926A2B8(Entity* self) {
             prim->r1++;
         } else {
             prim->g1 -= prim->g3;
-            if ((u8)prim->b0 >= 6 || (u8)prim->g1 < 0x18) {
+            if (prim->b0 >= 6 || prim->g1 < 0x18) {
                 prim->drawMode = DRAW_HIDE;
                 prim->r0 = 0;
             }
