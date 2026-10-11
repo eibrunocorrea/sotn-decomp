@@ -180,7 +180,7 @@ void func_us_8019C718(Entity* self) {
         InitializeEntity(D_us_801804A0);
         self->facingLeft = Random() & 1;
         self->hitboxState = 0;
-        /* fallthrough */
+        // fallthrough
     case 1:
         if (!AnimateEntity(D_pspeu_09265000, self)) {
             self->hitboxState = 3;

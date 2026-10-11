@@ -90,7 +90,7 @@ void EntityCerberusGateDebug(Entity* self) {
             prim->drawMode = DRAW_HIDE;
             prim = prim->next;
         }
-        /* fallthrough */
+        // fallthrough
     case WAIT_FOR_INPUT:
         if (!(D_pspeu_09265CC8 & 1)) {
             return;
@@ -180,7 +180,7 @@ void EntityCerberusGateDebug(Entity* self) {
         if (self->posY.i.hi < 0x3A) {
             self->step++;
         }
-        /* fallthrough */
+        // fallthrough
     case WAIT_TO_DESTROY:
         prim = self->ext.debugCerberusGate.prim;
         while (prim != NULL) {
