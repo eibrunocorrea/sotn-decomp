@@ -898,6 +898,41 @@ typedef struct {
 } ET_GurkhaHammer;
 
 typedef struct {
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ s32 : 32;
+    /* 0x84 */ s32 : 32;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 : 32;
+    /* 0x90 */ u8 unk90;
+    /* 0x91 */ u8 : 8;
+    /* 0x92 */ s16 : 16;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
+    /* 0x9C */ s16 rotate;
+    /* 0x9E */ s16 length;
+    /* 0xA0 */ struct Entity* parent;
+    /* 0xA4 */ s32 : 32;
+    /* 0xA8 */ u8 unkA8;
+    /* 0xA9 */ u8 : 8;
+    /* 0xAA */ s16 : 16;
+    /* 0xAC */ s16 unkAC;
+    /* 0xAE */ s16 : 16;
+} ET_8019E558;
+
+typedef struct {
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ s16 unk80;
+    /* 0x82 */ s16 unk82;
+    /* 0x84 */ s32 : 32;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 unk8C;
+    /* 0x90 */ s32 : 32;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
+    /* 0x9C */ struct Entity* parent;
+} ET_8019E920;
+
+typedef struct {
     /* 0x7C */ struct Primitive* prim;
     /* 0x80 */ s16 unk80;
 } ET_TransparentWater;
@@ -4810,6 +4845,8 @@ typedef union { // offset=0x7C
     ET_801D0B78 et_801D0B78;
     ET_WaterEffects waterEffects;
     ET_GurkhaHammer GH_Props;
+    ET_8019E558 et_8019E558;
+    ET_8019E920 et_8019E920;
     ET_TransparentWater transparentWater;
     ET_HeartRoomGoldDoor heartRoomGoldDoor;
     ET_CastleDoorTransition castleDoorTransition;
