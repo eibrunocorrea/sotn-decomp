@@ -3,9 +3,9 @@
 
 // Extension used by the transformation effects; offsets verified in PSP ASM.
 typedef struct {
-    /* 0x7C */ s32 : 32;
+    /* 0x7C */ Primitive* prim;
     /* 0x80 */ s16 timer;
-    /* 0x82 */ s16 : 16;
+    /* 0x82 */ s16 angle;
     /* 0x84 */ s32 : 32;
     /* 0x88 */ s32 : 32;
     /* 0x8C */ s32 speed;
@@ -735,7 +735,138 @@ void func_us_8019FBC0(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019FCB4);
+void func_us_8019FCB4(Entity* self) {
+    extern EInit g_EInitInteractable;
+    extern s32 D_pspeu_0926C068;
+    extern s32 D_pspeu_0926C0A0;
+    s32 primIndex;
+    Entity* entity;
+    s32 palette;
+    s32 i;
+    s16 angle;
+    s16 y;
+    s16 x;
+    Primitive* prim;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        primIndex = (s16)g_api.AllocPrimitives(PRIM_GT4, 4);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        ((Rbo6TransformationEffect*)&self->ext)->prim = prim;
+        while (prim != NULL) {
+            prim->tpage = 0x14;
+            prim->clut = 0x201;
+            prim->priority = self->zPriority - 1;
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
+        for (i = 0; i < 2; i++) {
+            prim->u0 = 0xC1;
+            prim->u1 = 0xFF;
+            prim->u2 = 0xC1;
+            prim->u3 = 0xFF;
+            prim->v0 = 1;
+            prim->v1 = 1;
+            prim->v2 = 0x47;
+            prim->v3 = 0x47;
+            prim->priority = self->zPriority - 2;
+            prim = prim->next;
+            prim->u0 = 1;
+            prim->u1 = 0xBF;
+            prim->u2 = 1;
+            prim->u3 = 0xBF;
+            prim->v0 = 1;
+            prim->v1 = 1;
+            prim->v2 = 0xB4;
+            prim->v3 = 0xB4;
+            prim = prim->next;
+        }
+        // Fallthrough
+    case 1:
+        entity = &g_Entities[80];
+        self->posX.i.hi = entity->posX.i.hi;
+        self->posY.i.hi = entity->posY.i.hi;
+        ((Rbo6TransformationEffect*)&self->ext)->angle += 0x10;
+        angle = self->rotate = (rsin(((Rbo6TransformationEffect*)&self->ext)->angle) << 7) >> 12;
+        prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
+        for (i = 0; i < 2; i++) {
+            if (!i) {
+                x = self->posX.i.hi - 8;
+            } else {
+                x = self->posX.i.hi + 8;
+            }
+            y = self->posY.i.hi - 0x34;
+            prim->x1 = x;
+            prim->y1 = y;
+            prim->x3 = x;
+            prim->y3 = y + 0x46;
+            if (!i) {
+                x = x - ((rcos(angle) * 0x3E) >> 12);
+            } else {
+                x = x + ((rcos(angle) * 0x3E) >> 12);
+            }
+            y = y + ((rsin(angle) * 0x3E) >> 12);
+            prim->x0 = x;
+            prim->y0 = y;
+            if (!i) {
+                prim->x2 = x + ((rsin(angle) * 0x46) >> 12);
+            } else {
+                prim->x2 = x - ((rsin(angle) * 0x46) >> 12);
+            }
+            prim->y2 = y + ((rcos(angle) * 0x46) >> 12);
+            prim->drawMode = DRAW_UNK02;
+            prim = prim->next;
+            if (!i) {
+                x = x + 0x18;
+            } else {
+                x = x - 0x18;
+            }
+            y = y - 0x78;
+            prim->x1 = x;
+            prim->y1 = y;
+            prim->x3 = x;
+            prim->y3 = y + 0xB3;
+            if (!i) {
+                x = x - ((rcos(angle) * 0xBE) >> 12);
+            } else {
+                x = x + ((rcos(angle) * 0xBE) >> 12);
+            }
+            y = y + ((rsin(angle) * 0xBE) >> 12);
+            prim->x0 = x;
+            prim->y0 = y;
+            if (!i) {
+                prim->x2 = x + ((rsin(angle) * 0xB3) >> 12);
+            } else {
+                prim->x2 = x - ((rsin(angle) * 0xB3) >> 12);
+            }
+            prim->y2 = y + ((rcos(angle) * 0xB3) >> 12);
+            prim->drawMode = DRAW_UNK02;
+            prim = prim->next;
+        }
+        break;
+    }
+    prim = ((Rbo6TransformationEffect*)&self->ext)->prim;
+    palette = D_pspeu_0926C0A0 & 0xFFF;
+    if (palette == 0x200) {
+        palette = 0x201;
+    }
+    while (prim != NULL) {
+        prim->clut = palette;
+        if (D_pspeu_0926C068) {
+            prim->drawMode |= DRAW_HIDE;
+        }
+        prim = prim->next;
+    }
+    FntPrint("color %x\n", D_pspeu_0926C0A0);
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A01A4);
 
