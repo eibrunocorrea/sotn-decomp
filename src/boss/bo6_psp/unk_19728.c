@@ -33,7 +33,7 @@ void func_pspeu_09250DA8(Entity* self) {
 
     case 2:
         if (!self->ext.shaft.timer) {
-            if ((D_pspeu_0927C148 & 0x40) || (g_DemoMode != Demo_None)) {
+            if ((g_CutsceneFlags & 0x40) || (g_DemoMode != Demo_None)) {
                 self->drawFlags |= ENTITY_SCALEY | ENTITY_SCALEX;
                 self->scaleX = self->scaleY = 0x100;
                 self->step++;

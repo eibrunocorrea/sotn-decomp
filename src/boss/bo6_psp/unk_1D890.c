@@ -35,14 +35,14 @@ void func_pspeu_09256610(void) {
     case 12:
         break;
     case 20:
-        if (D_pspeu_0927C148 & 4) {
+        if (g_CutsceneFlags & 4) {
             D_pspeu_0927C248 = 0x1E;
         }
         break;
     case 30:
         break;
     case 40:
-        D_pspeu_0927C148 |= 8;
+        g_CutsceneFlags |= 8;
         break;
     case 50:
     default:

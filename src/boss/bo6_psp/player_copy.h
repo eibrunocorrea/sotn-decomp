@@ -83,7 +83,7 @@ extern AnimationFrame D_pspeu_0927A6A8[];
 extern s32 D_pspeu_0927C278;
 extern s32 D_pspeu_0927C280;
 extern s32 D_pspeu_0927C248;
-extern s32 D_pspeu_0927C148;
+extern u32 g_CutsceneFlags;
 extern s32 D_pspeu_0927C250;
 extern EInit g_EInitRichterBelmont;
 extern s32 D_pspeu_0927C258;
