@@ -1,7 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo6/rbo6.h"
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_185B0", func_us_801A362C);
+extern s32 D_91FC480;
+void EntityCutscene(Entity* self);
+
+void func_us_801A362C(Entity* self) {
+    if (D_91FC480 != 0) {
+        EntityCutscene(self);
+    }
+    if (self->entityId) {
+        EntityCutscene(self);
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_185B0", EntityBackgroundBlock);
 
