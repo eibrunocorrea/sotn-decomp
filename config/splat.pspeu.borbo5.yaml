@@ -78,7 +78,8 @@ segments:
       - [0x29230, .data, rbo5/collision]
       - [0x29608, .data, rbo5/e_room_fg]
       - [0x296A8, data, 296A8]
-      - [0x2B9C0, .data, rbo5_psp/unk_E148]
+      # Local data is continuous through the shared dop_anim tables and the entity dispatch table.
+      - [0x2B940, .data, rbo5_psp/unk_E148]
       - [0x2BE28, data, 2BE28]
       - [0x2C9E8, .data, rbo5_psp/func_pspeu_0925CA08]
       - [0x2CA28, data, 2CA28]

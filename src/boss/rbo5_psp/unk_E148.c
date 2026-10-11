@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo5/rbo5.h"
+void func_pspeu_09249838(void);
+extern s16 D_pspeu_09262FD8[7];
 extern s16 D_pspeu_09263B40[24][5];
 extern u8** D_pspeu_09266768;
 extern s16* D_pspeu_092641C8[];
@@ -266,6 +268,10 @@ void func_pspeu_09245AD8(s32 checkSensors) {
 }
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09246210);
+
+char D_pspeu_09262FC0[16] = "noroi:%02x\n";
+s16 D_pspeu_09262FD0[] = {1, 31, 0, 27};
+s16 D_pspeu_09262FD8[7] = {2013, 2012, 2011, 2010, 2009, 2008, 2007};
 
 extern s32 D_pspeu_0926BBA0;
 extern s32 D_pspeu_0926BBA8;
@@ -730,7 +736,148 @@ void func_80159C04(void) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09249910);
+void func_pspeu_09249910(DamageParam* damage, s16 step, s16 step_s) {
+    s16 anim;
+    s16 sfxIndex;
+
+    switch (MARIA.step_s) {
+    case 0:
+        func_pspeu_09249838();
+        func_80159C04();
+        anim = 0;
+        sfxIndex = 0;
+        switch (damage->damageKind) {
+        case 3:
+            sfxIndex = (rand() & 1) + 3;
+            MARIA.velocityY = FIX(-4);
+            func_pspeu_0924EA50(FIX(-5.0 / 6));
+            MARIA.step_s = 1;
+            if (func_pspeu_092497C0() == 0) {
+                MARIA.ext.player.anim = 0x40;
+            }
+            break;
+        case 2:
+            sfxIndex = (rand() & 1) + 5;
+            switch (step) {
+            case 1:
+            case 2:
+                MARIA.velocityY = 0;
+                func_pspeu_0924EA50(FIX(-5.0 / 3));
+                MARIA.step_s = 6;
+
+                MARIA.ext.player.anim = 0x31;
+                if (MARIA.entityRoomIndex != MARIA.facingLeft) {
+                    MARIA.ext.player.anim = 0x33;
+                }
+
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, FACTORY(0, 6), 0);
+                break;
+            case 3:
+                MARIA.velocityY = 0;
+                func_pspeu_0924EA50(FIX(-1.25));
+                MARIA.step_s = 7;
+                MARIA.ext.player.anim = 0x23;
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, FACTORY(0, 0), 0);
+                break;
+            default:
+            case 5:
+            case 4:
+                MARIA.velocityY = FIX(-2);
+                func_pspeu_0924EA50(FIX(-1.25));
+                MARIA.step_s = 1;
+                func_pspeu_092497C0();
+                break;
+            }
+            break;
+        default:
+            FntPrint("dam_kind:%04x\n", damage->damageKind);
+            break;
+        }
+
+        g_Maria.damagePalette = PAL_FLAG(PAL_CC_RED_EFFECT_A);
+        g_Maria.timers[2] = 6;
+        g_api.PlaySfx(D_pspeu_09262FD8[sfxIndex]);
+
+        if (damage->effects & EFFECT_UNK_8000) {
+            g_api.PlaySfx(SFX_FM_EXPLODE_SWISHES);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(0x2C, 0x45), 0);
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_FIRE_EFFECT);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(17, 1), 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(18, 0), 0);
+            g_Maria.timers[2] = 0x10;
+        } else if (damage->effects & EFFECT_UNK_0100) {
+            g_Maria.timers[1] = 0x400;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_CURSE_EFFECT);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(0x2C, 23), 0);
+        } else if (damage->effects & EFFECT_SOLID_FROM_BELOW) {
+            g_Maria.timers[0] = 0x400;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_DARK_EFFECT);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(0x2C, 22), 0);
+        } else if (damage->effects & EFFECT_UNK_4000) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(0x2D, 0), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(0x2C, 0x46), 0);
+            g_Maria.timers[2] = 0x18;
+            g_Maria.damagePalette = PAL_FLAG(0x202);
+        } else if (damage->effects & EFFECT_UNK_2000) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(0x2E, 0), 0);
+            g_Maria.timers[2] = 0xC;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_BLUE_EFFECT_A);
+            MARIA.ext.player.anim = 0x2E;
+        } else if (damage->effects & EFFECT_UNK_1000) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(0x72, 0), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(0x2C, 0x63), 0);
+            g_Maria.timers[2] = 8;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_DARK_EFFECT);
+        } else if (damage->effects & EFFECT_UNK_0800) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(0x71, 0), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(0x2C, 0x62), 0);
+            g_Maria.timers[2] = 16;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_DARK_EFFECT);
+        } else {
+            damage->effects & EFFECT_UNK_0400;
+            if (!(damage->effects &
+                  (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_2000 |
+                   EFFECT_UNK_1000 | EFFECT_UNK_0800 | EFFECT_UNK_0200 |
+                   EFFECT_SOLID_FROM_BELOW | EFFECT_SOLID_FROM_ABOVE))) {
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, FACTORY(0x2C, 0x58), 0);
+            }
+        }
+        break;
+    case 1:
+        if ((func_pspeu_0924EA98(0x20280) == 0) && (MARIA.poseTimer < 0)) {
+            func_pspeu_0924DCB8(0x1C);
+            MARIA.facingLeft = (MARIA.facingLeft + 1) & 1;
+            return;
+        }
+        break;
+    case 8:
+        MARIA.palette = PAL_FLAG(0x200);
+        // fallthrough
+    case 6:
+    case 7:
+        MarDecelerateX_0924E7C8(FIX(1.0 / 8));
+        if (!(g_Maria.vram_flag & TOUCHING_GROUND)) {
+            func_pspeu_0924CE30();
+        }
+        if (MARIA.poseTimer < 0) {
+            if (MARIA.step_s == 6) {
+                func_pspeu_0924CA58(0);
+                return;
+            }
+            func_pspeu_0924C9C8(0, MARIA.velocityX);
+        }
+        break;
+    }
+}
 
 extern s32 D_pspeu_0926CCD0;
 extern s32 D_pspeu_0926C0B8;
@@ -1026,6 +1173,12 @@ s32 func_pspeu_0924BB78(void) {
 }
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0924BBE8);
+
+char D_pspeu_09262FF8[16] = "error step\n";
+s16 D_pspeu_09263008[] = {
+    0, 0, 256, 0, -256, 0, 256, 0, -256, -512, -256, 0, 256, 512, 256, 0};
+u8 D_pspeu_09263028[] = {0, 17, 4, 21, 1, 16, 3, 35};
+u8 D_pspeu_09263030[] = {4, 5, 10, 11, 14, 15, 29, 30, 4, 3, 0, 0, 0, 0, 0, 0};
 
 // local copy of DopplegangerStepUnmorphMist (see bo4/unk_46E7C.c)
 void func_pspeu_0924C200(void) {
