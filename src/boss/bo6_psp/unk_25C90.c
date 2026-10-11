@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include "../bo6/bo6.h"
+#include "player_copy.h"
 
 // Boss Richter reuses his subweapon-crash entities; splat's pre-split
 // func_pspeu_* names are kept until a rename pass
 extern s16 D_pspeu_0927AF38[4][6]; // glass shatter offsets (stage data blob)
 extern s16 D_pspeu_0927B048[];     // cross trail anim frames (D_us_80182994)
 
-extern PlayerState g_Maria;
-
-Entity* MarCreateEntFactoryFromEntity(Entity*, u32, s32);
+extern s16 D_pspeu_0927AF18[];
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925D310);
 
@@ -489,7 +487,24 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09265100);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09266AB0);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09266CE8);
+void func_pspeu_09266CE8(Entity* entity) {
+    if (g_Maria.unk46 == 0) {
+        DestroyEntity(entity);
+        return;
+    }
+    if (entity->step == 0) {
+        entity->flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+    }
+    if (!(entity->params & 0xFF00)) {
+        g_Entities[D_pspeu_0927AF18[entity->poseTimer]].palette =
+            PAL_FLAG(0x40);
+    }
+    g_Entities[D_pspeu_0927AF18[entity->poseTimer]].ext.player.unkA4 = 4;
+    entity->poseTimer++;
+    if (entity->poseTimer == 15) {
+        DestroyEntity(entity);
+    }
+}
 
 void Unused09266E30(Entity* self) {}
 
