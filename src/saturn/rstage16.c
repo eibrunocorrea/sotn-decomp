@@ -534,7 +534,52 @@ void func_060E6930(Entity* self) {
     self->ext.afterImage.disableFlag--;
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E69A4, func_060E69A4);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E6F38, func_060E6F38);
+extern s16 DAT_060EF230[];
+extern SaturnSpriteImage DAT_060EF568[];
+extern SaturnSpriteFrameHeader* DAT_060EF510[];
+
+void func_060E6F38(Entity* self) {
+    Entity* entity;
+    SaturnSpriteResource* bank;
+    SaturnSpriteImage* images;
+
+    if (self->step != 0) {
+        if (--((u8*)self)[0x84]) {
+            self->rotate += DAT_060EF230[self->params];
+            func_06079BE4(self);
+            MoveEntity(self);
+        } else {
+            entity = AllocEntity(&g_Entities[0xE0], &g_Entities[0x100]);
+            if (entity != NULL) {
+                CreateEntityFromEntity(2, self, entity);
+                entity->params = 0;
+            }
+            DestroyEntity(self);
+            return;
+        }
+        self->unk0->flags |= 0x40;
+        self->unk0->rotate = self->rotate;
+    } else {
+        self->step++;
+        images = DAT_060EF568;
+        bank = (SaturnSpriteResource*)g_RStage16SpriteBank22;
+        self->unk0 = CreateSpriteObject(
+            bank->allocationIndex, bank->flags, images, 1);
+        self->unk0->flags |= 0x40;
+        TekiInit(self, 2);
+        self->animCurFrame = (self->params & 0xFF) + 0xF;
+        if (self->params & 0x100) {
+            self->palette++;
+            self->unk0->clutBase++;
+        }
+        func_06079BB4(self);
+        func_0600AFA8(self->unk0, DAT_060EF510[self->animCurFrame]);
+        self->drawFlags = 4;
+        if (self->facingLeft) {
+            self->velocityX = -self->velocityX;
+        }
+    }
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E70A0, func_060E70A0);
 void func_060E7338(MthXyz* rotation, MthXyz* position) {
     MthMatrix* current;
