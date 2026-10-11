@@ -15,7 +15,18 @@ INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDD80);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDF1C);
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CE1E8);
+void func_801CE1E8(s32 step) {
+    s32 i;
+
+    g_CurrentEntity->step = step;
+    g_CurrentEntity->step_s = 0;
+    g_CurrentEntity->pose = 0;
+    g_CurrentEntity->poseTimer = 0;
+    for (i = 0; i < 4; i++) {
+        g_CurrentEntity->ext.GH_Props.unkB0[i] = 0;
+        g_CurrentEntity->ext.GH_Props.unkB4[i] = 0;
+    }
+}
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", polarPlacePartsList);
 
