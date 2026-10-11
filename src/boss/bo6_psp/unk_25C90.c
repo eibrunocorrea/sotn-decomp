@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+extern s32 D_pspeu_0927DBA8;
+extern s16 D_pspeu_0927A5A0[];
+
 extern EInit D_pspeu_0926EBA8;
 extern s16 D_pspeu_0927DC08;
 extern s32 D_pspeu_0927DC10;
@@ -930,7 +933,199 @@ void func_pspeu_0925F8A8(Entity* self) {
     self->hitboxHeight = var_s7 - self->posY.i.hi;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09260020);
+void func_pspeu_09260020(Entity* self) {
+    Primitive* prim;
+    s32 i;
+    s32 psp_s2;
+    s16 psp_s4;
+    s16 psp_s3;
+    s32 psp_s6;
+    s32 psp_s5;
+    s32 sp3C;
+    s32 sp48;
+    s32 sp40;
+    long sp44;
+    long sp4C;
+    s32 psp_s8;
+    s32 psp_s7;
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1 + BIBLE_PAGE_COUNT);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            g_Maria.unk4E = 1;
+            return;
+        }
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->posX.val = MARIA.posX.val;
+        self->posY.val = MARIA.posY.val;
+        self->velocityY = FIX(-4);
+        if (self->facingLeft) {
+            self->velocityX = FIX(12);
+            self->ext.et_8016E9E4.unk88 = FIX(1.5);
+            self->ext.et_8016E9E4.unk7E = -0x200;
+        } else {
+            self->velocityX = FIX(-12);
+            self->ext.et_8016E9E4.unk88 = FIX(-1.5);
+            self->ext.et_8016E9E4.unk7E = 0x200;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        prim->tpage = 0x1E;
+        prim->clut = 0x17F;
+        prim->u0 = prim->u2 = 0x98;
+        prim->v0 = prim->v1 = 0xD8;
+        prim->u1 = prim->u3 = 0xA8;
+        prim->v2 = prim->v3 = 0xF0;
+        prim->priority = 0xC2;
+        prim->drawMode = DRAW_HIDE;
+        prim = prim->next;
+        for (i = 0; i < BIBLE_PAGE_COUNT; i++) {
+            prim->tpage = 0x1C;
+            prim->clut = PAL_UNK_1AE;
+            prim->u0 = prim->u2 = 0x20;
+            prim->u1 = prim->u3 = 0x30;
+            prim->v0 = prim->v1 = 0;
+            prim->v2 = prim->v3 = 0x10;
+            prim->priority = 0xC1;
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        D_pspeu_0927DBA8 = 0x60;
+        self->ext.et_8016E9E4.unk84 = 0x40;
+        self->step++;
+        break;
+    case 1:
+        prim = &g_PrimBuf[self->primIndex];
+        prim->drawMode &= ~DRAW_HIDE;
+        self->step++;
+    case 2:
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        self->velocityX -= self->ext.et_8016E9E4.unk88;
+        self->velocityY -= FIX(0.5);
+        self->ext.et_8016E9E4.unk82++;
+        if (self->ext.et_8016E9E4.unk82 >= 8) {
+            self->ext.et_8016E9E4.unk82 = 0;
+            self->step++;
+        }
+        break;
+    case 3:
+        self->ext.et_8016E9E4.unk82++;
+        if (self->ext.et_8016E9E4.unk82 > 5) {
+            prim = &g_PrimBuf[self->primIndex];
+            prim->clut = PAL_UNK_19F;
+            prim->drawMode |=
+                DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            prim = prim->next;
+            for (i = 0; i < BIBLE_PAGE_COUNT; i++) {
+                prim->drawMode &= ~DRAW_HIDE;
+                prim = prim->next;
+            }
+            self->ext.et_8016E9E4.unk82 = 0;
+            self->step++;
+        }
+        break;
+    case 4:
+        self->ext.et_8016E9E4.unk84 -= 4;
+        if (self->ext.et_8016E9E4.unk84 <= 0) {
+            self->step++;
+        }
+        break;
+    case 5:
+        prim = &g_PrimBuf[self->primIndex];
+        prim->drawMode |= DRAW_HIDE;
+        self->step++;
+    case 6:
+        self->ext.et_8016E9E4.unk7C += 0x80;
+        self->ext.et_8016E9E4.unk7C &= 0xFFF;
+        self->ext.et_8016E9E4.unk80 += 4;
+        if (self->ext.et_8016E9E4.unk80 >= 0x30) {
+            self->step++;
+        }
+        break;
+    case 7:
+        self->ext.et_8016E9E4.unk7C += 0x80;
+        self->ext.et_8016E9E4.unk7C &= 0xFFF;
+        self->ext.et_8016E9E4.unk82++;
+        if (self->ext.et_8016E9E4.unk82 >= 0x1E) {
+            MarCreateEntFactoryFromEntity(self, BP_CRASH_BIBLE_BEAM, 0);
+            self->ext.et_8016E9E4.unk82 = 0;
+            self->step++;
+        }
+        break;
+    case 8:
+        self->ext.et_8016E9E4.unk7C += 0x80;
+        self->ext.et_8016E9E4.unk7C &= 0xFFF;
+        self->ext.et_8016E9E4.unk82++;
+        if (self->ext.et_8016E9E4.unk82 >= 0x60) {
+            g_Maria.unk4E = 1;
+            self->step++;
+        }
+        break;
+    case 9:
+        self->ext.et_8016E9E4.unk7C += 0x80;
+        self->ext.et_8016E9E4.unk7C &= 0xFFF;
+        self->ext.et_8016E9E4.unk80 -= 2;
+        if (self->ext.et_8016E9E4.unk80 <= 0) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+    if (self->ext.et_8016E9E4.unk7C == 0x100 ||
+        self->ext.et_8016E9E4.unk7C == 0x500 ||
+        self->ext.et_8016E9E4.unk7C == 0x900 ||
+        self->ext.et_8016E9E4.unk7C == 0xD00) {
+        if (self->step < 9) {
+            g_api.PlaySfxVolPan(SFX_ARROW_SHOT_A, D_pspeu_0927DBA8, 0);
+            if (self->step >= 5) {
+                D_pspeu_0927DBA8 -= 4;
+            }
+            if (D_pspeu_0927DBA8 < 0) {
+                D_pspeu_0927DBA8 = 0;
+            }
+        }
+    }
+    prim = &g_PrimBuf[self->primIndex];
+    psp_s4 = self->posX.i.hi;
+    psp_s3 = self->posY.i.hi;
+    prim->x0 = prim->x2 = psp_s4 - 8;
+    prim->x1 = prim->x3 = psp_s4 + 8;
+    prim->y0 = prim->y1 = psp_s3 - 12;
+    prim->y2 = prim->y3 = psp_s3 + 12;
+    prim->r0 = prim->g0 = prim->b0 = prim->r1 = prim->g1 = prim->b1 = prim->r2 =
+        prim->g2 = prim->b2 = prim->r3 = prim->g3 = prim->b3 =
+            self->ext.et_8016E9E4.unk84;
+    prim = prim->next;
+    sp44 = rsin(self->ext.et_8016E9E4.unk7E);
+    sp4C = rcos(self->ext.et_8016E9E4.unk7E);
+    for (i = 0; i < BIBLE_PAGE_COUNT; i++) {
+        sp3C = 0;
+        sp48 = (rsin(self->ext.et_8016E9E4.unk7C + D_pspeu_0927A5A0[i]) *
+                self->ext.et_8016E9E4.unk80) >>
+               0xC;
+        sp40 = (rcos(self->ext.et_8016E9E4.unk7C + D_pspeu_0927A5A0[i]) *
+                self->ext.et_8016E9E4.unk80) >>
+               0xC;
+        psp_s6 = (sp4C * sp3C + sp44 * sp40) >> 0xC;
+        psp_s2 = (sp4C * sp40 - sp44 * sp3C) >> 0xC;
+        psp_s5 = sp48;
+        psp_s2 += 0x200;
+        psp_s6 = (psp_s6 << 9) / psp_s2;
+        psp_s5 = (psp_s5 << 9) / psp_s2;
+        psp_s4 = self->posX.i.hi + psp_s6;
+        psp_s3 = self->posY.i.hi + psp_s5;
+        D_pspeu_0927DBB8[i].x = psp_s4;
+        D_pspeu_0927DBB8[i].y = psp_s3;
+        psp_s8 = 0x1000 / psp_s2;
+        psp_s7 = 0x1000 / psp_s2;
+        prim->x0 = prim->x2 = psp_s4 - psp_s8;
+        prim->x1 = prim->x3 = psp_s4 + psp_s8;
+        prim->y0 = prim->y1 = psp_s3 - psp_s7;
+        prim->y2 = prim->y3 = psp_s3 + psp_s7;
+        prim = prim->next;
+    }
+}
 
 void func_pspeu_09260AE8(Entity* self) {
     const int PrimCount = 16;
