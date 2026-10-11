@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+extern EInit D_pspeu_0926EBA8;
+extern s16 D_pspeu_0927DC08;
+extern s32 D_pspeu_0927DC10;
+extern Point16 D_pspeu_0927DC18[4][128];
+extern AnimationFrame D_pspeu_0927B020[];
+
 u8 IncreaseBrightness(Primitive* prim, u8 amount);
 
 #define LIGHTNING_COUNT 8
@@ -2304,7 +2310,183 @@ void func_pspeu_09268D98(Entity* self) {
     g_Maria.timers[PL_T_3] = 2;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09269428);
+void func_pspeu_09269428(Entity* self) {
+    s16 playerHitboxX;
+    s16 playerHitboxY;
+    s16 rotate;
+    s16* psp_s1;
+    s32 xAccel;
+    rotate = self->rotate;
+    switch (self->step) {
+    case 0:
+        self->ext.crossBoomerang.subweaponId = PL_W_CROSS;
+        InitializeEntity(D_pspeu_0926EBA8);
+        D_pspeu_0927DC08 = self->hitboxState;
+        self->flags =
+            FLAG_UNK_20000000 | FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+        self->ext.crossBoomerang.unk84 = D_pspeu_0927DC18[D_pspeu_0927DC10];
+        D_pspeu_0927DC10++;
+        D_pspeu_0927DC10 &= 3;
+        MarCreateEntFactoryFromEntity(self, BP_5, 0);
+        self->animSet = ANIMSET_OVL(4);
+        self->unk5A = 0x44;
+        self->anim = D_pspeu_0927B020;
+        self->facingLeft = MARIA.facingLeft;
+        self->zPriority = MARIA.zPriority;
+        MarSetSpeedX(FIX(3.5625));
+        self->drawFlags = ENTITY_ROTATE;
+        self->rotate = ROT(270);
+        self->hitboxWidth = 8;
+        self->hitboxHeight = 8;
+        self->posY.i.hi -= 8;
+        g_api.PlaySfx(SFX_RIC_CRASH_CROSS);
+        self->step = 1;
+        break;
+    case 1:
+        if (MARIA.pose == 1) {
+            self->step++;
+        }
+    case 2:
+        self->rotate -= ROT(11.25);
+        self->posX.val += self->velocityX;
+        if (self->facingLeft) {
+            xAccel = FIX(-1.0 / 16);
+        } else {
+            xAccel = FIX(1.0 / 16);
+        }
+        self->velocityX -= xAccel;
+        if (abs(self->velocityX) < FIX(0.75)) {
+            self->step = 3;
+        }
+        if ((self->hitFlags == 2) || (self->flags & FLAG_DEAD)) {
+            if (self->velocityX < 0) {
+                self->velocityX = FIX(-0.03125);
+            } else {
+                self->velocityX = FIX(0.03125);
+            }
+            self->ext.crossBoomerang.timer = 30;
+            self->step = 3;
+            self->ext.crossBoomerang.timer = 16;
+            self->hitboxState = 0;
+        }
+        break;
+    case 3:
+        self->rotate -= ROT(22.50);
+        self->posX.val += self->velocityX;
+        if (self->facingLeft) {
+            xAccel = FIX(-1.0 / 16);
+        } else {
+            xAccel = FIX(1.0 / 16);
+        }
+        if (self->hitFlags == 2 || (self->flags & FLAG_DEAD)) {
+            if (self->facingLeft) {
+                xAccel = FIX(-1.0 / 16);
+            } else {
+                xAccel = FIX(1.0 / 16);
+            }
+        }
+        self->velocityX -= xAccel;
+        if (abs(self->velocityX) > FIX(0.75)) {
+            self->step++;
+        }
+        break;
+    case 4:
+        if (self->facingLeft) {
+            xAccel = FIX(-1.0 / 16);
+        } else {
+            xAccel = FIX(1.0 / 16);
+        }
+        self->velocityX -= xAccel;
+        if (abs(self->velocityX) > FIX(2.5)) {
+            self->hitboxState = D_pspeu_0927DC08;
+            self->step++;
+        }
+    case 5:
+        if (--self->ext.crossBoomerang.timer < 0 &&
+            ((self->hitFlags == 2) || (self->flags & FLAG_DEAD))) {
+            self->velocityY = FIX(-3.0);
+            self->velocityX = -((s32)self->velocityX / 2);
+            self->hitboxState = 0;
+            self->ext.holywater.timer = 50;
+            self->step = 6;
+        }
+        playerHitboxX = (MARIA.posX.i.hi + MARIA.hitboxOffX);
+        playerHitboxY = (MARIA.posY.i.hi + MARIA.hitboxOffY);
+        if (abs(self->posX.i.hi - playerHitboxX) <
+                MARIA.hitboxWidth + self->hitboxWidth &&
+            abs(self->posY.i.hi - playerHitboxY) <
+                MARIA.hitboxHeight + self->hitboxHeight) {
+            self->step = 7;
+            self->ext.crossBoomerang.timer = 32;
+            return;
+        }
+        if ((self->facingLeft == 0 && self->posX.i.hi < -32) ||
+            (self->facingLeft && self->posX.i.hi > 0x120)) {
+            self->step = 7;
+            self->ext.crossBoomerang.timer = 32;
+            return;
+        }
+        self->rotate -= ROT(11.25);
+        self->posX.val += self->velocityX;
+        break;
+    case 6:
+        if (--self->ext.crossBoomerang.timer == 0) {
+            DestroyEntity(self);
+            return;
+        }
+        self->velocityY += FIX(0.15625);
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        self->rotate += ROT(33.75);
+        break;
+    case 7:
+        if (--self->ext.crossBoomerang.timer == 0) {
+            DestroyEntity(self);
+            return;
+        }
+        self->hitboxState = 0;
+        self->animSet = 0;
+        self->posX.val += self->velocityX;
+        break;
+    }
+    self->ext.crossBoomerang.unk7E++;
+    if (1 < self->step && self->step < 6) {
+        if ((self->ext.crossBoomerang.unk7E & 0xF) == 1) {
+            MarCreateEntFactoryFromEntity(self, BP_SUBWPN_CROSS_PARTICLES, 0);
+        }
+        if ((self->ext.crossBoomerang.unk7E & 0xF) == 4) {
+            MarCreateEntFactoryFromEntity(self, FACTORY(BP_EMBERS, 6), 0);
+        }
+        if ((self->ext.crossBoomerang.unk7E & 0xF) == 6) {
+            MarCreateEntFactoryFromEntity(self, BP_SUBWPN_CROSS_PARTICLES, 0);
+        }
+        if ((self->ext.crossBoomerang.unk7E & 0xF) == 8) {
+            MarCreateEntFactoryFromEntity(self, FACTORY(BP_EMBERS, 6), 0);
+        }
+        if ((self->ext.crossBoomerang.unk7E & 0xF) == 12) {
+            MarCreateEntFactoryFromEntity(self, FACTORY(BP_EMBERS, 6), 0);
+        }
+        if ((self->ext.crossBoomerang.unk7E & 0xF) == 11) {
+            MarCreateEntFactoryFromEntity(self, BP_SUBWPN_CROSS_PARTICLES, 0);
+        }
+    }
+    if ((g_GameTimer >> 1) & 1) {
+        self->palette = PAL_FLAG(PAL_UNK_1B0);
+    } else {
+        self->palette = PAL_FLAG(PAL_UNK_1B1);
+    }
+    psp_s1 = (s16*)self->ext.crossBoomerang.unk84;
+    psp_s1 = &psp_s1[self->ext.crossBoomerang.unk80 * 2];
+    *psp_s1 = self->posX.i.hi + g_Tilemap.scrollX.i.hi;
+    psp_s1++;
+    *psp_s1 = self->posY.i.hi + g_Tilemap.scrollY.i.hi;
+    self->ext.crossBoomerang.unk80++;
+    self->ext.crossBoomerang.unk80 &= 0x3F;
+    rotate ^= self->rotate;
+    g_Maria.timers[PL_T_3] = 2;
+    self->hitFlags = 0;
+    self->flags &= ~FLAG_DEAD;
+}
 
 void func_pspeu_09269E60(Entity* self) {
     Primitive* prim;
