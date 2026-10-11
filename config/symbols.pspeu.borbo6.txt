@@ -87,3 +87,4 @@ D_us_801805EC = 0x0926BBA0;
 cutsceneUnk3Unknown = 0x0926C2C8;
 g_Dialogue = 0x0926C670;
 g_SkipCutscene = 0x0926C6B0;
+g_CutsceneFlags = 0x0926C6B8;
