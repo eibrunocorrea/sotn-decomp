@@ -1453,7 +1453,31 @@ u32 UpdateAnim(s8* hitboxes, AnimationFrame** anims) {
     return ret;
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", MarDisableAfterImage);
+// local copy of func_us_801C4954 (see rbo5/unk_44954.c); the
+// primitive index still comes from the player afterimage slot.
+void MarDisableAfterImage(s32 resetAnims, s32 arg1) {
+    Primitive* prim;
+
+    if (resetAnims) {
+        g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.disableAfterImage.resetFlag = 1;
+        g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].animCurFrame = g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_2].animCurFrame =
+            g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_3].animCurFrame = 0;
+        prim = &g_PrimBuf[g_Entities[E_AFTERIMAGE_1].primIndex];
+        while (prim != NULL) {
+            prim->x1 = 0;
+            prim = prim->next;
+        }
+    }
+    g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.disableAfterImage.disableFlag = 1;
+    g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.disableAfterImage.index = MaxAfterImageIndex;
+    if (arg1 != 0) {
+        if (arg1 < 4) {
+            g_Dop.timers[15] = 4;
+        } else {
+            g_Dop.timers[15] = arg1;
+        }
+    }
+}
 
 void func_pspeu_0924E770(void) {
     g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.afterImage.resetFlag =
