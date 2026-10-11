@@ -163,7 +163,31 @@ void func_pspeu_0925E688(OlroxPrim* prim) {
     }
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E778);
+void func_pspeu_0925E778(OlroxPrim* prim) {
+    switch (prim->step) {
+    case 0:
+        if (func_pspeu_0925E340(prim, ROT(-11.25), ROT(11.25), 0x1C)) {
+            prim->step++;
+        }
+        if (g_CurrentEntity->ext.et_801B365C.unk90 > -0x100) {
+            g_CurrentEntity->ext.et_801B365C.unk90 -= 0x10;
+        }
+        break;
+    case 1:
+        if (func_pspeu_0925E340(prim, ROT(-22.5), ROT(0), 0x18)) {
+            prim->step++;
+        }
+        break;
+    case 2:
+        if (func_pspeu_0925E340(prim, ROT(-56.25), ROT(-16.875), 0x14)) {
+            prim->step++;
+        }
+        if (g_CurrentEntity->ext.et_801B365C.unk90 < 0x100) {
+            g_CurrentEntity->ext.et_801B365C.unk90 += 0x10;
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E8C8);
 
