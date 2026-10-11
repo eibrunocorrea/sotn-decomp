@@ -185,7 +185,47 @@ INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DFC68, func_060DFC68);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DFDD4, func_060DFDD4);
 #define SPAWN_DESTRUCT_ANIM_ID 19
 #include "spawn_destruct_anim.h"
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E0024, func_060E0024);
+Entity* AllocEntity(Entity* start, Entity* end);
+extern SaturnSpriteResource g_EntitySpriteBank05;
+extern u16 DAT_060466E8;
+void func_060DFDD4(Entity* self);
+
+void func_060E0024(
+    Entity* self, u8 count, u8 params, s16 x, s16 y, u8 variant, s16 xStep) {
+    Entity* entity;
+    SpriteObject* sprite;
+    SaturnSpriteResource* resource;
+    u16* clut;
+    s32 i;
+    s16 initialX;
+    s16 currentY;
+
+    i = 0;
+    initialX = x + self->posX.i.hi;
+    currentY = y + self->posY.i.hi;
+    if (i < count) {
+        resource = &g_EntitySpriteBank05;
+        do {
+            entity = AllocEntity(&g_Entities[0xA0], &g_Entities[0xC0]);
+            if (entity != NULL) {
+                entity->entityId = 20;
+                entity->pfnUpdate = func_060DFDD4;
+                entity->posX.i.hi = initialX + i * xStep;
+                entity->posY.i.hi = currentY;
+                entity->params = i;
+                clut = &DAT_060466E8;
+                sprite = CreateSpriteObject(
+                    (u16)*clut, (u16)(s16)resource->flags,
+                    resource->images, 1);
+                entity->unk0 = sprite;
+                if (self->unk0 != NULL) {
+                    sprite->zPriority = self->unk0->zPriority + 1;
+                }
+            }
+            i++;
+        } while (i < count);
+    }
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E0104, func_060E0104);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E03F0, func_060E03F0);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E08C8, func_060E08C8);
