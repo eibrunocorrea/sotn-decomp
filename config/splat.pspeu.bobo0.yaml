@@ -75,6 +75,7 @@ segments:
       - [0x20EB0, c, bo0/e_olrox_drool]
       - [0x21760, c, bo0_psp/2D26C]
       - [0x26550, c, bo0_psp/313A8]
+      - [0x27A28, c, bo0_psp/unk_27A28]
       - [0x31800, c, bo0/e_prisoner]
       - [0x31E80, c, bo0/e_lock_camera]
       - [0x320E0, c, bo0/e_boss_doors]
@@ -113,6 +114,8 @@ segments:
       - [0x57E20, .data, bo0/3053C]
       - [0x58218, data, bo0/e_laser_attack]
       - [0x58238, data, bo0_psp/2D26C]
+      - [0x58518, .data, bo0_psp/unk_27A28]
+      - [0x58528, data]
       - [0x58618, .data, bo0/e_prisoner]
       - [0x58690, .data, bo0/e_lock_camera]
       - [0x58708, .data, bo0/e_boss_doors]
@@ -131,7 +134,7 @@ segments:
       - [0x58A48, .rodata, bo0/3053C]
       - [0x58A68, .rodata, bo0/e_laser_attack]
       - [0x58A90, .rodata, bo0_psp/2D26C]
-      - [0x58B08, .rodata, bo0_psp/313A8]
+      - [0x58B08, .rodata, bo0_psp/unk_27A28]
       - {start: 0x58C80, type: .bss, vram: 0x09290300, name: bo0/create_entity}
       - {start: 0x58C80, type: bss, vram: 0x09290320, name: bo0_psp/09290320}
       - {start: 0x58C80, type: .bss, vram: 0x09290328, name: bo0/st_update}
