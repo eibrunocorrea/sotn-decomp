@@ -518,7 +518,23 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09257820);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09258010);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09258830);
+extern AnimationFrame D_pspeu_0927A758[];
+// Local copy of RicStepStandInAir; the boss copy restores Maria's palette.
+void func_pspeu_09258830(void) {
+    if (MARIA.step_s == 0) {
+        MARIA.velocityY += 0x3800;
+        if (MARIA.velocityY > 0) {
+            MARIA.velocityY = 0;
+            MARIA.step_s = 1;
+        }
+    } else if (g_Maria.unk4E) {
+        g_Maria.unk46 = 0;
+        MarSetStep(PL_S_JUMP);
+        MarSetAnimation(D_pspeu_0927A758);
+        g_Maria.unk44 = 0;
+        MARIA.palette = 0x8220;
+    }
+}
 
 // local copy of RicStepEnableFlameWhip (see ric/pl_steps.c); the bo6
 // variant drops the trailing fall check
