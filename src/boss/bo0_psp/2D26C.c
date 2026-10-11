@@ -5,6 +5,7 @@ extern EInit g_EInitOlroxAfterImage;
 extern u8 D_pspeu_0928FAC0[];
 extern s32 E_ID(UNK_2F);
 extern EInit D_pspeu_09275F60;
+extern EInit D_pspeu_09275F80;
 extern u8 D_pspeu_0928FAA8[];
 extern u8 D_pspeu_0928FAB8[];
 extern s32 D_pspeu_09290798;
@@ -46,7 +47,79 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_us_801AD338);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_0925B1B0);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_0925C178);
+void func_pspeu_0925C178(Entity* self) {
+    Primitive* prim;
+    s32 primIndex;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09275F80);
+        if (self->facingLeft) {
+            self->posX.i.hi += 0x1C;
+        } else {
+            self->posX.i.hi -= 0x1C;
+        }
+        self->posY.i.hi -= 0xC;
+        primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (primIndex != -1) {
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_801AF31C.prim = prim;
+        prim->tpage = 0x12;
+        prim->clut = 0x212;
+        prim->u0 = prim->u2 = 0xA0;
+        prim->u1 = prim->u3 = 0xD0;
+        prim->v0 = prim->v1 = 0;
+        prim->v2 = prim->v3 = 0x10;
+        prim->x0 = prim->x2 = self->posX.i.hi;
+        prim->x1 = prim->x3 = prim->x0;
+        prim->y0 = prim->y1 = self->posY.i.hi;
+        prim->y2 = prim->y3 = prim->y0;
+        PGREY(prim, 0) = 0;
+        LOW(prim->r2) = LOW(prim->r0);
+        PGREY(prim, 1) = 0xA0;
+        LOW(prim->r3) = LOW(prim->r1);
+        prim->priority = self->zPriority + 4;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        } else {
+            DestroyEntity(self);
+            return;
+        }
+        self->velocityY = 0;
+        if (self->facingLeft) {
+            self->velocityX = FIX(-0.5);
+            self->ext.et_801AF31C.unkA8.i.hi = -0x30;
+        } else {
+            self->velocityX = FIX(0.5);
+            self->ext.et_801AF31C.unkA8.i.hi = 0x30;
+        }
+        self->hitboxWidth = 0;
+        self->hitboxHeight = 5;
+        PlaySfxPositional(SFX_SCIFI_BLAST);
+        break;
+    case 1:
+        MoveEntity();
+        if (self->facingLeft) {
+            self->velocityX -= FIX(0.125);
+            self->ext.et_801AF31C.unkA8.val += FIX(-5);
+        } else {
+            self->velocityX += FIX(0.125);
+            self->ext.et_801AF31C.unkA8.val += FIX(5);
+        }
+        prim = self->ext.et_801AF31C.prim;
+        prim->x1 = prim->x3 = self->posX.i.hi + self->ext.et_801AF31C.unkA8.i.hi;
+        prim->x0 = prim->x2 = self->posX.i.hi;
+        prim->y0 = prim->y1 = self->posY.i.hi - 8;
+        prim->y2 = prim->y3 = prim->y0 + 0x10;
+        self->hitboxWidth = abs(self->ext.et_801AF31C.unkA8.i.hi) / 4;
+        self->hitboxOffX = abs(self->ext.et_801AF31C.unkA8.i.hi) - self->hitboxWidth - 4;
+        break;
+    }
+    if (abs(self->posX.i.hi) > 0x280) {
+        DestroyEntity(self);
+    }
+}
 
 void func_pspeu_0925C580(Entity* self) {
     Entity* entity;

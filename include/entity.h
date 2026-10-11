@@ -3627,6 +3627,21 @@ typedef struct {
 } ET_BoneArk;
 
 typedef struct {
+    /* 0x7C */ Primitive* prim;
+    /* 0x80 */ u32 : 32;
+    /* 0x84 */ u32 : 32;
+    /* 0x88 */ u32 : 32;
+    /* 0x8C */ u32 : 32;
+    /* 0x90 */ u32 : 32;
+    /* 0x94 */ u32 : 32;
+    /* 0x98 */ u32 : 32;
+    /* 0x9C */ u32 : 32;
+    /* 0xA0 */ u32 : 32;
+    /* 0xA4 */ u32 : 32;
+    /* 0xA8 */ f32 unkA8;
+} ET_801AF31C;
+
+typedef struct {
     /* 0x7C */ u32 : 32;
     /* 0x80 */ s16 unk80;
     /* 0x82 */ s16 angle;
@@ -4998,6 +5013,7 @@ typedef union { // offset=0x7C
     ET_801B5470 et_801B5470;
     ET_801AD338 et_801AD338;
     ET_801AF8C0 et_801AF8C0;
+    ET_801AF31C et_801AF31C;
     ET_801A3FD4 et_801A3FD4;
     ET_801C03E8 et_801C03E8;
     ET_Shaft shaft;
