@@ -8,7 +8,6 @@ extern s16 D_pspeu_09255580[];
 extern s16 D_pspeu_09255598[];
 extern s16 D_pspeu_092555B0[];
 extern s16 D_pspeu_092555C8[];
-extern char D_pspeu_092555E0[];
 
 void func_us_801BAB18_from_bo0(Entity* self) {
     Entity* entity;
@@ -129,25 +128,7 @@ void func_us_801BAB18_from_bo0(Entity* self) {
         }
         break;
     case 0xFF:
-        FntPrint("charal %x\n", (s16)self->animCurFrame);
-        if (g_pads[1].pressed & PAD_SQUARE) {
-            if (self->params) {
-                break;
-            }
-            self->animCurFrame++;
-            self->params |= 1;
-        } else {
-            self->params = 0;
-        }
-        if (g_pads[1].pressed & PAD_CIRCLE) {
-            if (self->step_s) {
-                break;
-            }
-            self->animCurFrame--;
-            self->step_s |= 1;
-        } else {
-            self->step_s = 0;
-        }
+#include "../../st/pad2_anim_debug.h"
         break;
     }
 }

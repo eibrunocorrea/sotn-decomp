@@ -149,7 +149,6 @@ void func_us_801957C0(Entity* self) {
     }
 }
 
-extern EInit D_us_80180444;
 extern s8 D_us_8018074C[];
 extern u8 D_us_80180764[];
 
@@ -215,8 +214,7 @@ void func_us_80195A8C(Entity* self) {
         self->velocityY = rcos(angle) * -24;
         self->scaleX = 0x60;
         self->scaleY = 0x60;
-        // The animation loop counter at 0x86 is a byte in this entity.
-        *(u8*)&self->ext.harpy.unk86 = 0;
+        self->ext.et_80195A8C.unk86 = 0;
         /* fall through */
     case 1:
         if (!AnimateEntity(D_pspeu_09255350, self)) {
@@ -234,9 +232,9 @@ void func_us_80195A8C(Entity* self) {
         }
         MoveEntity();
         if (!AnimateEntity(D_pspeu_09255360, self)) {
-            (*(u8*)&self->ext.harpy.unk86)++;
+            self->ext.et_80195A8C.unk86++;
         }
-        if (*(u8*)&self->ext.harpy.unk86 > 0x10) {
+        if (self->ext.et_80195A8C.unk86 > 0x10) {
             self->drawFlags |= ENTITY_OPACITY;
             self->opacity = 0x80;
             self->hitboxState = 0;
@@ -254,7 +252,6 @@ void func_us_80195A8C(Entity* self) {
     }
 }
 
-extern EInit D_us_80180450;
 extern u8 D_pspeu_09255380[];
 
 void func_us_80195D04(Entity* self) {
@@ -267,7 +264,7 @@ void func_us_80195D04(Entity* self) {
     case 0:
         InitializeEntity(D_us_80180450);
         self->animSet = 5;
-        self->palette += 0x8000;
+        self->palette += PAL_UNK_FLAG;
         self->unk5A = 0;
         self->blendMode = BLEND_TRANSP;
         self->velocityY = -FIX(0.375);
