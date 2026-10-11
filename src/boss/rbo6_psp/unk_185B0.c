@@ -104,7 +104,7 @@ void func_us_801B1738(Entity* self) {
         prim->type = PRIM_ENV;
         prim->drawMode = DRAW_HIDE;
         prim = prim->next;
-        self->ext.et_801BC5C0.prim1 = prim;
+        self->ext.et_801B1738.prim1 = prim;
         for (i = 0; i < 20; i++) {
             prim->type = PRIM_GT3;
             prim->clut = 0x194;
@@ -119,13 +119,13 @@ void func_us_801B1738(Entity* self) {
             prim->drawMode = DRAW_HIDE;
             prim = prim->next;
         }
-        self->ext.et_801BC5C0.unk80 = prim;
+        self->ext.et_801B1738.unk80 = prim;
         while (prim != NULL) {
             prim->priority = 0x80;
             prim->drawMode = DRAW_HIDE;
             prim = prim->next;
         }
-        angles = &self->ext.et_801BC5C0.unk84[0];
+        angles = &self->ext.et_801B1738.unk84[0];
         rotations = &D_pspeu_0926B9A8[0];
         for (i = 0; i < 4; i++, angles++, rotations++) {
             *angles = rotations->pad;
@@ -135,10 +135,10 @@ void func_us_801B1738(Entity* self) {
         D_pspeu_0926C6E8 = 0x200;
         D_pspeu_0926C6E0 = 0x700;
         D_pspeu_0926C6D8 = 0;
-        self->ext.et_801BC5C0.unkA4 = 4;
-        self->ext.et_801BC5C0.unkA6 = 8;
+        self->ext.et_801B1738.unkA4 = 4;
+        self->ext.et_801B1738.unkA6 = 8;
         self->rotate = 2;
-        self->ext.weapon_030.unkA8 = 0;
+        self->ext.et_801B1738.unkA8 = 0;
         break;
     case 1:
         if (g_CutsceneFlags & 0x20) {
@@ -160,19 +160,19 @@ void func_us_801B1738(Entity* self) {
         }
         break;
     case 4:
-        if (self->ext.et_801BC5C0.unkA4 < 0x18) {
-            self->ext.et_801BC5C0.unkA4 += 2;
+        if (self->ext.et_801B1738.unkA4 < 0x18) {
+            self->ext.et_801B1738.unkA4 += 2;
         }
-        if (self->ext.et_801BC5C0.unkA6 < 0x18) {
-            self->ext.et_801BC5C0.unkA6 += 2;
+        if (self->ext.et_801B1738.unkA6 < 0x18) {
+            self->ext.et_801B1738.unkA6 += 2;
         }
         if (self->rotate < ROT(45)) {
             self->rotate += 2;
         }
-        self->ext.weapon_030.unkA8 += 0x50;
-        if (self->ext.weapon_030.unkA8 > 0x1200) {
+        self->ext.et_801B1738.unkA8 += 0x50;
+        if (self->ext.et_801B1738.unkA8 > 0x1200) {
             D_pspeu_0926C6C8 = 1;
-            self->ext.clockTower.unkA0 = 0x40;
+            self->ext.et_801B1738.unkA0 = 0x40;
             entity = &g_Entities[159];
             CreateEntityFromCurrentEntity(E_ID(UNK_31), entity);
             self->step++;
@@ -182,16 +182,16 @@ void func_us_801B1738(Entity* self) {
         if ((s32)D_pspeu_0926C6D8 < 0xA0) {
             D_pspeu_0926C6D8 += 2;
         }
-        if (self->ext.et_801BC5C0.unkA4 > 0x10) {
-            self->ext.et_801BC5C0.unkA4 -= 6;
+        if (self->ext.et_801B1738.unkA4 > 0x10) {
+            self->ext.et_801B1738.unkA4 -= 6;
         }
-        if (self->ext.et_801BC5C0.unkA6 > 0x10) {
-            self->ext.et_801BC5C0.unkA6 -= 6;
+        if (self->ext.et_801B1738.unkA6 > 0x10) {
+            self->ext.et_801B1738.unkA6 -= 6;
         }
         if (self->rotate > ROT(1.40625)) {
             self->rotate -= 12;
         }
-        if (!--self->ext.clockTower.unkA0) {
+        if (!--self->ext.et_801B1738.unkA0) {
             self->step++;
         }
         break;
@@ -199,17 +199,17 @@ void func_us_801B1738(Entity* self) {
         D_pspeu_0926C6D8 -= 10;
         if (D_pspeu_0926C6D8 < 0x10) {
             D_pspeu_0926C6D8 = 0;
-            self->ext.clockTower.unkA0 = 0x60;
+            self->ext.et_801B1738.unkA0 = 0x60;
             self->step++;
         }
         break;
     case 7:
-        prim = self->ext.et_801BC5C0.prim1;
+        prim = self->ext.et_801B1738.prim1;
         while (prim != NULL) {
             prim->drawMode = DRAW_HIDE;
             prim = prim->next;
         }
-        if (!--self->ext.clockTower.unkA0) {
+        if (!--self->ext.et_801B1738.unkA0) {
             DestroyEntity(self);
         }
         return;
@@ -243,7 +243,7 @@ void func_us_801B1738(Entity* self) {
             CreateEntityFromCurrentEntity(E_ID(UNK_30), entity);
             entity->zPriority = 0x28;
             entity->rotate = spawn[2];
-            if (D_pspeu_0926C6C8 != 0) {
+            if (D_pspeu_0926C6C8) {
                 entity->rotate += (s16)((Random() * 2) - 0x100);
             } else {
                 entity->rotate += (s16)(Random() - 0x80);
@@ -252,13 +252,13 @@ void func_us_801B1738(Entity* self) {
             entity->posY.i.hi = spawn[1];
         }
     }
-    D_pspeu_0926C6F8.vx += self->ext.et_801BC5C0.unkA4;
-    D_pspeu_0926C6F8.vy += self->ext.et_801BC5C0.unkA6;
+    D_pspeu_0926C6F8.vx += self->ext.et_801B1738.unkA4;
+    D_pspeu_0926C6F8.vy += self->ext.et_801B1738.unkA6;
     D_pspeu_0926C6F8.vz += self->rotate;
     D_pspeu_0926C6F0 += 2;
     D_pspeu_0926C6E8 += 4;
     D_pspeu_0926C6E0 += 3;
-    if (self->ext.weapon_030.unkA8) {
+    if (self->ext.et_801B1738.unkA8) {
         D_pspeu_0926C6F0 += 8;
         D_pspeu_0926C6E8 += 16;
         D_pspeu_0926C6E0 += 12;
@@ -285,11 +285,11 @@ void func_us_801B1738(Entity* self) {
     translation.vx = 0;
     translation.vy = 0;
     translation.vz = -24;
-    LOW(translation.vz) += self->ext.weapon_030.unkA8;
+    LOW(translation.vz) += self->ext.et_801B1738.unkA8;
     translation.vz = 0x400;
     depthBase = translation.vz >> 2;
     gte_ldtr(0, 0, translation.vz);
-    prim = self->ext.et_801BC5C0.prim1;
+    prim = self->ext.et_801B1738.prim1;
     vectors = &D_pspeu_0926BA28[0];
     for (i = 0; i < 20; i++) {
         gte_ldv3(vectors[0], vectors[1], vectors[2]);
@@ -301,7 +301,7 @@ void func_us_801B1738(Entity* self) {
         prim->drawMode = DRAW_COLORS | DRAW_UNK02;
         gte_nclip();
         gte_stopz(depths);
-        if (!self->ext.weapon_030.unkA8 && *depths > 0) {
+        if (!self->ext.et_801B1738.unkA8 && *depths > 0) {
             prim->drawMode = DRAW_HIDE;
         }
         xSum = (prim->x0 & 0x100) + (prim->x1 & 0x100) + (prim->x2 & 0x100);
@@ -313,7 +313,7 @@ void func_us_801B1738(Entity* self) {
         gte_stszotz((long*)depths);
         prim->type = PRIM_GT3;
         priority = 0x80 - ((*depths - depthBase) >> 2);
-        if (!self->ext.weapon_030.unkA8) {
+        if (!self->ext.et_801B1738.unkA8) {
             priority -= 2;
         }
         if (priority > 0x1F8) {
@@ -333,7 +333,7 @@ void func_us_801B1738(Entity* self) {
         }
         return;
     }
-    angles = &self->ext.et_801BC5C0.unk84[0];
+    angles = &self->ext.et_801B1738.unk84[0];
     for (i = 0; i < 4; i++, angles++) {
         *angles += 0x38;
         if (*angles > 0 && *angles < 0x39) {
@@ -343,8 +343,8 @@ void func_us_801B1738(Entity* self) {
             *angles = -(*angles & 0xFFF);
         }
     }
-    prim = self->ext.et_801BC5C0.unk80;
-    angles = &self->ext.et_801BC5C0.unk84[0];
+    prim = self->ext.et_801B1738.unk80;
+    angles = &self->ext.et_801B1738.unk84[0];
     rotations = &D_pspeu_0926B9A8[0];
     m = (MATRIX*)SP(0);
     vec = (SVECTOR*)SP(0x40);
