@@ -2531,11 +2531,7 @@ s32 func_pspeu_09267A60(s16 height, s16 width) {
     return EFFECT_NONE;
 }
 
-// local copy of static func_8016840C (see us_3E79C.c); non-static so the
-// remaining INCLUDE_ASM stubs can reference the symbol. The US declares it
-// unprototyped but calls it as a collision stub with (height, width);
-// declaring both args reproduces mwcc's 0x20 stack frame
-s32 func_801B2E5C(s16 height, s16 width) { return EFFECT_NONE; }
+static s32 func_801B2E5C(s16 height, s16 width) { return EFFECT_NONE; }
 
 void func_pspeu_09267D20(Entity* self) {
     s16 xMod;
