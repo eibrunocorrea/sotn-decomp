@@ -52,6 +52,7 @@ func_us_8019C924 = 0x092488C8;
 func_us_8019D4CC = 0x09249938;
 func_us_8019D950 = 0x09249FE0;
 CutsceneCameraPan = 0x0924A0C8;
+func_us_801A8FC0_from_bo6 = 0x0924A168;
 func_us_801A17C8 = 0x0924A220;
 func_us_8019DA04 = 0x0924A560;
 func_us_8019E558 = 0x0924B508;

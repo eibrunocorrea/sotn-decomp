@@ -4,8 +4,6 @@
 extern s32 D_pspeu_09265CC8;
 extern EInit D_us_801804DC;
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_12AE8", func_pspeu_0924A168);
-
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_12AE8", func_us_801A17C8);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_12AE8", func_us_8019DA04);
