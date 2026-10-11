@@ -129,7 +129,7 @@ void func_us_801BAB18_from_bo0(Entity* self) {
         }
         break;
     case 0xFF:
-        FntPrint(D_pspeu_092555E0, (s16)self->animCurFrame);
+        FntPrint("charal %x\n", (s16)self->animCurFrame);
         if (g_pads[1].pressed & PAD_SQUARE) {
             if (self->params) {
                 break;
