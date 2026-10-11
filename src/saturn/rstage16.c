@@ -686,7 +686,485 @@ void func_060E0104(Entity* self) {
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E03F0, func_060E03F0);
 #include "init_solid_prop.h"
 void func_060E09D4(void) { DestroyEntity(); }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E09EC, func_060E09EC);
+void func_060E1860(Entity*, s32);
+void func_060E1C64(s32, s32, s32, s32);
+void func_060E1814(void);
+void func_060E1834(Entity*);
+void func_060E22C4(Primitive*, s32, s32);
+void func_060E16B8(void*);
+extern s32 DAT_060E9F6C;
+static inline SetGeomScreen(u32 h) { DAT_06061DE0.x = DAT_06061DE0.y = h; }
+static inline void SetGeomOffset(u16 ofx, u16 ofy) {
+    DAT_06061DE8.x = ofx;
+    DAT_06061DE8.y = ofy;
+}
+
+void func_060E09EC(Entity* self) {
+    s32 orig;
+    s32 iVar6;
+    s32 uVar13;
+    Entity* player;
+    s32 primIndex;
+
+    player = &PLAYER;
+    orig = DAT_060EFCC0[1];
+    switch (self->step) {
+    case 0:
+        TekiInit(self, 5);
+        self->step++;
+        primIndex = AllocPrimitives(2, 0x3B);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->primIndex = primIndex;
+        self->flags |= FLAG_HAS_PRIMS;
+        DAT_060E9F6C = 0;
+        func_060E1860(self, 0);
+        self->ext.save.unk0 = 0;
+        self->ext.save.unk38 = 0;
+        self->ext.save.unk4 = 0;
+        if (DAT_0605DD60 != 0) {
+            DAT_0605C668 = 0;
+            self->ext.save.unk4 = 0x28;
+            self->ext.save.unk24 = 0x100;
+            self->ext.save.unk0 = 7;
+            DAT_0605DD60 = 0;
+        }
+        break;
+    case 1:
+        break;
+    default:
+        return;
+    }
+
+    SetGeomScreen(0x10000);
+    SetGeomOffset(0xA0, self->ext.save.unk30 + 0x80);
+
+    switch (self->ext.save.unk0) {
+    case 0:
+        DAT_060EFCC0[1] += 6;
+        uVar13 = g_GameTimer & 0x7F;
+        if (uVar13 == 0) {
+            PlaySfx(SFX_SAVE_HEARTBEAT);
+        }
+        if (uVar13 & 0x40) {
+            uVar13 = 0x7F - uVar13;
+        }
+        if (uVar13 >= 8) {
+            uVar13 = 0xC0;
+        } else {
+            uVar13 = uVar13 * 4 + 0xA0;
+        }
+        func_060E1C64(self->ext.save.unk8, 0, uVar13, 0);
+        self->ext.save.unk24 = uVar13;
+        if (func_060E17D0(0x78, 0xC8) != 0) {
+            self->ext.save.unk28 = DAT_060485C0.unk4;
+            self->ext.save.unk2C = DAT_060485C0.unk5;
+            DAT_0605C668 = 0;
+            if (DAT_060E9F6C == 0) {
+                DAT_0605C658 = 0;
+            }
+            D_8013B5E8 = 0x10;
+            g_Status.hp = g_Status.hpMax;
+            g_Status.mp = g_Status.mpMax;
+            self->ext.save.unk0++;
+        }
+        break;
+
+    case 1:
+        DAT_060EFCC0[1] += 7;
+        if (self->ext.save.unk24 < 0xC0) {
+            self->ext.save.unk24 += 4;
+        }
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if ((self->ext.save.unk30 < (g_CurrentRoom.stageID >> 1 & 0x10) + 8) &&
+            (g_GameTimer != 0)) {
+            self->ext.save.unk30++;
+        }
+        if (player->posX.i.hi < 0x9E) {
+            g_Player.padSim = PAD_RIGHT;
+            g_Player.demo_timer = 1;
+        } else if (player->posX.i.hi > 0xA0) {
+            g_Player.padSim = PAD_LEFT;
+            g_Player.demo_timer = 1;
+        } else {
+            if (self->ext.save.unk30 ==
+                (g_CurrentRoom.stageID >> 1 & 0x10) + 8) {
+                func_060E1814();
+                self->ext.save.unk34 = 8;
+                if ((DAT_060485C0.unk4 >= 0) && (DAT_060485C0.unk5 != 0)) {
+                    func_060E1834(self);
+                    self->ext.save.unk0 = 0x80;
+                    if (DAT_060485C0.unk5 < 0) {
+                        self->ext.save.unk2C = 0;
+                        self->ext.save.unk38 = 1;
+                        self->ext.save.unk0 = 2;
+                        self->ext.save.unk4 = 10;
+                    }
+                } else {
+                    DAT_060485C0.unk4 = 0;
+                    func_060E1834(self);
+                    self->ext.save.unk0 = 0x81;
+                }
+            } else {
+                func_060E1814();
+            }
+        }
+        break;
+
+    case 0x80:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if (func_06066B30(self, 3) != 0) {
+            if (self->ext.save.unk1C == 0) {
+                self->ext.save.unk38 = 2;
+                self->ext.save.unk0 = 2;
+                self->ext.save.unk4 = 0x1E;
+            } else {
+                func_060E1834(self);
+                self->ext.save.unk0++;
+            }
+        }
+        break;
+
+    case 0x81:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if (func_06066B30(self, 4) != 0) {
+            if (self->ext.save.unk1C == 0) {
+                DAT_060485C0.unk4 = 0;
+                func_060E1834(self);
+                self->ext.save.unk0 = 0x100;
+            } else {
+                DAT_060485C0.unk4 = self->ext.save.unk28;
+                DAT_060485C0.unk5 = self->ext.save.unk2C;
+                self->ext.save.unk0 = 0x101;
+            }
+        }
+        break;
+
+    case 0x100:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if (DAT_0605DD94 != 0) {
+            iVar6 = func_06066B30(self, 1);
+            if (iVar6 == 0) {
+                break;
+            }
+            if (iVar6 == 2) {
+                self->ext.save.unk0++;
+                break;
+            }
+            self->ext.save.unk38 = 1;
+            self->ext.save.unk0 = 2;
+            self->ext.save.unk4 = 10;
+        } else {
+            self->ext.save.unk38 = 1;
+            self->ext.save.unk0 = 2;
+            self->ext.save.unk4 = 10;
+        }
+        break;
+
+    case 0x101:
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if (g_pads[0].pressed & 0x700) {
+            DAT_060485C0.unk4 = self->ext.save.unk28;
+            DAT_060485C0.unk5 = self->ext.save.unk2C;
+            g_Player.padSim = 0;
+            g_Player.demo_timer = 1;
+        } else {
+            DAT_0605C668 = 1;
+            DAT_0605C658 = 1;
+            self->ext.save.unk0 = 0;
+        }
+        break;
+
+    case 2:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk24 += 4;
+        if (self->ext.save.unk24 > 0x100) {
+            self->ext.save.unk24 = 0x100;
+        }
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if (self->ext.save.unk24 == 0x100) {
+            if ((self->ext.save.unk4 > 0x1D) || (DAT_060E9F6C != 0)) {
+                self->ext.save.unk0++;
+            } else {
+                self->ext.save.unk34++;
+                if (self->ext.save.unk34 > 0x80) {
+                    self->ext.save.unk34 = 0x80;
+                }
+            }
+        }
+        break;
+
+    case 3:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk34++;
+        if (self->ext.save.unk34 > 0x80) {
+            self->ext.save.unk34 = 0x80;
+        }
+        func_060E1C64(self->ext.save.unk8, 0, self->ext.save.unk24, 0);
+        if (self->ext.save.unk34 == 0x80) {
+            self->ext.save.unk0++;
+            self->ext.save.unk20 = 0;
+        }
+        break;
+
+    case 4:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk20 += 2;
+        if (self->ext.save.unk20 > 0x7F) {
+            self->ext.save.unk20 = 0x7F;
+        }
+        func_060E1C64(
+            self->ext.save.unk8, 0, self->ext.save.unk24, self->ext.save.unk20);
+        if (self->ext.save.unk20 >= 0x10) {
+            uVar13 = (self->ext.save.unk20 - 0x10) * 0x10;
+            if (uVar13 > 0x100) {
+                uVar13 = 0x100;
+            }
+            func_060E22C4(self->ext.save.unkC, uVar13, 0);
+        }
+        if (self->ext.save.unk20 != 0x7F) {
+            break;
+        }
+        if (self->ext.save.unk4 > 0x27 || DAT_060E9F6C != 0) {
+            if ((DAT_060EFCC0[1] & 0xFFF) >= 0x100 &&
+                (DAT_060EFCC0[1] & 0xFFF) < 0x180) {
+                self->ext.save.unk0++;
+            }
+        }
+        break;
+
+    case 5:
+        func_060E1814();
+        if (self->ext.save.unk34 > 0x40) {
+            self->ext.save.unk34--;
+        } else {
+            if ((DAT_060EFCC0[1] & 0x7FF) >= 0x400) {
+                self->ext.save.unk34 = (0x800 - (DAT_060EFCC0[1] & 0x7FF)) / 16;
+            }
+        }
+        if (self->ext.save.unk34 < 0x10) {
+            self->ext.save.unk34 = 0x10;
+        }
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk20 -= 2;
+        if (self->ext.save.unk20 < 0) {
+            self->ext.save.unk20 = 0;
+        }
+        func_060E1C64(
+            self->ext.save.unk8, 1, self->ext.save.unk24, self->ext.save.unk20);
+        if (self->ext.save.unk20 != 0) {
+            func_060E22C4(self->ext.save.unkC, self->ext.save.unk24, 0);
+        } else {
+            func_060E22C4(self->ext.save.unkC, 0, 0);
+        }
+
+        if (self->ext.save.unk34 == 0x10 &&
+            (DAT_060EFCC0[1] & 0x7FF) >= 0x7F0) {
+            DAT_060EFCC0[1] = 0;
+            func_060E1C64(self->ext.save.unk8, 1, self->ext.save.unk24, 0);
+            func_060E1834(self);
+            self->ext.save.unk0++;
+        }
+        break;
+
+    case 6:
+        func_060E1814();
+        if (self->ext.save.unk4 > 0x27 && func_06066B30(self, 0)) {
+            if (self->ext.save.unk4 == 0x2B) {
+                func_060E1834(self);
+                self->ext.save.unk0 = 0x200;
+            } else if (self->ext.save.unk4 != 0x28) {
+                self->ext.save.unk0 = 0x20;
+                self->ext.save.unk20 = 0x60;
+            } else {
+                self->ext.save.unk0++;
+            }
+        }
+        break;
+
+    case 0x200:
+        func_060E1814();
+        if (func_06066B30(self, 2) != 0) {
+            if (self->ext.save.unk1C == 0) {
+                DAT_060485C0.unk5 = 0;
+                PlaySfx(SFX_UI_CONFIRM);
+                self->ext.save.unk0++;
+            } else {
+                self->ext.save.unk0 = 0x20;
+                self->ext.save.unk20 = 0x60;
+            }
+        }
+        break;
+
+    case 0x201:
+        func_060E1814();
+        if (BUP_Format(DAT_060485C0.unk4) == 0) {
+            self->ext.save.unk0 = 0x30;
+            self->ext.save.unk20 = 0x60;
+        } else {
+            self->ext.save.unk4 = 0x2A;
+            func_060E1834(self);
+            self->ext.save.unk0++;
+        }
+        break;
+
+    case 0x202:
+        func_060E1814();
+        if (func_06066B30(self, 0) != 0) {
+            self->ext.save.unk0 = 0x20;
+            self->ext.save.unk20 = 0x60;
+        }
+        break;
+
+    case 7:
+        func_060E1814();
+        func_060E1C64(self->ext.save.unk8, 1, self->ext.save.unk24, 0);
+        self->ext.save.unk0++;
+        break;
+
+    case 8:
+        func_060E1814();
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk34 += 2;
+        if (self->ext.save.unk34 > 0x40) {
+            self->ext.save.unk34 = 0x40;
+        }
+        func_060E1C64(self->ext.save.unk8, 1, self->ext.save.unk24, 0);
+        if (self->ext.save.unk34 == 0x40) {
+            self->ext.save.unk0++;
+            self->ext.save.unk20 = 0;
+        }
+        break;
+
+    case 9:
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk20++;
+        if (self->ext.save.unk20 > 0x7F) {
+            self->ext.save.unk20 = 0x7F;
+        }
+        func_060E1C64(
+            self->ext.save.unk8, 2, self->ext.save.unk24, self->ext.save.unk20);
+        if (self->ext.save.unk20 >= 0x40) {
+            func_060E22C4(self->ext.save.unkC, self->ext.save.unk24, 0);
+            DAT_0605C668 = 1;
+            DAT_0605C658 = 1;
+        } else {
+            func_060E22C4(self->ext.save.unkC, self->ext.save.unk24,
+                          self->ext.save.unk20 * 2 + 0x80);
+            func_060E1814();
+        }
+        if (self->ext.save.unk20 == 0x7F) {
+            self->ext.save.unk0++;
+            self->ext.save.unk20 = 0;
+        }
+        break;
+
+    case 10:
+        DAT_060EFCC0[1] += self->ext.save.unk34;
+        self->ext.save.unk20++;
+        if (self->ext.save.unk20 > 0x22) {
+            self->ext.save.unk20 = 0x22;
+        }
+        func_060E22C4(
+            self->ext.save.unkC, self->ext.save.unk24, self->ext.save.unk20);
+        if (self->ext.save.unk34 == 0) {
+            self->ext.save.unk0++;
+        }
+        break;
+
+    case 11:
+        break;
+
+    case 12:
+        DAT_060EFCC0[1] = 0;
+        self->ext.save.unk24 = 0x180;
+        func_060E1C64(self->ext.save.unk8, 1, self->ext.save.unk24, 0);
+        self->ext.save.unk20 = 0;
+        self->ext.save.unk0++;
+        break;
+
+    case 13:
+        DAT_060EFCC0[1] += 9;
+        func_060E1C64(
+            self->ext.save.unk8, 3, self->ext.save.unk24, self->ext.save.unk20);
+        self->ext.save.unk20++;
+        if (self->ext.save.unk20 == 0x60) {
+            self->ext.save.unk0++;
+        }
+        break;
+
+    case 14:
+        DAT_060EFCC0[1] += 9;
+        func_060E1C64(
+            self->ext.save.unk8, 3, self->ext.save.unk24, self->ext.save.unk20);
+        self->ext.save.unk20--;
+        if (self->ext.save.unk20 == 0) {
+            self->ext.save.unk0--;
+        }
+        break;
+
+    case 0x20:
+    case 0x30:
+        if (self->ext.save.unk0 == 0x30) {
+            func_060E1814();
+        }
+        if (self->ext.save.unk20 > 0x30) {
+            func_060E1814();
+        }
+        DAT_060EFCC0[1] += 6;
+        if (self->ext.save.unk24 > 0xC0) {
+            self->ext.save.unk24 -= 2;
+        }
+        func_060E1C64(
+            self->ext.save.unk8, 3, self->ext.save.unk24, self->ext.save.unk20);
+        self->ext.save.unk20 -= 2;
+        if ((g_Player.demo_timer == 0) && (g_pads[0].pressed & 0x700)) {
+            g_Player.padSim = 0;
+            g_Player.demo_timer = 1;
+            if (self->ext.save.unk20 < 1) {
+                self->ext.save.unk20 = 0;
+            }
+        } else if (self->ext.save.unk20 < 1) {
+            if (self->ext.save.unk0 == 0x30) {
+                self->ext.save.unk38 = 0;
+                self->ext.save.unk4 = 0;
+                self->ext.save.unk0 = 1;
+            } else {
+                DAT_060485C0.unk4 = self->ext.save.unk28;
+                DAT_060485C0.unk5 = self->ext.save.unk2C;
+                self->ext.save.unk38 = 0;
+                self->ext.save.unk4 = 0;
+                self->ext.save.unk0 = 0;
+                DAT_0605C668 = 1;
+                DAT_0605C658 = 1;
+            }
+        }
+        break;
+
+    default:
+        func_060E1C64(self->ext.save.unk8, 1, self->ext.save.unk24, 0);
+        break;
+    }
+
+    if (((orig + 0x400) ^ (DAT_060EFCC0[1] + 0x400)) & 0x800) {
+        if (self->ext.save.unk0 >= 3 && self->ext.save.unk0 < 10) {
+            PlaySfx(SFX_SAVE_COFFIN_SWISH);
+        }
+    }
+    func_060E16B8(self);
+}
 
 void func_060E16B8(void* arg0) {
     Entity* self;
