@@ -610,7 +610,438 @@ Primitive* func_pspeu_09265D78(f32 pos, s16* angles, Primitive* prim, u8 side) {
     return prim;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_092667C8);
+void func_pspeu_092667C8(Entity* self) {
+    Primitive* prim;
+    Entity* entity;
+    s32 result;
+    s32 primIndex;
+    s16* angles;
+    f32 rightUpper;
+    f32 rightLower;
+    f32 leftUpper;
+    f32 leftLower;
+    f32 pos;
+
+    entity = self - 7;
+    self->facingLeft = entity->facingLeft;
+    self->palette = entity->palette;
+    if (!entity->ext.et_801B365C.unk9B) {
+        self->ext.et_801B6CA4.unk9A = 0;
+        entity = self + 1;
+        if (entity->flags & FLAG_DEAD) {
+            self->ext.et_801B6CA4.unk9A |= 2;
+        }
+        entity = self + 2;
+        if (entity->flags & FLAG_DEAD) {
+            self->ext.et_801B6CA4.unk9A |= 1;
+        }
+        if (self->ext.et_801B6CA4.unk9A && (self->step != 10)) {
+            self->step = 9;
+        }
+    }
+    if (self->flags & FLAG_DEAD) {
+        self->hitboxState = 0;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09275F90);
+        self->hitboxWidth = 0xC;
+        self->hitboxHeight = 8;
+        self->hitboxOffX = 0;
+        self->hitboxOffY = 8;
+        self->animCurFrame = 0;
+        primIndex = g_api.AllocPrimitives(PRIM_GT4, 6);
+        if (primIndex == -1) {
+            self->step = 0;
+            break;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_801B6CA4.prim = prim;
+        while (prim) {
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        self->ext.et_801B6CA4.unk88 = ROT(33.75);
+        self->ext.et_801B6CA4.unk8C = ROT(-33.75);
+        self->ext.et_801B6CA4.unk80 = ROT(22.5);
+        self->ext.et_801B6CA4.unk84 = ROT(-11.25);
+        self->ext.et_801B6CA4.unk91 = 0x1D;
+        self->ext.et_801B6CA4.unk90 = 0x21;
+        self->ext.et_801B6CA4.unk94 = 0;
+    case 1:
+        self->step_s = 0;
+        entity = self + 2;
+        entity->attack = g_api.enemyDefs[ENEMY_OLROX_2].attack;
+        break;
+    case 2:
+        self->ext.et_801B6CA4.unk94 = 0;
+        switch (self->step_s) {
+        case 0:
+            self->ext.et_801B6CA4.unk91 = 0x1D;
+            self->ext.et_801B6CA4.unk90 = 0x21;
+            rightUpper.i.lo = ROT(-5.625);
+            rightUpper.i.hi = 0x10;
+            rightLower.i.lo = ROT(-45);
+            rightLower.i.hi = 0x10;
+            leftUpper.i.lo = ROT(22.5);
+            leftUpper.i.hi = 0x10;
+            leftLower.i.lo = ROT(-67.5);
+            leftLower.i.hi = 0x10;
+            result = func_pspeu_09265CA0(
+                leftUpper, leftLower, rightUpper, rightLower);
+            if (result) {
+                self->step_s = 1;
+            }
+            break;
+        case 1:
+            rightUpper.i.lo = ROT(11.25);
+            rightUpper.i.hi = 0x10;
+            rightLower.i.lo = ROT(-67.5);
+            rightLower.i.hi = 0x10;
+            leftUpper.i.lo = 0;
+            leftUpper.i.hi = 0x10;
+            leftLower.i.lo = ROT(-56.25);
+            leftLower.i.hi = 0x10;
+            result = func_pspeu_09265CA0(
+                leftUpper, leftLower, rightUpper, rightLower);
+            if (result) {
+                self->step_s = 0;
+            }
+            break;
+        }
+        break;
+    case 3:
+        self->ext.et_801B6CA4.unk94 = 0;
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        rightUpper.i.lo = ROT(22.5);
+        rightUpper.i.hi = 0x10;
+        rightLower.i.lo = ROT(-67.5);
+        rightLower.i.hi = 0x10;
+        leftUpper.i.lo = ROT(22.5);
+        leftUpper.i.hi = 0x10;
+        leftLower.i.lo = ROT(-56.25);
+        leftLower.i.hi = 0x10;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 4:
+        self->ext.et_801B6CA4.unk94 = 0;
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        rightUpper.i.lo = ROT(-50.625);
+        rightUpper.i.hi = 0x60;
+        rightLower.i.lo = ROT(-50.625);
+        rightLower.i.hi = 0x60;
+        leftUpper.i.lo = ROT(45);
+        leftUpper.i.hi = 0x60;
+        leftLower.i.lo = ROT(-67.5);
+        leftLower.i.hi = 0x60;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        entity = self - 7;
+        if (self->ext.et_801B6CA4.unk88 < ROT(11.25)) {
+            entity->ext.et_801B365C.unk89 = 0;
+        }
+        if (self->ext.et_801B6CA4.unk88 < ROT(-11.25)) {
+            entity->ext.et_801B365C.unk89 = 3;
+        }
+        entity = self + 2;
+        entity->attack = g_api.enemyDefs[ENEMY_OLROX_UNK_39].attack;
+        if (result) {
+            if ((*(s8*)&self->ext.et_801B6CA4.unk93) < 0x60) {
+                (*(s8*)&self->ext.et_801B6CA4.unk93) += 0x10;
+            } else {
+                entity = self + 2;
+                entity->attack = g_api.enemyDefs[ENEMY_OLROX_2].attack;
+                self->step = 5;
+                PlaySfxPositional(SFX_MEDUSA_WEAPON_SWING);
+            }
+        }
+        break;
+    case 5:
+        self->ext.et_801B6CA4.unk94 = 0;
+        if ((*(s8*)&self->ext.et_801B6CA4.unk93) > 0) {
+            (*(s8*)&self->ext.et_801B6CA4.unk93) -= 0xC;
+        } else {
+            self->ext.et_801B6CA4.unk93 = 0;
+            self->step = 1;
+        }
+        break;
+    case 11:
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        rightUpper.i.lo = ROT(56.25);
+        rightUpper.i.hi = 0x18;
+        rightLower.i.lo = ROT(-45);
+        rightLower.i.hi = 0x18;
+        leftUpper.i.lo = ROT(-45);
+        leftUpper.i.hi = 0x20;
+        leftLower.i.lo = ROT(-90);
+        leftLower.i.hi = 0x20;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 12:
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk91 = 0x1D;
+        self->ext.et_801B6CA4.unk90 = 0x21;
+        if ((*(s8*)&self->ext.et_801B6CA4.unk93) < 0x40) {
+            (*(s8*)&self->ext.et_801B6CA4.unk93) += 8;
+        }
+        rightUpper.i.lo = ROT(-112.5);
+        rightUpper.i.hi = 0x60;
+        rightLower.i.lo = ROT(-168.75);
+        rightLower.i.hi = 0x78;
+        leftUpper.i.lo = ROT(33.75);
+        leftUpper.i.hi = 0x40;
+        leftLower.i.lo = ROT(-45);
+        leftLower.i.hi = 0x40;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        entity = self + 2;
+        entity->attack = g_api.enemyDefs[ENEMY_OLROX_UNK_3A].attack;
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 13:
+        self->ext.et_801B6CA4.unk94 = 1;
+        (*(s8*)&self->ext.et_801B6CA4.unk93) -= 0xC;
+        if ((*(s8*)&self->ext.et_801B6CA4.unk93) < 0) {
+            self->ext.et_801B6CA4.unk93 = 0;
+        }
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x21;
+        rightUpper.i.lo = ROT(22.5);
+        rightUpper.i.hi = 0x40;
+        rightLower.i.lo = ROT(-45);
+        rightLower.i.hi = 0x50;
+        leftUpper.i.lo = 0;
+        leftUpper.i.hi = 0x40;
+        leftLower.i.lo = ROT(-11.25);
+        leftLower.i.hi = 0x40;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 14:
+        result = 0;
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        (*(s8*)&self->ext.et_801B6CA4.unk93) -= 0xC;
+        if ((*(s8*)&self->ext.et_801B6CA4.unk93) < 0) {
+            self->ext.et_801B6CA4.unk93 = 0;
+        }
+        rightUpper.i.lo = ROT(-11.25);
+        rightUpper.i.hi = 0x20;
+        rightLower.i.lo = ROT(-45);
+        rightLower.i.hi = 0x20;
+        leftUpper.i.lo = ROT(22.5);
+        leftUpper.i.hi = 0x20;
+        leftLower.i.lo = ROT(-67.5);
+        leftLower.i.hi = 0x20;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 6:
+        self->ext.et_801B6CA4.unk94 = 0;
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        rightUpper.i.lo = ROT(11.25);
+        rightUpper.i.hi = 0x20;
+        rightLower.i.lo = ROT(-56.25);
+        rightLower.i.hi = 0x20;
+        leftUpper.i.lo = 0;
+        leftUpper.i.hi = 0x20;
+        leftLower.i.lo = ROT(-78.75);
+        leftLower.i.hi = 0x20;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 7:
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk91 = 0x1D;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        rightUpper.i.lo = ROT(22.5);
+        rightUpper.i.hi = 0x10;
+        rightLower.i.lo = ROT(-22.5);
+        rightLower.i.hi = 0x10;
+        leftUpper.i.lo = 0;
+        leftUpper.i.hi = 0x10;
+        leftLower.i.lo = ROT(-45);
+        leftLower.i.hi = 0x10;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 8:
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk91 = 0x1F;
+        self->ext.et_801B6CA4.unk90 = 0x21;
+        rightUpper.i.lo = ROT(33.75);
+        rightUpper.i.hi = 0x20;
+        rightLower.i.lo = ROT(-22.5);
+        rightLower.i.hi = 0x20;
+        leftUpper.i.lo = 0;
+        leftUpper.i.hi = 0x20;
+        leftLower.i.lo = ROT(-28.125);
+        leftLower.i.hi = 0x20;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 9:
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        if (self->ext.et_801B6CA4.unk9A == 2) {
+            leftUpper.i.lo = 0;
+            leftUpper.i.hi = 0x18;
+            leftLower.i.lo = ROT(-22.5);
+            leftLower.i.hi = 0x18;
+        } else {
+            leftUpper.i.lo = ROT(45);
+            leftUpper.i.hi = 0x10;
+            leftLower.i.lo = ROT(-22.5);
+            leftLower.i.hi = 0x10;
+        }
+        self->ext.et_801B6CA4.unk91 = 0x1D;
+        if (self->ext.et_801B6CA4.unk9A == 1) {
+            rightUpper.i.lo = 0;
+            rightUpper.i.hi = 0x18;
+            rightLower.i.lo = ROT(-22.5);
+            rightLower.i.hi = 0x18;
+        } else {
+            rightUpper.i.lo = ROT(45);
+            rightUpper.i.hi = 0x10;
+            rightLower.i.lo = ROT(-22.5);
+            rightLower.i.hi = 0x10;
+        }
+        func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (!self->ext.et_801B6CA4.unk9A) {
+            self->step = 1;
+        }
+        break;
+    case 15:
+        self->ext.et_801B6CA4.unk94 = 1;
+        self->ext.et_801B6CA4.unk91 = 0x1D;
+        self->ext.et_801B6CA4.unk90 = 0x20;
+        rightUpper.i.lo = ROT(11.25);
+        rightUpper.i.hi = 0x20;
+        rightLower.i.lo = ROT(-22.5);
+        rightLower.i.hi = 0x20;
+        leftUpper.i.lo = 0;
+        leftUpper.i.hi = 0x20;
+        leftLower.i.lo = ROT(-45);
+        leftLower.i.hi = 0x20;
+        result =
+            func_pspeu_09265CA0(leftUpper, leftLower, rightUpper, rightLower);
+        if (result) {
+            self->step = 1;
+        }
+        break;
+    case 10:
+        switch (self->step_s) {
+        case 0:
+            entity = self - 7;
+            if (entity->ext.et_801B365C.unk9B == 2) {
+                self->step_s++;
+            }
+            break;
+        case 1:
+            self->ext.et_801B6CA4.unk94 = 1;
+            self->ext.et_801B6CA4.unk91 = 0x1D;
+            self->ext.et_801B6CA4.unk90 = 0x21;
+            rightUpper.i.lo = ROT(-45);
+            rightUpper.i.hi = 0x10;
+            rightLower.i.lo = ROT(-67.5);
+            rightLower.i.hi = 0x10;
+            leftUpper.i.lo = ROT(-22.5);
+            leftUpper.i.hi = 0x10;
+            leftLower.i.lo = ROT(-90);
+            leftLower.i.hi = 0x10;
+            result = func_pspeu_09265CA0(
+                leftUpper, leftLower, rightUpper, rightLower);
+            if (result) {
+                self->step_s++;
+            }
+            entity = self - 7;
+            if (entity->ext.et_801B365C.unk9B == 3) {
+                self->step_s = 3;
+            }
+            break;
+        case 2:
+            self->ext.et_801B6CA4.unk94 = 1;
+            self->ext.et_801B6CA4.unk91 = 0x1D;
+            self->ext.et_801B6CA4.unk90 = 0x21;
+            rightUpper.i.lo = 0;
+            rightUpper.i.hi = 6;
+            rightLower.i.lo = ROT(-22.5);
+            rightLower.i.hi = 6;
+            leftUpper.i.lo = ROT(22.5);
+            leftUpper.i.hi = 0xA;
+            leftLower.i.lo = ROT(-45);
+            leftLower.i.hi = 0xA;
+            result = func_pspeu_09265CA0(
+                leftUpper, leftLower, rightUpper, rightLower);
+            entity = self - 7;
+            if (entity->ext.et_801B365C.unk9B == 3) {
+                self->step_s = 3;
+            }
+            break;
+        case 3:
+            break;
+        }
+        break;
+    }
+    prim = self->ext.et_801B6CA4.prim;
+    angles = &self->ext.et_801B6CA4.unk88;
+    pos.i.lo = self->posX.i.hi;
+    pos.i.hi = self->posY.i.hi;
+    prim = func_pspeu_09265D78(pos, angles, prim, 1);
+    angles = &self->ext.et_801B6CA4.unk80;
+    pos.i.lo = self->posX.i.hi;
+    pos.i.hi = self->posY.i.hi;
+    prim = func_pspeu_09265D78(pos, angles, prim, 0);
+    if (self->palette & PAL_FLAG(0)) {
+        prim = self->ext.et_801B6CA4.prim;
+        while (prim) {
+            prim->clut = self->palette & 0xFFF;
+            prim = prim->next;
+        }
+    }
+    entity = self - 7;
+    if (entity->ext.et_801B365C.unk9B) {
+        prim = self->ext.et_801B6CA4.prim;
+        while (prim) {
+            prim->tpage = 0x15;
+            prim->clut = PAL_BREAKABLE;
+            prim = prim->next;
+        }
+    }
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267730);
 
