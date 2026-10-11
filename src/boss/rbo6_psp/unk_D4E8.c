@@ -72,7 +72,172 @@ s32 DecreaseBrightness(Primitive* prim, s32 brightnessOffset) {
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4594);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4F14);
+// Particle trail extension; offsets and six packed Y coordinates verified in PSP ASM.
+typedef struct {
+    /* 0x7C */ Primitive* prim;
+    /* 0x80 */ s32 : 32;
+    /* 0x84 */ Primitive* glow;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 : 32;
+    /* 0x90 */ s32 acceleration;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
+    /* 0x9C */ s16 yPositions[6];
+} Rbo6ParticleTrail;
+
+void func_us_801A4F14(Entity* self) {
+    extern EInit g_EInitParticle;
+    extern s32 D_pspeu_0926C048;
+    s32 primIndex;
+    s32 size;
+    s32 y;
+    s32 x;
+    s32 width;
+    s16* positions;
+    s32 i;
+    Primitive* prim;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitParticle);
+        self->animCurFrame = 0;
+        size = Random() % D_pspeu_0926C048;
+        self->hitboxWidth = size + 2;
+        size++;
+        self->velocityY = FIX(-1.5) - ((Random() % (size + 2)) << 17);
+        ((Rbo6ParticleTrail*)&self->ext)->acceleration =
+            -0x1000 - (Random() % (size + 1)) * 0x3000;
+        self->opacity = (Random() % size) * 8 + 0x20;
+        if (size < D_pspeu_0926C048 / 2) {
+            self->zPriority = 0x54;
+        } else {
+            self->zPriority = 0x90;
+        }
+        primIndex = (s16)g_api.AllocPrimitives(PRIM_GT4, 7);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        ((Rbo6ParticleTrail*)&self->ext)->prim = prim;
+        prim->tpage = 0x1A;
+        prim->clut = 0x2EC;
+        prim->u0 = prim->u2 = 0;
+        prim->u1 = prim->u3 = 0x40;
+        prim->v0 = prim->v1 = 0xC0;
+        prim->v2 = prim->v3 = 0xE0;
+        PGREY(prim, 0) = self->opacity;
+        LOW(prim->r1) = LOW(prim->r0);
+        LOW(prim->r2) = LOW(prim->r0);
+        LOW(prim->r3) = LOW(prim->r0);
+        prim->priority = self->zPriority;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        prim = prim->next;
+        for (i = 0; i < 4; i++) {
+            prim->tpage = 0x1A;
+            prim->clut = 0x2EC;
+            prim->u0 = prim->u2 = 0;
+            prim->u1 = prim->u3 = 0x40;
+            prim->v0 = prim->v1 = 0xE0;
+            prim->v2 = prim->v3 = 0xE2;
+            PGREY(prim, 0) = self->opacity;
+            LOW(prim->r1) = LOW(prim->r0);
+            LOW(prim->r2) = LOW(prim->r0);
+            LOW(prim->r3) = LOW(prim->r0);
+            prim->priority = self->zPriority + 1;
+            prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+            prim = prim->next;
+        }
+        prim->tpage = 0x1A;
+        prim->clut = 0x2EC;
+        prim->u0 = prim->u2 = 0;
+        prim->u1 = prim->u3 = 0x40;
+        prim->v0 = prim->v1 = 0xE0;
+        prim->v2 = prim->v3 = 0xFF;
+        PGREY(prim, 0) = self->opacity;
+        LOW(prim->r1) = LOW(prim->r0);
+        LOW(prim->r2) = LOW(prim->r0);
+        LOW(prim->r3) = LOW(prim->r0);
+        prim->priority = self->zPriority;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        prim = prim->next;
+        ((Rbo6ParticleTrail*)&self->ext)->glow = prim;
+        prim->tpage = 0x1A;
+        prim->clut = 0x15F;
+        prim->clut = 0x2EC;
+        prim->u0 = prim->u2 = 0;
+        prim->u1 = prim->u3 = 0x3F;
+        prim->v0 = prim->v1 = 0xC0;
+        prim->v2 = prim->v3 = 0xFF;
+        PGREY(prim, 0) = self->opacity + 0x20;
+        LOW(prim->r1) = LOW(prim->r0);
+        LOW(prim->r2) = LOW(prim->r0);
+        LOW(prim->r3) = LOW(prim->r0);
+        prim->priority = self->zPriority;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP | DRAW_UNK_40;
+        if (self->hitboxWidth < 4) {
+            prim->drawMode = DRAW_HIDE;
+        }
+        positions = ((Rbo6ParticleTrail*)&self->ext)->yPositions;
+        for (i = 0; i < 6; i++) {
+            *positions = self->posY.i.hi;
+            positions++;
+        }
+        break;
+    case 1:
+        MoveEntity();
+        // accelerationY is the existing signed field at extension offset 0x90.
+        self->velocityY += (s32)self->ext.et_801A518C.accelerationY;
+        break;
+    }
+    positions = &((Rbo6ParticleTrail*)&self->ext)->yPositions[5];
+    for (i = 0; i < 5; i++) {
+        *positions = positions[-1];
+        positions--;
+    }
+    positions = ((Rbo6ParticleTrail*)&self->ext)->yPositions;
+    *positions = self->posY.i.hi;
+    width = self->hitboxWidth;
+    prim = ((Rbo6ParticleTrail*)&self->ext)->prim;
+    x = self->posX.i.hi;
+    y = self->posY.i.hi - self->hitboxWidth;
+    prim->x0 = x - width;
+    prim->x1 = x + width;
+    prim->y0 = prim->y1 = y;
+    prim = ((Rbo6ParticleTrail*)&self->ext)->glow;
+    prim->x0 = x - width * 2;
+    prim->x1 = x + width * 2;
+    prim->y0 = prim->y1 = y - width;
+    prim = ((Rbo6ParticleTrail*)&self->ext)->prim;
+    positions = ((Rbo6ParticleTrail*)&self->ext)->yPositions;
+    for (i = 0; i < 5; i++) {
+        y = *positions;
+        prim->x2 = x - width;
+        prim->x3 = x + width;
+        prim->y2 = prim->y3 = y;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+        prim = prim->next;
+        prim->x0 = x - width;
+        prim->x1 = x + width;
+        prim->y0 = prim->y1 = y;
+        positions++;
+    }
+    y = y + self->hitboxWidth;
+    prim->x2 = x - width;
+    prim->x3 = x + width;
+    prim->y2 = prim->y3 = y;
+    prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+    prim = prim->next;
+    prim = ((Rbo6ParticleTrail*)&self->ext)->glow;
+    prim->x2 = x - width * 2;
+    prim->x3 = x + width * 2;
+    prim->y2 = prim->y3 = y + self->hitboxWidth * 2;
+    if (y < 0x10) {
+        DestroyEntity(self);
+    }
+}
 
 void func_us_801A367C(Entity* self) {
     extern EInit g_EInitInteractable;
