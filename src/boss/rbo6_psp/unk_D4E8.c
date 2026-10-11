@@ -46,6 +46,16 @@ extern u8 D_pspeu_0926B410;
 extern s32 D_pspeu_0926C098;
 extern u8 D_pspeu_0926B4F8[];
 
+extern EInit D_us_8018054C;
+extern u8 D_pspeu_0926B478[];
+extern u8 D_pspeu_0926B480[];
+extern u8 D_pspeu_0926B490[];
+extern Point16 D_pspeu_0926B530[];
+extern s16 D_pspeu_0926B540[];
+extern s32 D_pspeu_0926C090;
+extern s32 E_ID(UNK_1D);
+extern s32 E_ID(UNK_25);
+
 void func_us_801A4F14(Entity* self) {
     s32 primIndex;
     s32 size;
@@ -739,7 +749,197 @@ void func_us_8019EE30(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019F1CC);
+void func_us_8019F1CC(Entity* self) {
+    Entity* entity;
+    long diffX;
+    long diffY;
+    long posX;
+    s32 index;
+    register long posY;
+    s16 angle;
+    Entity* previous;
+    s32 distance;
+
+    self->palette = D_pspeu_0926C0A0;
+    if ((D_pspeu_0926C060 & 1) && self->step != 16) {
+        SetStep(16);
+    }
+    distance = self->step;
+    switch (distance) {
+    case 0:
+        InitializeEntity(D_us_8018054C);
+        entity = self + 1;
+        for (index = 0; index < 5; index++, entity++) {
+            CreateEntityFromCurrentEntity(E_ID(UNK_1D), entity);
+            entity->zPriority = self->zPriority - index;
+        }
+        // fallthrough
+    case 1:
+        AnimateEntity(D_pspeu_0926B478, self);
+        entity = &g_Entities[80];
+        diffX = entity->posX.i.hi + D_pspeu_0926B530[self->params].x;
+        diffY = entity->posY.i.hi + D_pspeu_0926B530[self->params].y;
+        self->posX.i.hi = diffX;
+        self->posY.i.hi = diffY;
+        self->zPriority = entity->zPriority + 2;
+        self->hitboxState = 0;
+        if (D_pspeu_0926C090 == self->params + 1) {
+            self->zPriority = entity->zPriority + 6;
+            SetStep(2);
+        }
+        if (D_pspeu_0926C098 == 1) {
+            self->zPriority = entity->zPriority + 6;
+            SetStep(3);
+        }
+        break;
+    case 2:
+        self->hitboxState = 3;
+        switch (self->step_s) {
+        case 0:
+            entity = &PLAYER;
+            diffX = entity->posX.i.hi - self->posX.i.hi;
+            diffY = entity->posY.i.hi - self->posY.i.hi;
+            angle = ratan2(diffY, diffX);
+            self->velocityX = (rcos(angle) << 18) >> 12;
+            self->velocityY = (rsin(angle) << 18) >> 12;
+            PlaySfxPositional(SFX_DRACULA_MONSTER_ROAR);
+            self->step_s++;
+            // fallthrough
+        case 1:
+            MoveEntity();
+            if (!AnimateEntity(D_pspeu_0926B480, self)) {
+                SetSubStep(2);
+            }
+            break;
+        case 2:
+            AnimateEntity(D_pspeu_0926B490, self);
+            MoveEntity();
+            entity = &g_Entities[80];
+            diffX = entity->posX.i.hi + D_pspeu_0926B530[self->params].x;
+            diffY = entity->posY.i.hi + D_pspeu_0926B530[self->params].y;
+            diffX -= self->posX.i.hi;
+            diffY -= self->posY.i.hi;
+            angle = ratan2(diffY, diffX);
+            self->velocityX = rcos(angle) << 5;
+            self->velocityY = rsin(angle) << 5;
+            if (abs(diffX) < 3 && abs(diffY) < 3) {
+                D_pspeu_0926C090++;
+                SetStep(1);
+            }
+            break;
+        }
+        break;
+    case 3:
+        switch (self->step_s) {
+        case 0:
+            angle = D_pspeu_0926B540[self->params];
+            self->velocityX = (rcos(angle) << 18) >> 12;
+            self->velocityY = (rsin(angle) << 18) >> 12;
+            self->step_s++;
+            // fallthrough
+        case 1:
+            MoveEntity();
+            if (!AnimateEntity(D_pspeu_0926B480, self)) {
+                g_api.PlaySfx(SFX_WEAPON_APPEAR);
+                entity = AllocEntity(&g_Entities[192], &g_Entities[256]);
+                if (entity != NULL) {
+                    CreateEntityFromCurrentEntity(E_ID(UNK_25), entity);
+                    entity->ext.succubus.real = self;
+                    entity->zPriority = self->zPriority + 1;
+                }
+                D_pspeu_0926C098++;
+                self->step_s++;
+            }
+            break;
+        case 2:
+            if (D_pspeu_0926C098 == 5) {
+                self->step_s++;
+            }
+            break;
+        case 3:
+            AnimateEntity(D_pspeu_0926B490, self);
+            MoveEntity();
+            entity = &g_Entities[80];
+            diffX = entity->posX.i.hi + D_pspeu_0926B530[self->params].x;
+            diffY = entity->posY.i.hi + D_pspeu_0926B530[self->params].y;
+            diffX -= self->posX.i.hi;
+            diffY -= self->posY.i.hi;
+            angle = ratan2(diffY, diffX);
+            self->velocityX = rcos(angle) * 40;
+            self->velocityY = rsin(angle) * 40;
+            if (abs(diffX) < 3 && abs(diffY) < 3) {
+                SetStep(1);
+            }
+            break;
+        }
+        break;
+    case 16:
+        switch (self->step_s) {
+        case 0:
+            self->hitboxState = 0;
+            self->animCurFrame = 18;
+            MoveEntity();
+            entity = &g_Entities[80];
+            diffX = entity->posX.i.hi + D_pspeu_0926B530[self->params].x;
+            diffY = entity->posY.i.hi + D_pspeu_0926B530[self->params].y;
+            diffX -= self->posX.i.hi;
+            diffY -= self->posY.i.hi;
+            angle = ratan2(diffY, diffX);
+            self->velocityX = rcos(angle) * 40;
+            self->velocityY = rsin(angle) * 40;
+            if (abs(diffX) < 3 && abs(diffY) < 3) {
+                self->zPriority = entity->zPriority + 2;
+                self->step_s++;
+            }
+            break;
+        case 1:
+            entity = &g_Entities[80];
+            diffX = entity->posX.i.hi + D_pspeu_0926B530[self->params].x;
+            diffY = entity->posY.i.hi + D_pspeu_0926B530[self->params].y;
+            self->posX.i.hi = diffX;
+            self->posY.i.hi = diffY;
+            break;
+        }
+        break;
+    }
+    entity = &g_Entities[80];
+    posX = entity->posX.val + (D_pspeu_0926B530[self->params].x << 16);
+    posY = entity->posY.val + (D_pspeu_0926B530[self->params].y << 16);
+    entity = self + 5;
+    for (index = 0; index < 5; index++) {
+        previous = entity - 1;
+        posX = (posX + previous->posX.val) >> 1;
+        posY = (posY + previous->posY.val) >> 1;
+        diffX = posX - entity->posX.val;
+        diffY = posY - entity->posY.val;
+        posX = (diffX >> 2) + posX;
+        posY = (diffY >> 2) + posY;
+        entity->posX.val = posX;
+        entity->posY.val = posY;
+        entity->zPriority = self->zPriority - 5 + index;
+        entity = previous;
+    }
+    entity = &g_Entities[80];
+    posX = entity->posX.i.hi + D_pspeu_0926B530[self->params].x;
+    posY = entity->posY.i.hi + D_pspeu_0926B530[self->params].y;
+    entity = self + 5;
+    for (index = 0; index < 6; index++, entity--) {
+        diffX = entity->posX.i.hi - posX;
+        diffY = entity->posY.i.hi - posY;
+        angle = ratan2(diffY, diffX);
+        distance = diffX * diffX + diffY * diffY;
+        if (distance > 144) {
+            entity->posX.i.hi = posX + ((rcos(angle) * 12) >> 12);
+            entity->posY.i.hi = posY + ((rsin(angle) * 12) >> 12);
+        }
+        posX = entity->posX.i.hi;
+        posY = entity->posY.i.hi;
+    }
+    if (D_pspeu_0926C068) {
+        self->animCurFrame = 0;
+        self->hitboxState = 0;
+    }
+}
 
 void func_us_8019FA78(Entity* self) {
 
