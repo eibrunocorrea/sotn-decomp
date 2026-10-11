@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo6/rbo6.h"
 
+// Extension used by the transformation effects; offsets verified in PSP ASM.
+typedef struct {
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ s16 timer;
+    /* 0x82 */ s16 : 16;
+    /* 0x84 */ s32 : 32;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 speed;
+} Rbo6TransformationEffect;
+
 extern EInit g_EInitBreakable;
 extern u8* D_pspeu_09256C38[];
 extern u8 D_pspeu_09256C58[];
@@ -458,7 +468,81 @@ void func_us_801A0710(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0860);
+void func_us_801A0860(Entity* self) {
+    extern EInit D_us_80180540;
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C070;
+    extern s32 D_pspeu_0926C078;
+    extern s32 D_pspeu_0926BFB0;
+    Entity* entity;
+    s32 i;
+    s32 scale;
+
+    if (D_pspeu_0926C060 & 1) {
+        DestroyEntity(self);
+        return;
+    }
+    entity = &g_Entities[80];
+    self->posX.i.hi = entity->posX.i.hi;
+    self->posY.i.hi = entity->posY.i.hi + 0x10;
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180540);
+        self->animCurFrame = D_pspeu_0926C078 + 0x2D;
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+        self->scaleX = self->scaleY = 0;
+        self->drawFlags |= ENTITY_OPACITY;
+        self->opacity = 0;
+        // Fallthrough
+    case 1:
+        self->scaleX = self->scaleY += 8;
+        if (self->scaleX >= 0x100) {
+            self->scaleX = self->scaleY = 0x100;
+            self->step++;
+        }
+        // Fallthrough
+    case 2:
+        self->opacity += 2;
+        if (self->opacity >= 0x80) {
+            D_pspeu_0926C070 = 2;
+            self->step = 3;
+        }
+        break;
+    case 3:
+        if (D_pspeu_0926C070 == 4) {
+            g_api.PlaySfx(0x868);
+            self->step++;
+        }
+        break;
+    case 4:
+        self->scaleX += 8;
+        scale = self->scaleY;
+        scale -= 0x18;
+        if (scale < 0) {
+            scale = 0;
+        }
+        self->scaleY = scale;
+        for (i = 0; i < 16; i++) {
+            entity = AllocEntity(&g_Entities[192], &g_Entities[256]);
+            if (entity != NULL) {
+                CreateEntityFromEntity(D_pspeu_0926BFB0, self, entity);
+                entity->zPriority = self->zPriority + 1;
+            }
+        }
+        if (!scale) {
+            self->animCurFrame = 0;
+            ((Rbo6TransformationEffect*)&self->ext)->timer = 0x50;
+            self->step++;
+        }
+        break;
+    case 5:
+        if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
+            g_api.PlaySfx(0x672);
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0AB4);
 
