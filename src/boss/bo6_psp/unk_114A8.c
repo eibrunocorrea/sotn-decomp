@@ -137,7 +137,6 @@ s32 func_pspeu_09248D20(
     return subweaponId;
 }
 
-
 extern u8 D_pspeu_09279A40[][8];
 s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY) {
     s16 offset;
@@ -311,4 +310,3 @@ void func_pspeu_09253EA0_from_rbo5(Entity* entity) {
 
 // declaring the ignored arg reproduces mwcc's 0x10 stack frame
 void Unused09249778(s32 arg0) {}
-

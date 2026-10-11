@@ -25,7 +25,8 @@ void func_pspeu_09252B48_from_rbo5(void) {
                     DestroyEntity(g_CurrentEntity);
                 } else {
                     if (entity->flags & FLAG_UNK_20000000) {
-                        g_api.UpdateAnim(NULL, (AnimationFrame**)D_pspeu_0927C158);
+                        g_api.UpdateAnim(
+                            NULL, (AnimationFrame**)D_pspeu_0927C158);
                     }
                     entity->flags |= FLAG_NOT_AN_ENEMY;
                 }
@@ -36,7 +37,8 @@ void func_pspeu_09252B48_from_rbo5(void) {
     if (D_pspeu_0927C230) {
         D_pspeu_0927C230--;
         if (D_pspeu_0927C230 & 1) {
-            g_api.func_800EA5AC(1, D_pspeu_0927C228, D_pspeu_0927C220, D_pspeu_0927C218);
+            g_api.func_800EA5AC(
+                1, D_pspeu_0927C228, D_pspeu_0927C220, D_pspeu_0927C218);
         }
     }
     if ((MARIA.step == 0x11) || (MARIA.step == 0x60) || (MARIA.step == 0x70)) {
@@ -47,7 +49,6 @@ void func_pspeu_09252B48_from_rbo5(void) {
         };
     }
 }
-
 
 // local copy of RicCreateEntFactoryFromEntity (see us_39144.c); note the
 // (68, 80) slot range - cen's Maria uses (72, 80)
@@ -396,7 +397,6 @@ void func_pspeu_0924A660(Entity* self) {
         break;
     }
 }
-
 
 extern unkStr_8011E4BC* D_pspeu_09279ED8[];
 extern s32 D_pspeu_0927C308[];
@@ -1976,5 +1976,3 @@ void func_pspeu_0924FFB8(Entity* self) {
         }
     }
 }
-
-

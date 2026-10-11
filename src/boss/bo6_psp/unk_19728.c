@@ -71,7 +71,6 @@ void func_pspeu_09250DA8(Entity* self) {
     }
 }
 
-
 extern u8 D_pspeu_0927A3F8[];
 void func_pspeu_09251100(Entity* self) {
     Entity* entity;
@@ -169,7 +168,6 @@ void func_pspeu_09251100(Entity* self) {
     prim->y0 = prim->y1 = posY - 2;
     prim->y2 = prim->y3 = posY + 2;
 }
-
 
 // local copy of func_us_801C13A8 (see us_3E79C.c) - rising sparkle
 void func_pspeu_092516D0(Entity* self) {
@@ -873,15 +871,11 @@ void func_pspeu_09253AA8(void) {
     MARIA.rotPivotY = 0x18;
     MARIA.blendMode = BLEND_NO;
     MARIA.flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED |
-                FLAG_SUPPRESS_STUN | FLAG_UNK_2000;
-
+                  FLAG_SUPPRESS_STUN | FLAG_UNK_2000;
 
     draw = &g_PlayerDraw[8];
-    draw->r0 = draw->r1 = draw->r2 =
-        draw->r3 = draw->g0 = draw->g1 =
-            draw->g2 = draw->g3 = draw->b0 =
-                draw->b1 = draw->b2 = draw->b3 =
-                    0x80;
+    draw->r0 = draw->r1 = draw->r2 = draw->r3 = draw->g0 = draw->g1 = draw->g2 =
+        draw->g3 = draw->b0 = draw->b1 = draw->b2 = draw->b3 = 0x80;
 
     draw->enableColorBlend = 0;
 
@@ -920,7 +914,6 @@ void func_pspeu_09253AA8(void) {
     g_api.TimeAttackController(
         TIMEATTACK_EVENT_SAVE_RICHTER, TIMEATTACK_SET_VISITED);
 }
-
 
 // local copy of func_us_801B4EAC (see richter.c) - integrate velocity
 // and clamp to the arena walls
@@ -963,9 +956,7 @@ void func_pspeu_09254008(void) {
     if ((MARIA.step == PL_S_CROUCH || MARIA.step == PL_S_STAND ||
          (MARIA.step == PL_S_JUMP && MARIA.velocityY > FIX(1)) ||
          MARIA.step == PL_S_FALL) &&
-        !g_Maria.unk46 &&
-        (g_Maria.padTapped & PAD_R2)) {
+        !g_Maria.unk46 && (g_Maria.padTapped & PAD_R2)) {
         func_pspeu_09259EA8();
     }
 }
-

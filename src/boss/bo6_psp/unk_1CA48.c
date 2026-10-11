@@ -22,8 +22,7 @@ void func_pspeu_09256610(void) {
     case 0:
         break;
     case 10:
-        if (!g_CastleFlags[SHAFT_ORB_DEFEATED] &&
-            (g_DemoMode == Demo_None)) {
+        if (!g_CastleFlags[SHAFT_ORB_DEFEATED] && (g_DemoMode == Demo_None)) {
             g_unkGraphicsStruct.pauseEnemies = true;
             D_pspeu_0927C250 = 0;
         }
@@ -55,7 +54,6 @@ void func_pspeu_09256610(void) {
         break;
     }
 }
-
 
 extern EInit g_EInitRichterBelmont;
 extern s32 D_pspeu_0927C258;
@@ -101,8 +99,9 @@ void func_pspeu_092568D0(void) {
     s16 xMod;
     s32 facing;
 
-    if (!func_pspeu_0925B680(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
-                       CHECK_ATTACK | CHECK_CROUCH | CHECK_SLIDE)) {
+    if (!func_pspeu_0925B680(
+            CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_CRASH |
+            CHECK_ATTACK | CHECK_CROUCH | CHECK_SLIDE)) {
         MarDecelerateX(FIX(0.125));
         switch (MARIA.step_s) {
         case 0:
@@ -138,8 +137,7 @@ void func_pspeu_092568D0(void) {
                     MARIA.step_s++;
                     g_Maria.unk46 = 2;
                     MarSetAnimation(D_pspeu_0927A970);
-                    MarCreateEntFactoryFromEntity(
-                        g_CurrentEntity, 0x11, 0);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x11, 0);
                     break;
                 }
                 g_Maria.unk46 = 0;
@@ -167,7 +165,6 @@ void func_pspeu_092568D0(void) {
         }
     }
 }
-
 
 // local copy of RicStepWalk (see ric/pl_steps.c) driving Maria
 void func_pspeu_09256BA0(void) {
@@ -368,7 +365,7 @@ extern AnimationFrame D_pspeu_0927A978[];
 void func_pspeu_09257418(void) {
     s32 facing;
     if (!func_pspeu_0925B680(CHECK_FALL | CHECK_FACING | CHECK_JUMP |
-                           CHECK_CRASH | CHECK_ATTACK | CHECK_SLIDE)) {
+                             CHECK_CRASH | CHECK_ATTACK | CHECK_SLIDE)) {
         MarDecelerateX(FIX(0.125));
         switch (MARIA.step_s) {
         case 0:
@@ -448,7 +445,6 @@ void func_pspeu_09257418(void) {
         }
     }
 }
-
 
 void MarResetPose(void) {
     MARIA.pose = MARIA.poseTimer = 0;
@@ -613,7 +609,8 @@ void func_pspeu_09257820(
         }
         break;
     case 1:
-        if ((g_Maria.vram_flag & TOUCHING_CEILING) && (MARIA.velocityY < FIX(-1))) {
+        if ((g_Maria.vram_flag & TOUCHING_CEILING) &&
+            (MARIA.velocityY < FIX(-1))) {
             MARIA.velocityY = FIX(-1);
         }
         if (func_pspeu_0925B680(
@@ -662,7 +659,6 @@ void func_pspeu_09257820(
         break;
     }
 }
-
 
 extern AnimationFrame D_pspeu_0927A778[];
 extern RECT D_pspeu_0927A518;
@@ -852,7 +848,7 @@ void func_pspeu_09258830(void) {
         MarSetStep(PL_S_JUMP);
         MarSetAnimation(D_pspeu_0927A758);
         g_Maria.unk44 = 0;
-        MARIA.palette = 0x8220;
+        MARIA.palette = PAL_FLAG(0x220);
     }
 }
 
@@ -1192,7 +1188,6 @@ void func_pspeu_09259638(void) {
         break;
     }
 }
-
 
 void MarLoadGraphics_09259858(void) {}
 
