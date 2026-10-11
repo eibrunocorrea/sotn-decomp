@@ -288,7 +288,25 @@ void func_pspeu_0924A2E0(Entity* self) {
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924A448);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924A578);
+extern EInit D_pspeu_0926EB78;
+void func_pspeu_0924A578(Entity* self) {
+    if (MARIA.step != PL_S_HIGHJUMP) {
+        DestroyEntity(self);
+        return;
+    }
+    self->posX.i.hi = MARIA.posX.i.hi;
+    self->posY.i.hi = MARIA.posY.i.hi;
+    self->facingLeft = MARIA.facingLeft;
+    if (self->step == 0) {
+        InitializeEntity(D_pspeu_0926EB78);
+        self->flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+        self->hitboxOffX = 0xC;
+        self->hitboxOffY = -0x1A;
+        self->hitboxWidth = 12;
+        self->hitboxHeight = 12;
+        self->step = 1;
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924A660);
 
