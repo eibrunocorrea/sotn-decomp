@@ -1949,7 +1949,104 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924FFB8);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09250DA8);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09251100);
+extern u8 D_pspeu_0927A3F8[];
+void func_pspeu_09251100(Entity* self) {
+    Entity* entity;
+    Primitive* prim;
+    s32 posX;
+    s32 posY;
+    s32 accelX;
+    s32 accelY;
+    s16 primIndex;
+    s16 params;
+    s32 velocity;
+
+    params = self->params & 0xFF;
+    switch (self->step) {
+    case 0:
+        self->primIndex = (s16)g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        prim = &g_PrimBuf[self->primIndex];
+        prim->clut = 0x252;
+        prim->tpage = 0x12;
+
+        // temp_a1 = &D_pspeu_0927A3F8[temp_a0];
+        prim->u0 = prim->u2 = D_pspeu_0927A3F8[params * 2] - 2;
+        prim->u1 = prim->u3 = D_pspeu_0927A3F8[params * 2] + 2;
+
+        prim->v0 = prim->v1 = D_pspeu_0927A3F8[params * 2 + 1] - 2;
+        prim->v2 = prim->v3 = D_pspeu_0927A3F8[params * 2 + 1] + 2;
+
+        prim->priority = MARIA.zPriority + 4;
+        prim->drawMode = DRAW_UNK02;
+
+        accelX = D_pspeu_0927A3F8[params * 2] - 16;
+        accelY = D_pspeu_0927A3F8[params * 2 + 1] - 16;
+        self->posX.i.hi += accelX;
+        self->posY.i.hi += accelY;
+
+        velocity = ratan2(-accelY, accelX);
+        velocity += ((rand() & 0x7F) - 0x40);
+        self->ext.shaftOrb.velocityAngle = velocity;
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->ext.shaftOrb.timer = 8;
+        self->step++;
+        break;
+
+    case 1:
+        if (--self->ext.shaftOrb.timer == 0) {
+            self->ext.shaftOrb.timer = 16;
+            velocity = self->ext.shaftOrb.velocityAngle;
+            self->velocityX = (rcos(velocity) * 32) + (rand() & 0xF);
+            self->velocityY = -((rsin(velocity) * 32) + (rand() & 0xF));
+            self->step++;
+        }
+        break;
+
+    case 2:
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        if (--self->ext.shaftOrb.timer == 0) {
+            MarCreateEntFactoryFromEntity(self, 0x4A, 0);
+            self->velocityY = (rand() & 0x7FFF) + 0xFFFF0000;
+            self->velocityX = self->velocityX >> 2;
+            self->ext.shaftOrb.timer = 1;
+            self->step++;
+        }
+        break;
+    case 3:
+        if ((self->ext.shaftOrb.timer % 4) == 0) {
+            entity = MarGetFreeEntity(0x50, 0x8F);
+            if (entity != NULL) {
+                DestroyEntity(entity);
+                entity->entityId = 0x43;
+                entity->params = 0x100;
+                // not shaft orb
+                entity->ext.shaftOrb.parent = self->ext.shaftOrb.parent;
+                entity->posX.val = self->posX.val;
+                entity->posY.val = self->posY.val;
+            }
+        }
+        self->ext.shaftOrb.timer += 1;
+        self->velocityY += 0xC00;
+        self->posY.val += self->velocityY;
+        self->posX.val += self->velocityX;
+        self->flags &= ~FLAG_UNK_10000000;
+        break;
+    }
+
+    posX = self->posX.i.hi;
+    posY = self->posY.i.hi;
+    prim = &g_PrimBuf[self->primIndex];
+    prim->x0 = prim->x2 = posX - 2;
+    prim->x1 = prim->x3 = posX + 2;
+    prim->y0 = prim->y1 = posY - 2;
+    prim->y2 = prim->y3 = posY + 2;
+}
+
 
 // local copy of func_us_801C13A8 (see us_3E79C.c) - rising sparkle
 void func_pspeu_092516D0(Entity* self) {
