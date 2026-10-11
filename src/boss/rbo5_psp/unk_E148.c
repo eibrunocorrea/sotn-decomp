@@ -2197,7 +2197,57 @@ void func_pspeu_09250948(s16 bounceAngle) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092509D0);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092514F0);
+typedef struct {
+    AnimationFrame* frames;
+    s8* frameProps;
+    u16 soundId;
+    u8 frameStart;
+    u8 soundFrame;
+} DopWeaponAnimation;
+
+extern EInit D_pspeu_09266718;
+extern EInit D_pspeu_09266728;
+extern DopWeaponAnimation D_pspeu_09263318[];
+
+void func_pspeu_092514F0(Entity* self) {
+    s16 animIndex;
+    DopWeaponAnimation* anim;
+
+    animIndex = (self->params & 0x7FFF) >> 8;
+    self->posX.val = DOPPLEGANGER.posX.val;
+    self->posY.val = DOPPLEGANGER.posY.val;
+    self->facingLeft = DOPPLEGANGER.facingLeft;
+    anim = &D_pspeu_09263318[animIndex];
+
+    if (DOPPLEGANGER.ext.player.anim < anim->frameStart ||
+        DOPPLEGANGER.ext.player.anim >= (anim->frameStart + 7) ||
+        !g_Dop.unk46) {
+        DestroyEntity(self);
+        return;
+    }
+
+    if (self->step == 0) {
+        if (animIndex) {
+            InitializeEntity(D_pspeu_09266728);
+        } else {
+            InitializeEntity(D_pspeu_09266718);
+        }
+        if (g_Dop.status & PLAYER_STATUS_POISON) {
+            self->attack = self->attack / 2;
+        }
+        self->zPriority = DOPPLEGANGER.zPriority - 2;
+        self->blendMode = BLEND_TRANSP | BLEND_ADD;
+        self->flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+        self->step = Dop_Stand;
+    }
+    self->ext.weapon.anim = DOPPLEGANGER.ext.player.anim - anim->frameStart;
+    if (DOPPLEGANGER.poseTimer == 1 && DOPPLEGANGER.pose == anim->soundFrame) {
+        g_api.PlaySfx(anim->soundId);
+    }
+    if (UpdateUnarmedAnim(anim->frameProps, (u16**)anim->frames) < 0) {
+        DestroyEntity(self);
+    }
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09251748);
 
