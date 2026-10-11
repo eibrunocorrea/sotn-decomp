@@ -1036,7 +1036,180 @@ void func_pspeu_092577D8(void) {
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09257820);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09258010);
+extern AnimationFrame D_pspeu_0927A778[];
+extern RECT D_pspeu_0927A518;
+extern s32 D_pspeu_0927C768;
+extern s32 D_pspeu_0927C770;
+extern s32 D_pspeu_0927C248;
+extern s16 D_pspeu_0927C778;
+extern s16 D_pspeu_0927C780;
+extern u8 D_pspeu_0927C788[];
+void func_pspeu_09258010(
+    s32 damageEffects, s32 damageKind, s32 prevStep, s32 prevStepS) {
+    s32 j;
+    s32 i;
+    u8* s2;
+    u8* imgPtr;
+    s32 disableColorChange = 0;
+    PlayerDraw* playerDraw = &g_PlayerDraw[8];
+    Entity* entity;
+
+    switch (MARIA.step_s) {
+    case 0:
+        MarResetPose();
+        func_pspeu_092577D8();
+        func_pspeu_0924EA50_from_rbo5(FIX(-0.75));
+        MarSetAnimation(D_pspeu_0927A778);
+        MARIA.velocityY = FIX(-1.625);
+        g_api.PlaySfx(SFX_BOSS_RIC_DEATH);
+        D_pspeu_0927C768 = damageEffects;
+        MARIA.step_s++;
+        if (!g_CastleFlags[SHAFT_ORB_DEFEATED] && !g_DemoMode) {
+            entity = &g_Entities[200];
+            CreateEntityFromCurrentEntity(E_ID(ID_17), entity);
+            entity->params = 2;
+            entity->flags = FLAG_UNK_10000;
+        }
+        D_pspeu_0927C248 = 10;
+        MARIA.palette = 0x8220;
+        return;
+    case 1:
+        if (D_pspeu_0927C768 & ELEMENT_FIRE) {
+            func_pspeu_09252480_from_rbo5(0);
+            // RIC blueprint 33 has child 31, EntityPlayerBlinkWhite
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x48), 0);
+            // RIC blueprint 53 has child 9, func_80161C2C
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_DEATH_BY_FIRE, 2), 0);
+            D_pspeu_0927C770 = 1;
+        } else if (D_pspeu_0927C768 & ELEMENT_THUNDER) {
+            func_pspeu_09252480_from_rbo5(2);
+            // RIC blueprint 33 has child 31, EntityPlayerBlinkWhite
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x4C), 0);
+            // RIC blueprint 48 has child 41, EntityHitByLightning
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_HIT_BY_THUNDER, 1), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_HIT_BY_THUNDER, 2), 0);
+            D_pspeu_0927C770 = 2;
+        } else if (D_pspeu_0927C768 & ELEMENT_ICE) {
+            func_pspeu_09252480_from_rbo5(3);
+            // RIC blueprint 33 has child 31, EntityPlayerBlinkWhite
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x4D), 0);
+            // RIC blueprint 47 has child 40, EntityHitByIce
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 47, 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_HIT_BY_ICE, 1), 0);
+            D_pspeu_0927C770 = 3;
+            MARIA.blendMode = BLEND_TRANSP | BLEND_ADD;
+        } else {
+            func_pspeu_09252480_from_rbo5(1);
+            // RIC blueprint 33 has child 31, EntityPlayerBlinkWhite
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x4A), 0);
+            // RIC blueprint 11 has child 5, RicEntityHitByCutBlood
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_MULTIPLE_EMBERS, 5), 0);
+            D_pspeu_0927C770 = 0;
+        }
+        playerDraw->r0 = playerDraw->g0 = playerDraw->b0 = playerDraw->r1 =
+            playerDraw->g1 = playerDraw->b1 = playerDraw->r2 = playerDraw->g2 =
+                playerDraw->b2 = playerDraw->r3 = playerDraw->g3 =
+                    playerDraw->b3 = 0x80;
+        playerDraw->enableColorBlend = 1;
+        MARIA.step_s++;
+        break;
+    case 2:
+        if (MARIA.pose != 4) {
+            break;
+        }
+        MARIA.step_s++;
+        break;
+    case 3:
+        // Unusual, FIX usually has denominator of 128
+        MARIA.velocityY += FIX(11.0 / 256);
+        if (MARIA.velocityY > FIX(1.0 / 16)) {
+            MARIA.velocityY >>= 2;
+            MARIA.velocityX >>= 3;
+            StoreImage(&D_pspeu_0927A518, (u_long*)D_pspeu_0927C788);
+            D_pspeu_0927C778 = 0;
+            D_pspeu_0927C780 = 0x40;
+            MARIA.step_s++;
+        }
+        break;
+    case 4:
+        if (g_Timer & 1) {
+            break;
+        }
+        if (D_pspeu_0927C780 > 16) {
+            // Another really weird velocityY value.
+            // It's 0x233.
+            MARIA.velocityY += FIX(0.0086);
+        } else {
+            MARIA.velocityX = 0;
+            MARIA.velocityY = 0;
+        }
+        for (i = 0; i < 4; i++) {
+            s2 = imgPtr = D_pspeu_0927C788;
+            s2 += ((D_pspeu_0927C778 >> 1) & 7);
+            s2 += ((D_pspeu_0927C778 & 0xFF) >> 4) << 6;
+            for (j = 0; j < 0x28; j++) {
+                if (D_pspeu_0927C778 & 1) {
+                    *(s2 + ((j & 7) * 8) + ((j >> 3) * 0x400)) &= 0xF0;
+                } else {
+                    *(s2 + ((j & 7) * 8) + ((j >> 3) * 0x400)) &= 0x0F;
+                }
+            }
+            D_pspeu_0927C778 += 0x23;
+            D_pspeu_0927C778 &= 0xFF;
+        }
+        LoadImage(&D_pspeu_0927A518, (u_long*)imgPtr);
+        if (--D_pspeu_0927C780 == 0) {
+            MARIA.velocityY = 0;
+            playerDraw->enableColorBlend = 0;
+            MARIA.step_s = 0x80;
+        }
+        break;
+    case 0x80:
+        break;
+    }
+    // Always happens, kind of weird
+    if (!disableColorChange) {
+        if (D_pspeu_0927C770 == 0) {
+            if (playerDraw->r0 < 0xF8) {
+                playerDraw->r0 += 2;
+            }
+            if (playerDraw->b0 > 8) {
+                playerDraw->b0 -= 2;
+            }
+
+            playerDraw->r3 = playerDraw->r2 = playerDraw->r1 = playerDraw->r0;
+            playerDraw->g0 = playerDraw->g1 = playerDraw->b1 = playerDraw->g2 =
+                playerDraw->b2 = playerDraw->g3 = playerDraw->b3 =
+                    playerDraw->b0;
+        }
+        if (D_pspeu_0927C770 == 1 || D_pspeu_0927C770 == 2) {
+            if (playerDraw->b0 > 8) {
+                playerDraw->b0 -= 2;
+            }
+            playerDraw->r3 = playerDraw->r2 = playerDraw->r1 = playerDraw->r0 =
+                playerDraw->g0 = playerDraw->g1 = playerDraw->b1 =
+                    playerDraw->g2 = playerDraw->b2 = playerDraw->g3 =
+                        playerDraw->b3 = playerDraw->b0;
+        }
+        if (D_pspeu_0927C770 == 3) {
+            if ((playerDraw->r0 > 8) && (g_Timer & 1)) {
+                playerDraw->r0 -= 1;
+            }
+            playerDraw->r3 = playerDraw->r2 = playerDraw->r1 = playerDraw->g3 =
+                playerDraw->g2 = playerDraw->g1 = playerDraw->g0 =
+                    playerDraw->r0;
+        }
+    }
+}
 
 extern AnimationFrame D_pspeu_0927A758[];
 // Local copy of RicStepStandInAir; the boss copy restores Maria's palette.
