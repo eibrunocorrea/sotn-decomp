@@ -3480,7 +3480,85 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09254180)
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09256258);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09256D30);
+void func_pspeu_09256D30(Entity* self) {
+    Primitive* prim;
+    s16 halfWidth;
+    s32 i;
+    s16 yOffset = -12;
+
+    switch (self->step) {
+    case 0:
+        self->posY.i.hi = MARIA.posY.i.hi + 37;
+        self->ext.subweapon.timer = 1536;
+        self->primIndex = g_api.AllocPrimitives(PRIM_G4, 4);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags =
+            FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+
+        for (prim = &g_PrimBuf[self->primIndex], i = 0; prim != NULL; i++,
+            prim = prim->next) {
+            halfWidth =
+                (self->ext.subweapon.timer >> 8) - i; // unused in this loop
+            prim->r0 = 0;
+            prim->g0 = 0;
+            prim->b0 = 0xC0;
+            prim->r1 = 0;
+            prim->g1 = 0;
+            prim->b1 = 0xC0;
+            prim->r2 = 0x40;
+            prim->g2 = 0x40;
+            prim->b2 = 0x40;
+            prim->r3 = 0x40;
+            prim->g3 = 0x40;
+            prim->b3 = 0x40;
+
+            prim->priority = MARIA.zPriority - 2;
+            prim->drawMode = DRAW_DITHERING | DRAW_TPAGE2 | DRAW_TPAGE |
+                             DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+        }
+        self->step++;
+        break;
+
+    case 1:
+        if (MARIA.velocityY > FIX(-1.5)) {
+            self->step = 2;
+        }
+        // If transformed, timer drains faster
+        if (g_Maria.status &
+            (PLAYER_STATUS_BAT_FORM | PLAYER_STATUS_MIST_FORM)) {
+            self->step = 3;
+        }
+        break;
+
+    case 3:
+        // note that with the fallthrough these decrements stack
+        self->ext.subweapon.timer -= 160;
+    case 2:
+        self->ext.subweapon.timer -= 96;
+        if (self->ext.subweapon.timer < 0) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+    for (prim = &g_PrimBuf[self->primIndex], i = 0; prim != NULL; i++,
+        prim = prim->next) {
+        // As timer counts down, beam gets narrower.
+        halfWidth = (self->ext.subweapon.timer >> 8) - i;
+        if (halfWidth < 0) {
+            halfWidth = 0;
+        }
+        prim->x0 = self->posX.i.hi - halfWidth;
+        prim->x1 = self->posX.i.hi + halfWidth;
+        prim->x2 = MARIA.posX.i.hi - halfWidth;
+        prim->x3 = MARIA.posX.i.hi + halfWidth;
+        prim->y2 = prim->y3 = MARIA.posY.i.hi - yOffset;
+        prim->y0 = prim->y1 = self->posY.i.hi;
+    }
+}
 
 // local copy of EntityWingSmashTrail (see bo4/unk_46E7C.c)
 void func_pspeu_092570B8(Entity* self) {
