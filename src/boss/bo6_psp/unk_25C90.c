@@ -2405,7 +2405,7 @@ void func_pspeu_09269428(Entity* self) {
         if (--self->ext.crossBoomerang.timer < 0 &&
             ((self->hitFlags == 2) || (self->flags & FLAG_DEAD))) {
             self->velocityY = FIX(-3.0);
-            self->velocityX = -((s32)self->velocityX / 2);
+            self->velocityX = -(self->velocityX / 2);
             self->hitboxState = 0;
             self->ext.holywater.timer = 50;
             self->step = 6;
