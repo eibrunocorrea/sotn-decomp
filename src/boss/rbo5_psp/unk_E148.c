@@ -77,7 +77,75 @@ s32 func_pspeu_0924D108(void);
 void func_pspeu_0924D4E8(void);
 void func_pspeu_0924D528(void);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092457C8);
+extern s32 D_pspeu_0926BC38[];
+extern s32 D_pspeu_0926BBB8[];
+// local copy of func_us_801C096C (see rbo5/doppleganger.c)
+void func_pspeu_092457C8(void) {
+    Entity* entity;
+    Primitive* prim;
+    s16 angle;
+    s16 scale;
+    s32 i;
+    s32 colliderSize;
+    s32* colliders;
+
+    g_CurrentEntity = &DOPPLEGANGER;
+    DOPPLEGANGER.animSet = ANIMSET_OVL(1);
+    g_CurrentEntity->unk5A = 8;
+    g_PlayerDraw[8].enableColorBlend = 0;
+    DOPPLEGANGER.zPriority = g_unkGraphicsStruct.g_zEntityCenter + 8;
+    if (DOPPLEGANGER.posX.i.hi < PLAYER.posX.i.hi) {
+        DOPPLEGANGER.facingLeft = false;
+    } else {
+        DOPPLEGANGER.facingLeft = true;
+    }
+
+    DOPPLEGANGER.blendMode = BLEND_NO;
+    DOPPLEGANGER.palette = PAL_FLAG(0x200);
+    DOPPLEGANGER.scaleY = DOPPLEGANGER.scaleX = 0x100;
+    DOPPLEGANGER.flags =
+        FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_SUPPRESS_STUN;
+
+    // BUG: this loop seems to be clearing parts of the floor
+    //      ceiling colliders, but not all of them
+    colliderSize = (sizeof(Collider) * 6) + 0x1C;
+    colliders = (s32*)g_Dop.colFloor;
+    for (i = 0; i < colliderSize; i++) {
+        *colliders++ = 0;
+    }
+
+    g_Dop.vram_flag = g_Dop.unk04 = TOUCHING_GROUND;
+    func_pspeu_0924CA58(0);
+    entity = &g_Entities[65];
+
+    for (i = 0; i < 3; i++, entity++) {
+        DestroyEntity(entity);
+        entity->animSet = ANIMSET_OVL(1);
+        entity->unk5A = i + 9;
+        entity->palette = PAL_FLAG(0x200);
+        entity->flags = FLAG_POS_CAMERA_LOCKED;
+    }
+    g_Entities[65].primIndex = g_api.AllocPrimitives(PRIM_TILE, 6);
+    g_Entities[65].flags |= FLAG_HAS_PRIMS;
+    prim = &g_PrimBuf[g_Entities[65].primIndex];
+
+    i = 0;
+    while (prim != NULL) {
+        prim->drawMode = DRAW_HIDE | DRAW_UNK02;
+        i++;
+        prim = prim->next;
+    }
+
+    for (i = 0; i < 32; i++) {
+        angle = (rand() & 0x3FF) + 0x100;
+        scale = (rand() & 0xFF) + 0x100;
+        D_pspeu_0926BC38[i] = ((rcos(angle) << 4) * scale) >> 8;
+        D_pspeu_0926BBB8[i] = -(((rsin(angle) << 4) * scale) >> 7);
+    }
+
+    g_api.TimeAttackController(
+        TIMEATTACK_EVENT_DOPPLEGANGER_40_DEFEAT, TIMEATTACK_SET_VISITED);
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09245AD8);
 
@@ -95,7 +163,6 @@ void func_pspeu_09247190(s32 step) {
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092471B8);
 
 extern EInit g_EInitDoppleganger40;
-void func_pspeu_092457C8(void);
 void func_pspeu_09247190(s32 step);
 void func_pspeu_092471B8(void);
 void func_pspeu_09246210(void);
