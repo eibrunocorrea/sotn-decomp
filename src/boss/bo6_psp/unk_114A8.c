@@ -590,7 +590,85 @@ void func_pspeu_0924A578(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0924A660);
+extern s16 D_pspeu_09279DA8[];
+extern s32 D_pspeu_09279DB8[];
+extern s16 D_pspeu_09279DD0[];
+extern AnimationFrame D_pspeu_09279DE0[];
+void func_pspeu_0924A660(Entity* self) {
+    s16 posX;
+
+    s16 paramsHi = self->params >> 8;
+    s16 paramsLo = self->params & 0xFF;
+
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_DRA(5);
+        self->anim = D_pspeu_09279DE0;
+        self->zPriority = MARIA.zPriority + 2;
+        self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        self->blendMode = BLEND_TRANSP | BLEND_ADD;
+        self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_OPACITY;
+        self->opacity = 0x60;
+        posX = D_pspeu_09279DA8[paramsLo];
+        if (paramsHi == 0) {
+            posX += 6;
+        }
+        if (paramsHi == 1) {
+            posX -= 8;
+        }
+        if (paramsHi == 2) {
+            posX -= 6;
+        }
+        if (paramsHi == 5) {
+            posX = -6;
+        }
+        if (paramsHi == 3) {
+            self->posY.i.hi -= 8;
+        }
+        if (paramsHi == 4) {
+            DestroyEntity(self);
+            return;
+        }
+        if (paramsHi == 1) {
+            if (g_Maria.vram_flag & TOUCHING_ANY_SLOPE) {
+                posX /= 2;
+            }
+        }
+        if (self->facingLeft) {
+            posX = -posX;
+        }
+        self->posX.i.hi += posX;
+        self->posY.i.hi += 0x18;
+        self->scaleX = D_pspeu_09279DD0[paramsLo] + 0x40;
+        self->velocityY = D_pspeu_09279DB8[paramsLo];
+        if (paramsHi == 1) {
+            self->velocityY = FIX(-0.25);
+            MarSetSpeedX(FIX(-0.1875));
+            self->scaleX = D_pspeu_09279DD0[1] + 0x40;
+        }
+        if (paramsHi == 5) {
+            self->velocityY = D_pspeu_09279DB8[4 - paramsLo * 2];
+        }
+        if (paramsHi == 2) {
+            self->velocityY = FIX(-0.5);
+            MarSetSpeedX(FIX(-0.1875));
+            self->scaleX = D_pspeu_09279DD0[1] + 0x40;
+        }
+        self->scaleY = self->scaleX;
+        self->step++;
+        break;
+    case 1:
+        self->opacity -= 2;
+        self->posY.val += self->velocityY;
+        self->posX.val += self->velocityX;
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+}
+
 
 extern unkStr_8011E4BC* D_pspeu_09279ED8[];
 extern s32 D_pspeu_0927C308[];
