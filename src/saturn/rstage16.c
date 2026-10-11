@@ -1798,13 +1798,264 @@ void func_060E4EA4(Entity* self) {
     func_06079BB4(self);
     func_0600B004(self->unk0, DAT_060EDDE4[self->animCurFrame]);
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4EDC, func_060E4EDC);
+extern s16 DAT_060ED938[], DAT_060ED958[], DAT_060ED95E[], DAT_060ED9C2[];
+extern u8 DAT_060ED968[], DAT_060ED980[], DAT_060ED994[], DAT_060ED9A0[],
+    DAT_060ED9B8[];
+void PlaySfxPositional(s32 sfxId);
+s32 func_06079C04(Entity* self, s16* sensors);
+u8 func_0607A118(Entity* self, s16* sensors, s32 count);
+s32 GetSideToPlayer(Entity* self);
+extern Entity DAT_060A4FF8;
+
+void func_060E4EDC(Entity* self) {
+    Entity* entity;
+    Entity* sibling;
+    s32 i;
+    u16* bank;
+    SaturnSpriteImage* images = DAT_060EDE4C;
+    void (*sync)(Entity*, s16*);
+    if (!self->ext.et_060E4EDC.unk7D && (self->hitFlags & 3) &&
+        self->step != 3) {
+        self->hitboxState = 0;
+        self->hitPoints = g_EnemyDefs[15].hitPoints;
+        SetStep(3);
+        PlaySfxPositional(0x784);
+    }
+    if (self->flags & FLAG_DEAD) {
+        if (!self->ext.et_060E4EDC.unk7D) {
+            self->hitboxState = 0;
+            self->flags &= ~FLAG_DEAD;
+            self->hitPoints = g_EnemyDefs[15].hitPoints;
+            SetStep(3);
+            PlaySfxPositional(0x784);
+        } else if (self->step != 7) {
+            self->hitboxState = 0;
+            SetStep(7);
+        }
+    }
+    switch (self->step) {
+    case 0:
+        bank = &g_RStage16SpriteBankWight.flags;
+        self->unk0 = CreateSpriteObject(
+            g_RStage16SpriteBankWight.allocationIndex, *bank, images, 5);
+        sync = SyncSpriteObjectPosUnchecked;
+        sync(self, DAT_060ED9FA);
+        self->step++;
+        TekiInit(self, 15);
+        self->hitboxOffX = 1;
+        self->hitboxOffY = 10;
+        CreateEntityFromEntity(29, self, self + 1);
+        self->animCurFrame = 1;
+        func_06079BB4(self);
+        func_0600B004(self->unk0, DAT_060EDDE4[self->animCurFrame]);
+        /* fallthrough */
+    case 1:
+        func_06079BB4(self);
+        if (func_06079C04(self, DAT_060ED938) & 1) {
+            func_06079BB4(self);
+            func_0600B004(self->unk0, DAT_060EDDE4[self->animCurFrame]);
+            self->step_s = 0;
+            self->step++;
+        }
+        break;
+    case 2:
+        switch (self->step_s) {
+        case 0:
+            self->facingLeft = (u8)((GetSideToPlayer(self) & 1) ^ 1);
+            if (self->facingLeft)
+                self->unk0->flags |= 0x10;
+            else
+                self->unk0->flags &= ~0x10;
+            if (self->facingLeft)
+                self->velocityX = 0x2800;
+            else
+                self->velocityX = -0x2800;
+            self->step_s++;
+            break;
+        case 1:
+            AnimateEntityWithSpriteData(self, DAT_060ED968, DAT_060EDDE4);
+            func_06079DEC(self, DAT_060ED95E);
+            if (func_0607A118(self, DAT_060ED958, (u8)self->facingLeft))
+                self->velocityX = 0;
+            if (self->ext.et_060E4EDC.unk78++ > 128) {
+                self->ext.et_060E4EDC.unk78 = 0;
+                self->step_s--;
+            }
+            if (self->animCurFrame == 7) {
+                if (self->facingLeft)
+                    self->velocityX -= 0x280;
+                else
+                    self->velocityX += 0x280;
+            }
+            if (self->animCurFrame == 8) {
+                if (self->facingLeft)
+                    self->velocityX += 0x280;
+                else
+                    self->velocityX -= 0x280;
+            }
+            break;
+        }
+        break;
+    case 3:
+        if (!self->step_s) {
+            PlaySfxPositional(0x736);
+            self->ext.et_060E4EDC.unk7D = 1;
+            for (i = 0; i < 5; i++) {
+                entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+                if (entity) {
+                    CreateEntityFromEntity(31, self, entity);
+                    entity->params = 0;
+                    if (self->facingLeft)
+                        entity->posX.i.hi -= 11;
+                    if (!(Random() & 1))
+                        entity->posX.i.hi += 5;
+                    else
+                        entity->posX.i.hi -= 5;
+                    if (!(Random() & 1))
+                        entity->posY.i.hi += 5;
+                    else
+                        entity->posY.i.hi -= 5;
+                }
+            }
+            entity = self + 1;
+            entity->step = 2;
+            entity->hitboxState = 0;
+            self->step_s++;
+        }
+        if (!AnimateEntityWithSpriteData(self, DAT_060ED9A0, DAT_060EDDE4)) {
+            entity = self + 1;
+            entity->step = 3;
+            entity->step_s = 0;
+            entity->hitboxOffX = 0;
+            entity->hitboxOffY = 0;
+            entity->facingLeft = self->facingLeft;
+            entity->posY.i.hi = self->posY.i.hi - 26;
+            entity->flags &= ~FLAG_DEAD;
+            self->hitPoints = g_EnemyDefs[14].hitPoints;
+            self->animCurFrame = 18;
+            func_06079BB4(self);
+            func_0600B004(self->unk0, DAT_060EDDE4[self->animCurFrame]);
+            self->hitboxState = 3;
+            SetStep(5);
+        }
+        break;
+    case 4:
+        switch (self->step_s) {
+        case 0:
+            sibling = self + 1;
+            sibling->step = 3;
+            sibling->animCurFrame = 16;
+            sibling->pose = 0;
+            sibling->poseTimer = 0;
+            sibling->facingLeft = self->facingLeft;
+            sibling->zPriority -= 8;
+            sibling->unk0->zPriority += 8;
+            sibling->posY.i.hi = self->posY.i.hi - 10;
+            func_06079BB4(sibling);
+            func_0600B004(
+                (self + 1)->unk0, DAT_060EDDE4[(self + 1)->animCurFrame]);
+            self->ext.et_060E4EDC.unk7D = 1;
+            self->animCurFrame = 18;
+            self->ext.et_060E4EDC.unk78 = 8;
+            self->ext.et_060E4EDC.unk7A = 0;
+            self->step_s++;
+            func_06079BB4(self);
+            func_0600B004(self->unk0, DAT_060EDDE4[self->animCurFrame]);
+            break;
+        case 1:
+            if (!--self->ext.et_060E4EDC.unk78) {
+                self->ext.et_060E4EDC.unk7A = 0;
+                self->ext.et_060E4EDC.unk78 = 2;
+                self->step_s++;
+            }
+            break;
+        case 2:
+            if (!--self->ext.et_060E4EDC.unk78) {
+                entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+                if (entity) {
+                    CreateEntityFromEntity(2, self, entity);
+                    entity->params = 1;
+                    entity->posY.i.hi -= self->ext.et_060E4EDC.unk7A * 8;
+                }
+                self->ext.et_060E4EDC.unk78 = 6;
+                if (++self->ext.et_060E4EDC.unk7A > 1) {
+                    PlaySfxPositional(0x694);
+                    DestroyEntity(self + 1);
+                    SetStep(5);
+                }
+            }
+            break;
+        }
+        break;
+    case 5:
+        if (!AnimateEntityWithSpriteData(self, DAT_060ED9B8, DAT_060EDDE4)) {
+            self->pose = 0;
+            self->poseTimer = 0;
+            self->step++;
+        }
+        break;
+    case 6:
+        switch (self->step_s) {
+        case 0:
+            self->ext.et_060E4EDC.unk78 = DAT_060ED9C2[Random() & 3];
+            if (self->facingLeft)
+                self->velocityX = 0x1400;
+            else
+                self->velocityX = -0x1400;
+            self->step_s++;
+            break;
+        case 1:
+            AnimateEntityWithSpriteData(self, DAT_060ED980, DAT_060EDDE4);
+            func_06079DEC(self, DAT_060ED95E);
+            if (func_0607A118(self, DAT_060ED958, (u8)self->facingLeft))
+                self->velocityX = 0;
+            if (self->animCurFrame == 1) {
+                if (self->facingLeft)
+                    self->velocityX -= 200;
+                else
+                    self->velocityX += 200;
+            }
+            if (self->animCurFrame == 2) {
+                if (self->facingLeft)
+                    self->velocityX += 200;
+                else
+                    self->velocityX -= 200;
+            }
+            if (!--self->ext.et_060E4EDC.unk78) {
+                self->pose = 0;
+                self->poseTimer = 0;
+                self->step_s++;
+            }
+            break;
+        case 2:
+            if (!AnimateEntityWithSpriteData(
+                    self, DAT_060ED994, DAT_060EDDE4)) {
+                if ((self->facingLeft = Random() & 1))
+                    self->unk0->flags |= 0x10;
+                else
+                    self->unk0->flags &= ~0x10;
+                self->pose = 0;
+                self->poseTimer = 0;
+                self->step_s = 0;
+            }
+            break;
+        }
+        break;
+    case 7:
+        entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+        if (entity) {
+            CreateEntityFromEntity(2, self, entity);
+            entity->params = 2;
+        }
+        PlaySfxPositional(0x694);
+        DestroyEntity(self);
+        break;
+    }
+}
+
 extern s16 DAT_060EDA14[];
 extern u8 DAT_060ED9B0[], DAT_060ED974[];
 extern s16 DAT_060ED948[], DAT_060ED9CA[];
-extern Entity DAT_060A4FF8;
-void PlaySfxPositional(s32 sfxId);
-s32 func_06079C04(Entity* self, s16* sensors);
 u8 func_0607AF94(Entity* self, Entity* other);
 void func_0607AF3C(Entity* self, u8 direction, s16 limit);
 
@@ -1999,7 +2250,6 @@ void func_060E56DC(Entity* self) {
 
 extern s16 DAT_060EDA28[];
 extern s16 DAT_060EDA2C[];
-u8 func_0607A118(Entity* self, s16* sensors, s32 count);
 
 void func_060E5CB0(Entity* self) {
     s32 primIndex;
@@ -2099,7 +2349,6 @@ extern s32 DAT_060EDEA4, DAT_060EDEA8;
 extern u8 DAT_060EDED0[], DAT_060EDEF6[], DAT_060EDF02[], DAT_060EDF18[];
 s32 GetDistanceToPlayerX(Entity* self);
 s32 GetDistanceToPlayerY(Entity* self);
-s32 GetSideToPlayer(Entity* self);
 void PlaySfxPositional(s32 sfxId);
 u16 func_0607B134(u16 step, u16 angle, u16 target);
 

@@ -665,7 +665,7 @@ typedef struct {
     /* 0x78 */ u16 unk78;
     /* 0x7A */ u16 unk7A;
     /* 0x7C */ u8 unk7C;
-    /* 0x7D */ u8 : 8;
+    /* 0x7D */ u8 unk7D;
     /* 0x7E */ u16 : 16;
     /* 0x80 */ Primitive* prim;
 } ET_060E4EDC;
