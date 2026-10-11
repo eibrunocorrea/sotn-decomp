@@ -1799,7 +1799,204 @@ void func_060E4EA4(Entity* self) {
     func_0600B004(self->unk0, DAT_060EDDE4[self->animCurFrame]);
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E4EDC, func_060E4EDC);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E56DC, func_060E56DC);
+extern s16 DAT_060EDA14[];
+extern u8 DAT_060ED9B0[], DAT_060ED974[];
+extern s16 DAT_060ED948[], DAT_060ED9CA[];
+extern Entity DAT_060A4FF8;
+void PlaySfxPositional(s32 sfxId);
+s32 func_06079C04(Entity* self, s16* sensors);
+u8 func_0607AF94(Entity* self, Entity* other);
+void func_0607AF3C(Entity* self, u8 direction, s16 limit);
+
+void func_060E56DC(Entity* self) {
+    Entity* entity;
+    s16 angle;
+    u8 direction;
+    u32 randOffset;
+    s16* x;
+    u16* bank;
+    SaturnSpriteImage* images = DAT_060EDE4C;
+    void (*sync)(Entity*, s16*);
+    s32 dx;
+    s32 dy;
+    if ((self->flags & 0x100) && self->step > 5) {
+        self->step = 5;
+        self->step_s = 0;
+        self->hitboxState = 0;
+        self->ext.et_060E4EDC.unk7A = 0;
+        self->ext.et_060E4EDC.unk7C = 0;
+        PlaySfxPositional(0x785);
+        PlaySfxPositional(0x691);
+    }
+    switch (self->step) {
+    case 0:
+        bank = &g_RStage16SpriteBankWight.flags;
+        self->unk0 = CreateSpriteObject(bank[-1], bank[0], images, 5);
+        sync = SyncSpriteObjectPosUnchecked;
+        sync(self, DAT_060EDA14);
+        self->step = 1;
+        TekiInit(self, 14);
+        self->hitboxOffX = -4;
+        self->hitboxOffY = -14;
+        self->ext.et_060E4EDC.unk7C = 0;
+        break;
+    case 1:
+        self->facingLeft = (self - 1)->facingLeft;
+        if ((self->hitFlags & 3) || (self->flags & 0x100)) {
+            self->hitboxState = 0;
+            self->flags &= ~0x100;
+            self->hitPoints = g_EnemyDefs[14].hitPoints;
+            (self - 1)->step = 4;
+            (self - 1)->step_s = 0;
+            (self - 1)->pose = 0;
+            (self - 1)->poseTimer = 0;
+            self->step++;
+        }
+        break;
+    case 3:
+        self->hitboxState = 3;
+        if (self->step_s == 0) {
+            self->velocityY = -0xD000;
+            self->step_s++;
+        }
+        if (self->facingLeft)
+            self->unk0->flags |= 0x10;
+        else
+            self->unk0->flags &= ~0x10;
+        MoveEntity(self);
+        self->velocityY += 0x800;
+        if (AnimateEntityWithSpriteData(self, DAT_060ED9B0, DAT_060EDDE4) ==
+            0) {
+            self->step_s = 0;
+            self->step = 6;
+        }
+        break;
+    case 5:
+        switch (self->step_s) {
+        case 0:
+            entity = &g_Entities[0];
+            dx = self->posX.val - entity->posX.val;
+            dy = entity->posY.val - self->posY.val;
+            angle = ratan2(dx, dy);
+            self->rotate = angle;
+            self->velocityX = rsin(angle) * 40;
+            self->velocityY = rcos(angle) * -40;
+            self->ext.et_060E4EDC.unk78 = 2;
+            self->step_s++;
+            break;
+        case 1:
+            if (func_06079C04(self, DAT_060ED948) & 1) {
+                entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
+                if (entity) {
+                    CreateEntityFromEntity(2, self, entity);
+                    entity->params = 3;
+                }
+                DestroyEntity(self);
+                return;
+            }
+            if (--self->ext.et_060E4EDC.unk78 == 0) {
+                entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
+                if (entity) {
+                    CreateEntityFromEntity(2, self, entity);
+                    entity->params = 1;
+                }
+                self->ext.et_060E4EDC.unk78 = 6;
+            }
+            break;
+        }
+        break;
+    case 6:
+        MoveEntity(self);
+        self->velocityY += 0x800;
+        if (self->velocityY > 0x8000) {
+            self->velocityY = 0;
+            self->step = 7;
+        }
+        break;
+    case 7:
+        if (!(Random() & 0x7F))
+            self->ext.et_060E4EDC.unk7C = 1;
+        if (!(Random() & 0x1F)) {
+            entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+            if (entity) {
+                CreateEntityFromEntity(30, self, entity);
+                randOffset = Random();
+                x = &entity->posX.i.hi;
+                randOffset = (randOffset & 8) + 0xFFFC;
+                *x += randOffset;
+                entity->posY.i.hi += 13;
+            }
+        }
+        if (self->step_s == 0) {
+            self->facingLeft = (u8)((GetSideToPlayer(self) & 1) ^ 1);
+            if (self->facingLeft)
+                self->unk0->flags |= 0x10;
+            else
+                self->unk0->flags &= ~0x10;
+            if (self->facingLeft)
+                self->velocityX = 0xA000;
+            else
+                self->velocityX = -0xA000;
+            self->ext.et_060E4EDC.unk78 = 96;
+            self->step_s++;
+        } else {
+            MoveEntity(self);
+            AnimateEntityWithSpriteData(self, DAT_060ED974, DAT_060EDDE4);
+            if (--self->ext.et_060E4EDC.unk78 == 0) {
+                self->pose = 0;
+                self->poseTimer = 0;
+                self->step_s = 0;
+                self->step++;
+            }
+        }
+        break;
+    case 8:
+        entity = &g_Entities[0];
+        if (self->step_s == 0) {
+            self->ext.et_060E4EDC.unk78 = 64;
+            angle = func_0607AF94(self, entity);
+            func_0607AF3C(self, angle, 6);
+            self->step_s++;
+        } else {
+            if (!(Random() & 0x7F))
+                self->ext.et_060E4EDC.unk7C = 1;
+            if (!(Random() & 0x1F)) {
+                entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+                if (entity) {
+                    CreateEntityFromEntity(30, self, entity);
+                    randOffset = Random();
+                    x = &entity->posX.i.hi;
+                    randOffset = (randOffset & 8) + 0xFFFC;
+                    *x += randOffset;
+                    entity->posY.i.hi += 13;
+                }
+            }
+            MoveEntity(self);
+            AnimateEntityWithSpriteData(self, DAT_060ED974, DAT_060EDDE4);
+            if (--self->ext.et_060E4EDC.unk78 == 0) {
+                self->velocityY = 0;
+                self->pose = 0;
+                self->poseTimer = 0;
+                self->step_s = 0;
+                self->step--;
+            }
+        }
+        break;
+    }
+    if (self->step <= 1) {
+        self->posX.i.hi = (self - 1)->posX.i.hi;
+        self->posY.i.hi = (self - 1)->posY.i.hi;
+    }
+    if (self->ext.et_060E4EDC.unk7C && g_Timer % 3 == 0) {
+        self->posY.i.hi += DAT_060ED9CA[self->ext.et_060E4EDC.unk7A];
+        if (++self->ext.et_060E4EDC.unk7A > 23) {
+            self->ext.et_060E4EDC.unk7A = 0;
+            self->ext.et_060E4EDC.unk7C = 0;
+        }
+    }
+    func_06079BB4(self);
+}
+
 extern s16 DAT_060EDA28[];
 extern s16 DAT_060EDA2C[];
 u8 func_0607A118(Entity* self, s16* sensors, s32 count);

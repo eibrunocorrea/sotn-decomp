@@ -25,6 +25,10 @@ segments:
       - start: 0x40
         type: c
         file: rstage16
+        end: 0x96D8
+      - start: 0x96D8
+        type: c
+        file: rstage16
         end: 0xC908
       - start: 0xC908
         type: .data

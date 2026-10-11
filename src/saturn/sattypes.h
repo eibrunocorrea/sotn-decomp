@@ -649,10 +649,15 @@ typedef struct {
 } ET_060E7C60;
 
 typedef struct {
-    /* 0x78 */ s32 : 32;
-    /* 0x7C */ s32 : 32;
+    /* 0x78 */ u16 unk78;
+    /* 0x7A */ u16 unk7A;
+    /* 0x7C */ u8 unk7C;
+    /* 0x7D */ u8 : 8;
+    /* 0x7E */ u16 : 16;
     /* 0x80 */ Primitive* prim;
-} ET_060E5CB0;
+} ET_060E4EDC;
+
+typedef ET_060E4EDC ET_060E5CB0;
 
 typedef struct {
     /* 0x78 */ s32 : 32;
@@ -785,6 +790,7 @@ typedef union { // offset=0x78
     ET_060E3608 et_060E3608;
     ET_060E0104 et_060E0104;
     ET_060E8368 et_060E8368;
+    ET_060E4EDC et_060E4EDC;
 } Ext;
 
 // Flags for entity->drawFlags
