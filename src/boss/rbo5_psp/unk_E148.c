@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo5/rbo5.h"
+#include "../../dra/subwpn_dagger.h"
 extern s32 D_pspeu_0926C910;
 extern s32 D_pspeu_0926C918;
 extern s16 D_pspeu_0926CAE0;
@@ -18,8 +19,6 @@ extern s32 D_pspeu_0926CD00;
 extern u8 D_pspeu_09263FF8[][8];
 extern RECT D_pspeu_09263FF0;
 extern s32 D_pspeu_0926BBB0;
-void func_pspeu_09249838(void);
-extern s16 D_pspeu_09262FD8[7];
 extern s16 D_pspeu_09263B40[24][5];
 extern u8** D_pspeu_09266768;
 extern s16* D_pspeu_092641C8[];
@@ -40,16 +39,23 @@ extern s16* D_pspeu_092641C8[];
 
 extern PlayerState g_Maria;
 
-// collision sensor tables (.rodata block shared with bo4, different VMAs)
 extern Point16 g_MarSensorsCeiling[];
 extern Point16 g_MarSensorsFloor[];
 extern Point16 g_MarSensorsWall[];
 
 #define BP_BLINK_WHITE 44
+#define BP_51 51
+#define BP_45 45
+#define BP_HIT_BY_ICE 46
+#define BP_49 49
+#define BP_16 16
 #define BP_4 4
 #define BP_REBOUND_STONE 24
 // entity id and steps from the doppleganger.h enum, not pulled in on PSP
 #define E_FACTORY 1
+#define E_ID_41 0x41
+#define E_ID_44 0x44
+#define E_ID_90 0x90
 #define Dop_Stand 1
 #define Dop_Walk 2
 #define Dop_Crouch 3
@@ -83,9 +89,6 @@ void func_80159C04(void);
 s32 func_pspeu_092497C0(void);
 void func_pspeu_0924EA50(s32 arg0);
 void func_pspeu_0924E788(s16 a0, s16 minTime);
-// crouch pose/anim pairs and stand anim table (.rodata shared with bo4)
-extern u8 D_pspeu_09263028[];
-extern u8 D_pspeu_09263030[];
 
 void SetDopplegangerStep(s16 step);
 void SetDopplegangerAnim();
@@ -139,7 +142,7 @@ void func_pspeu_092457C8(void) {
 
     g_Dop.vram_flag = g_Dop.unk04 = TOUCHING_GROUND;
     func_pspeu_0924CA58(0);
-    entity = &g_Entities[65];
+    entity = &g_Entities[E_ID_41];
 
     for (i = 0; i < 3; i++, entity++) {
         DestroyEntity(entity);
@@ -148,9 +151,9 @@ void func_pspeu_092457C8(void) {
         entity->palette = PAL_FLAG(0x200);
         entity->flags = FLAG_POS_CAMERA_LOCKED;
     }
-    g_Entities[65].primIndex = g_api.AllocPrimitives(PRIM_TILE, 6);
-    g_Entities[65].flags |= FLAG_HAS_PRIMS;
-    prim = &g_PrimBuf[g_Entities[65].primIndex];
+    g_Entities[E_ID_41].primIndex = g_api.AllocPrimitives(PRIM_TILE, 6);
+    g_Entities[E_ID_41].flags |= FLAG_HAS_PRIMS;
+    prim = &g_PrimBuf[g_Entities[E_ID_41].primIndex];
 
     i = 0;
     while (prim != NULL) {
@@ -289,7 +292,9 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09246210)
 
 char D_pspeu_09262FC0[16] = "noroi:%02x\n";
 s16 D_pspeu_09262FD0[] = {1, 31, 0, 27};
-s16 D_pspeu_09262FD8[7] = {2013, 2012, 2011, 2010, 2009, 2008, 2007};
+s16 D_pspeu_09262FD8[7] = {
+    SFX_VO_DOP_YELL,   SFX_VO_DOP_PAIN_F, SFX_VO_DOP_PAIN_E, SFX_VO_DOP_PAIN_D,
+    SFX_VO_DOP_PAIN_C, SFX_VO_DOP_PAIN_B, SFX_VO_DOP_PAIN_A};
 
 extern s32 D_pspeu_0926BBA0;
 extern s32 D_pspeu_0926BBA8;
@@ -303,7 +308,6 @@ void func_pspeu_09247190(s32 step) {
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092471B8);
 
 extern EInit g_EInitDoppleganger40;
-void func_pspeu_09247190(s32 step);
 void func_pspeu_092471B8(void);
 void func_pspeu_09246210(void);
 void func_pspeu_09252B48(void);
@@ -438,7 +442,6 @@ void func_pspeu_09248B88(void) {
     }
 }
 
-extern s16 D_pspeu_09262FD0[];
 // local copy of DopplegangerStepJump (see bo4/unk_45354.c)
 void func_pspeu_09248BE8(void) {
     s32 moveDirection;
@@ -944,26 +947,29 @@ void func_pspeu_09249FE8(DamageParam* damage, s16 dopStep, s16 arg2) {
             func_pspeu_09252480(3);
             MarCreateEntFactoryFromEntity(
                 g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x4F), 0);
-            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(51, 2), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_51, 2), 0);
             D_pspeu_0926C0A8 = 1;
         } else if (damage->effects & ELEMENT_THUNDER) {
             func_pspeu_09252480(9);
             MarCreateEntFactoryFromEntity(
                 g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x59), 0);
-            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(45, 1), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_45, 1), 0);
             D_pspeu_0926C0A8 = 2;
         } else if (damage->effects & ELEMENT_ICE) {
             func_pspeu_09252480(10);
             MarCreateEntFactoryFromEntity(
                 g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x5A), 0);
-            MarCreateEntFactoryFromEntity(g_CurrentEntity, 46, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, BP_HIT_BY_ICE, 0);
             D_pspeu_0926C0A8 = 3;
             DOPPLEGANGER.blendMode = BLEND_TRANSP | BLEND_ADD;
         } else {
             func_pspeu_09252480(1);
             MarCreateEntFactoryFromEntity(
                 g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x53), 0);
-            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(49, 5), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_49, 5), 0);
             D_pspeu_0926C0A8 = 0;
         }
         plDraw->r0 = plDraw->g0 = plDraw->b0 = plDraw->r1 = plDraw->g1 =
@@ -1049,7 +1055,8 @@ void func_pspeu_09249FE8(DamageParam* damage, s16 dopStep, s16 arg2) {
         }
         if (--D_pspeu_0926C0A0 == 0) {
             func_pspeu_0924DCB8(0x3E);
-            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(16, 3), 0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_16, 3), 0);
             DOPPLEGANGER.step_s++;
         }
         break;
@@ -1418,7 +1425,6 @@ void func_pspeu_0924C498(void) {
 }
 
 // rotation angle table for the stone wobble (US D_us_8018134C)
-extern s16 D_pspeu_09263008[];
 extern s32 D_pspeu_0926C088;
 // local copy of DopplegangerStepStone (see bo4/unk_46E7C.c)
 void func_pspeu_0924C550(s32 arg0) {
@@ -2261,9 +2267,12 @@ AnimationFrame* D_pspeu_092632F8[] = {
     (AnimationFrame*)D_pspeu_09263288, NULL};
 
 DopWeaponAnimation D_pspeu_09263318[] = {
-    {(AnimationFrame*)D_pspeu_092632D8, D_pspeu_092631B8, 0x60B, 0x41, 4},
-    {(AnimationFrame*)D_pspeu_092632F8, D_pspeu_09263298, 0x60B, 0xA7, 4},
-    {(AnimationFrame*)D_pspeu_092632D8, D_pspeu_092631B8, 0x60B, 0x41, 4},
+    {(AnimationFrame*)D_pspeu_092632D8, D_pspeu_092631B8, SFX_WEAPON_SWISH_B,
+     0x41, 4},
+    {(AnimationFrame*)D_pspeu_092632F8, D_pspeu_09263298, SFX_WEAPON_SWISH_B,
+     0xA7, 4},
+    {(AnimationFrame*)D_pspeu_092632D8, D_pspeu_092631B8, SFX_WEAPON_SWISH_B,
+     0x41, 4},
 };
 
 u8 D_pspeu_09263340[][4] = {
@@ -3268,7 +3277,6 @@ void func_pspeu_092509D0(Entity* self) {
 
 extern EInit D_pspeu_09266718;
 extern EInit D_pspeu_09266728;
-extern DopWeaponAnimation D_pspeu_09263318[];
 
 void func_pspeu_092514F0(Entity* self) {
     s16 animIndex;
@@ -3328,7 +3336,7 @@ void func_pspeu_09251748(Entity* self) {
     s32 i;
 
     switch (self->step) {
-    case 0:
+    case DAGGER_INIT:
         InitializeEntity(D_pspeu_092666F8);
         if (g_Maria.status & PLAYER_STATUS_POISON) {
             self->attack = self->attack / 2;
@@ -3369,7 +3377,7 @@ void func_pspeu_09251748(Entity* self) {
         g_api.PlaySfx(SFX_WEAPON_SWISH_C);
         g_Maria.timers[ALU_T_USE_SUBWPN] = 4;
         break;
-    case 1:
+    case DAGGER_FLYING:
         self->ext.subweapon.timer++;
         if (self->velocityX > 0) {
             xCol = 8;
@@ -3405,7 +3413,7 @@ void func_pspeu_09251748(Entity* self) {
         }
         if (self->hitFlags & 0x80) {
             self->ext.subweapon.timer = 4;
-            self->step = 3;
+            self->step = DAGGER_HIT_ENEMY;
             self->hitboxState = 0;
             return;
         }
@@ -3435,12 +3443,12 @@ void func_pspeu_09251748(Entity* self) {
         prim->x1 = x - (offsetX * (self->ext.subweapon.timer / 2));
         prim->y1 = y - 1;
         prim->drawMode &= ~DRAW_HIDE;
-        if (self->step != 1) {
+        if (self->step != DAGGER_FLYING) {
             prim->drawMode |= DRAW_HIDE;
             return;
         }
         break;
-    case 2:
+    case DAGGER_BOUNCE:
         prim = &g_PrimBuf[self->primIndex];
         if (--self->ext.subweapon.timer == 0) {
             DestroyEntity(self);
@@ -3506,7 +3514,7 @@ void func_pspeu_09251748(Entity* self) {
         prim = prim->next;
         prim->drawMode |= DRAW_HIDE;
         break;
-    case 3:
+    case DAGGER_HIT_ENEMY:
         if (--self->ext.subweapon.timer == 0) {
             DestroyEntity(self);
         }
@@ -3540,7 +3548,6 @@ Entity* MarGetFreeEntityReverse(s16 start, s16 end) {
     return NULL;
 }
 
-extern u8 D_pspeu_09263340[][4];
 extern u8 D_pspeu_0926CCC0;
 extern u8 D_pspeu_0926CCB8;
 extern u8 D_pspeu_0926CCB0;
@@ -3553,7 +3560,6 @@ void func_pspeu_09252480(s32 arg0) {
     D_pspeu_0926CCA8 = D_pspeu_09263340[arg0][3];
 }
 
-extern u8 D_pspeu_09263378[][8];
 // local copy of Maria func_8015FDB0 (see maria/pl_blueprints.c);
 // this boss copy stops at frame six instead of restarting the animation.
 s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY) {
@@ -3597,7 +3603,6 @@ s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY) {
     return 0;
 }
 
-s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY);
 extern Point16 D_pspeu_0926CC68[16];
 // local copy of RicEntityHitByHoly (see ric/pl_blueprints.c); the boss
 // walls track the doppleganger in slot 64 and camera-lock the effect
@@ -3722,9 +3727,9 @@ void func_pspeu_09252B48(void) {
     PfnEntityUpdate entityUpdate;
     s32 i;
 
-    entity = g_CurrentEntity = &g_Entities[68];
+    entity = g_CurrentEntity = &g_Entities[E_ID_44];
 
-    for (i = 68; i < 144; i++, g_CurrentEntity++, entity++) {
+    for (i = E_ID_44; i < E_ID_90; i++, g_CurrentEntity++, entity++) {
         if (i == 16 && entity->entityId == 0) {
             g_Dop.unk48 = 0;
         }
@@ -3761,8 +3766,8 @@ void func_pspeu_09252B48(void) {
 
     if (g_Dop.status & (PLAYER_STATUS_DEAD | PLAYER_STATUS_UNK80000)) {
         FntPrint("dead boss\n");
-        entity = &g_Entities[68];
-        for (i = 68; i < 144; i++, entity++) {
+        entity = &g_Entities[E_ID_44];
+        for (i = E_ID_44; i < E_ID_90; i++, entity++) {
             entity->hitboxState = 0;
         }
     }
@@ -4164,265 +4169,7 @@ bool func_maria_80162E9C(Entity* entity) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09254180);
 
-void func_pspeu_09256258(Entity* self) {
-    s16* animFramePtr;
-    u8* spritesheetPtr;
-    s16 xOffset;
-    s16 yOffset;
-    s16 width;
-    Primitive* prim;
-    s16 spriteIdx;
-    s32 i;
-    s16 upperparams;
-    u8 spriteX;
-    s16* primData;
-    s16 xVar;
-    s16 yVar;
-    u8 four;
-    u8 one;
-    s16 height;
-    u8 spriteY;
-    s16 selfX;
-    s16 selfY;
-
-    if ((g_Dop.status & (PLAYER_STATUS_AXEARMOR | PLAYER_STATUS_TRANSFORM)) ||
-        !DOPPLEGANGER.animSet || !(DOPPLEGANGER.animCurFrame & INT16_MAX)) {
-        DestroyEntity(self);
-        return;
-    }
-
-    upperparams = (self->params & 0x7F00) >> 8;
-    self->posX.i.hi = DOPPLEGANGER.posX.i.hi;
-    self->posY.i.hi = DOPPLEGANGER.posY.i.hi;
-    self->facingLeft = DOPPLEGANGER.facingLeft;
-    animFramePtr = D_pspeu_092641C8[DOPPLEGANGER.animCurFrame & INT16_MAX];
-    spriteIdx = *animFramePtr++;
-    spriteIdx &= 0x7FFF;
-    selfX = self->posX.i.hi;
-    selfY = self->posY.i.hi;
-    spritesheetPtr = ((u8**)D_pspeu_09266768)[spriteIdx];
-    four = 4;
-    one = 1;
-    spriteX = four + spritesheetPtr[0];
-    spriteY = one + spritesheetPtr[1];
-    width = spriteX - four;
-    height = spriteY - one;
-    xOffset = animFramePtr[0] + spritesheetPtr[2];
-    yOffset = animFramePtr[1] + spritesheetPtr[3];
-    self->rotate = DOPPLEGANGER.rotate;
-    self->drawFlags = DOPPLEGANGER.drawFlags | (ENTITY_SCALEX | ENTITY_SCALEY);
-    primData = D_pspeu_09263B40[upperparams];
-    switch (self->step) {
-    case 0: // Initialization
-        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
-        if (self->primIndex == -1) {
-            DestroyEntity(self);
-            return;
-        }
-        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
-        prim = &g_PrimBuf[self->primIndex];
-        // This is just not a for-loop, that's weird
-        for (i = 0; i < 1; i++) {
-            prim->tpage = 0x10;
-            prim->clut = primData[3]; // Always 259
-            prim->priority = DOPPLEGANGER.zPriority + 2;
-            // primData[4] is always 49; DRAW_UNK_40 | DRAW_HIDE | DRAW_TRANSP
-            prim->drawMode = primData[4] + (DRAW_COLORS | DRAW_UNK02);
-            prim = prim->next;
-        }
-        switch (upperparams) {
-        case 0: // MP refill
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 17: // Dark Metamorphosis
-        case 18:
-        case 20: // Sword Warp Spell (#1)
-        case 22: // Soul Steal
-            self->ext.playerOutline.brightness = 0x80;
-            self->scaleX =
-                DOPPLEGANGER.scaleX; // Player scaleX is (always?) 0x100
-            self->scaleY =
-                DOPPLEGANGER.scaleY; // Player scaleY is (always?) 0x100
-            self->rotPivotY = DOPPLEGANGER.rotPivotY;
-            self->rotPivotX = DOPPLEGANGER.rotPivotX;
-            self->ext.playerOutline.timer = 8;
-            break;
-        case 2: // Agunea
-            self->ext.playerOutline.brightness = 0xC0;
-            self->scaleX =
-                DOPPLEGANGER.scaleX; // Player scaleX is (always?) 0x100
-            self->scaleY =
-                DOPPLEGANGER.scaleY; // Player scaleY is (always?) 0x100
-            self->rotPivotY = DOPPLEGANGER.rotPivotY;
-            self->rotPivotX = DOPPLEGANGER.rotPivotX;
-            self->ext.playerOutline.timer = 8;
-            break;
-        case 1: // Curse attack
-            self->ext.playerOutline.brightness = 0x100;
-            self->scaleX =
-                DOPPLEGANGER.scaleX; // Player scaleX is (always?) 0x100
-            self->scaleY =
-                DOPPLEGANGER.scaleY; // Player scaleY is (always?) 0x100
-            self->rotPivotY = DOPPLEGANGER.rotPivotY;
-            self->rotPivotX = DOPPLEGANGER.rotPivotX;
-            self->ext.playerOutline.timer = 8;
-            break;
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 14:
-        case 15:
-        case 16:
-        case 19:
-        case 21: // Sword Warp Spell (#2)
-            self->ext.playerOutline.brightness = 0x80;
-            self->scaleX = DOPPLEGANGER.scaleX + 0x60;
-            self->scaleY = DOPPLEGANGER.scaleY + 0x60;
-            self->rotPivotY = DOPPLEGANGER.rotPivotY;
-            self->rotPivotX = DOPPLEGANGER.rotPivotX;
-            self->ext.playerOutline.timer = 8;
-            break;
-        }
-        self->step++;
-        break;
-
-    case 1: // 8 frames at constant size
-        switch (upperparams) {
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 14:
-        case 15:
-        case 16:
-        case 18:
-        case 21: // Sword Warp Spell (#2)
-            self->ext.playerOutline.brightness += 16;
-        case 0: // MP refill
-        case 1: // Curse attack
-        case 2: // Agunea
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 17: // Dark Metamorphosis
-        case 19:
-        case 20: // Sword Warp Spell (#1)
-        case 22: // Soul Steal
-            if (--self->ext.playerOutline.timer == 0) {
-                self->step++;
-            }
-        }
-        break;
-    case 2: // Outline grows/shrinks, and dims
-        switch (upperparams) {
-        case 0: // MP refill
-        case 2: // Agunea
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 15:
-        case 16:
-        case 17: // Dark Metamorphosis
-        case 18:
-        case 20: // Sword Warp Spell (#1)
-        case 22: // Soul Steal
-            self->scaleX += 8;
-            self->scaleY += 8;
-            self->ext.playerOutline.brightness -= 5;
-            if (self->ext.playerOutline.brightness < 0) {
-                DestroyEntity(self);
-                return;
-            }
-            break;
-        case 1: // Curse attack, grows slower and dims faster
-            self->scaleX += 2;
-            self->scaleY += 2;
-            self->ext.playerOutline.brightness -= 16;
-            if (self->ext.playerOutline.brightness < 0) {
-                DestroyEntity(self);
-                return;
-            }
-            break;
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 14:
-        case 19:
-        case 21: // Sword Warp Spell (#2)
-            // Shrinks inward, and when at size 0x100, holds there for 8 frames
-            // in step 3
-            self->scaleX -= 8;
-            self->scaleY -= 8;
-            if (self->scaleX <= 0x100) {
-                self->scaleY = self->scaleX = 0x100;
-                self->ext.playerOutline.timer = 8;
-                self->step++;
-            }
-        }
-        break;
-    case 3: // Outline continues static until done
-        if (--self->ext.playerOutline.timer == 0) {
-            DestroyEntity(self);
-            return;
-        }
-        break;
-    }
-    if (self->facingLeft) {
-        selfX = selfX - xOffset;
-    } else {
-        selfX = selfX + xOffset;
-    }
-    selfY = selfY + yOffset;
-    prim = &g_PrimBuf[self->primIndex];
-    for (i = 0; i <= 0; i++) {
-        if (self->facingLeft) {
-            prim->x0 = prim->x2 = (selfX - width) + 1;
-            prim->x1 = prim->x3 = selfX + 1;
-        } else {
-            prim->x0 = prim->x2 = selfX;
-            prim->x1 = prim->x3 = selfX + width;
-        }
-
-        prim->y0 = prim->y1 = selfY;
-        prim->y2 = prim->y3 = selfY + height;
-        if (self->facingLeft) {
-            prim->u0 = prim->u2 = spriteX - 1;
-            prim->u1 = prim->u3 = four - 1;
-        } else {
-            prim->u0 = prim->u2 = four;
-            prim->u1 = prim->u3 = spriteX;
-        }
-        prim->v0 = prim->v1 = one;
-        prim->v2 = prim->v3 = one + height;
-        ((void (*)(s32, s32, Entity*, s32, POLY_GT4*, s32))g_api.func_800EB758)(
-            self->posX.i.hi, self->posY.i.hi, self, self->drawFlags,
-            (POLY_GT4*)prim, (u16)self->facingLeft);
-        prim->r0 = prim->r1 = prim->r2 = prim->r3 =
-            primData[0] * self->ext.playerOutline.brightness / 256;
-        prim->g0 = prim->g1 = prim->g2 = prim->g3 =
-            primData[1] * self->ext.playerOutline.brightness / 256;
-        prim->b0 = prim->b1 = prim->b2 = prim->b3 =
-            primData[2] * self->ext.playerOutline.brightness / 256;
-        prim->priority = DOPPLEGANGER.zPriority + 2;
-        prim = prim->next;
-    }
-    MarDisableAfterImage(1, 1);
-}
+INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09256258);
 
 void func_pspeu_09256D30(Entity* self) {
     Primitive* prim;
@@ -4433,7 +4180,7 @@ void func_pspeu_09256D30(Entity* self) {
     switch (self->step) {
     case 0:
         self->posY.i.hi = MARIA.posY.i.hi + 37;
-        self->ext.subweapon.timer = 1536;
+        self->ext.timer.t = 1536;
         self->primIndex = g_api.AllocPrimitives(PRIM_G4, 4);
         if (self->primIndex == -1) {
             DestroyEntity(self);
@@ -4444,8 +4191,7 @@ void func_pspeu_09256D30(Entity* self) {
 
         for (prim = &g_PrimBuf[self->primIndex], i = 0; prim != NULL; i++,
             prim = prim->next) {
-            halfWidth =
-                (self->ext.subweapon.timer >> 8) - i; // unused in this loop
+            halfWidth = (self->ext.timer.t >> 8) - i; // unused in this loop
             prim->r0 = 0;
             prim->g0 = 0;
             prim->b0 = 0xC0;
@@ -4479,10 +4225,10 @@ void func_pspeu_09256D30(Entity* self) {
 
     case 3:
         // note that with the fallthrough these decrements stack
-        self->ext.subweapon.timer -= 160;
+        self->ext.timer.t -= 160;
     case 2:
-        self->ext.subweapon.timer -= 96;
-        if (self->ext.subweapon.timer < 0) {
+        self->ext.timer.t -= 96;
+        if (self->ext.timer.t < 0) {
             DestroyEntity(self);
             return;
         }
@@ -4491,7 +4237,7 @@ void func_pspeu_09256D30(Entity* self) {
     for (prim = &g_PrimBuf[self->primIndex], i = 0; prim != NULL; i++,
         prim = prim->next) {
         // As timer counts down, beam gets narrower.
-        halfWidth = (self->ext.subweapon.timer >> 8) - i;
+        halfWidth = (self->ext.timer.t >> 8) - i;
         if (halfWidth < 0) {
             halfWidth = 0;
         }
@@ -4543,7 +4289,6 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09257298)
 
 extern AnimationFrame D_pspeu_09263D38[];
 extern AnimationFrame D_pspeu_09263CF8[];
-extern AnimationFrame D_pspeu_092637B0[];
 // local copy of func_maria_80161C2C (see maria/pl_blueprints.c)
 void func_maria_80161C2C(Entity* self) {
     s16 paramsHi;
@@ -5502,7 +5247,7 @@ void func_pspeu_0925BA80(Entity* self) {
         s7 = self->posY.i.hi = DOPPLEGANGER.posY.i.hi;
         self->facingLeft = DOPPLEGANGER.facingLeft;
 
-        sp38 = (s16*)D_pspeu_092641C8[DOPPLEGANGER.animCurFrame & 0x7FFF];
+        sp38 = D_pspeu_092641C8[DOPPLEGANGER.animCurFrame & 0x7FFF];
         sp42 = *sp38++;
         sp42 &= 0x7FFF;
         plSprite = D_pspeu_09266768[sp42];

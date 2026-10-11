@@ -3,20 +3,20 @@
 
 #include "../../st/pfn_entity_update.h"
 
-extern s32 E_ID(BACKGROUND_BLOCK);
-extern s32 E_ID(LOCK_CAMERA);
-extern s32 E_ID(UNK_ID13);
-extern s32 E_ID(EXPLOSION_VARIANTS);
-extern s32 E_ID(GREY_PUFF);
-extern s32 E_ID(UNK_16);
-extern s32 E_ID(UNK_17);
-extern s32 E_ID(UNK_18);
-extern s32 E_ID(UNK_19);
-extern s32 E_ID(UNK_1A);
-extern s32 E_ID(UNK_1B);
-extern s32 E_ID(UNK_1C);
-extern s32 E_ID(UNK_1D);
-extern s32 E_ID(UNK_1E);
+s32 E_ID(BACKGROUND_BLOCK);
+s32 E_ID(LOCK_CAMERA);
+s32 E_ID(UNK_ID13);
+s32 E_ID(EXPLOSION_VARIANTS);
+s32 E_ID(GREY_PUFF);
+s32 E_ID(UNK_16);
+s32 E_ID(UNK_17);
+s32 E_ID(UNK_18);
+s32 E_ID(UNK_19);
+s32 E_ID(UNK_1A);
+s32 E_ID(UNK_1B);
+s32 E_ID(UNK_1C);
+s32 E_ID(UNK_1D);
+s32 E_ID(UNK_1E);
 
 void InitEntityIds(void) {
     SET_E_ID(BACKGROUND_BLOCK);
