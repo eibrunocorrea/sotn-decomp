@@ -10,6 +10,7 @@ enum Palettes {
     PAL_NONE,
     PAL_DEATH = 0x200,
     PAL_DEATH_2 = 0x20D,
+    PAL_EXPLOSION_FLAME = 0x2E0,
 };
 
 typedef enum EntityID {
