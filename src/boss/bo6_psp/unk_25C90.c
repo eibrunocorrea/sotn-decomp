@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+extern u16 D_pspeu_0927AEA0[];
+extern u16 D_pspeu_0927AE88[];
+extern u16 D_pspeu_0927AED0[];
+extern u16 D_pspeu_0927AEB8[];
+extern u16 D_pspeu_0927AF00[];
+extern u16 D_pspeu_0927AEE8[];
+extern u32 D_pspeu_0927DC00;
+
 // Boss Richter reuses his subweapon-crash entities; splat's pre-split
 // func_pspeu_* names are kept until a rename pass
 extern s16 D_pspeu_0927AF38[4][6]; // glass shatter offsets (stage data blob)
@@ -485,7 +493,39 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_092649F0);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09265100);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09266AB0);
+void func_pspeu_09266AB0(Entity* entity) {
+    if (g_Maria.unk46 == 0) {
+        DestroyEntity(entity);
+        return;
+    }
+    entity->facingLeft = MARIA.facingLeft;
+    if (entity->step == 0) {
+        entity->flags = FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED;
+        entity->animSet = ANIMSET_OVL(3);
+        entity->unk5A = 0x24;
+        entity->palette = PAL_FLAG(0x220);
+        entity->zPriority = MARIA.zPriority + 2;
+    }
+    if (MARIA.step == PL_S_CROUCH) {
+        if (MARIA.facingLeft) {
+            entity->animCurFrame = D_pspeu_0927AEA0[D_pspeu_0927DC00];
+        } else {
+            entity->animCurFrame = D_pspeu_0927AE88[D_pspeu_0927DC00];
+        }
+    } else if (MARIA.step == PL_S_STAND) {
+        if (MARIA.facingLeft) {
+            entity->animCurFrame = D_pspeu_0927AED0[D_pspeu_0927DC00];
+        } else {
+            entity->animCurFrame = D_pspeu_0927AEB8[D_pspeu_0927DC00];
+        }
+    } else if (MARIA.facingLeft) {
+        entity->animCurFrame = D_pspeu_0927AF00[D_pspeu_0927DC00];
+    } else {
+        entity->animCurFrame = D_pspeu_0927AEE8[D_pspeu_0927DC00];
+    }
+    entity->posX.val = MARIA.posX.val;
+    entity->posY.val = MARIA.posY.val;
+}
 
 void func_pspeu_09266CE8(Entity* entity) {
     if (g_Maria.unk46 == 0) {
