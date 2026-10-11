@@ -20,7 +20,124 @@ extern s16 D_pspeu_0927B048[];     // cross trail anim frames (D_us_80182994)
 
 extern s16 D_pspeu_0927AF18[];
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925D310);
+void func_pspeu_0925D310(Entity* self) {
+    Primitive* prim;
+    s32 heartCost;
+    s16 tempX;
+    s16 tempY;
+    u32 heartBroachesWorn;
+    if (g_Maria.status & (PLAYER_STATUS_TRANSFORM | PLAYER_STATUS_UNK10000)) {
+        DestroyEntity(self);
+        return;
+    }
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags =
+            FLAG_UNK_10000000 | FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+        self->facingLeft = MARIA.facingLeft;
+        self->hitboxWidth = self->hitboxHeight = 4;
+        self->hitboxOffX = 4;
+        self->hitboxOffY = 0;
+        self->posY.i.hi = self->ext.agunea.unk82 =
+            MARIA.posY.i.hi + MARIA.hitboxOffY - 8;
+        self->posX.i.hi = self->ext.agunea.unk80 = MARIA.posX.i.hi;
+        prim = &g_PrimBuf[self->primIndex];
+        prim->type = PRIM_LINE_G2;
+        prim->priority = MARIA.zPriority + 2;
+        prim->drawMode = DRAW_UNK_200 | DRAW_UNK_100 | DRAW_TPAGE2 |
+                         DRAW_TPAGE | DRAW_TRANSP;
+        prim->r1 = 0x60;
+        prim->g1 = 0;
+        prim->b1 = 0x80;
+        MarSetSpeedX(FIX(6));
+        g_api.PlaySfx(SFX_WEAPON_SWISH_C);
+        self->step++;
+        break;
+    case 1:
+        self->posX.val += self->velocityX;
+        if (self->posX.i.hi < -0x40 || self->posX.i.hi > 0x140 ||
+            self->posY.i.hi < -0x20 || self->posY.i.hi > 0x120) {
+            self->step = 2;
+        }
+        if (self->hitFlags) {
+            self->ext.agunea.parent = self->unkB8;
+            self->step = 3;
+        }
+        break;
+    case 4:
+        self->posX.i.hi = self->ext.agunea.parent->posX.i.hi;
+        self->posY.i.hi = self->ext.agunea.parent->posY.i.hi;
+        if (++self->ext.agunea.unk7C < 16) {
+            break;
+        }
+    case 2:
+        prim = &g_PrimBuf[self->primIndex];
+        if (prim->r1 < 5) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    case 3:
+        if ((g_Maria.padPressed & (PAD_UP + PAD_SQUARE)) !=
+            (PAD_UP + PAD_SQUARE)) {
+            self->step = 4;
+        }
+        if (!self->ext.agunea.parent->entityId) {
+            self->step = 2;
+            return;
+        }
+        if (self->ext.agunea.unk7C &&
+            (self->ext.agunea.parent->hitPoints > 0x7000 ||
+             !self->ext.agunea.parent->hitPoints ||
+             !self->ext.agunea.parent->hitboxState)) {
+            self->step = 2;
+            return;
+        }
+        tempX = self->posX.i.hi = self->ext.agunea.parent->posX.i.hi;
+        tempY = self->posY.i.hi = self->ext.agunea.parent->posY.i.hi;
+        if ((self->ext.agunea.unk7C % 12) == 0) {
+            self->posX.i.hi += (rand() & 0xF) - 8;
+            self->posY.i.hi += (rand() & 0xF) - 8;
+            if (g_Status.hearts >= 5) {
+                g_Status.hearts -= 5;
+                MarCreateEntFactoryFromEntity(self, BP_AGUNEA_HIT_ENEMY, 0);
+                g_api.PlaySfx(SFX_THUNDER_B);
+            } else if (self->ext.agunea.unk84 == 0) {
+                MarCreateEntFactoryFromEntity(self, BP_AGUNEA_HIT_ENEMY, 0);
+                g_api.PlaySfx(SFX_THUNDER_B);
+                self->ext.agunea.unk84++;
+            } else {
+                self->step = 4;
+            }
+        }
+        self->posX.i.hi = tempX;
+        self->posY.i.hi = tempY;
+        self->ext.agunea.unk7C++;
+        break;
+    }
+    prim = &g_PrimBuf[self->primIndex];
+    if (prim->r1 >= 4) {
+        prim->r1 -= 4;
+    }
+    if (prim->g1 >= 4) {
+        prim->g1 -= 4;
+    }
+    if (prim->b1 >= 4) {
+        prim->b1 -= 4;
+    }
+    if (prim->b1 < 5) {
+        prim->drawMode |= DRAW_HIDE;
+    }
+    prim->x0 = self->ext.agunea.unk80;
+    prim->y0 = self->ext.agunea.unk82;
+    prim->x1 = self->posX.i.hi;
+    prim->y1 = self->posY.i.hi;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925D980);
 
