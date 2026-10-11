@@ -2554,7 +2554,42 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09254F38);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09256610);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09256778);
+extern EInit g_EInitRichterBelmont;
+extern s32 D_pspeu_0927C258;
+extern s32 D_pspeu_0927C260;
+void MarDisableAfterImage(s32 resetAnims, s32 arg1);
+void func_pspeu_09253AA8(void);
+void func_pspeu_09254F38(void);
+void func_pspeu_092540C8(void);
+void func_pspeu_09252B48_from_rbo5(void);
+void func_pspeu_09256610(void);
+// Local copy of EntityRichter (see boss/bo6/richter.c).
+void func_pspeu_09256778(Entity* self) {
+    Entity* entity;
+    s32 i;
+
+    g_Maria.unk6A = MARIA.hitPoints;
+    if (self->step == 0) {
+        InitializeEntity(g_EInitRichterBelmont);
+        func_pspeu_09253AA8();
+        entity = &g_Entities[STAGE_ENTITY_START + 4];
+        for (i = STAGE_ENTITY_START + 4; i < 144; i++, entity++) {
+            DestroyEntity(entity);
+        }
+        g_Maria.unk6E = g_Maria.unk6A = g_Maria.unk6C = MARIA.hitPoints;
+        D_pspeu_0927C258 = g_Maria.unk6E / 2;
+        D_pspeu_0927C260 = 0;
+        g_Maria.unk70 = MARIA.hitboxState;
+        func_pspeu_09247190_from_rbo5(18);
+        MarDisableAfterImage(1, 48);
+    } else {
+        func_pspeu_09254F38();
+        func_pspeu_092540C8();
+        func_pspeu_09252B48_from_rbo5();
+        func_pspeu_09256610();
+    }
+    g_Maria.unk6C = g_Maria.unk6A;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092568D0);
 
