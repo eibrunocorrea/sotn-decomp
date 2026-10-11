@@ -2037,7 +2037,7 @@ void func_pspeu_09265100(Entity* self) {
                 }
             }
             self->ext.whip.unk84 = 6;
-            if (psp_s0 == 0) {
+            if (!psp_s0) {
                 if (MARIA.facingLeft == 0) {
                     diffX = D_pspeu_0927ABE8[0];
                 } else {
