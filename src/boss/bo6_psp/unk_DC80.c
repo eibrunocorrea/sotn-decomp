@@ -8,6 +8,6 @@ extern Dialogue g_Dialogue;
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_DC80", RunCutsceneEvents);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_DC80", CutsceneSkip);
+#include "../../st/cutscene_skip.h"
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_DC80", EntityCutsceneDialogue);
