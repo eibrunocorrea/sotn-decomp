@@ -2,6 +2,10 @@
 #include "inc_asm.h"
 #include "sattypes.h"
 #include "rstage16.h"
+#define _SPR2_
+#include "lib/spr/spr.h"
+
+extern SprGourTbl* SpGourTbl;
 
 extern RStage16BreakableData DAT_060E99C8[];
 
@@ -23,7 +27,7 @@ void func_060DC040(Entity* self) {
         sprite->zPriority = 0x7C;
         sprite->posX = self->posX.val;
         sprite->posY = self->posY.val;
-        self->unk1C = data->entityColor;
+        self->unk1C = data->unk1C;
         self->hitboxHeight = data->hitboxHeight;
         if ((u16)data->paletteOffset != 0) {
             sprite->clutBase = (resource->flags + data->paletteOffset) | 0x8000;
@@ -352,7 +356,7 @@ void func_060DF8AC(Entity* self) {
     } else {
         self->posY.val += self->velocityY;
         if (AnimateEntityWithSpriteData(
-                self, DAT_060E9E5C[variant], (const u32*)DAT_06045E14) == 0) {
+                self, DAT_060E9E5C[variant], DAT_06045E14) == 0) {
             DestroyEntity(self);
         }
     }
@@ -760,9 +764,8 @@ void func_060E23D0(Primitive* prim, s32 arg1, s32 arg2) {
             p1 = &workspace->projected[face[1]];
             p2 = &workspace->projected[face[2]];
             visible = func_0600E61C(p0, p1, p2);
-            /* Packed x/y pairs match the two SH2 long stores. */
-            *(s32*)&prim->x0 = *(s32*)p0;
-            *(s32*)&prim->x1 = *(s32*)p1;
+            LOW(prim->x0) = LOW(p0->x);
+            LOW(prim->x1) = LOW(p1->x);
             if (visible != 0) {
                 prim->priority = 0x93;
             } else {
@@ -915,7 +918,7 @@ void func_060E6F38(Entity* self) {
     SaturnSpriteImage* images;
 
     if (self->step != 0) {
-        if (--((u8*)self)[0x84]) {
+        if (--self->ext.et_060E6F38.timer) {
             self->rotate += DAT_060EF230[self->params];
             func_06079BE4(self);
             MoveEntity(self);
@@ -992,7 +995,7 @@ void func_060E7C60(Entity* self) {
     SaturnSpriteImage* images;
 
     if (self->step != 0) {
-        if (--((u8*)self)[0x7F]) {
+        if (--self->ext.et_060E7C60.timer) {
             self->rotate += DAT_060EF674[self->params];
             func_06079BE4(self);
             MoveEntity(self);

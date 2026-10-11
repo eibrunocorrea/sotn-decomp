@@ -6,8 +6,6 @@
 #include "game.h"
 #include "sattypes.h"
 #include "stage_data.h"
-#define _SPR2_
-#include "lib/spr/spr.h"
 
 void CheckCollision(s32 x, s32 y, Collider* result, u16 flags);
 void MoveEntity(Entity* self);
@@ -134,7 +132,7 @@ typedef struct {
     const u8* animation;
     u8 explosionParams;
     u8 hitboxHeight;
-    u8 entityColor;
+    u8 unk1C;
     u8 maxParts;
     s16 paletteOffset;
     s16 offsetY;
@@ -145,7 +143,6 @@ void func_060DC1A8(Entity* self);
 s32 AllocPrimitives(s32 type, s32 count);
 
 bool func_0600E61C(XyInt* p0, XyInt* p1, XyInt* p2);
-extern SprGourTbl* SpGourTbl;
 
 extern u16 DAT_060E9E70[];
 

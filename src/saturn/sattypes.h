@@ -634,6 +634,37 @@ typedef struct {
     /* 0x84 */ u8 facingLatch;
 } ET_060E411C;
 
+typedef struct {
+    /* 0x78 */ s32 : 32;
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ s32 : 32;
+    /* 0x84 */ u8 timer;
+} ET_060E6F38;
+
+typedef struct {
+    /* 0x78 */ s32 : 32;
+    /* 0x7C */ u16 : 16;
+    /* 0x7E */ u8 : 8;
+    /* 0x7F */ u8 timer;
+} ET_060E7C60;
+
+typedef struct {
+    /* 0x78 */ s32 : 32;
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ Primitive* prim;
+} ET_060E5CB0;
+
+typedef struct {
+    /* 0x78 */ s32 : 32;
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ s32 : 32;
+    /* 0x84 */ s32 : 32;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s16 unk8C;
+    /* 0x8E */ u16 : 16;
+    /* 0x90 */ s32 unk90;
+} ET_060E81F4;
+
 typedef union { // offset=0x78
     ET_Placeholder ILLEGAL;
     ET_AfterImage afterImage; // g_Entities[1], not entityID 1
@@ -679,6 +710,10 @@ typedef union { // offset=0x78
     ET_060E0364 et_060E0364;
     ET_060E401C et_060E401C;
     ET_060E411C et_060E411C;
+    ET_060E6F38 et_060E6F38;
+    ET_060E7C60 et_060E7C60;
+    ET_060E5CB0 et_060E5CB0;
+    ET_060E81F4 et_060E81F4;
 } Ext;
 
 // Flags for entity->drawFlags
