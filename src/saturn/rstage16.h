@@ -6,6 +6,8 @@
 #include "game.h"
 #include "sattypes.h"
 #include "stage_data.h"
+#define _SPR2_
+#include "lib/spr/spr.h"
 
 void CheckCollision(s32 x, s32 y, Collider* result, u16 flags);
 void MoveEntity(Entity* self);
@@ -101,7 +103,7 @@ void func_060E1CB4(s32 arg0, s32 arg1);
 void func_060E1E74(s32 arg0, s32 arg1, s32 arg2);
 void func_060E1FC0(s32 arg0, s32 arg1, s32 arg2);
 void func_060E2300(s32 scale, s32 arg1);
-void func_060E23D0(s32 arg0, s32 arg1, s32 arg2);
+void func_060E23D0(Primitive* prim, s32 arg1, s32 arg2);
 extern MthMatrixTbl DAT_06061DF0;
 extern s32 DAT_060EA000[];
 extern s32 DAT_060EFCC0[];
@@ -141,6 +143,9 @@ typedef struct {
 void func_060DC318(Entity* self, RStage16BreakableData* data);
 void func_060DC1A8(Entity* self);
 s32 AllocPrimitives(s32 type, s32 count);
+
+bool func_0600E61C(XyInt* p0, XyInt* p1, XyInt* p2);
+extern SprGourTbl* SpGourTbl;
 
 Entity* AllocEntity(Entity* start, Entity* end);
 void func_0607B4B8(Entity* self);

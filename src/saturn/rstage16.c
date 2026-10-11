@@ -561,7 +561,7 @@ void func_060E1C64(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1CB4, func_060E1CB4);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1E74, func_060E1E74);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E1FC0, func_060E1FC0);
-void func_060E22C4(s32 arg0, s32 arg1, s32 arg2) {
+void func_060E22C4(Primitive* arg0, s32 arg1, s32 arg2) {
     func_060E2300(arg1, arg2);
     func_060E23D0(arg0, arg1, arg2);
 }
@@ -604,7 +604,77 @@ void func_060E2300(s32 scale, s32 unused) {
 
     TransformAndProjectPoints((MthXyz*)base, (XyInt*)((char*)base + 0x408), 14);
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E23D0, func_060E23D0);
+/* TU-local view of the model scratch buffer; keep DAT_060485E0 as s32[]. */
+typedef struct {
+    MthXyz vertices[14];
+    MthXyz faceVertices[24][3];
+    XyInt projected[72];
+    MthXyz* translations;
+    u8 (*faces)[4];
+    s32 faceCount;
+} RStage16ModelWorkspace;
+
+extern u8 DAT_060EA1C8[][4];
+
+void func_060E23D0(Primitive* prim, s32 arg1, s32 arg2) {
+    RStage16ModelWorkspace* workspace;
+    SprGourTbl* gouraud;
+    SprGourTbl* second;
+    u16 gouraudIndex;
+    XyInt* p0;
+    XyInt* p1;
+    XyInt* p2;
+    u8* face;
+    u16 value;
+    s32 visible;
+    s32 i;
+
+    workspace = (RStage16ModelWorkspace*)DAT_060485E0;
+    i = 0;
+    do {
+        if (arg1 == 0) {
+            prim->drawMode = 8;
+        } else {
+            face = DAT_060EA1C8[i];
+            p0 = &workspace->projected[face[0]];
+            p1 = &workspace->projected[face[1]];
+            p2 = &workspace->projected[face[2]];
+            visible = func_0600E61C(p0, p1, p2);
+            /* Packed x/y pairs match the two SH2 long stores. */
+            *(s32*)&prim->x0 = *(s32*)p0;
+            *(s32*)&prim->x1 = *(s32*)p1;
+            if (visible != 0) {
+                prim->priority = 0x93;
+            } else {
+                prim->priority = 0x8D;
+            }
+            if (arg2 != 0) {
+                gouraudIndex = prim->unk1C;
+                gouraud = &SpGourTbl[gouraudIndex];
+                second = gouraud;
+                if (arg2 & 0x80) {
+                    value = (u32)(arg2 & 0x7F) >> 3;
+                    SpGourTbl[gouraudIndex].entry[0] = gouraud->entry[1] =
+                        RGB16_COLOR(value, value, value);
+                } else if (arg2 <= 0x10) {
+                    value = 0x10 - arg2;
+                    SpGourTbl[gouraudIndex].entry[0] =
+                        RGB16_COLOR(value, value, value);
+                } else if (arg2 > 0x20) {
+                    prim->drawMode = 8;
+                    goto next;
+                } else {
+                    value = 0x20 - arg2;
+                    second->entry[1] = RGB16_COLOR(value, value, value);
+                }
+            }
+            prim->drawMode = 0x35;
+        }
+    next:
+        i++;
+        prim = prim->next;
+    } while (i <= 0x11);
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E253C, func_060E253C);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E3244, func_060E3244);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E3438, func_060E3438);
