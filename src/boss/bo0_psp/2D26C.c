@@ -11,6 +11,8 @@ extern u8 D_pspeu_0928FA78[];
 extern u8 D_pspeu_0928FAA8[];
 extern u8 D_pspeu_0928FAB8[];
 extern s32 D_pspeu_09290798;
+extern s16 D_pspeu_0928FAF0[];
+extern s32 E_ID(ID_2A);
 
 s16 func_pspeu_09258DE0(s16 delta, s16 current, s16 target) {
     s16 diff;
@@ -398,4 +400,197 @@ void EntityOlroxAfterImage(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_us_801B001C);
+void func_us_801B001C(Entity* self) {
+    Entity* entity;
+    s32 i;
+    s32 x;
+    s16* data;
+    s32 y;
+    s32 params;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        self->animSet = ANIMSET_OVL(6);
+        self->unk5A = 0x48;
+        self->palette = 0x209;
+        self->hitboxState = 2;
+        if (self->params & 0x100) {
+            self->facingLeft = 1;
+        }
+        self->zPriority -= 4;
+        if (self->params == 1) {
+            D_pspeu_09290798 = 0;
+        }
+        params = self->params & 0xFF;
+        self->animCurFrame = params;
+        if (params < 5) {
+            data = D_pspeu_0928FAF0;
+            data += (params - 1) * 6;
+            self->hitboxWidth = *data++;
+            self->hitboxHeight = *data++;
+            self->hitboxOffX = *data++;
+            self->hitboxOffY = *data++;
+            self->hitPoints = *data++;
+            self->zPriority = *data++;
+        } else {
+            self->step += (u16)params;
+        }
+        break;
+    case 1:
+        if (self->flags & FLAG_DEAD) {
+            self->hitboxState = 0;
+            self->step += (u16)(self->params & 0xFF);
+        }
+        break;
+    case 2:
+        self->animCurFrame = 10;
+        if (GetSideToPlayer() & 1) {
+            self->velocityX = FIX(1);
+        } else {
+            self->velocityX = FIX(-1);
+        }
+        self->step = 11;
+        break;
+    case 3:
+        for (i = 0; i < 4; i++) {
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity) {
+                CreateEntityFromEntity(E_ID(ID_2A), self, entity);
+                entity->params = (u16)(i + 5);
+                entity->posX.i.hi += (s16)(i * -0x1E + 0x30);
+            }
+        }
+        if (entity) {
+            entity->params = 0x105;
+        }
+        for (i = 0; i < 4; i++) {
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity) {
+                CreateEntityFromEntity(E_EXPLOSION, self, entity);
+                entity->params = 0x13;
+                entity->posX.i.hi += (s16)(i * -0x1E + 0x30);
+            }
+        }
+        entity = self;
+        entity++;
+        for (i = 0; i < 3; i++, entity++) {
+            entity->flags |= FLAG_DEAD;
+        }
+        self->animCurFrame = 0;
+        self->step = 32;
+        break;
+    case 4:
+        for (i = 0; i < 2; i++) {
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity) {
+                CreateEntityFromEntity(E_ID(ID_2A), self, entity);
+                entity->params = (u16)(i + 8);
+                entity->posY.i.hi += (s16)(i * 8);
+                if (i) {
+                    if (GetSideToPlayer() & 1) {
+                        entity->velocityX = FIX(0.5);
+                    } else {
+                        entity->velocityX = FIX(-0.5);
+                    }
+                    entity->velocityY = FIX(-1);
+                }
+            }
+        }
+        PlaySfxPositional(SFX_SMALL_FLAME_IGNITE);
+        self->animCurFrame = 0;
+        self->step = 32;
+        break;
+    case 5:
+        for (i = 0; i < 3; i++) {
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity) {
+                CreateEntityFromEntity(E_ID(ID_2A), self, entity);
+                entity->params = (u16)(i + 11);
+                entity->posY.i.hi += (s16)(i * 0x1C - 0x1C);
+            }
+        }
+        PlaySfxPositional(SFX_CANDLE_HIT_WHOOSH_B);
+        self->animCurFrame = 0;
+        self->step = 32;
+        break;
+    case 6:
+        self->zPriority = 0x6A;
+        break;
+    case 7:
+    case 8:
+        self->zPriority = 0x6A;
+        MoveEntity();
+        self->velocityY += FIX(0.0625);
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        y += 8;
+        if (func_pspeu_09258EF0(x, y)) {
+            self->step = 32;
+        }
+        break;
+    case 9:
+        self->drawFlags |= ENTITY_ROTATE;
+        self->rotate -= ROT(1.40625);
+        self->zPriority = 0x6C;
+        MoveEntity();
+        self->velocityY += FIX(0.09375);
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        y += 4;
+        if (func_pspeu_09258EF0(x, y)) {
+            self->entityId = E_EXPLOSION;
+            self->pfnUpdate = EntityExplosion;
+            self->params = 0;
+            self->step = 0;
+        }
+        break;
+    case 10:
+        self->drawFlags |= ENTITY_ROTATE;
+        self->rotate += ROT(11.25);
+        self->zPriority = 0x6C;
+        MoveEntity();
+        self->velocityY += FIX(0.125);
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        if (func_pspeu_09258EF0(x, y)) {
+            self->entityId = E_EXPLOSION;
+            self->pfnUpdate = EntityExplosion;
+            self->step = 0;
+            self->params = 0;
+        }
+        break;
+    case 11:
+        self->zPriority = 0x6A;
+        MoveEntity();
+        self->velocityY += FIX(0.0625);
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        y += 10;
+        if (func_pspeu_09258EF0(x, y)) {
+            self->step = 32;
+        }
+        break;
+    case 12:
+        self->rotate -= ROT(4.21875);
+    case 13:
+        self->drawFlags |= ENTITY_ROTATE;
+        self->rotate += ROT(3.515625);
+        self->zPriority = 0x6B;
+        MoveEntity();
+        self->velocityY += FIX(0.09375);
+        x = self->posX.i.hi;
+        y = self->posY.i.hi;
+        y += 6;
+        if (func_pspeu_09258EF0(x, y)) {
+            self->entityId = E_EXPLOSION;
+            self->pfnUpdate = EntityExplosion;
+            self->params = 0;
+            self->step = 0;
+        }
+        break;
+    case 14:
+        self->zPriority = 0x6A;
+        break;
+    }
+}
