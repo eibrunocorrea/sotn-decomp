@@ -140,20 +140,15 @@ void func_pspeu_09254F38(void);
 void func_pspeu_092540C8(void);
 void func_pspeu_09252B48_from_rbo5(void);
 void func_pspeu_09256610(void);
-Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 blueprint, s32 arg2);
 void MarResetPose(void);
 void RicSetDeadPrologue(void);
 void func_pspeu_092577D8(void);
 Entity* MarGetFreeEntity(s16 start, s16 end);
 Entity* MarGetFreeEntityReverse(s16 start, s16 end);
 void func_pspeu_09252480_from_rbo5(s32 arg0);
-s32 func_pspeu_09248D20(
-    SubweaponDef* actualSubwpn, s32 isItemCrash, s32 useHearts);
 void func_pspeu_09252768_from_rbo5(Entity* entity);
 void func_pspeu_09253EA0_from_rbo5(Entity* entity);
 void Unused09249778(s32 arg0);
-Entity* MarCreateEntFactoryFromEntity(
-    Entity* source, u32 factoryParams, s32 arg2);
 void MarEntityFactory(Entity* self);
 void MarEntitySlideKick(Entity* entity);
 void func_pspeu_0924A2E0(Entity* self);
@@ -204,7 +199,6 @@ void func_pspeu_09259B30(void);
 s32 func_pspeu_0925A028(void);
 bool func_pspeu_0925A1F0(void);
 bool func_pspeu_0925A588(void);
-void RicSetDeadPrologue();
 void MarSetSlide(void);
 void func_pspeu_092508C0_from_rbo5(s16 bounceAngle);
 void func_pspeu_09250948_from_rbo5(s16 bounceAngle);

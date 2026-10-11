@@ -71,8 +71,6 @@ Entity* MarCreateEntFactoryFromEntity(
     return entity;
 }
 
-extern FactoryBlueprint D_pspeu_09279BD0[];
-extern u8 D_pspeu_09279D98[][2];
 void MarEntityFactory(Entity* self) {
     Entity* newEntity;
     s16 nPerCycle;
@@ -216,7 +214,6 @@ void MarEntityFactory(Entity* self) {
     self->ext.factory.delay = self->ext.factory.tCycle;
 }
 
-extern EInit D_pspeu_0926EB88;
 void MarEntitySlideKick(Entity* entity) {
     if (MARIA.step != PL_S_SLIDE) {
         DestroyEntity(entity);
@@ -276,7 +273,6 @@ void func_pspeu_0924A2E0(Entity* self) {
     self->hitFlags = 0;
 }
 
-extern EInit D_pspeu_0926EB68;
 void func_pspeu_0924A448(Entity* self) {
     if (MARIA.step != PL_S_BLADEDASH) {
         DestroyEntity(self);
@@ -299,7 +295,6 @@ void func_pspeu_0924A448(Entity* self) {
     }
 }
 
-extern EInit D_pspeu_0926EB78;
 void func_pspeu_0924A578(Entity* self) {
     if (MARIA.step != PL_S_HIGHJUMP) {
         DestroyEntity(self);
@@ -319,10 +314,6 @@ void func_pspeu_0924A578(Entity* self) {
     }
 }
 
-extern s16 D_pspeu_09279DA8[];
-extern s32 D_pspeu_09279DB8[];
-extern s16 D_pspeu_09279DD0[];
-extern AnimationFrame D_pspeu_09279DE0[];
 void func_pspeu_0924A660(Entity* self) {
     s16 posX;
 
@@ -398,9 +389,6 @@ void func_pspeu_0924A660(Entity* self) {
     }
 }
 
-extern unkStr_8011E4BC* D_pspeu_09279ED8[];
-extern s32 D_pspeu_0927C308[];
-extern s32 D_pspeu_0927C288[];
 void MarEntityHitByCutBlood(Entity* self) {
     byte stackpad[0x28];
     u8 thickness;
@@ -639,9 +627,6 @@ void MarEntityHitByCutBlood(Entity* self) {
     }
 }
 
-extern AnimationFrame D_pspeu_09279F40[];
-extern AnimationFrame D_pspeu_09279F00[];
-extern AnimationFrame D_pspeu_09279DE0[];
 void func_maria_80161C2C(Entity* self) {
     s16 paramsHi;
     s16 paramsLo;
@@ -708,7 +693,6 @@ void func_maria_80161C2C(Entity* self) {
     }
 }
 
-extern AnimationFrame D_pspeu_09279F78[];
 void func_pspeu_0924B8D0(Entity* self) {
     switch (self->step) {
     case 0:
@@ -751,12 +735,6 @@ bool func_maria_80162E9C(Entity* entity) {
     return false;
 }
 
-extern s16* D_916F800[];
-extern s16* D_pspeu_0926D6F8[];
-extern u8** D_pspeu_092703C0;
-extern s16 D_pspeu_09279FA0[][10];
-extern s32 D_pspeu_0927C160[];
-void func_pspeu_0925B4E0(s32 kind, s16 invincibilityFrames);
 void MarEntityPlayerBlinkWhite(Entity* self) {
     u8 xMargin;
     u8 yMargin;
@@ -1170,7 +1148,6 @@ void func_pspeu_0924D7F0(Entity* self) {
     PGREY(prim, 0) = PGREY(prim, 1) = PGREY(prim, 2) = PGREY(prim, 3);
 }
 
-extern s16 D_pspeu_0927A1A8[][6];
 void MarEntityShrinkingPowerUpRing(Entity* self) {
     s16 variant;
     s16 rMod;
@@ -1327,7 +1304,6 @@ void MarEntityShrinkingPowerUpRing(Entity* self) {
     }
 }
 
-extern Point16* D_pspeu_0927A298[72];
 void MarEntityHitByIce(Entity* self) {
     const int PrimCount = LEN(D_pspeu_0927A298) / 3;
     s16 x;
@@ -1531,7 +1507,6 @@ void MarEntityHitByIce(Entity* self) {
     }
 }
 
-extern u16 D_pspeu_0927A3B8[];
 void MarEntityHitByLightning(Entity* self) {
     s16 x;
     s16 y;
@@ -1673,11 +1648,6 @@ void MarEntityHitByLightning(Entity* self) {
     prim->v2 = prim->v3 = 0xCF;
 }
 
-extern EInit D_pspeu_0926EC28;
-extern AnimationFrame D_pspeu_0927A3C0[];
-extern s32 D_pspeu_0927C1C8;
-extern s32 D_pspeu_0927C1C0;
-extern s32 D_pspeu_0927C1A0[8];
 void func_pspeu_0924FFB8(Entity* self) {
     Primitive* prim; // s0
     s32 i;           // s1

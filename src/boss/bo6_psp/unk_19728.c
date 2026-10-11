@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
-extern s32 D_pspeu_0927C148;
 void func_pspeu_09250DA8(Entity* self) {
     Entity* entity;
     FntPrint("I AM SHAFT\n");
@@ -71,7 +70,6 @@ void func_pspeu_09250DA8(Entity* self) {
     }
 }
 
-extern u8 D_pspeu_0927A3F8[];
 void func_pspeu_09251100(Entity* self) {
     Entity* entity;
     Primitive* prim;
@@ -200,8 +198,6 @@ void func_pspeu_092516D0(Entity* self) {
     }
 }
 
-extern u8 D_pspeu_0927A450[];
-extern EInit D_pspeu_0926EBD8;
 void func_pspeu_09251850(Entity* self) {
     u8 rVal;
     u8 gVal;
@@ -406,8 +402,6 @@ void func_pspeu_09251850(Entity* self) {
     }
 }
 
-extern EInit D_pspeu_0926EBF8;
-extern s32 D_pspeu_0927C238;
 void func_pspeu_092522A8(Entity* self) {
     Primitive* primFirst;
     Primitive* prim;
@@ -628,8 +622,6 @@ void func_pspeu_092522A8(Entity* self) {
     }
 }
 
-extern s16 D_pspeu_0927A478[];
-extern s32 D_pspeu_0927C240;
 void func_pspeu_09251748_from_rbo5(Entity* self) {
     Collider collider;
     Primitive* prim;
@@ -836,9 +828,6 @@ void func_pspeu_09251748_from_rbo5(Entity* self) {
     }
 }
 
-extern AnimationFrame D_pspeu_0927A6A8[];
-extern s32 D_pspeu_0927C308[];
-extern s32 D_pspeu_0927C288[];
 void func_pspeu_09253AA8(void) {
     Entity* self;
     PlayerDraw* draw;
@@ -951,7 +940,6 @@ void func_pspeu_09253F48(void) {
     }
 }
 
-void func_pspeu_09259EA8(void);
 void func_pspeu_09254008(void) {
     if ((MARIA.step == PL_S_CROUCH || MARIA.step == PL_S_STAND ||
          (MARIA.step == PL_S_JUMP && MARIA.velocityY > FIX(1)) ||

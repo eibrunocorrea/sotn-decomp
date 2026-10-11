@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
-extern s32 D_pspeu_0927C278;
-extern s32 D_pspeu_0927C280;
 // local copy of func_us_801B5A14 (see bo6/richter.c): set the boss
 // think-step and reset its timer
 void func_pspeu_09247190_from_rbo5(s32 step) {
@@ -14,9 +12,6 @@ char D_pspeu_0927A500[] = "think_step:%02x\n";
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_1D890", func_pspeu_09254F38);
 
-extern s32 D_pspeu_0927C248;
-extern s32 D_pspeu_0927C148;
-extern s32 D_pspeu_0927C250;
 void func_pspeu_09256610(void) {
     switch (D_pspeu_0927C248) {
     case 0:
@@ -55,15 +50,6 @@ void func_pspeu_09256610(void) {
     }
 }
 
-extern EInit g_EInitRichterBelmont;
-extern s32 D_pspeu_0927C258;
-extern s32 D_pspeu_0927C260;
-void MarDisableAfterImage(s32 resetAnims, s32 arg1);
-void func_pspeu_09253AA8(void);
-void func_pspeu_09254F38(void);
-void func_pspeu_092540C8(void);
-void func_pspeu_09252B48_from_rbo5(void);
-void func_pspeu_09256610(void);
 // Local copy of EntityRichter (see boss/bo6/richter.c).
 void func_pspeu_09256778(Entity* self) {
     Entity* entity;
@@ -92,9 +78,6 @@ void func_pspeu_09256778(Entity* self) {
     g_Maria.unk6C = g_Maria.unk6A;
 }
 
-extern AnimationFrame D_pspeu_0927A5B8[];
-extern AnimationFrame D_pspeu_0927A7E0[];
-extern AnimationFrame D_pspeu_0927A970[];
 void func_pspeu_092568D0(void) {
     s16 xMod;
     s32 facing;
@@ -214,9 +197,6 @@ void func_pspeu_09256C28(void) {
     }
 }
 
-extern AnimationFrame D_pspeu_0927A980[];
-extern AnimationFrame D_pspeu_0927A758[];
-void MarDisableAfterImage(s32 resetAnims, s32 arg1);
 void func_pspeu_09256D28(void) {
     s32 facing;
 
@@ -359,9 +339,6 @@ void MarStepFall(void) {
     }
 }
 
-extern AnimationFrame D_pspeu_0927A708[];
-extern AnimationFrame D_pspeu_0927A7C0[];
-extern AnimationFrame D_pspeu_0927A978[];
 void func_pspeu_09257418(void) {
     s32 facing;
     if (!func_pspeu_0925B680(CHECK_FALL | CHECK_FACING | CHECK_JUMP |
@@ -640,14 +617,7 @@ void func_pspeu_09257820(
     }
 }
 
-extern AnimationFrame D_pspeu_0927A778[];
 RECT D_pspeu_0927A518 = {0, 0x100, 0x20, 0x50};
-extern s32 D_pspeu_0927C768;
-extern s32 D_pspeu_0927C770;
-extern s32 D_pspeu_0927C248;
-extern s16 D_pspeu_0927C778;
-extern s16 D_pspeu_0927C780;
-extern u8 D_pspeu_0927C788[];
 void func_pspeu_09258010(
     s32 damageEffects, s32 damageKind, s32 prevStep, s32 prevStepS) {
     s32 j;
@@ -1118,8 +1088,6 @@ void func_pspeu_09259418(void) {
 
 void MarLoadGraphics_09259630(void) {}
 
-extern AnimationFrame D_pspeu_0927A5B8[];
-extern AnimationFrame D_pspeu_0927AA88[];
 void func_pspeu_09259638(void) {
     Entity* entity;
     switch (MARIA.step_s) {
@@ -1405,9 +1373,6 @@ s32 func_pspeu_0925A028(void) {
     return 0;
 }
 
-extern AnimationFrame D_pspeu_0927A7C0[];
-extern AnimationFrame D_pspeu_0927A7E0[];
-extern AnimationFrame D_pspeu_0927A800[];
 bool func_pspeu_0925A1F0(void) {
     s32 i;
     s16 poisoned;
@@ -1488,11 +1453,6 @@ bool func_pspeu_0925A1F0(void) {
     return false;
 }
 
-extern AnimationFrame D_pspeu_0927AA88[];
-extern AnimationFrame D_pspeu_0927A840[];
-extern AnimationFrame D_pspeu_0927A890[];
-extern AnimationFrame D_pspeu_0927A9F0[];
-extern AnimationFrame D_pspeu_0927AB00[];
 bool func_pspeu_0925A588(void) {
     SubweaponDef subWpn;
     Entity* subWpnEnt;
@@ -1664,8 +1624,6 @@ void func_pspeu_0925B4E0(s32 kind, s16 invincibilityFrames) {
 
 #include "../../mar_reset_after_image.h"
 
-extern AnimationFrame D_pspeu_0927A978[];
-extern AnimationFrame D_pspeu_0927A970[];
 bool func_pspeu_0925B680(s32 checks) {
     s32 velYChange;
     u32 effects;
