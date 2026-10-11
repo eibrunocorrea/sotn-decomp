@@ -32,7 +32,30 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09264380);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09264460);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09265170);
+u8 func_pspeu_09265170(s16* values, s16* targets, s16 speed) {
+    s32 i;
+    u8 ret = true;
+
+    for (i = 0; i < 8;) {
+        if (abs(*values - *targets) < speed) {
+            *values = *targets;
+        } else {
+            ret = false;
+            if (*values > *targets) {
+                *values -= speed;
+            }
+            if (*values < *targets) {
+                *values += speed;
+            }
+        }
+        values++;
+        i++;
+        values++;
+        targets++;
+    }
+    return ret;
+}
+
 
 s32 func_us_801B163C(s16* value, s16 target, s16 speed);
 
