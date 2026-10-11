@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+#define LIGHTNING_COUNT 8
+
+extern EInit D_pspeu_0926EC38;
+extern s32 D_pspeu_0927DB88[];
+
 extern EInit D_pspeu_0926EBC8;
 extern s32 D_pspeu_0927AF78[];
 
@@ -996,7 +1001,158 @@ void func_pspeu_092615E8(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09261ED8);
+void func_pspeu_09261ED8(Entity* self) {
+    Primitive* prim;
+    s16 rand_angle;
+    s16 xCoord;
+    s16 yCoord;
+    s32 quarterSelfY;
+    s32 i;
+    s16 psp_s4;
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 4);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            g_Maria.unk4E = 1;
+            return;
+        }
+        InitializeEntity(D_pspeu_0926EC38);
+        self->ext.aguneaCrash.subweaponId = PL_W_CRASH_AGUNEA;
+        self->flags |= FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->posY.i.hi -= 32;
+        prim = &g_PrimBuf[self->primIndex];
+        quarterSelfY = self->posY.i.hi / 4;
+        xCoord = self->posX.i.hi;
+        yCoord = 0;
+        for (i = 0; i < 4; i++) {
+            prim->tpage = 0x1A;
+            prim->clut = PAL_UNK_194;
+            prim->x0 = xCoord - 8;
+            prim->x2 = xCoord + 8;
+            prim->y0 = prim->y2 = yCoord;
+            if (i < 3) {
+                rand_angle = rand() % 0x100 + 0x380;
+                xCoord += ((rcos(rand_angle) * quarterSelfY) >> 0xC);
+                yCoord += ((rsin(rand_angle) * quarterSelfY) >> 0xC);
+                prim->x1 = xCoord - 8;
+                prim->x3 = xCoord + 8;
+            } else {
+                xCoord = self->posX.i.hi;
+                yCoord = self->posY.i.hi;
+                prim->x1 = xCoord - 4;
+                prim->x3 = xCoord + 4;
+            }
+            prim->y1 = prim->y3 = yCoord;
+            psp_s4 = (rand() % 6) * 0x10;
+            prim->u0 = prim->u2 = psp_s4 + 0x90;
+            prim->u1 = prim->u3 = psp_s4 + 0xA0;
+            if (rand() % 2) {
+                prim->v0 = prim->v1 = 0xD0;
+                prim->v2 = prim->v3 = 0xE0;
+            } else {
+                prim->v0 = prim->v1 = 0xE0;
+                prim->v2 = prim->v3 = 0xD0;
+            }
+            prim->priority = 0xC2;
+            prim->drawMode = DRAW_UNK02 | DRAW_HIDE;
+            prim = prim->next;
+        }
+        self->step = 1;
+        break;
+    case 1:
+        prim = &g_PrimBuf[self->primIndex];
+        for (i = 0; i < self->ext.aguneaCrash.unk7C; i++) {
+            prim = prim->next;
+        }
+        prim->drawMode &= ~DRAW_HIDE;
+        self->ext.aguneaCrash.unk7C++;
+        if (self->ext.aguneaCrash.unk7C >= 4) {
+            self->ext.aguneaCrash.unk7C = 0;
+            self->step++;
+        }
+        break;
+    case 2:
+        prim = &g_PrimBuf[self->primIndex];
+        for (i = 0; i < self->ext.aguneaCrash.unk7C; i++) {
+            prim = prim->next;
+        }
+        if (!self->ext.aguneaCrash.unk7C) {
+            prim->drawMode = DRAW_UNK02 | DRAW_TPAGE2 | DRAW_TPAGE |
+                             DRAW_COLORS | DRAW_TRANSP;
+            prim->tpage = 0x1A;
+            prim->clut = PAL_UNK_19F;
+            prim->u0 = prim->u2 = 0;
+            prim->u1 = prim->u3 = 0x3F;
+            prim->v0 = prim->v1 = 0xC0;
+            prim->v2 = prim->v3 = 0xFF;
+            prim->r0 = prim->g0 = prim->r1 = prim->g1 = prim->r2 = prim->g2 =
+                prim->r3 = prim->g3 = 0x7F;
+            prim->b0 = prim->b1 = prim->b2 = prim->b3 = 0xFF;
+            self->ext.aguneaCrash.unk7E = 1;
+            self->ext.aguneaCrash.unk80 = 2;
+            self->ext.aguneaCrash.unk82 = 0x64;
+        } else {
+            self->ext.aguneaCrash.unk80 += 2;
+            prim->drawMode |= DRAW_HIDE;
+        }
+        self->ext.aguneaCrash.unk7C++;
+        if (self->ext.aguneaCrash.unk7C > 3) {
+            for (i = 0; i < LIGHTNING_COUNT; i++) {
+                D_pspeu_0927DB88[i] = i;
+            }
+            func_pspeu_09261530(LIGHTNING_COUNT, &D_pspeu_0927DB88[0]);
+            self->ext.aguneaCrash.unk7C = 0;
+            g_api.PlaySfx(SFX_THUNDER_B);
+            self->step++;
+        }
+        break;
+    case 3:
+        MarCreateEntFactoryFromEntity(
+            self,
+            FACTORY(BP_CRASH_AGUNEA_THUNDER,
+                    D_pspeu_0927DB88[self->ext.aguneaCrash.unk7C]),
+            0);
+        self->ext.aguneaCrash.unk7C++;
+        if (self->ext.aguneaCrash.unk7C > LIGHTNING_COUNT - 1) {
+            self->hitboxWidth = 0x80;
+            self->hitboxHeight = 0x80;
+            self->ext.aguneaCrash.unk7C = 0;
+            self->step++;
+        }
+        break;
+    case 4:
+        self->ext.aguneaCrash.unk7C++;
+        if (self->ext.aguneaCrash.unk7C > LIGHTNING_COUNT) {
+            self->step++;
+        }
+        break;
+    case 5:
+        self->ext.aguneaCrash.unk80 += 2;
+        self->ext.aguneaCrash.unk82 -= 10;
+        if (self->ext.aguneaCrash.unk82 <= 0) {
+            self->hitboxWidth = 0;
+            self->hitboxHeight = 0;
+            self->step++;
+        }
+        break;
+    case 6:
+        g_Maria.unk4E = 1;
+        DestroyEntity(self);
+        return;
+    }
+    if (self->ext.aguneaCrash.unk7E) {
+        prim = &g_PrimBuf[self->primIndex];
+        prim->x0 = prim->x2 = self->posX.i.hi - self->ext.aguneaCrash.unk80;
+        prim->x1 = prim->x3 = self->posX.i.hi + self->ext.aguneaCrash.unk80;
+        prim->y0 = prim->y1 = self->posY.i.hi - self->ext.aguneaCrash.unk80;
+        prim->y2 = prim->y3 = self->posY.i.hi + self->ext.aguneaCrash.unk80;
+        prim->r0 = prim->g0 = prim->r1 = prim->g1 = prim->r2 = prim->g2 =
+            prim->r3 = prim->g3 = (self->ext.aguneaCrash.unk82 * 0x7F) / 100;
+        prim->b0 = prim->b1 = prim->b2 = prim->b3 =
+            (self->ext.aguneaCrash.unk82 * 0xFF) / 100;
+    }
+}
 
 // local copy of RicEntitySubwpnStopwatchCircle (see ric/319C4.c)
 void func_pspeu_09262838(Entity* self) {
