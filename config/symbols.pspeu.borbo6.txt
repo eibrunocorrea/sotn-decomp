@@ -88,3 +88,4 @@ cutsceneUnk3Unknown = 0x0926C2C8;
 g_Dialogue = 0x0926C670;
 g_SkipCutscene = 0x0926C6B0;
 g_CutsceneFlags = 0x0926C6B8;
+g_RoomCount = 0x091CE6B8;
