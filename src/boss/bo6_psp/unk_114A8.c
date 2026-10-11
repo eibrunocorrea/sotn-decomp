@@ -3032,7 +3032,93 @@ void MarStepFall(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09257418);
+extern AnimationFrame D_pspeu_0927A708[];
+extern AnimationFrame D_pspeu_0927A7C0[];
+extern AnimationFrame D_pspeu_0927A978[];
+void func_pspeu_09257418(void) {
+    s32 facing;
+    if (!func_pspeu_0925B680(CHECK_FALL | CHECK_FACING | CHECK_JUMP |
+                           CHECK_CRASH | CHECK_ATTACK | CHECK_SLIDE)) {
+        MarDecelerateX(FIX(0.125));
+        switch (MARIA.step_s) {
+        case 0:
+            if (!(g_Maria.padPressed & PAD_DOWN)) {
+                MarSetAnimation(D_pspeu_0927A708);
+                MARIA.step_s = 2;
+                return;
+            }
+            break;
+        case 1:
+            if (!(g_Maria.padPressed & PAD_DOWN)) {
+                if (MarCheckFacing()) {
+                    func_pspeu_09259BB0(0);
+                    return;
+                }
+                MARIA.anim = D_pspeu_0927A708;
+                MARIA.step_s = 2;
+                MARIA.pose = 2 - MARIA.pose;
+                MARIA.poseTimer = 1;
+                break;
+            }
+        case 4:
+            if (MARIA.poseTimer != -1) {
+                return;
+            }
+            MarSetAnimation(D_pspeu_0927A6E8);
+            MARIA.step_s = 0;
+            break;
+        case 2:
+            if (MarCheckFacing()) {
+                func_pspeu_09259BB0(0);
+                return;
+            }
+            if (MARIA.poseTimer == -1) {
+                func_pspeu_09259AD8(0);
+                return;
+            }
+            break;
+        case 3:
+            if (MARIA.poseTimer < 0) {
+                MarSetAnimation(D_pspeu_0927A6E8);
+                MARIA.step_s = 0;
+                return;
+            }
+            break;
+        case 0x40:
+            MarDisableAfterImage(1, 1);
+            if (MARIA.pose < 3) {
+                facing = MarCheckFacing();
+                if (!(g_Maria.padPressed & PAD_DOWN)) {
+                    MARIA.step = PL_S_STAND;
+                    MARIA.anim = D_pspeu_0927A7C0;
+                    return;
+                }
+            }
+            if (MARIA.poseTimer < 0) {
+                if (g_Maria.padPressed & PAD_SQUARE) {
+                    MARIA.step_s++;
+                    g_Maria.unk46 = 2;
+                    MarSetAnimation(D_pspeu_0927A978);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x11, 0);
+                    return;
+                }
+                g_Maria.unk46 = 0;
+                MARIA.step_s = 0;
+                MarSetAnimation(D_pspeu_0927A6E8);
+            }
+            break;
+        case 0x41:
+            MarDisableAfterImage(1, 1);
+            if (!(g_Maria.padPressed & PAD_SQUARE)) {
+                g_Maria.unk46 = 0;
+                MARIA.step_s = 0;
+                MarSetAnimation(D_pspeu_0927A6E8);
+            }
+            break;
+        }
+    }
+}
+
 
 void MarResetPose(void) {
     MARIA.pose = MARIA.poseTimer = 0;
