@@ -6,7 +6,68 @@
 #include "rstage16.h"
 
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC040, func_060DC040);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC1A8, func_060DC1A8);
+typedef struct {
+    u32 unk0[2];
+    u32 unk8;
+    u32 unkC;
+    u8 explosionParams;
+    u8 padding[5];
+    s16 offsetY;
+} RStage16BreakableData;
+
+extern RStage16BreakableData DAT_060E99C8[];
+Entity* AllocEntity(Entity* start, Entity* end);
+void func_0607B4B8(Entity* self);
+void FreePrimitives(s16 primIndex);
+void CreateEntityFromCurrentEntity(u16 entityId, Entity* entity);
+void PreventEntityFromRespawning(Entity* self);
+
+void func_060DC1A8(Entity* self) {
+    Entity* entity;
+    RStage16BreakableData* data;
+    u16 variant;
+
+    variant = self->params >> 12;
+    data = &DAT_060E99C8[(u16)variant];
+    if (data->unk8 != 0) {
+        FreePrimitives(self->primIndex);
+        self->flags &= ~FLAG_HAS_PRIMS;
+    }
+    entity = AllocEntity(&g_Entities[0xE0], &g_Entities[0x100]);
+    if (entity != NULL) {
+        CreateEntityFromCurrentEntity(2, entity);
+        entity->posY.i.hi -= data->offsetY;
+        entity->params = data->explosionParams;
+    }
+    switch ((s32)variant) {
+    case 0:
+    case 1:
+        entity = AllocEntity(&g_Entities[0xE0], &g_Entities[0x100]);
+        if (entity != NULL) {
+            CreateEntityFromCurrentEntity(0x12, entity);
+            entity->params = (u16)variant;
+        }
+        self->posY.i.hi -= data->offsetY;
+        PlaySfx(0x634);
+        func_0607B4B8(self);
+        break;
+    case 2:
+        PlaySfx(0x61D);
+        entity = AllocEntity(&g_Entities[0xA0], &g_Entities[0xC0]);
+        if (entity != NULL) {
+            CreateEntityFromEntity(0xC, self, entity);
+            entity->posY.i.hi -= data->offsetY;
+            entity->params = self->params & 0x1FF;
+        }
+        PreventEntityFromRespawning(self);
+        DestroyEntity(self);
+        break;
+    default:
+        PlaySfx(0x634);
+        func_0607B4B8(self);
+        break;
+    }
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC318, func_060DC318);
 void func_060DC418(Entity* self) {
     SpriteObject* sprite;
