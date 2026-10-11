@@ -4309,13 +4309,14 @@ typedef struct {
 typedef struct {
     /* 0x7C */ u32 : 32;
     /* 0x80 */ u32 : 32;
-    /* 0x84 */ u8 : 8;
+    /* 0x84 */ u8 unk84;
     /* 0x85 */ u8 unk85;
 } ET_801AD338;
 
 typedef struct {
     /* 0x7C */ u32 : 32;
-    /* 0x80 */ u32 : 32;
+    /* 0x80 */ s16 unk80;
+    /* 0x82 */ u16 : 16;
     /* 0x84 */ u32 : 32;
     /* 0x88 */ u32 : 32;
     /* 0x8C */ u32 : 32;
@@ -4325,7 +4326,8 @@ typedef struct {
     /* 0x9C */ u32 : 32;
     /* 0xA0 */ u32 : 32;
     /* 0xA4 */ struct Entity* parent;
-    /* 0xA8 */ u16 : 16;
+    /* 0xA8 */ u8 unkA8;
+    /* 0xA9 */ u8 : 8;
     /* 0xAA */ s16 unkAA;
 } ET_801AF8C0;
 

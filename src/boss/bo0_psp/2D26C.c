@@ -6,6 +6,8 @@ extern u8 D_pspeu_0928FAC0[];
 extern s32 E_ID(UNK_2F);
 extern EInit D_pspeu_09275F60;
 extern EInit D_pspeu_09275F80;
+extern EInit D_pspeu_09275F50;
+extern u8 D_pspeu_0928FA78[];
 extern u8 D_pspeu_0928FAA8[];
 extern u8 D_pspeu_0928FAB8[];
 extern s32 D_pspeu_09290798;
@@ -255,7 +257,125 @@ void func_pspeu_0925C938(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_0925CBE8);
+void func_pspeu_0925CBE8(Entity* self) {
+    Entity* entity;
+    s16 y;
+    s32 radius;
+    s16 x;
+    s16 angle;
+    u8 angle2;
+    s32 dx;
+    s32 dy;
+    s32 oldX;
+
+    entity = self->ext.et_801AF8C0.parent;
+    if (entity->flags & FLAG_DEAD) {
+        self->flags |= FLAG_DEAD;
+    }
+    if (self->flags & FLAG_DEAD) {
+        entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+        if (entity) {
+            CreateEntityFromEntity(E_EXPLOSION, self, entity);
+            entity->params = 2;
+        }
+        DestroyEntity(self);
+        PlaySfxPositional(SFX_BAT_SCREECH);
+        return;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09275F50);
+        self->hitboxState = 0;
+        self->hitboxOffX = 1;
+        self->hitboxOffY = 1;
+        entity = self->ext.et_801AF8C0.parent;
+        self->zPriority = entity->zPriority + 2;
+        self->palette = PAL_BREAKABLE;
+        self->pose = (Random() & 3) * 2;
+        self->ext.et_801AF8C0.unk80 = (self->params + 1) * 14;
+        self->drawFlags |= ENTITY_SCALEX | ENTITY_SCALEY;
+        self->params = Random() & 3;
+        break;
+    case 1:
+        AnimateEntity(D_pspeu_0928FA78, self);
+        oldX = self->posX.i.hi;
+        entity = self->ext.et_801AF8C0.parent;
+        x = entity->posX.i.hi;
+        y = entity->posY.i.hi;
+        y -= 0x20;
+        dx = self->posX.i.hi - x;
+        dy = self->posY.i.hi - y;
+        angle = ratan2(-dy, dx);
+        if (entity->facingLeft) {
+            angle += ROT(1.40625);
+        } else {
+            angle -= ROT(1.40625);
+        }
+        radius = dx * dx + dy * dy;
+        radius = SquareRoot0(radius);
+        radius -= 2;
+        self->posX.i.hi = x + radius * rcos(angle) / 4096;
+        self->posY.i.hi = y - radius * rsin(angle) / 4096;
+        self->scaleX = radius * self->params + 0x100;
+        if (self->scaleX > 0x300) {
+            self->scaleX = 0x300;
+        }
+        self->scaleY = self->scaleX;
+        oldX = self->posX.i.hi - oldX;
+        if (oldX > 0) {
+            self->facingLeft = 0;
+        } else {
+            self->facingLeft = 1;
+        }
+        if (radius < 8) {
+            self->ext.et_801AF8C0.unkA8 = Random();
+            self->palette = 0x209;
+            self->hitboxState = 3;
+            self->drawFlags = ENTITY_DEFAULT;
+            self->step++;
+        }
+        break;
+    case 2:
+        entity = self->ext.et_801AF8C0.parent;
+        AnimateEntity(D_pspeu_0928FA78, self);
+        MoveEntity();
+        if (self->velocityX > 0) {
+            self->facingLeft = 1;
+            self->zPriority = entity->zPriority + 2;
+        } else {
+            self->facingLeft = 0;
+            self->zPriority = entity->zPriority - 2;
+        }
+        x = entity->posX.i.hi;
+        y = entity->posY.i.hi;
+        x = x - self->posX.i.hi;
+        y = y - self->posY.i.hi;
+        angle2 = Ratan2Shifted(x, y);
+        self->ext.et_801AF8C0.unkA8 = AdjustValueWithinThreshold(2, self->ext.et_801AF8C0.unkA8, angle2);
+        SetEntityVelocityFromAngle(self->ext.et_801AF8C0.unkA8, 0x10);
+        if (entity->ext.et_801AD338.unk84) {
+            if (!--self->ext.et_801AF8C0.unk80) {
+                entity = &PLAYER;
+                angle2 = GetAngleBetweenEntitiesShifted(self, entity);
+                SetEntityVelocityFromAngle(angle2, 0x20);
+                self->step++;
+            }
+        }
+        break;
+    case 3:
+        AnimateEntity(D_pspeu_0928FA78, self);
+        MoveEntity();
+        if (self->velocityX > 0) {
+            self->facingLeft = 0;
+        } else {
+            self->facingLeft = 1;
+        }
+        if (abs(self->posX.i.hi) > 0x200 || abs(self->posY.i.hi) > 0x200) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 void EntityOlroxAfterImage(Entity* self) {
     if (!self->step) {
