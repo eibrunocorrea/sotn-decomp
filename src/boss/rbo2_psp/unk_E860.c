@@ -22,7 +22,21 @@ void polarPlacePartsWithAngvel(s16* entOffsets) {
     }
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDD00);
+void func_801CDD00(Entity* entity, s16 arg1, s16 arg2) {
+    s16 temp_t0 = arg1 - entity->ext.GH_Props.rotate;
+
+    if (temp_t0 > ROT(180)) {
+        temp_t0 = temp_t0 - ROT(360);
+    }
+
+    if (temp_t0 < ROT(-180)) {
+        temp_t0 = temp_t0 + ROT(360);
+    }
+
+    temp_t0 = temp_t0 / arg2;
+    entity->ext.GH_Props.rotVel = temp_t0;
+    entity->ext.GH_Props.unkA4 = arg1;
+}
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDD80);
 
