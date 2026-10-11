@@ -2681,7 +2681,55 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925CA08)
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_us_801BDA0C);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925D968);
+extern EInit D_pspeu_09266738;
+extern u8 D_pspeu_092640A8[];
+extern u8 D_pspeu_092640B0[];
+// local copy of EntityUnkId1C (see rbo5/doors.c)
+void func_pspeu_0925D968(Entity* self) {
+    s32 offsetX;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09266738);
+        self->drawFlags |= ENTITY_ROTATE;
+        self->rotate = ROT(-90);
+        if (self->params & 1) {
+            self->animCurFrame = 0x64;
+            self->velocityX = FIX(-0.5);
+        } else {
+            self->animCurFrame = 0x62;
+            self->velocityX = FIX(0.5);
+        }
+        self->zPriority = 0x5E;
+        // fallthrough
+
+    case 1:
+        MoveEntity();
+        if (self->params & 1) {
+            AnimateEntity(D_pspeu_092640B0, self);
+        } else {
+            AnimateEntity(D_pspeu_092640A8, self);
+        }
+        offsetX = self->posX.i.hi + g_Tilemap.scrollX.i.hi;
+        if (self->velocityX > 0) {
+            if (offsetX > DISP_STAGE_W) {
+                self->step++;
+            }
+        } else if (offsetX < DISP_STAGE_W) {
+            self->step++;
+        }
+        break;
+
+    case 2:
+        self->posX.i.hi = DISP_STAGE_W - g_Tilemap.scrollX.i.hi;
+        if (self->params & 1) {
+            self->animCurFrame = 0x64;
+        } else {
+            self->animCurFrame = 0x62;
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925DB68);
 
