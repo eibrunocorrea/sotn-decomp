@@ -17,22 +17,12 @@ typedef struct {
 
 extern EInit g_EInitDeath2;
 extern unkStr_092650E0 D_pspeu_092650E0[];
-extern s16 D_pspeu_09265170[];
-extern s16 D_pspeu_09265188[];
-extern s16 D_pspeu_09265198[];
-extern s16 D_pspeu_092653F0[];
-extern unkStr_801CDD80 D_pspeu_092651F8[];
-extern unkStr_801CDD80 D_pspeu_09265238[];
-extern unkStr_801CDD80 D_pspeu_092652B0[];
-extern unkStr_801CDD80 D_pspeu_09265338[];
-extern unkStr_801CDD80 D_pspeu_09265388[];
-extern unkStr_801CDD80 D_pspeu_092653D8[];
-extern unkStr_801CDD80 D_pspeu_09265410[];
 extern s32 D_pspeu_09265CD8;
 extern s32 D_pspeu_09265CE0;
 extern s32 E_ID(UNK_1D);
 extern EInit D_us_801804E8;
 extern s32 E_ID(UNK_1F);
+extern s32 E_ID(UNK_1E);
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_12BA0", func_us_8019DA04);
 
@@ -146,7 +136,110 @@ void func_us_8019E558(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_12BA0", func_us_8019E920);
+void func_us_8019E920(Entity* self) {
+    Entity* entity;
+    s16 angle;
+    s32 posX;
+    s32 posY;
+    s32 distance;
+
+    if ((D_pspeu_09265CC8 & 0x10) && self->step != 3) {
+        self->hitboxState = 0;
+        if (self->step) {
+            SetStep(3);
+        }
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_801804E8);
+        self->animCurFrame = 15;
+        self->drawFlags = ENTITY_ROTATE;
+        if (self->facingLeft) {
+            self->ext.et_8019E920.unk82 = 0;
+        } else {
+            self->ext.et_8019E920.unk82 = ROT(180);
+        }
+        self->ext.et_8019E920.unk8C = FIX(8);
+        // fallthrough
+    case 1:
+        MoveEntity();
+        self->rotate -= ROT(22.5);
+        if (!(g_Timer & 7)) {
+            PlaySfxPositional(SFX_BONE_SWORD_SWISH_C);
+        }
+        entity = &PLAYER;
+        posX = entity->posX.i.hi;
+        posY = entity->posY.i.hi;
+        posX -= self->posX.i.hi;
+        posY -= self->posY.i.hi;
+        angle = ratan2(posY, posX);
+        angle =
+            LimitAngleChange(ROT(1.40625), self->ext.et_8019E920.unk82, angle);
+        self->velocityX = (self->ext.et_8019E920.unk8C * rcos(angle)) >> 12;
+        self->velocityY = (self->ext.et_8019E920.unk8C * rsin(angle)) >> 12;
+        angle = self->ext.et_8019E920.unk82;
+        if (!(g_Timer & 3)) {
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity != NULL) {
+                CreateEntityFromEntity(E_ID(UNK_1E), self, entity);
+                entity->params = self->animCurFrame;
+                entity->facingLeft = self->facingLeft;
+                entity->rotate = self->rotate;
+            }
+        }
+        self->ext.et_8019E920.unk8C -= self->ext.et_8019E920.unk8C >> 4;
+        if (self->ext.et_8019E920.unk8C < FIX(0.25)) {
+            self->ext.et_8019E920.unk80 = 0x20;
+            self->step++;
+        }
+        break;
+    case 2:
+        MoveEntity();
+        self->rotate -= ROT(22.5);
+        if (!(g_Timer & 7)) {
+            PlaySfxPositional(SFX_BONE_SWORD_SWISH_C);
+        }
+        entity = self->ext.et_8019E920.parent;
+        posY = entity->posY.i.hi;
+        posX = entity->posX.i.hi;
+        posX -= self->posX.i.hi;
+        posY -= self->posY.i.hi;
+        angle = ratan2(posY, posX);
+        distance = SquareRoot0(posX * posX + posY * posY);
+        if (distance > 32) {
+            angle = LimitAngleChange(
+                ROT(8.4375), self->ext.et_8019E920.unk82, angle);
+        } else {
+            angle = LimitAngleChange(
+                ROT(4.21875), self->ext.et_8019E920.unk82, angle);
+        }
+        self->velocityX = (rcos(angle) << 18) >> 12;
+        self->velocityY = (rsin(angle) << 18) >> 12;
+        self->ext.et_8019E920.unk82 = angle;
+        if (distance < 8) {
+            PlaySfxPositional(SFX_SWITCH_CLICK);
+            entity->ext.et_8019E558.unk90 = 1;
+            DestroyEntity(self);
+        }
+        break;
+    case 3:
+        switch (self->step_s) {
+        case 0:
+            self->hitboxState = 0;
+            self->velocityX = 0;
+            self->velocityY = 0;
+            self->flags |= FLAG_DESTROY_IF_OUT_OF_CAMERA;
+            self->step_s++;
+            // fallthrough
+        case 1:
+            MoveEntity();
+            self->velocityY += FIX(0.25);
+            self->rotate -= ROT(11.25);
+            break;
+        }
+        break;
+    }
+}
 
 void func_us_8019ECCC(Entity* self) {
     if (D_pspeu_09265CC8 & 0x10) {
