@@ -3374,7 +3374,57 @@ void func_pspeu_09259418(void) {
 
 void MarLoadGraphics_09259630(void) {}
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09259638);
+extern AnimationFrame D_pspeu_0927A5B8[];
+extern AnimationFrame D_pspeu_0927AA88[];
+void func_pspeu_09259638(void) {
+    Entity* entity;
+    switch (MARIA.step_s) {
+    case 0:
+        MarSetAnimation(D_pspeu_0927A5B8);
+        g_api.PlaySfx(SFX_BOSS_RIC_LAUGH);
+        if (MARIA.posX.i.hi < 0x80) {
+            MARIA.facingLeft = 0;
+        } else {
+            MARIA.facingLeft = 1;
+        }
+        MARIA.step_s++;
+        // fallthrough
+
+    case 1:
+        D_pspeu_0927C248 = 0x14;
+        entity = &g_Entities[200];
+        CreateEntityFromCurrentEntity(E_ID(ID_17), entity);
+        entity->params = 1;
+        MARIA.step_s++;
+        // fallthrough
+
+    case 2:
+        if (D_pspeu_0927C248 == 0x1E) {
+            MarSetAnimation(D_pspeu_0927AA88);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(E_ID_24, 0x1), 0);
+            MARIA.step_s++;
+        }
+        break;
+    case 3:
+        if (MARIA.animCurFrame == 0xB5) {
+            if (MARIA.poseTimer == 1) {
+                MarCreateEntFactoryFromEntity(
+                    g_CurrentEntity, FACTORY(E_ID_23, 0), 0);
+                g_api.PlaySfx(SFX_WEAPON_APPEAR);
+            }
+        }
+        if (MARIA.poseTimer < 0) {
+            D_pspeu_0927C248 = 0x28;
+            func_pspeu_09259AD8(0);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(E_ID_21, 0x45), 0);
+            g_Maria.timers[ALU_T_POISON] = 0x800;
+        }
+        break;
+    }
+}
+
 
 void MarLoadGraphics_09259858(void) {}
 
