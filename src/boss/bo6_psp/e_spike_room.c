@@ -13,8 +13,7 @@ u8 IncreaseBrightness(Primitive* prim, u8 amount) {
     for (i = 0; i < 4; colorPtr += OFF(Primitive, r1) - OFF(Primitive, r0),
         i++) {
         for (j = 0; j < 3; j++) {
-            channelPtr =
-                &colorPtr[j];
+            channelPtr = &colorPtr[j];
             *channelPtr -= amount;
 
             if (*channelPtr < 16) {

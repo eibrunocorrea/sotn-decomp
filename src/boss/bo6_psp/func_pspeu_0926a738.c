@@ -165,7 +165,8 @@ void func_pspeu_0926A738(Entity* self) {
         gte_stszotz((long*)&z);
         self->hitboxOffX = prim->x0 - self->posX.i.hi;
         self->hitboxOffY = prim->y0 - self->posY.i.hi;
-        for (i = 0; i < LEN(D_pspeu_0927B490); i++, prim = prim->next, vectors_ptr += 4) {
+        for (i = 0; i < LEN(D_pspeu_0927B490); i++, prim = prim->next,
+            vectors_ptr += 4) {
             psp_s7 = vectors_ptr[0];
             psp_s6 = vectors_ptr[1];
             psp_s4 = vectors_ptr[3];

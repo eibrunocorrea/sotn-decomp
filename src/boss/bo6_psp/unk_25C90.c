@@ -448,8 +448,7 @@ void func_pspeu_0925E578(Entity* self) {
             g_Maria.unk4E = 1;
             return;
         }
-        self->flags =
-            FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
         prim = (FakePrim*)&g_PrimBuf[self->primIndex];
         for (i = 0; i < 9; i++) {
             prim->r0 = prim->g0 = prim->b0 = 0xFF;
@@ -1718,8 +1717,7 @@ void func_pspeu_092649F0(Entity* self) {
             DestroyEntity(self);
             return;
         }
-        self->flags =
-            FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
         prim = &g_PrimBuf[self->primIndex];
         prim->tpage = 0x1E;
         prim->clut = 0x17F;
@@ -2568,11 +2566,9 @@ void func_pspeu_09267D20(Entity* self) {
             self->ext.holywater.angle = (rand() & 0x7F) + ROT(219.375);
         }
         self->velocityX =
-            ((rcos(self->ext.holywater.angle) << 4) * FIX(3.0 / 128.0)) >>
-            8;
+            ((rcos(self->ext.holywater.angle) << 4) * FIX(3.0 / 128.0)) >> 8;
         self->velocityY =
-            -((rsin(self->ext.holywater.angle) << 4) * FIX(3.0 / 128.0)) >>
-            8;
+            -((rsin(self->ext.holywater.angle) << 4) * FIX(3.0 / 128.0)) >> 8;
         self->hitboxWidth = 4;
         self->hitboxHeight = 4;
         self->ext.holywater.unk80 = 0x200;
@@ -2842,8 +2838,7 @@ void func_pspeu_09268D98(Entity* self) {
             DestroyEntity(self);
             return;
         }
-        self->flags =
-            FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
         self->ext.crashcross.unk80 = 1;
         self->zPriority = 0xC2;
         LoadImage(&D_pspeu_0927B018, (u_long*)D_pspeu_0927AFB8);
@@ -3203,8 +3198,7 @@ void func_pspeu_0926A2B8(Entity* self) {
             DestroyEntity(self);
             return;
         }
-        self->flags =
-            FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->flags = FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
         self->ext.timer.t = 0xC0;
         self->step++;
         return;
