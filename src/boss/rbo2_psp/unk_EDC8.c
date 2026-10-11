@@ -6,16 +6,11 @@ extern EInit D_us_801804C4;
 
 extern s32 E_ID(UNK_17);
 
-typedef struct {
-    u8 pad[0xAC];
-    s16 unkAC;
-} unkStr_09246448;
-
 void func_pspeu_09246448(Entity* self) {
     s16 angle = self->ext.GH_Props.rotate;
     Entity* src;
 
-    angle += ((unkStr_09246448*)self)->unkAC;
+    angle += self->ext.GH_Props.unkAC;
     if (g_CurrentEntity->facingLeft) {
         angle = -angle;
     }

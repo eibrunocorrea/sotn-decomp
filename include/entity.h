@@ -891,7 +891,8 @@ typedef struct {
     /* 0xA8 */ u8 unkA8;
     /* 0xA9 */ u8 : 8;
     /* 0xAA */ u16 : 16;
-    /* 0xAC */ s32 : 32;
+    /* 0xAC */ s16 unkAC;
+    /* 0xAE */ s16 : 16;
     /* 0xB0 */ u16 unkB0[2];
     /* 0xB4 */ u16 unkB4[2];
 } ET_GurkhaHammer;
