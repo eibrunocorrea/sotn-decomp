@@ -1,7 +1,53 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_118B8", func_pspeu_09252B48_from_rbo5);
+extern PfnEntityUpdate D_pspeu_09279AA8[];
+extern AnimationFrame* D_pspeu_0927C158[];
+void func_pspeu_09252B48_from_rbo5(void) {
+    Entity* entity;
+    PfnEntityUpdate entityUpdate;
+    s32 i;
+    s32 isPrologueTimeStopped;
+
+    isPrologueTimeStopped = g_unkGraphicsStruct.unk28;
+    entity = g_CurrentEntity = &g_Entities[E_ID_44];
+
+    for (i = E_ID_44; i < E_ID_90; i++, g_CurrentEntity++, entity++) {
+        if (entity->entityId != 0) {
+            entityUpdate = D_pspeu_09279AA8[entity->entityId];
+            entityUpdate(entity);
+            entity = g_CurrentEntity;
+
+            if (entity->entityId != 0) {
+                if (!(entity->flags & FLAG_UNK_10000000) &&
+                    (entity->posX.i.hi > 288 || entity->posX.i.hi < -32 ||
+                     entity->posY.i.hi > 256 || entity->posY.i.hi < -16)) {
+                    DestroyEntity(g_CurrentEntity);
+                } else {
+                    if (entity->flags & FLAG_UNK_20000000) {
+                        g_api.UpdateAnim(NULL, (AnimationFrame**)D_pspeu_0927C158);
+                    }
+                    entity->flags |= FLAG_NOT_AN_ENEMY;
+                }
+            }
+        }
+    }
+
+    if (D_pspeu_0927C230) {
+        D_pspeu_0927C230--;
+        if (D_pspeu_0927C230 & 1) {
+            g_api.func_800EA5AC(1, D_pspeu_0927C228, D_pspeu_0927C220, D_pspeu_0927C218);
+        }
+    }
+    if ((MARIA.step == 0x11) || (MARIA.step == 0x60) || (MARIA.step == 0x70)) {
+        FntPrint("dead boss\n");
+        entity = &g_Entities[E_ID_44];
+        for (i = E_ID_44; i < E_ID_90; i++, entity++) {
+            entity->hitboxState = 0;
+        };
+    }
+}
+
 
 // local copy of RicCreateEntFactoryFromEntity (see us_39144.c); note the
 // (68, 80) slot range - cen's Maria uses (72, 80)

@@ -89,6 +89,8 @@ segments:
       - [0x41CD0, data]
       - [0x420D8, .data, bo6/e_lock_camera]
       - [0x42150, data, 42150]
+      - [0x42540, .data, bo6_psp/unk_118B8]
+      - [0x42550, data, 42550]
       - [0x42EA0, .data, bo6_psp/unk_1CA48]
       - [0x42ED8, data, 42ED8]
       - [0x43F80, .rodata, bo6/e_red_door]
