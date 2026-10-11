@@ -3,7 +3,32 @@
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", EntityBreakable);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", DecreaseBrightness);
+s32 DecreaseBrightness(Primitive* prim, s32 brightnessOffset) {
+    s32 newColor;
+    s32 i;
+    s32 j;
+    u8* rgbVal;
+    u8* rPtr;
+    s32 ret;
+
+    ret = 0;
+    rPtr = &prim->r0;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 3; j++) {
+            rgbVal = &rPtr[j];
+            newColor = *rgbVal;
+            newColor += brightnessOffset;
+            if (newColor > 0xFF) {
+                newColor = 0xFF;
+            } else {
+                ret |= 1;
+            }
+            *rgbVal = newColor;
+        }
+        rPtr += 0xC;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4594);
 
