@@ -43,13 +43,13 @@ void func_us_8019E558(Entity* self) {
         self->drawFlags |= ENTITY_ROTATE;
         // fallthrough
     case 1:
-        self->rotate = self->ext.et_8019E558.rotate;
+        self->rotate = self->ext.GH_Props.rotate;
         if (D_pspeu_09265CC8 & 0x10) {
             self->step = 2;
         }
         break;
     case 2:
-        self->rotate = self->ext.et_8019E558.rotate;
+        self->rotate = self->ext.GH_Props.rotate;
         if (!(Random() & 0x3F)) {
             PlaySfxPositional(SFX_EXPLODE_A);
             entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
@@ -80,7 +80,7 @@ void func_us_8019E558(Entity* self) {
                     CreateEntityFromEntity(E_ID(UNK_1D), self, entity);
                     entity->facingLeft = self->facingLeft;
                     entity->ext.et_8019E920.parent = self;
-                    self->ext.et_8019E558.unk90 = 0;
+                    self->ext.GH_Props.unk90 = 0;
                     self->step_s++;
                 } else {
                     D_pspeu_09265CD8 = 0;
@@ -89,7 +89,7 @@ void func_us_8019E558(Entity* self) {
             break;
         case 1:
             self->animCurFrame = 9;
-            if (self->ext.et_8019E558.unk90) {
+            if (self->ext.GH_Props.unk90) {
                 D_pspeu_09265CD8 = 0;
                 self->step_s = 0;
             }
@@ -218,7 +218,7 @@ void func_us_8019E920(Entity* self) {
         self->ext.et_8019E920.unk82 = angle;
         if (distance < 8) {
             PlaySfxPositional(SFX_SWITCH_CLICK);
-            entity->ext.et_8019E558.unk90 = 1;
+            entity->ext.GH_Props.unk90 = 1;
             DestroyEntity(self);
         }
         break;
