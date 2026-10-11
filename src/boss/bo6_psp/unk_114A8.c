@@ -2528,7 +2528,16 @@ void func_pspeu_09253F48(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09254008);
+void func_pspeu_09259EA8(void);
+void func_pspeu_09254008(void) {
+    if ((MARIA.step == PL_S_CROUCH || MARIA.step == PL_S_STAND ||
+         (MARIA.step == PL_S_JUMP && MARIA.velocityY > FIX(1)) ||
+         MARIA.step == PL_S_FALL) &&
+        !g_Maria.unk46 &&
+        (g_Maria.padTapped & PAD_R2)) {
+        func_pspeu_09259EA8();
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092540C8);
 
