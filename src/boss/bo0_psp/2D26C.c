@@ -25,6 +25,23 @@ INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_0925C938);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_0925CBE8);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", EntityOlroxAfterImage);
+extern EInit g_EInitOlroxAfterImage;
+
+void EntityOlroxAfterImage(Entity* self) {
+    if (!self->step) {
+        InitializeEntity(g_EInitOlroxAfterImage);
+        self->hitboxState = 0;
+        self->palette = 0x217;
+        self->animCurFrame = self->params;
+        self->drawFlags = ENTITY_OPACITY;
+        self->opacity = 0x80;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
+        self->zPriority -= 2;
+    }
+    self->opacity -= 2;
+    if (!self->opacity) {
+        DestroyEntity(self);
+    }
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_us_801B001C);
