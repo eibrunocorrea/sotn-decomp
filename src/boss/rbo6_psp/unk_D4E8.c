@@ -108,7 +108,36 @@ void func_us_8019FB04(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019FBC0);
+void func_us_8019FBC0(Entity* self) {
+    extern u16 D_us_80180540;
+    extern u8 D_pspeu_0926B4A8[];
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C068;
+    extern s32 D_pspeu_0926C0A0;
+    Entity* source = &g_Entities[80];
+
+    self->posX.i.hi = source->posX.i.hi;
+    self->posY.i.hi = source->posY.i.hi;
+    self->palette = D_pspeu_0926C0A0;
+    if ((D_pspeu_0926C060 & 1) && self->step != 16) {
+        SetStep(16);
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(&D_us_80180540);
+        /* fall through */
+    case 1:
+        AnimateEntity(D_pspeu_0926B4A8, self);
+        break;
+    case 16:
+        self->animCurFrame = 0x1B;
+        break;
+    }
+    if (D_pspeu_0926C068) {
+        self->animCurFrame = 0;
+        self->hitboxState = 0;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019FCB4);
 
