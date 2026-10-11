@@ -49,7 +49,17 @@ typedef enum EntityID {
 } EntityID;
 
 #ifdef VERSION_PSP
+extern s32 E_ID(BACKGROUND_BLOCK);
+extern s32 E_ID(LOCK_CAMERA);
+extern s32 E_ID(ID_13);
+extern s32 E_ID(EXPLOSION_VARIANTS);
+extern s32 E_ID(GREY_PUFF);
+extern s32 E_ID(ID_16);
 extern s32 E_ID(ID_17);
+extern s32 E_ID(ID_18);
+extern s32 E_ID(ID_19);
+extern s32 E_ID(ID_1A);
+extern s32 E_ID(ID_1B);
 #endif
 
 // same as `RicSteps`, but like Doppleganger, offset by 1

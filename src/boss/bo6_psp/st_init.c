@@ -3,18 +3,6 @@
 
 #include "../../st/get_lang_at.h"
 
-extern s32 E_ID(BACKGROUND_BLOCK);
-extern s32 E_ID(LOCK_CAMERA);
-extern s32 E_ID(ID_13);
-extern s32 E_ID(EXPLOSION_VARIANTS);
-extern s32 E_ID(GREY_PUFF);
-extern s32 E_ID(ID_16);
-extern s32 E_ID(ID_17);
-extern s32 E_ID(ID_18);
-extern s32 E_ID(ID_19);
-extern s32 E_ID(ID_1A);
-extern s32 E_ID(ID_1B);
-
 void InitEntityIds(void) {
     SET_E_ID(BACKGROUND_BLOCK);
     SET_E_ID(LOCK_CAMERA);
