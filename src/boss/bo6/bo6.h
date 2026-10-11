@@ -24,10 +24,17 @@ typedef enum EntityID {
     /* 0x0C */ E_PERSISTENT_ITEM_DROP,
     /* 0x0D */ E_ENEMY_BLOOD,
     /* 0x0E */ E_MESSAGE_BOX,
+    /* 0x11 */ E_BACKGROUND_BLOCK = 0x11,
+    /* 0x12 */ E_LOCK_CAMERA,
     /* 0x13 */ E_ID_13,
     /* 0x14 */ E_EXPLOSION_VARIANTS = 0x14,
     /* 0x15 */ E_GREY_PUFF,
-    /* 0x17 */ E_ID_17 = 0x17,
+    /* 0x16 */ E_ID_16,
+    /* 0x17 */ E_ID_17,
+    /* 0x18 */ E_ID_18,
+    /* 0x19 */ E_ID_19,
+    /* 0x1A */ E_ID_1A,
+    /* 0x1B */ E_ID_1B,
 
     /* 0x21 */ E_ID_21 = 0x21,
     /* 0x23 */ E_ID_23 = 0x23,
@@ -42,9 +49,7 @@ typedef enum EntityID {
 } EntityID;
 
 #ifdef VERSION_PSP
-extern s32 D_pspeu_0927BAF8;
-#undef E_ID
-#define E_ID(ID_17) D_pspeu_0927BAF8
+extern s32 E_ID(ID_17);
 #endif
 
 // same as `RicSteps`, but like Doppleganger, offset by 1
