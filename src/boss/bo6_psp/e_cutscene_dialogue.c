@@ -2,7 +2,6 @@
 #include "../bo6/bo6.h"
 #include <cutscene.h>
 
-// helpers are called from raw-asm functions in sibling objects
 #define CUTSCENE_GLOBAL
 
 extern Dialogue g_Dialogue;
