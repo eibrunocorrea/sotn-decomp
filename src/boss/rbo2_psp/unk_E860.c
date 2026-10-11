@@ -38,7 +38,19 @@ void func_801CDD00(Entity* entity, s16 arg1, s16 arg2) {
     entity->ext.GH_Props.unkA4 = arg1;
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDD80);
+void func_801CDD80(s16* entOffsets, unkStr_801CDD80* arg1) {
+    Entity* var_s1;
+    s16* ptr = arg1->unk4;
+
+    while (*entOffsets) {
+        if (*entOffsets != 0xFF) {
+            var_s1 = g_CurrentEntity + *entOffsets;
+            func_801CDD00(var_s1, *ptr, arg1->unk0);
+        }
+        ptr++;
+        entOffsets++;
+    }
+}
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDF1C);
 
