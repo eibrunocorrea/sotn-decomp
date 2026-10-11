@@ -323,7 +323,121 @@ void func_us_801A9208_from_bo6(Entity* self) {
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019DB9C);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019EADC);
+void func_us_8019EADC(Entity* self) {
+    extern EInit D_us_80180540;
+    extern u8 D_pspeu_0926B438[];
+    extern u8 D_pspeu_0926B448[];
+    extern u8 D_pspeu_0926B458[];
+    extern u8 D_pspeu_0926B468[];
+    extern s32 D_pspeu_0926BFE8;
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C068;
+    extern s32 D_pspeu_0926C070;
+    extern s32 D_pspeu_0926C088;
+    extern s32 D_pspeu_0926C0A0;
+    Entity* entity;
+
+    entity = &g_Entities[80];
+    self->posX.i.hi = entity->posX.i.hi;
+    self->posY.i.hi = entity->posY.i.hi;
+    if (!self->params) {
+        self->posX.i.hi -= 0x34;
+        self->posY.i.hi += 0x10;
+    } else {
+        self->posX.i.hi += 0x3B;
+        self->posY.i.hi += 0x18;
+    }
+    self->palette = D_pspeu_0926C0A0;
+    if ((D_pspeu_0926C060 & 1) && self->step != 16) {
+        SetStep(16);
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180540);
+        self->facingLeft = self->params;
+        entity = self + 1;
+        CreateEntityFromCurrentEntity(D_pspeu_0926BFE8, entity);
+        entity->params = self->params;
+        entity->zPriority = self->zPriority + 1;
+        // Fallthrough
+    case 1:
+        self->animCurFrame = 0xC;
+        if (D_pspeu_0926C070 == 1) {
+            SetStep(2);
+        }
+        if (D_pspeu_0926C088 == self->params + 1) {
+            SetStep(3);
+        }
+        break;
+    case 2:
+        switch (self->step_s) {
+        case 0:
+            self->animCurFrame = 0xC;
+            if (D_pspeu_0926C070 == 3) {
+                self->step_s++;
+            }
+            break;
+        case 1:
+            if (!self->poseTimer && self->pose == 3) {
+                D_pspeu_0926C070 = 4;
+            }
+            if (!AnimateEntity(D_pspeu_0926B438, self)) {
+                D_pspeu_0926C070 = 5;
+                SetSubStep(2);
+            }
+            break;
+        case 2:
+            if (!AnimateEntity(D_pspeu_0926B468, self)) {
+                SetStep(1);
+            }
+            break;
+        }
+        break;
+    case 3:
+        switch (self->step_s) {
+        case 0:
+            if (!AnimateEntity(D_pspeu_0926B448, self)) {
+                SetSubStep(1);
+            }
+            if (!self->poseTimer && self->pose == 2) {
+                PlaySfxPositional(0x662);
+            }
+            break;
+        case 1:
+            if (!AnimateEntity(D_pspeu_0926B468, self)) {
+                D_pspeu_0926C088 = 3;
+                SetStep(1);
+            }
+            break;
+        }
+        break;
+    case 8:
+        if (!AnimateEntity(D_pspeu_0926B458, self)) {
+            self->pose = 0;
+            self->poseTimer = 0;
+        }
+        break;
+    case 16:
+        switch (self->step_s) {
+        case 0:
+            self->pose = 0x10 - self->animCurFrame;
+            self->step_s++;
+            // Fallthrough
+        case 1:
+            if (!AnimateEntity(D_pspeu_0926B468, self)) {
+                self->pose = 0;
+                self->poseTimer = 0;
+                self->step_s++;
+            }
+            break;
+        }
+        break;
+    }
+    if (D_pspeu_0926C068) {
+        self->animCurFrame = 0;
+        self->hitboxState = 0;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019EE30);
 
