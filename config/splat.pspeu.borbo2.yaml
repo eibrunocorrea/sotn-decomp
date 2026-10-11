@@ -82,6 +82,8 @@ segments:
       - [0x186A8, data, 186A8]
       - [0x1B9C8, data, rbo2/e_init]
       - [0x1BB68, data]
+      - [0x1C0C0, .data, rbo2_psp/unk_E860]
+      - [0x1C0E0, data]
       - [0x2D8D8, .data, rbo2/header]
       - [0x2D908, data]
       - [0x2E1A0, .data, rbo2/e_lock_camera]
