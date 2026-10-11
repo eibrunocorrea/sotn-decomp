@@ -38,7 +38,7 @@ void EntityFlyingZombie1(Entity* self) {
         if ((self->hitFlags & 3) || (self->flags & FLAG_DEAD)) {
             self->hitboxState = 0;
             self->flags &= ~FLAG_DEAD;
-            self->hitPoints = g_api.enemyDefs[14].hitPoints;
+            self->hitPoints = g_api.enemyDefs[ENEMY_FLYING_ZOMBIE_1].hitPoints;
             (self - 1)->step = 4;
             (self - 1)->step_s = 0;
             (self - 1)->pose = 0;
