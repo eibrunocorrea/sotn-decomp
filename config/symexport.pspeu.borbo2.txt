@@ -1,6 +1,2 @@
 EXTERN(_binary_assets_boss_rbo2_mwo_header_bin_start);
 EXTERN(RBO2_Load);
-D_pspeu_09265C50 = 0x09265C50;
-D_pspeu_09265C68 = 0x09265C68;
-D_pspeu_09265C70 = 0x09265C70;
-D_pspeu_09265C88 = 0x09265C88;
