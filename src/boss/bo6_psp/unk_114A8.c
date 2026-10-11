@@ -2937,7 +2937,6 @@ void func_pspeu_09258010(
     }
 }
 
-extern AnimationFrame D_pspeu_0927A758[];
 // Local copy of RicStepStandInAir; the boss copy restores Maria's palette.
 void func_pspeu_09258830(void) {
     if (MARIA.step_s == 0) {
