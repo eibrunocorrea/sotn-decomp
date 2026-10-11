@@ -83,9 +83,9 @@ void func_pspeu_0925C938(Entity* self) {
             }
         }
         if (g_Timer % 5) {
-            self->palette = 0x8213;
+            self->palette = PAL_FLAG(0x213);
         } else {
-            self->palette = 0x8215;
+            self->palette = PAL_FLAG(0x215);
         }
         entity = self->ext.et_801AF8C0.parent;
         if (entity->ext.et_801AD338.unk85) {
@@ -103,7 +103,6 @@ void func_pspeu_0925C938(Entity* self) {
 }
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/2D26C", func_pspeu_0925CBE8);
-
 
 void EntityOlroxAfterImage(Entity* self) {
     if (!self->step) {

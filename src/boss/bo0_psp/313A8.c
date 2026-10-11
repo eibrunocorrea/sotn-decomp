@@ -239,7 +239,8 @@ u8 func_pspeu_0925EAD8(OlroxPrim* prim) {
     OlroxPrim* other;
 
     other = prim->unk18;
-    result = func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0x180, 0x40);
+    result =
+        func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0x180, 0x40);
     switch (prim->step) {
     case 0:
         result += func_pspeu_0925E340(prim, ROT(-8.4375), ROT(73.125), 0x18);
@@ -263,7 +264,7 @@ s32 func_pspeu_0925EC00(OlroxPrim* part) {
     OlroxPrim* other;
 
     other = part->unk18;
-    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0x0, 0xC);
+    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0, 0xC);
     result = func_pspeu_0925E340(part, ROT(-61.875), ROT(61.875), 0x28);
     result += func_pspeu_0925E340(other, ROT(-22.5), ROT(84.375), 0x38);
     if (result == 2) {
@@ -277,7 +278,7 @@ s32 func_pspeu_0925ECA8(OlroxPrim* part) {
     OlroxPrim* other;
 
     other = part->unk18;
-    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0x0, 0xC);
+    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0, 0xC);
     result = func_pspeu_0925E340(part, ROT(-5.625), ROT(5.625), 0x60);
     result += func_pspeu_0925E340(other, ROT(-45), ROT(56.25), 0x50);
     if (result == 2) {
@@ -291,7 +292,7 @@ s32 func_pspeu_0925ED50(OlroxPrim* part) {
     OlroxPrim* other;
 
     other = part->unk18;
-    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0x0, 0x10);
+    func_us_801B163C(&g_CurrentEntity->ext.et_801B365C.unk90, 0, 0x10);
     result = func_pspeu_0925E340(part, ROT(-45), ROT(45), 0x60);
     result += func_pspeu_0925E340(other, ROT(-45), ROT(33.75), 0x40);
     if (result == 2) {
