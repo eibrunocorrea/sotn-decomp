@@ -729,7 +729,183 @@ void func_80159C04(void) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09249910);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09249FE8);
+extern s32 D_pspeu_0926CCD0;
+extern s32 D_pspeu_0926C0B8;
+extern s32 D_pspeu_0926C0B0;
+extern s32 D_pspeu_0926C0A8;
+extern s32 D_pspeu_0926C0A0;
+extern u_long D_pspeu_0926C110[];
+extern RECT D_pspeu_09263FE8;
+void func_pspeu_09252480(s32 arg0);
+void func_pspeu_09249FE8(DamageParam* damage, s16 dopStep, s16 arg2) {
+    s32 i;
+    s32 j;
+    Entity* ent;
+    u8* s2;
+    u8* data;
+    PlayerDraw* plDraw;
+
+    DOPPLEGANGER.drawFlags = DRAW_COLORS;
+    plDraw = &g_PlayerDraw[8];
+
+    switch (DOPPLEGANGER.step_s) {
+    case 0:
+        DOPPLEGANGER.velocityY = 0;
+        DOPPLEGANGER.velocityX = 0;
+        if (dopStep == Dop_StatusStone) {
+            ent = &DOPPLEGANGER + 16;
+            for (j = 16; j < 64; j++, ent++) {
+                // Entity 32 appears to be EntityDopplegangerDissolves
+                if (ent->entityId == 32) {
+                    g_api.PlaySfx(SFX_VO_DOP_DEATH);
+                    DOPPLEGANGER.step_s = 16;
+                    return;
+                }
+            }
+        }
+        g_api.PlaySfx(SFX_VO_DOP_DEATH);
+        func_pspeu_09249838();
+        func_80159C04();
+        DOPPLEGANGER.velocityY = FIX(-3.25);
+        func_pspeu_0924EA50(FIX(-1.25));
+        DOPPLEGANGER.ext.player.anim = 0xC0;
+        DOPPLEGANGER.rotate = 0;
+        DOPPLEGANGER.rotPivotY = 0;
+        DOPPLEGANGER.rotPivotX = 0;
+        if (damage->effects & ELEMENT_FIRE) {
+            func_pspeu_09252480(3);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x4F), 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(51, 2), 0);
+            D_pspeu_0926C0A8 = 1;
+        } else if (damage->effects & ELEMENT_THUNDER) {
+            func_pspeu_09252480(9);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x59), 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(45, 1), 0);
+            D_pspeu_0926C0A8 = 2;
+        } else if (damage->effects & ELEMENT_ICE) {
+            func_pspeu_09252480(10);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x5A), 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 46, 0);
+            D_pspeu_0926C0A8 = 3;
+            DOPPLEGANGER.blendMode = BLEND_TRANSP | BLEND_ADD;
+        } else {
+            func_pspeu_09252480(1);
+            MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(BP_BLINK_WHITE, 0x53), 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(49, 5), 0);
+            D_pspeu_0926C0A8 = 0;
+        }
+        plDraw->r0 = plDraw->g0 = plDraw->b0 = plDraw->r1 = plDraw->g1 =
+            plDraw->b1 = plDraw->r2 = plDraw->g2 = plDraw->b2 = plDraw->r3 =
+                plDraw->g3 = plDraw->b3 = 128;
+        plDraw->enableColorBlend = 1;
+        DOPPLEGANGER.step_s++;
+        break;
+    case 1:
+        if (!D_pspeu_0926C0A8) {
+            if (plDraw->r0 < 248) {
+                plDraw->r0++;
+            }
+            if (plDraw->b0 > 8) {
+                plDraw->b0--;
+            }
+
+            plDraw->r3 = plDraw->r2 = plDraw->r1 = plDraw->r0;
+            plDraw->g0 = plDraw->g1 = plDraw->b1 = plDraw->g2 = plDraw->b2 =
+                plDraw->g3 = plDraw->b3 = plDraw->b0;
+        }
+        if (D_pspeu_0926C0A8 == 1 || D_pspeu_0926C0A8 == 2) {
+            if (plDraw->b0 > 8) {
+                plDraw->b0--;
+            }
+            plDraw->r3 = plDraw->r2 = plDraw->r1 = plDraw->r0 = plDraw->g0 =
+                plDraw->g1 = plDraw->b1 = plDraw->g2 = plDraw->b2 = plDraw->g3 =
+                    plDraw->b3 = plDraw->b0;
+        }
+        if (D_pspeu_0926C0A8 == 3) {
+            if (plDraw->r0 < 248) {
+                plDraw->r0--;
+            }
+            plDraw->r3 = plDraw->r2 = plDraw->r1 = plDraw->g3 = plDraw->g2 =
+                plDraw->g1 = plDraw->g0 = plDraw->r0;
+            if (plDraw->b0 < 248) {
+                plDraw->b0++;
+            }
+            plDraw->b3 = plDraw->b2 = plDraw->b1 = plDraw->b0;
+        }
+        DOPPLEGANGER.velocityY += FIX(11.0 / 128);
+        if (DOPPLEGANGER.velocityY > FIX(1.0 / 4)) {
+            DOPPLEGANGER.velocityY = FIX(1.0 / 16);
+        }
+        if (DOPPLEGANGER.poseTimer < 0) {
+            StoreImage(&D_pspeu_09263FE8, (u_long*)&D_pspeu_0926C110);
+            D_pspeu_0926C0B8 = 0;
+            D_pspeu_0926C0B0 = 0x40;
+            g_CurrentEntity->step_s++;
+        }
+        break;
+    case 2:
+        for (i = 0; i < 4; i++) {
+            s2 = data = (u8*)&D_pspeu_0926C110[0];
+            s2 += ((D_pspeu_0926C0B8 >> 1) & 7);
+            s2 += ((D_pspeu_0926C0B8 & 0xFF) >> 4) << 5;
+            for (j = 0; j < 16; j++) {
+                if (D_pspeu_0926C0B8 & 1) {
+                    *(s2 + ((j & 3) * 8) + ((j >> 2) * 0x200)) &= 0xF0;
+                } else {
+                    *(s2 + ((j & 3) * 8) + ((j >> 2) * 0x200)) &= 0x0F;
+                }
+            }
+            D_pspeu_0926C0B8 += 0x23;
+            D_pspeu_0926C0B8 &= 0xFF;
+        }
+        LoadImage(&D_pspeu_09263FE8, (u_long*)data);
+        if (--D_pspeu_0926C0B0 == 0) {
+            DOPPLEGANGER.velocityY = 0;
+            plDraw->enableColorBlend = 0;
+            g_CurrentEntity->step_s = 0x80;
+        }
+        break;
+    case 16:
+        D_pspeu_0926C0A0 = 0x50;
+        DOPPLEGANGER.step_s++;
+        break;
+    case 17:
+        g_Dop.unk5E = 5;
+        if (D_pspeu_0926C0A0 % 16 == 7) {
+            g_Dop.padTapped = PAD_UP;
+            g_api.PlaySfx(SFX_STONE_MOVE_B);
+        }
+        if (--D_pspeu_0926C0A0 == 0) {
+            func_pspeu_0924DCB8(0x3E);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(16, 3), 0);
+            DOPPLEGANGER.step_s++;
+        }
+        break;
+    case 18:
+        if (DOPPLEGANGER.poseTimer < 0) {
+            plDraw->enableColorBlend = 0;
+            g_CurrentEntity->step_s = 0x80;
+        }
+        break;
+    case 0x80:
+        D_pspeu_0926CCD0 |= 4;
+        break;
+    }
+    MarDecelerateX_0924E7C8(FIX(1.0 / 64));
+    if (DOPPLEGANGER.pose >= 15) {
+        if ((DOPPLEGANGER.pose == 22) && (DOPPLEGANGER.poseTimer == 1)) {
+            DOPPLEGANGER.rotate -= 0x100;
+        }
+        DOPPLEGANGER.rotate -= 6;
+        if (DOPPLEGANGER.rotate < -0x280) {
+            DOPPLEGANGER.rotate = -0x280;
+        }
+    }
+}
 
 extern u16 D_pspeu_092629BA;
 // local copy of BatFormFinished (see bo4/unk_46E7C.c); the u16 is the
