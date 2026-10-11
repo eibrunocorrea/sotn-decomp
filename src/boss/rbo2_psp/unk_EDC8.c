@@ -215,11 +215,335 @@ void func_us_8019C718(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_EDC8", func_us_8019C924);
+extern EInit D_us_801804AC;
+extern u8 D_pspeu_09265028[];
+extern u8 D_pspeu_09265038[24];
+extern u8 D_pspeu_09265050[];
+extern u8 D_pspeu_09265068[];
+extern u8 D_pspeu_09265080[];
+extern s32 E_ID(UNK_19);
+extern s32 E_ID(UNK_1A);
+
+void func_us_8019C924(Entity* self) {
+    Entity* entity;
+    s32 posX;
+    s32 posY;
+    s16 angle;
+    s32 distance;
+    s32 animResult;
+    EnemyDef* enemy;
+
+    FntPrint("ball_step %x\n", self->step);
+    if (D_pspeu_09265CC8 & 8) {
+        entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+        if (entity != NULL) {
+            CreateEntityFromEntity(E_EXPLOSION, self, entity);
+            entity->params = 3;
+        }
+        DestroyEntity(self);
+        return;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_801804AC);
+        self->hitboxState = 0;
+        self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY;
+        self->scaleX = self->scaleY = 0x80;
+        self->blendMode = BLEND_ADD | BLEND_TRANSP;
+        PlaySfxPositional(SFX_RAPID_SYNTH_BUBBLE_SHORT);
+        // fallthrough
+    case 1:
+        if (!AnimateEntity(D_pspeu_09265028, self)) {
+            self->step++;
+        }
+        // fallthrough
+    case 2:
+        self->scaleX += 4;
+        if (self->scaleX > 0x100) {
+            self->hitboxState = 1;
+            self->drawFlags = ENTITY_DEFAULT;
+            SetStep(3);
+        }
+        self->scaleY = self->scaleX;
+        break;
+    case 3:
+        AnimateEntity(D_pspeu_09265038, self);
+        entity = self->ext.et_8019C924.parent;
+        if (entity->ext.et_8019B52C.unk88) {
+            self->ext.et_8019C924.unk82 = ROT(90);
+            SetStep(4);
+        }
+        break;
+    case 4:
+        AnimateEntity(D_pspeu_09265038, self);
+        MoveEntity();
+        entity = &PLAYER;
+        posX = entity->posX.i.hi;
+        posY = entity->posY.i.hi;
+        posX += (Random() & 0x3F) - 0x20;
+        posY += (Random() & 0x3F) - 0x20;
+        posX -= self->posX.i.hi;
+        posY -= self->posY.i.hi;
+        angle = ratan2(posY, posX);
+        angle =
+            LimitAngleChange(ROT(5.625), self->ext.et_8019C924.unk82, angle);
+        self->velocityX = (rcos(angle) * FIX(0.4375)) >> 12;
+        self->velocityY = (rsin(angle) * FIX(0.4375)) >> 12;
+        self->ext.et_8019C924.unk82 = angle;
+        entity = self->ext.et_8019C924.parent;
+        if (entity->ext.et_8019B52C.unk89) {
+            SetStep(5);
+        }
+        break;
+    case 5:
+        AnimateEntity(D_pspeu_09265038, self);
+        MoveEntity();
+        entity = self->ext.et_8019C924.parent;
+        if (!self->params) {
+            posX = entity->posX.i.hi - 0x20;
+        } else {
+            posX = entity->posX.i.hi + 0x20;
+        }
+        posY = entity->posY.i.hi - 0x1C;
+        posX -= self->posX.i.hi;
+        posY -= self->posY.i.hi;
+        angle = ratan2(posY, posX);
+        self->velocityX = (rcos(angle) * FIX(1.75)) >> 12;
+        self->velocityY = (rsin(angle) * FIX(1.75)) >> 12;
+        distance = SquareRoot0(posX * posX + posY * posY);
+        if (distance < 4) {
+            self->ext.et_8019C924.unk8A = 1;
+            self->step++;
+        }
+        break;
+    case 6:
+        switch (self->step_s) {
+        case 0:
+            self->hitboxState = 0;
+            AnimateEntity(D_pspeu_09265038, self);
+            entity = self->ext.et_8019C924.parent;
+            if (entity->ext.et_8019B52C.unk8B) {
+                self->ext.et_8019C924.unk8A = 0;
+                SetSubStep(1);
+            }
+            break;
+        case 1:
+            if (!AnimateEntity(D_pspeu_09265050, self)) {
+                SetStep(7);
+            }
+            break;
+        }
+        break;
+    case 7:
+        switch (self->step_s) {
+        case 0:
+            entity = AllocEntity(&g_Entities[176], &g_Entities[184]);
+            if (entity != NULL) {
+                CreateEntityFromEntity(E_ID(UNK_19), self, entity);
+                entity->ext.et_8019D4CC.parent = self;
+                if (!self->params) {
+                    entity->ext.et_8019D4CC.unkA0 = self + 1;
+                } else {
+                    entity->ext.et_8019D4CC.unkA0 = self - 1;
+                }
+                entity->facingLeft = self->params;
+                entity->zPriority = self->zPriority + 1;
+                self->ext.et_8019C924.unk8C = 0;
+                PlaySfxPositional(SFX_LOW_SYNTH_BUBBLES);
+                self->step_s++;
+            }
+            break;
+        case 1:
+            self->ext.et_8019C924.unk80 = 0x60;
+            self->step_s++;
+            break;
+        case 2:
+            if (!--self->ext.et_8019C924.unk80) {
+                self->step_s = 0;
+            }
+            break;
+        }
+        if (g_Timer & 1) {
+            self->animCurFrame = 0x39;
+        } else {
+            self->animCurFrame = 0;
+        }
+        MoveEntity();
+        entity = self->ext.et_8019C924.parent;
+        posY = entity->posY.i.hi - 0x1C;
+        if (!self->params) {
+            posX = entity->posX.i.hi - 0x50;
+        } else {
+            posX = entity->posX.i.hi + 0x50;
+        }
+        posX -= self->posX.i.hi;
+        posY -= self->posY.i.hi;
+        angle = ratan2(posY, posX);
+        self->velocityX = (rcos(angle) * FIX(0.875)) >> 12;
+        self->velocityY = (rsin(angle) * FIX(0.875)) >> 12;
+        distance = SquareRoot0(posX * posX + posY * posY);
+        if (distance < 3) {
+            self->velocityX = 0;
+            self->velocityY = 0;
+        }
+        if (D_pspeu_09265CC8 & 4) {
+            SetStep(8);
+        }
+        break;
+    case 8:
+        switch (self->step_s) {
+        case 0:
+            animResult = AnimateEntity(D_pspeu_09265068, self);
+            MoveEntity();
+            entity = self->ext.et_8019C924.parent;
+            if (!self->params) {
+                posX = entity->posX.i.hi - 0x20;
+            } else {
+                posX = entity->posX.i.hi + 0x20;
+            }
+            posY = entity->posY.i.hi - 0x1C;
+            posX -= self->posX.i.hi;
+            posY -= self->posY.i.hi;
+            angle = ratan2(posY, posX);
+            self->velocityX = (rcos(angle) * FIX(1.75)) >> 12;
+            self->velocityY = (rsin(angle) * FIX(1.75)) >> 12;
+            distance = SquareRoot0(posX * posX + posY * posY);
+            if (distance < 4 && !animResult) {
+                self->ext.et_8019C924.unk8A = 1;
+                SetSubStep(1);
+            }
+            break;
+        case 1:
+            AnimateEntity(D_pspeu_09265038, self);
+            entity = self->ext.et_8019C924.parent;
+            if (entity->ext.et_8019B52C.unk8C) {
+                self->facingLeft = self->params;
+                SetSubStep(2);
+            }
+            break;
+        case 2:
+            if (!AnimateEntity(D_pspeu_09265080, self)) {
+                enemy = &g_api.enemyDefs[ENEMY_DEATH_UNK_168];
+                self->attackElement = enemy->attackElement;
+                self->attack = enemy->attack;
+                self->hitboxWidth = enemy->hitboxWidth;
+                self->hitboxHeight = enemy->hitboxHeight;
+                self->hitboxState = 1;
+                self->blendMode = BLEND_NO;
+                self->drawFlags = ENTITY_ROTATE;
+                SetStep(9);
+            }
+            break;
+        }
+        break;
+    case 9:
+        switch (self->step_s) {
+        case 0:
+            self->ext.et_8019C924.unk8A = 1;
+            self->step_s++;
+            // fallthrough
+        case 1:
+            MoveEntity();
+            func_801CDC80(&self->rotate, 0, ROT(5.625));
+            entity = self->ext.et_8019C924.parent;
+            posY = entity->posY.i.hi - 0x10;
+            if (!self->params) {
+                posX = entity->posX.i.hi - 0x20;
+            } else {
+                posX = entity->posX.i.hi + 0x20;
+            }
+            posX -= self->posX.i.hi;
+            entity = self;
+            posY -= entity->posY.i.hi;
+            angle = ratan2(posY, posX);
+            self->velocityX = (rcos(angle) * FIX(0.875)) >> 12;
+            self->velocityY = (rsin(angle) * FIX(0.875)) >> 12;
+            distance = SquareRoot0(posX * posX + posY * posY);
+            if (distance < 3) {
+                self->velocityX = 0;
+                self->velocityY = 0;
+            }
+            entity = self->ext.et_8019C924.parent;
+            if (entity->ext.et_8019B52C.unk8D) {
+                self->ext.et_8019C924.unk8A = 0;
+                self->step_s++;
+            }
+            break;
+        case 2:
+            entity = &PLAYER;
+            posX = entity->posX.i.hi - self->posX.i.hi;
+            posY = entity->posY.i.hi - self->posY.i.hi;
+            angle = ratan2(posY, posX);
+            self->ext.et_8019C924.unk82 = angle;
+            self->ext.et_8019C924.unk84 = FIX(6);
+            self->step_s++;
+            // fallthrough
+        case 3:
+            MoveEntity();
+            self->rotate -= ROT(22.5);
+            if (!(self->rotate & 0xF00)) {
+                PlaySfxPositional(SFX_DEATH_SCYTHE_SWISH);
+            }
+            angle = self->ext.et_8019C924.unk82;
+            self->velocityX = (self->ext.et_8019C924.unk84 * rcos(angle)) >> 12;
+            self->velocityY = (self->ext.et_8019C924.unk84 * rsin(angle)) >> 12;
+            self->ext.et_8019C924.unk84 -= self->ext.et_8019C924.unk84 >> 4;
+            if (self->ext.et_8019C924.unk84 < FIX(0.25)) {
+                self->ext.et_8019C924.unk80 = 0x20;
+                self->step_s++;
+            }
+            if (!(g_Timer & 3)) {
+                entity = AllocEntity(&g_Entities[208], &g_Entities[256]);
+                if (entity != NULL) {
+                    CreateEntityFromEntity(E_ID(UNK_1A), self, entity);
+                    entity->params = self->animCurFrame;
+                    entity->facingLeft = self->facingLeft;
+                    entity->rotate = self->rotate;
+                }
+            }
+            break;
+        case 4:
+            self->rotate -= ROT(45);
+            self->rotate &= ROT(360) - 1;
+            if (!(self->rotate & 0xF00)) {
+                PlaySfxPositional(SFX_DEATH_SCYTHE_SWISH);
+            }
+            if (!--self->ext.et_8019C924.unk80) {
+                self->step_s++;
+            }
+            break;
+        case 5:
+            MoveEntity();
+            func_801CDC80(&self->rotate, 0, ROT(5.625));
+            entity = self->ext.et_8019C924.parent;
+            posY = entity->posY.i.hi - 0x10;
+            if (!self->params) {
+                posX = entity->posX.i.hi - 0x20;
+            } else {
+                posX = entity->posX.i.hi + 0x20;
+            }
+            posX -= self->posX.i.hi;
+            posY -= self->posY.i.hi;
+            angle = ratan2(posY, posX);
+            distance = SquareRoot0(posX * posX + posY * posY);
+            if (distance > 32) {
+                angle = LimitAngleChange(
+                    ROT(8.4375), self->ext.et_8019C924.unk82, angle);
+            }
+            self->velocityX = (rcos(angle) * FIX(3)) >> 12;
+            self->velocityY = (rsin(angle) * FIX(3)) >> 12;
+            self->ext.et_8019C924.unk82 = angle;
+            if (distance < 8) {
+                self->step_s = 0;
+            }
+            break;
+        }
+        break;
+    }
+}
 
 extern EInit D_us_801804B8;
 extern u8 D_pspeu_09265098[];
-extern s32 E_ID(UNK_1A);
 
 void func_us_8019D4CC(Entity* self) {
     Entity* entity;
@@ -340,7 +664,7 @@ void func_us_8019D4CC(Entity* self) {
         self->posY.i.hi = entity->posY.i.hi;
         self->scaleY = self->scaleX -= 16;
         if (!self->scaleX) {
-            entity->ext.GH_Props.unk8C = 1;
+            entity->ext.et_8019C924.unk8C = 1;
             DestroyEntity(self);
             break;
         }

@@ -929,6 +929,41 @@ typedef struct {
 typedef struct {
     /* 0x7C */ struct Primitive* prim;
     /* 0x80 */ s16 unk80;
+    /* 0x82 */ s16 unk82;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ s16 : 16;
+    /* 0x8A */ u8 unk8A;
+    /* 0x8B */ u8 : 8;
+    /* 0x8C */ u8 unk8C;
+    /* 0x8D */ s32 : 24;
+    /* 0x90 */ s32 : 32;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
+    /* 0x9C */ struct Entity* parent;
+} ET_8019C924;
+
+typedef struct {
+    /* 0x7C */ struct Primitive* prim;
+    /* 0x80 */ s16 unk80;
+    /* 0x82 */ s16 unk82;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ u8 unk88;
+    /* 0x89 */ u8 unk89;
+    /* 0x8A */ u8 : 8;
+    /* 0x8B */ u8 unk8B;
+    /* 0x8C */ u8 unk8C;
+    /* 0x8D */ u8 unk8D;
+    /* 0x8E */ s16 : 16;
+    /* 0x90 */ u8 unk90;
+    /* 0x91 */ s32 : 24;
+    /* 0x94 */ s16 unk94;
+    /* 0x96 */ s16 : 16;
+    /* 0x98 */ s16 unk98;
+} ET_8019B52C;
+
+typedef struct {
+    /* 0x7C */ struct Primitive* prim;
+    /* 0x80 */ s16 unk80;
 } ET_TransparentWater;
 
 typedef struct {
@@ -4841,6 +4876,8 @@ typedef union { // offset=0x7C
     ET_GurkhaHammer GH_Props;
     ET_8019D4CC et_8019D4CC;
     ET_8019E920 et_8019E920;
+    ET_8019C924 et_8019C924;
+    ET_8019B52C et_8019B52C;
     ET_TransparentWater transparentWater;
     ET_HeartRoomGoldDoor heartRoomGoldDoor;
     ET_CastleDoorTransition castleDoorTransition;
