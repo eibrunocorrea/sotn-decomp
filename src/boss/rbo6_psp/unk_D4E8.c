@@ -531,7 +531,122 @@ void func_us_8019EADC(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019EE30);
+void func_us_8019EE30(Entity* self) {
+    extern EInit D_us_80180558;
+    extern u8 D_pspeu_0926B418[];
+    extern u8 D_pspeu_0926B420[];
+    extern u8 D_pspeu_0926B430[];
+    extern Point16 D_pspeu_0926B518[];
+    extern s8 D_pspeu_0926B550[];
+    extern u8 D_pspeu_0926B570[];
+    extern s32 D_pspeu_0926BFC8;
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C068;
+    extern s32 D_pspeu_0926C070;
+    extern s32 D_pspeu_0926C088;
+    extern s32 D_pspeu_0926C0A0;
+    s32 index;
+    s8* hitbox;
+    s32 i;
+    Entity* entity;
+
+    self->palette = D_pspeu_0926C0A0;
+    if ((D_pspeu_0926C060 & 1) && self->step != 16) {
+        SetStep(16);
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180558);
+        self->facingLeft = self->params;
+        self->parent = &g_Entities[80];
+        if (!self->params) {
+            self->nextPart = self + 2;
+        } else {
+            self->nextPart = &g_Entities[80];
+        }
+        // Fallthrough
+    case 1:
+        AnimateEntity(D_pspeu_0926B418, self);
+        if (D_pspeu_0926C070 == 1) {
+            SetStep(2);
+        }
+        if (D_pspeu_0926C088 == self->params + 1) {
+            self->animCurFrame = 0xA;
+        }
+        break;
+    case 2:
+        switch (self->step_s) {
+        case 0:
+            for (i = 0; i < 2; i++) {
+                entity = AllocEntity(&g_Entities[144], &g_Entities[152]);
+                if (entity != NULL) {
+                    CreateEntityFromCurrentEntity(D_pspeu_0926BFC8, entity);
+                    entity->params = self->params;
+                    entity->zPriority = self->zPriority + 4;
+                }
+            }
+            self->animCurFrame = 9;
+            self->step_s++;
+            // Fallthrough
+        case 1:
+            if (D_pspeu_0926C070 == 3) {
+                SetSubStep(2);
+            }
+            break;
+        case 2:
+            AnimateEntity(D_pspeu_0926B420, self);
+            if (D_pspeu_0926C070 == 5) {
+                SetSubStep(3);
+            }
+            break;
+        case 3:
+            if (!AnimateEntity(D_pspeu_0926B430, self)) {
+                SetStep(1);
+            }
+            break;
+        }
+        break;
+    case 16:
+        switch (self->step_s) {
+        case 0:
+            self->hitboxState = 0;
+            self->animCurFrame = 9;
+            self->step_s++;
+            break;
+        case 1:
+            break;
+        }
+        break;
+    }
+    entity = self - 1;
+    self->posX.i.hi = entity->posX.i.hi;
+    self->posY.i.hi = entity->posY.i.hi;
+    index = entity->animCurFrame - 0xC;
+    if (index < 0) {
+        index = 0;
+    }
+    if (index > 4) {
+        index = 4;
+    }
+    if (!self->params) {
+        self->posX.i.hi += D_pspeu_0926B518[index].x;
+    } else {
+        self->posX.i.hi -= D_pspeu_0926B518[index].x;
+    }
+    self->posY.i.hi += D_pspeu_0926B518[index].y;
+    hitbox = D_pspeu_0926B550;
+    hitbox += D_pspeu_0926B570[self->animCurFrame] * 4;
+    self->hitboxOffX = *hitbox++;
+    self->hitboxOffY = *hitbox++;
+    self->hitboxWidth = *hitbox++;
+    self->hitboxHeight = *hitbox++;
+    if (D_pspeu_0926C068) {
+        self->animCurFrame = 0;
+        self->hitboxState = 0;
+    } else {
+        self->hitboxState = 3;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019F1CC);
 
