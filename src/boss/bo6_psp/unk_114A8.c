@@ -53,20 +53,20 @@ s32 func_pspeu_09248D20(
             subweaponId = 4;
         }
         if ((MARIA.posY.i.hi - PLAYER.posY.i.hi) > 0x18) {
-            subweaponId = 2;
+            subweaponId = PL_W_AXE;
         }
         if ((MARIA.posY.i.hi - PLAYER.posY.i.hi) < -0x18) {
             subweaponId = 3;
         }
         if (g_Player.status & PLAYER_STATUS_BAT_FORM) {
-            subweaponId = 2;
+            subweaponId = PL_W_AXE;
         }
 
         *actualSubwpn = D_pspeu_092797E8[subweaponId];
     } else {
         subweaponId = 4;
         if (g_Maria.padPressed & PAD_L1) {
-            subweaponId = 2;
+            subweaponId = PL_W_AXE;
         } else {
             if (g_Maria.padPressed & PAD_L2) {
                 subweaponId = 3;

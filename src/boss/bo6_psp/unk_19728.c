@@ -220,7 +220,7 @@ void func_pspeu_09251850(Entity* self) {
 
     switch (self->step) {
     case 0:
-        self->ext.subwpnAxe.subweaponId = 2;
+        self->ext.subwpnAxe.subweaponId = PL_W_AXE;
         InitializeEntity(D_pspeu_0926EBD8);
         self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 5);
         if (self->primIndex == -1) {
@@ -425,7 +425,7 @@ void func_pspeu_092522A8(Entity* self) {
     mod = 21;
     switch (self->step) {
     case 0:
-        self->ext.subwpnAxe.subweaponId = 2;
+        self->ext.subwpnAxe.subweaponId = PL_W_AXE;
         InitializeEntity(D_pspeu_0926EBF8);
         D_pspeu_0927C238 = self->hitboxState;
         self->hitboxState = 0;
@@ -713,7 +713,7 @@ void func_pspeu_09251748_from_rbo5(Entity* self) {
                 self->velocityY = FIX(-2.5);
                 self->hitboxState = 0;
                 self->posX.i.hi += xCol;
-                MarCreateEntFactoryFromEntity(self, FACTORY(42, 2), 0);
+                MarCreateEntFactoryFromEntity(self, FACTORY(BP_42, 2), 0);
                 self->posX.i.hi -= xCol;
                 g_api.PlaySfx(SFX_UI_SUBWEAPON_TINK);
                 self->step++;

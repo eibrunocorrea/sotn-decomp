@@ -41,7 +41,8 @@ void func_pspeu_09252B48_from_rbo5(void) {
                 1, D_pspeu_0927C228, D_pspeu_0927C220, D_pspeu_0927C218);
         }
     }
-    if ((MARIA.step == 0x11) || (MARIA.step == 0x60) || (MARIA.step == 0x70)) {
+    if ((MARIA.step == PL_S_DEAD) || (MARIA.step == PL_S_ENDING_3) ||
+        (MARIA.step == PL_S_ENDING_4)) {
         FntPrint("dead boss\n");
         entity = &g_Entities[E_ID_44];
         for (i = E_ID_44; i < E_ID_90; i++, entity++) {
@@ -706,7 +707,7 @@ void func_pspeu_0924B8D0(Entity* self) {
     case 1:
         if (self->pose == 6) {
             if (self->poseTimer == 1 && (rand() & 1)) {
-                MarCreateEntFactoryFromEntity(self, 4, 0);
+                MarCreateEntFactoryFromEntity(self, BP_EMBERS, 0);
             }
         }
         self->posY.val += self->velocityY;
@@ -835,8 +836,8 @@ void MarEntityPlayerBlinkWhite(Entity* self) {
             switch ((u32)dataPtr[7]) {
             case 0x7000:
                 if (g_Maria.timers[PL_T_POISON] == 0 ||
-                    MARIA.step == PL_S_DEAD || MARIA.step == 0x60 ||
-                    MARIA.step == 0x70) {
+                    MARIA.step == PL_S_DEAD || MARIA.step == PL_S_ENDING_3 ||
+                    MARIA.step == PL_S_ENDING_4) {
                     self->step++;
                 }
                 break;
