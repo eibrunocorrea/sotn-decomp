@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo0.h"
+#include <scratchpad.h>
+
+extern s16 D_pspeu_0928FC88[];
+extern s32 D_us_80181190;
+extern s32 E_ID(UNK_3E);
+extern s32 E_ID(LIFE_UP_SPAWN);
+Primitive* FindFirstUnkPrim2(Primitive* prim, u8 index);
 
 extern EInit D_pspeu_09275F90;
 extern s32 D_pspeu_092907A8;
@@ -650,4 +657,305 @@ Primitive* func_pspeu_09267EF8(Primitive* prim, u8 count) {
     return NULL;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_09267FC0);
+void func_pspeu_09267FC0(Entity* self) {
+    Primitive* prim;
+    Primitive* src;
+    Primitive* next;
+    s32 i;
+    Entity* entity;
+    s32 count;
+    s32 primIndex;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_pspeu_09275F90);
+        self->zPriority = D_pspeu_092907A8 + 8;
+        self->animCurFrame = 0;
+        self->flags |= FLAG_POS_CAMERA_LOCKED;
+        primIndex = g_api.func_800EDB58(PRIM_GT4, 0x108);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_801B7CC8.prim = prim;
+        entity = self;
+        entity -= 10;
+        for (i = 0; i < 10; i++, entity++) {
+            src = entity->ext.prim;
+            while (src) {
+                next = prim->next;
+                *prim = *src;
+                prim->next = next;
+                prim->clut = 0x20B;
+                prim->priority += 8;
+                PRED(prim) = 0x80;
+                src = src->next;
+                prim = prim->next;
+            }
+        }
+        self->ext.et_801B7CC8.unk9C = prim;
+        while (prim) {
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        break;
+    case 1:
+        count = 0;
+        src = self->ext.et_801B7CC8.prim;
+        while (src != self->ext.et_801B7CC8.unk9C) {
+            if (!(src->drawMode & DRAW_HIDE)) {
+                count++;
+                if (!(Random() & 0xF)) {
+                    prim = self->ext.et_801B7CC8.unk9C;
+                    prim = func_pspeu_09267EF8(prim, 4);
+                    if (prim) {
+                        src->r0 = 0xB0;
+                        src->r1 = 0x98;
+                        src->r2 = 0xA0;
+                        src->r3 = 0x88;
+                        UnkRecursivePrimFunc2(src, 1, prim, SP(0));
+                        src->drawMode = DRAW_HIDE;
+                    }
+                }
+            }
+            src = src->next;
+        }
+        src = self->ext.et_801B7CC8.unk9C;
+        while (src) {
+            if (!(src->drawMode & DRAW_HIDE)) {
+                count++;
+                if (src->r0 > 0x80) {
+                    src->r0--;
+                    if (src->r0 == 0x80) {
+                        prim = self->ext.et_801B7CC8.unk9C;
+                        prim = func_pspeu_09267EF8(prim, 4);
+                        if (prim) {
+                            src->r0 = 0x20;
+                            src->r1 = 0x14;
+                            src->r2 = 0x18;
+                            src->r3 = 0x10;
+                            UnkRecursivePrimFunc2(src, 1, prim, SP(0));
+                            src->drawMode = DRAW_HIDE;
+                            src->p3 = 0;
+                        } else {
+                            src->r0 += (Random() & 0x1F) + 2;
+                        }
+                    }
+                } else {
+                    if (!--src->r0) {
+                        src->p3 = 0;
+                        src->drawMode = DRAW_HIDE;
+                    } else if (src->r0 < 0x10) {
+                        src->y0 += (8 - src->r0 / 2);
+                        src->y1 += (8 - src->r0 / 2);
+                        src->y2 += (8 - src->r0 / 2);
+                        src->y3 += (8 - src->r0 / 2);
+                    }
+                }
+            }
+            src = src->next;
+        }
+        if (!count) {
+            entity = self - 10;
+            entity->ext.et_801B365C.unk9B = 2;
+            self->step++;
+        }
+        break;
+    case 2:
+        entity = self - 10;
+        if (entity->ext.et_801B365C.unk9B == 3) {
+            prim = self->ext.et_801B7CC8.prim;
+            self->ext.et_801B7CC8.unk80 = prim;
+            prim->type = PRIM_G4;
+            prim->x0 = prim->x1 = prim->x2 = prim->x3 = self->posX.i.hi;
+            prim->y0 = prim->y1 = 0;
+            prim->y2 = prim->y3 = 0xF0;
+            PGREY(prim, 0) = 0;
+            LOW(prim->r1) = LOW(prim->r0);
+            prim->r2 = 0xF0;
+            prim->g2 = 0xF0;
+            prim->b2 = 0xF0;
+            LOW(prim->r3) = LOW(prim->r2);
+            prim->priority = D_pspeu_092907A8 + 0x10;
+            prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE |
+                             DRAW_COLORS | DRAW_UNK02 | DRAW_TRANSP;
+            prim = prim->next;
+            self->ext.et_801B7CC8.prim = prim;
+            for (i = 0; i < 6; i++, entity++) {
+                entity = self - 10;
+                entity += D_pspeu_0928FC88[i];
+                src = entity->ext.prim;
+                while (src) {
+                    next = prim->next;
+                    *prim = *src;
+                    prim->next = next;
+                    prim->clut = PAL_BREAKABLE;
+                    src = src->next;
+                    prim = prim->next;
+                }
+            }
+            self->ext.et_801B7CC8.unk9C = prim;
+            while (prim) {
+                prim->drawMode = DRAW_HIDE;
+                prim = prim->next;
+            }
+            self->ext.et_801B7CC8.unk84 = 0x28;
+            self->step++;
+        }
+        break;
+    case 3:
+        prim = self->ext.et_801B7CC8.unk80;
+        prim->x2 = prim->x0 -= 6;
+        prim->x3 = prim->x1 += 6;
+        prim->y0 = prim->y1 = 0;
+        prim->y2 = prim->y3 = 0xF0;
+        if ((prim->x0 & 0xF000) && (prim->x3 & 0xF00)) {
+            prim->x0 = prim->x2 = 0;
+            prim->x1 = prim->x3 = 0x100;
+            prim->drawMode &= ~DRAW_UNK02;
+            self->ext.et_801B7CC8.unk94 = 1;
+            self->step++;
+            entity = AllocEntity(&g_Entities[224], &g_Entities[256]);
+            if (entity) {
+                CreateEntityFromEntity(E_ID(UNK_3E), self, entity);
+                entity->facingLeft = self->facingLeft;
+                self->ext.et_801B7CC8.unkA4 = entity;
+            }
+        }
+        break;
+    case 4:
+        if (!--self->ext.et_801B7CC8.unk94) {
+            g_api.PlaySfx(SFX_METAL_CLANG_A);
+            self->ext.et_801B7CC8.unk94 = 4;
+            src = self->ext.et_801B7CC8.prim;
+            for (i = 0; i < self->ext.et_801B7CC8.unk84; i++) {
+                src = src->next;
+            }
+            prim = self->ext.et_801B7CC8.unk9C;
+            prim = FindFirstUnkPrim2(prim, 4);
+            if (prim) {
+                src->p3 = 1;
+                src->r0 = 0x24;
+                src->r1 = 0x28;
+                src->r2 = 0x2C;
+                src->r3 = 0x21;
+                UnkRecursivePrimFunc2(src, 1, prim, SP(0));
+                src->drawMode |= DRAW_HIDE;
+                self->ext.et_801B7CC8.unk84 -= 1;
+                if (self->ext.et_801B7CC8.unk84 < 0) {
+                    g_api.PlaySfx(SFX_TELEPORT_BANG_B);
+                    self->step++;
+                }
+            }
+        }
+    case 5:
+        prim = self->ext.et_801B7CC8.unk80;
+        if (g_Timer % 2) {
+            prim->drawMode =
+                DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
+        } else {
+            prim->drawMode = DRAW_HIDE;
+        }
+        count = self->ext.et_801B7CC8.unk84;
+        src = self->ext.et_801B7CC8.unk9C;
+        self->ext.et_801B7CC8.unk88++;
+        while (src) {
+            if (!(src->drawMode & DRAW_HIDE)) {
+                count++;
+                src->r0--;
+                switch ((src->r0 & 0xF0) >> 4) {
+                case 3:
+                case 2:
+                    if (self->ext.et_801B7CC8.unk88 & 1) {
+                        src->x0++;
+                        src->x1++;
+                        src->x2++;
+                        src->x3++;
+                    } else {
+                        src->x0--;
+                        src->x1--;
+                        src->x2--;
+                        src->x3--;
+                    }
+                    break;
+                case 1:
+                    if (src->r0 == 0x10) {
+                        prim = self->ext.et_801B7CC8.unk9C;
+                        prim = FindFirstUnkPrim2(prim, 4);
+                        if (prim) {
+                            src->p3 = 3;
+                            src->r0 = 0xD;
+                            src->r1 = 6;
+                            src->r2 = 0xE;
+                            src->r3 = 0x14;
+                            UnkRecursivePrimFunc2(src, 1, prim, SP(0));
+                            src->drawMode = DRAW_HIDE;
+                            src->p3 = 0;
+                        } else {
+                            src->r0 += Random() & 0xF;
+                        }
+                    }
+                    src->y0--;
+                    src->y1--;
+                    src->y2--;
+                    src->y3--;
+                    break;
+                case 0:
+                    src->y0 -= (8 - src->r0 / 2);
+                    src->y1 -= (8 - src->r0 / 2);
+                    src->y2 -= (8 - src->r0 / 2);
+                    src->y3 -= (8 - src->r0 / 2);
+                    if (!src->r0) {
+                        src->drawMode = DRAW_HIDE;
+                        src->p3 = 0;
+                    }
+                    break;
+                }
+            }
+            src = src->next;
+        }
+        if (count < 0) {
+            entity = self - 10;
+            entity->ext.et_801B365C.unk9B = 2;
+            entity = self->ext.et_801B7CC8.unkA4;
+            entity->step++;
+            self->step++;
+        }
+        break;
+    case 6:
+        prim = self->ext.et_801B7CC8.unk80;
+        prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
+        prim->y0 = prim->y1 = 0;
+        prim->y2 = prim->y3 = 0xF0;
+        prim->x2 = prim->x0 += 2;
+        prim->x3 = prim->x1 -= 2;
+        if (prim->x0 > prim->x1) {
+            prim->drawMode = DRAW_HIDE;
+            self->ext.et_801B7CC8.unk94 = 1;
+            self->step++;
+        }
+        break;
+    case 7:
+        entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
+        if (entity) {
+            CreateEntityFromEntity(E_ID(LIFE_UP_SPAWN), self, entity);
+            entity->posY.i.hi -= 0x28;
+            entity->params = 0;
+            D_us_80181190 = 1;
+            stopMusicFlag = 1;
+            currentMusicId = MU_DANCE_OF_PALES;
+            self->step++;
+        }
+        break;
+    case 8:
+        if (!g_api.func_80131F68()) {
+            stopMusicFlag = 0;
+            g_api.PlaySfx(currentMusicId);
+            DestroyEntity(self);
+        }
+        break;
+    }
+}

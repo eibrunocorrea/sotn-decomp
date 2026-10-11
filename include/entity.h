@@ -4677,6 +4677,23 @@ typedef struct {
     /* 0x94 */ u8 unk94;
 } ET_801B6CA4;
 
+typedef struct {
+    /* 0x7C */ Primitive* prim;
+    /* 0x80 */ Primitive* unk80;
+    /* 0x84 */ s16 unk84;
+    /* 0x86 */ u16 : 16;
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ u16 : 16;
+    /* 0x8C */ u32 : 32;
+    /* 0x90 */ u32 : 32;
+    /* 0x94 */ s16 unk94;
+    /* 0x96 */ u16 : 16;
+    /* 0x98 */ u32 : 32;
+    /* 0x9C */ Primitive* unk9C;
+    /* 0xA0 */ u32 : 32;
+    /* 0xA4 */ struct Entity* unkA4;
+} ET_801B7CC8;
+
 typedef union { // offset=0x7C
     struct Primitive* prim;
     ET_Placeholder ILLEGAL;
@@ -5075,6 +5092,7 @@ typedef union { // offset=0x7C
     ET_801AF8C0 et_801AF8C0;
     ET_801AF31C et_801AF31C;
     ET_801B6CA4 et_801B6CA4;
+    ET_801B7CC8 et_801B7CC8;
 } Ext;
 
 SYNC_FIELD(ET_Player, ET_Weapon, anim);
