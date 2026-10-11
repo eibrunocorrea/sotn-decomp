@@ -5,7 +5,16 @@ s32 func_pspeu_0925E340(OlroxPrim* prim, s16 x, s16 y, s16 speed);
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925DBD0);
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925E070);
+void func_pspeu_0925E070(u8 step) {
+    OlroxPrim* part;
+
+    g_CurrentEntity->step = step;
+    g_CurrentEntity->step_s = 0;
+    part = g_CurrentEntity->ext.et_801B365C.unk80;
+    part->step = 0;
+    part = part->unk18;
+    part->step = 0;
+}
 
 INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_psp_09239568);
 
