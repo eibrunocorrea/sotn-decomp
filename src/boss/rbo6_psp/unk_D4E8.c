@@ -730,7 +730,89 @@ void func_us_801A0AB4(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0DC0);
+void func_us_801A0DC0(Entity* self) {
+    extern EInit D_us_80180564;
+    extern u8 D_pspeu_0926B408[];
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C080;
+    extern s32 D_pspeu_0926BF90;
+    s32 deltaX;
+    s32 deltaY;
+    s32 scale;
+    Entity* entity;
+
+    if (D_pspeu_0926C060 & 1) {
+        DestroyEntity(self);
+        return;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180564);
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+        self->scaleX = self->scaleY = 0;
+        self->blendMode |= BLEND_TRANSP | BLEND_ADD;
+        self->drawFlags |= ENTITY_OPACITY;
+        self->opacity = 0x60;
+        self->hitboxState = 0;
+        // Fallthrough
+    case 1:
+        AnimateEntity(D_pspeu_0926B408, self);
+        scale = self->scaleX;
+        scale += 0x10;
+        if (scale > 0xCC) {
+            scale = 0xCC;
+        }
+        self->scaleX = self->scaleY = scale;
+        if (D_pspeu_0926C080) {
+            ((Rbo6TransformationEffect*)&self->ext)->timer = 0x60;
+            entity = &PLAYER;
+            deltaX = entity->posX.val - self->posX.val;
+            deltaY = entity->posY.val - self->posY.val;
+            self->velocityX = deltaX / 96;
+            self->velocityY = deltaY / 96;
+            self->step++;
+        }
+        if (!(g_Timer & 0x1F)) {
+            g_api.PlaySfxVolPan(0x6DE, 0x50, 0);
+        }
+        break;
+    case 2:
+        AnimateEntity(D_pspeu_0926B408, self);
+        MoveEntity();
+        scale = 0x6000 / (((Rbo6TransformationEffect*)&self->ext)->timer + 0x18);
+        self->scaleX = self->scaleY = scale;
+        if (!(((Rbo6TransformationEffect*)&self->ext)->timer & 3)) {
+            entity = AllocEntity(&g_Entities[192], &g_Entities[256]);
+            if (entity != NULL) {
+                CreateEntityFromEntity(D_pspeu_0926BF90, self, entity);
+                entity->scaleX = entity->scaleY = self->scaleX;
+                entity->zPriority = self->zPriority;
+                entity->opacity = self->opacity;
+            }
+        }
+        if (!(((Rbo6TransformationEffect*)&self->ext)->timer & 0xF)) {
+            g_api.PlaySfxVolPan(0x6E2, 0x80 - ((Rbo6TransformationEffect*)&self->ext)->timer / 2, 0);
+        }
+        if (!--((Rbo6TransformationEffect*)&self->ext)->timer) {
+            g_api.PlaySfx(0x661);
+            self->zPriority = g_unkGraphicsStruct.g_zEntityCenter + 8;
+            entity = &PLAYER;
+            deltaX = entity->posX.i.hi - self->posX.i.hi;
+            deltaY = entity->posY.i.hi - self->posY.i.hi;
+            scale = self->scaleX * 20 / 256;
+            if (deltaX * deltaX + deltaY * deltaY < scale * scale) {
+                self->hitboxOffX = deltaX;
+                self->hitboxOffY = deltaY;
+                self->hitboxState = 1;
+            }
+            self->step++;
+        }
+        break;
+    case 3:
+        DestroyEntity(self);
+        break;
+    }
+}
 
 void func_us_801A1150(Entity* self) {
     extern u16 D_us_80180540;
