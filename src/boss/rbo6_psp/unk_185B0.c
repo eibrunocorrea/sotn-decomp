@@ -29,7 +29,6 @@ extern s32 E_ID(UNK_31);
 extern s32 D_pspeu_0926C060;
 extern u32 g_CutsceneFlags;
 extern s32 D_pspeu_0926C6C0;
-extern s32 D_pspeu_0926C6C8;
 extern SVECTOR D_pspeu_0926C6D0;
 extern long D_pspeu_0926C6D8;
 extern s16 D_pspeu_0926C6E0;
@@ -468,7 +467,7 @@ void func_us_801B2864(Entity* self) {
         self->drawFlags |= ENTITY_SCALEY | ENTITY_SCALEX;
         self->scaleX = 0xE0;
         self->scaleY = 0x140;
-        if (D_pspeu_0926C6C8 != 0) {
+        if (D_pspeu_0926C6C8) {
             self->scaleX = 0x120;
             self->scaleY = 0x120;
         }
