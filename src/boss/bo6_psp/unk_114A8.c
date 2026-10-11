@@ -1394,7 +1394,100 @@ bool func_pspeu_0925A1F0(void) {
     return false;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925A588);
+extern AnimationFrame D_pspeu_0927AA88[];
+extern AnimationFrame D_pspeu_0927A840[];
+extern AnimationFrame D_pspeu_0927A890[];
+extern AnimationFrame D_pspeu_0927A9F0[];
+extern AnimationFrame D_pspeu_0927AB00[];
+bool func_pspeu_0925A588(void) {
+    SubweaponDef subWpn;
+    Entity* subWpnEnt;
+    s16 subWpnID;
+
+    subWpnID = func_pspeu_09248D20(&subWpn, true, false);
+    if (subWpnID == PL_W_HOLYWATER && g_Maria.timers[PL_T_3]) {
+        return 0;
+    }
+    if (subWpn.blueprintNum) {
+        if (subWpnID == 1) {
+            subWpnEnt = MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(subWpn.blueprintNum, 1), 0);
+        } else {
+            subWpnEnt = MarCreateEntFactoryFromEntity(
+                g_CurrentEntity, FACTORY(subWpn.blueprintNum, 0), 0);
+        }
+    }
+    if (subWpnEnt == NULL) {
+        return 0;
+    }
+    g_Maria.unk46 = 4;
+    g_Maria.unk4E = 0;
+    MARIA.velocityX = MARIA.velocityY = 0;
+    switch (subWpnID) {
+    case SUBWPN_NONE:
+        MarSetStep(PL_S_FLAME_WHIP);
+        MarSetAnimation(D_pspeu_0927AA88);
+        MarCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_36, 1), 0);
+        break;
+    case SUBWPN_DAGGER:
+        MarSetStep(PL_S_THROW_DAGGERS);
+        MarSetAnimation(D_pspeu_0927A840);
+        g_api.PlaySfx(SFX_BOSS_RIC_ITEM_CRASH_ATTACK);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 2), 0);
+        break;
+    case SUBWPN_AXE:
+        MarSetStep(PL_S_STAND_IN_AIR);
+        MarSetAnimation(D_pspeu_0927A890);
+        MARIA.velocityY = FIX(-4.6875);
+        func_maria_8015CC28();
+        g_api.PlaySfx(SFX_BOSS_RIC_ITEM_CRASH_ATTACK);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 2), 0);
+        break;
+    case SUBWPN_HOLYWATER:
+        MarSetStep(PL_S_HYDROSTORM);
+        MarSetAnimation(D_pspeu_0927A9F0);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x40), 0);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x47), 0);
+        g_api.PlaySfx(SFX_BOSS_RIC_HYDRO_STORM);
+        break;
+    case SUBWPN_REBNDSTONE:
+    case SUBWPN_VIBHUTI:
+    case SUBWPN_AGUNEA:
+        MarSetStep(PL_S_SUBWPN_CRASH);
+        MarSetAnimation(D_pspeu_0927A9F0);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x40), 0);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x47), 0);
+        g_api.PlaySfx(SFX_BOSS_RIC_ITEM_CRASH_ATTACK);
+        break;
+    case SUBWPN_BIBLE:
+    case SUBWPN_STOPWATCH:
+        MarSetStep(PL_S_SUBWPN_CRASH);
+        MarSetAnimation(D_pspeu_0927AB00);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x40), 0);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x47), 0);
+        g_api.PlaySfx(SFX_BOSS_RIC_ITEM_CRASH_ATTACK);
+        break;
+    case SUBWPN_CROSS:
+        MarSetStep(PL_S_STAND_IN_AIR);
+        MarSetAnimation(D_pspeu_0927A890);
+        MARIA.velocityY = FIX(-4.6875);
+        func_maria_8015CC28();
+        g_api.PlaySfx(SFX_BOSS_RIC_HOLY_CROSS);
+        MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 2), 0);
+        break;
+    }
+    g_Maria.timers[PL_T_12] = 4;
+    return 1;
+}
 
 void RicSetDeadPrologue() { MarSetStep(PL_S_DEAD_PROLOGUE); }
 
