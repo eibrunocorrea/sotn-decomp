@@ -52,7 +52,23 @@ void func_801CDD80(s16* entOffsets, unkStr_801CDD80* arg1) {
     }
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_801CDF1C);
+void func_801CDF1C(s16 entIndices[], unkStr_801CDD80* arg1, s32 arg2) {
+
+    arg1 += (u16)g_CurrentEntity->ext.GH_Props.unkB0[arg2];
+
+    if (!g_CurrentEntity->ext.GH_Props.unkB4[arg2]) {
+        func_801CDD80(entIndices, arg1);
+        g_CurrentEntity->ext.GH_Props.unkB4[arg2] = arg1->unk0;
+    }
+    if (!--g_CurrentEntity->ext.GH_Props.unkB4[arg2]) {
+        arg1++;
+        if (!arg1->unk0) {
+            g_CurrentEntity->ext.GH_Props.unkB0[arg2] = 0;
+        } else {
+            ++g_CurrentEntity->ext.GH_Props.unkB0[arg2];
+        }
+    }
+}
 
 void func_801CE1E8(s32 step) {
     s32 i;
