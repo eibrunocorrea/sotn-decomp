@@ -979,7 +979,41 @@ void func_pspeu_09259EA8(void) {
     g_Maria.timers[12] = 4;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarCheckSubwpnChainLimit);
+s32 MarCheckSubwpnChainLimit(s16 subwpnId, s16 limit) {
+    Entity* entity;
+    s32 i;
+    s32 nFound;
+    s32 nEmpty;
+
+    // Iterate through entities 96-128 (which hold subweapons)
+    // Any that match the proposed ID increments the count.
+    // If at any point the count reaches the limit, return -1.
+    for (entity = &g_Entities[96], i = 0, nFound = 0, nEmpty = 0; i < 32; i++,
+        entity++) {
+        if (!entity->entityId) {
+            nEmpty++;
+        }
+
+        if (entity->ext.subweapon.subweaponId &&
+            entity->ext.subweapon.subweaponId == subwpnId) {
+            nFound++;
+        }
+
+        if (nFound >= limit) {
+            return -1;
+        }
+    }
+
+    // This will indicate that there is an available entity slot
+    // to hold the subweapon we're trying to spawn.
+    // At the end, if this is zero, there are none available so return
+    // -1 to indicate there is no room for the proposed subweapon.
+    if (nEmpty) {
+        return 0;
+    }
+
+    return -1;
+}
 
 // local copy of RicDoSubweapon (see boss/bo6/us_39144.c)
 s32 func_pspeu_0925A028(void) {
