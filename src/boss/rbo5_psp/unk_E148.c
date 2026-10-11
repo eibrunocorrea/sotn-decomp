@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo5/rbo5.h"
+extern s32 D_pspeu_0926CCD8;
+extern s32 D_pspeu_0926CCF8;
+extern s32 D_pspeu_0926CD00;
+extern u8 D_pspeu_09263FF8[][8];
+extern RECT D_pspeu_09263FF0;
 extern s32 D_pspeu_0926BBB0;
 void func_pspeu_09249838(void);
 extern s16 D_pspeu_09262FD8[7];
@@ -5015,4 +5020,251 @@ Primitive* func_pspeu_09259480(
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09259A20);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925BA80);
+void func_pspeu_0925BA80(Entity* self) {
+    const int PrimCount = 36;
+    const int Iterations = 16;
+
+    u8 xMargin;
+    u8 yMargin;
+    u8 wSprite;
+    u8 hSprite;
+    s16 blueOffset;
+    s16 xPivot;
+    s16 yPivot;
+    s16 width;
+    s16 height;
+    s16 s5;
+    s16 s7;
+    s16 sp42;
+    u_long* data;
+    s32 sp3C;
+    s16* sp38;
+    Primitive* prim;
+    s32 i;
+    u8* s2;
+    s16 s3;
+    s16 s4;
+    s32 s6;
+    u8* plSprite;
+
+    s32 xBase, yBase, angle, tangent;
+
+    if (DOPPLEGANGER.ext.player.anim != 0x38 &&
+        (self->step == 2 || self->step == 3)) {
+        self->step = 4;
+        LoadImage(&D_pspeu_09263FF0, (u_long*)D_pspeu_0926C110);
+        self->ext.dissolve.unk7E = rand() & 0xFF;
+        self->ext.dissolve.unk7C = 0x30;
+        prim = &g_PrimBuf[self->primIndex];
+        for (i = 0; i < PrimCount; i++) {
+            prim->drawMode &= ~DRAW_HIDE;
+            prim = prim->next;
+        }
+    }
+
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, PrimCount);
+        if (self->primIndex == -1) {
+            return;
+        }
+        self->flags = FLAG_HAS_PRIMS | FLAG_POS_CAMERA_LOCKED;
+        self->ext.dissolve.unk7C = 0;
+        self->ext.dissolve.unk80 = rand() & 7;
+        self->ext.dissolve.unk7E = D_pspeu_09263FF8[self->ext.dissolve.unk80]
+                                                   [self->ext.dissolve.unk7C];
+
+        s5 = self->posX.i.hi = DOPPLEGANGER.posX.i.hi;
+        s7 = self->posY.i.hi = DOPPLEGANGER.posY.i.hi;
+        self->facingLeft = DOPPLEGANGER.facingLeft;
+
+        sp38 = (s16*)D_pspeu_092641C8[DOPPLEGANGER.animCurFrame & 0x7FFF];
+        sp42 = *sp38++;
+        sp42 &= 0x7FFF;
+        plSprite = D_pspeu_09266768[sp42];
+        xMargin = 4;
+        yMargin = 1;
+        wSprite = xMargin + plSprite[0];
+        hSprite = yMargin + plSprite[1];
+        width = wSprite - xMargin;
+        height = hSprite - yMargin;
+        s3 = width / 6;
+        s4 = height / 6;
+        xPivot = sp38[0] + plSprite[2];
+        yPivot = sp38[1] + plSprite[3];
+        if (self->facingLeft) {
+            s5 = s5 - xPivot;
+        } else {
+            s5 = s5 + xPivot;
+        }
+        s7 = s7 + yPivot;
+
+        prim = &g_PrimBuf[self->primIndex];
+        for (i = 0; i < PrimCount; i++) {
+
+            if (self->facingLeft) {
+                prim->x0 = prim->x2 = (s5 - (s3 * (i % 6))) + 1;
+                prim->x1 = prim->x3 = prim->x0 - s3;
+            } else {
+                prim->x0 = prim->x2 = s5 + (s3 * (i % 6));
+                prim->x1 = prim->x3 = prim->x0 + s3;
+            }
+            prim->y0 = prim->y1 = s7 + (s4 * (i / 6));
+            prim->y2 = prim->y3 = prim->y0 + s4;
+            prim->u0 = prim->u2 = (xMargin) + (s3 * (i % 6)) + 0x80;
+            prim->u1 = prim->u3 = prim->u0 + s3;
+            prim->v0 = prim->v1 = (yMargin + (s4 * (i / 6)));
+            prim->v2 = prim->v3 = prim->v0 + s4;
+            prim->g0 = (((i / 6) * 2) + (rand() & 3));
+            prim->tpage = 0x10;
+            prim->clut = DOPPLEGANGER.palette & 0x7FFF;
+            prim->priority = DOPPLEGANGER.zPriority + 2;
+            prim->drawMode = DRAW_HIDE | DRAW_UNK02;
+            prim->r3 = i * 7;
+            prim = prim->next;
+        }
+        self->step++;
+        break;
+    case 1:
+        StoreImage(&D_pspeu_09263FE8, (u_long*)D_pspeu_0926C110);
+
+        self->step++;
+        // fallthrough
+    case 2:
+        DOPPLEGANGER.animCurFrame |= 0x8000;
+        if (g_Dop.padTapped & (PAD_UP | PAD_RIGHT | PAD_DOWN | PAD_LEFT)) {
+            self->step++;
+        }
+        break;
+    case 3:
+        DOPPLEGANGER.animCurFrame |= 0x8000;
+        self->ext.dissolve.unk7E = D_pspeu_09263FF8[self->ext.dissolve.unk80]
+                                                   [self->ext.dissolve.unk7C];
+        data = (u_long*)D_pspeu_0926C110;
+        s2 = (u8*)data;
+        s2 = s2 + ((self->ext.dissolve.unk7E >> 1) & 7);
+        s2 = s2 + (((self->ext.dissolve.unk7E & 0xFF) >> 4) << 5);
+        for (i = 0; i < Iterations; i++) {
+            if (rand() & 3) {
+                if (self->ext.dissolve.unk7E & 1) {
+                    if (*(s2 + (i & 3) * 8 + (i >> 2) * 0x200)) {
+                        *(s2 + (i & 3) * 8 + (i >> 2) * 0x200) &= 0xF0;
+                        *(s2 + (i & 3) * 8 + (i >> 2) * 0x200) |= 1;
+                    }
+                } else if (*(s2 + (i & 3) * 8 + (i >> 2) * 0x200)) {
+                    *(s2 + (i & 3) * 8 + (i >> 2) * 0x200) &= 0x0F;
+                    *(s2 + (i & 3) * 8 + (i >> 2) * 0x200) |= 0x10;
+                }
+            }
+        }
+        LoadImage(&D_pspeu_09263FE8, data);
+        if (++self->ext.dissolve.unk7C == 8) {
+            self->ext.dissolve.unk7C = 0;
+            self->ext.dissolve.unk80 += 1;
+            self->ext.dissolve.unk80 &= 7;
+            self->step = 2;
+        }
+        break;
+    case 4:
+        if (DOPPLEGANGER.step == Dop_Kill || g_Dop.unk6A <= 0) {
+            D_pspeu_0926CCD8 = 1;
+            if (g_Timer % 2 == 0) {
+                goto after_loop;
+            }
+        } else if (g_Timer % 3 == 0) {
+            break;
+        }
+
+        for (sp3C = 0; sp3C < 6; sp3C++) {
+            data = (u_long*)D_pspeu_0926C110;
+            s2 = (u8*)data;
+            s2 = s2 + ((self->ext.dissolve.unk7E >> 1) & 7);
+            s2 = s2 + (((self->ext.dissolve.unk7E & 0xFF) >> 4) << 5);
+            for (i = 0; i < Iterations; i++) {
+                if (self->ext.dissolve.unk7E & 1) {
+                    *(s2 + (i & 3) * 8 + (i >> 2) * 0x200) &= 0xF0;
+                } else {
+                    *(s2 + (i & 3) * 8 + (i >> 2) * 0x200) &= 0x0F;
+                }
+            }
+            // some sort of prng state
+            self->ext.dissolve.unk7E += 0x23;
+            self->ext.dissolve.unk7E &= 0xFF;
+        }
+
+        LoadImage(&D_pspeu_09263FF0, data);
+        if (--self->ext.dissolve.unk7C <= 0) {
+            if ((DOPPLEGANGER.step == Dop_Kill) || g_Dop.unk6A <= 0) {
+                if (self->ext.dissolve.unk7C < -0x1F) {
+                    D_pspeu_0926CCD8 = 2;
+                    DestroyEntity(self);
+                    return;
+                }
+            } else {
+                DestroyEntity(self);
+                return;
+            }
+        }
+
+    after_loop:
+        prim = &g_PrimBuf[self->primIndex];
+        for (i = 0; i < PrimCount; i++) {
+            // prim->drawMode &= DRAW_UNK_200;
+            // prim->drawMode |= DRAW_UNK02;
+            if (prim->r0 == 0) {
+                if (--prim->g0 == 0) {
+                    prim->r0++;
+                    prim->b0 = ((rand() & 3) + 0xF8);
+                    prim->r1 = 0x20 - ((i / 6) * 2);
+                }
+            } else if (DOPPLEGANGER.step == Dop_Kill || g_Dop.unk6A <= 0) {
+                xBase = D_pspeu_0926CD00 - (prim->x0 + prim->x1) / 2;
+                yBase = D_pspeu_0926CCF8 - ((prim->y0 + prim->y2) / 2);
+                tangent = ratan2(-yBase, xBase);
+                angle = prim->r3;
+                angle *= 0x10;
+                if ((angle - tangent) < 0) {
+                    angle += 0x80;
+                }
+
+                if ((angle - tangent) > 0) {
+                    angle -= 0x80;
+                }
+                angle &= 0xFFF;
+                xBase = rcos(angle) >> 0xB;
+                yBase = rsin(angle) >> 0xB;
+                angle >>= 4;
+                prim->r3 = angle;
+                prim->x0 += xBase;
+                prim->x1 += xBase;
+                prim->x2 += xBase;
+                prim->x3 += xBase;
+                prim->y0 -= yBase;
+                prim->y1 -= yBase;
+                prim->y2 -= yBase;
+                prim->y3 -= yBase;
+            } else {
+                if (prim->r1) {
+                    prim->r1--;
+                } else {
+                    prim->drawMode = DRAW_HIDE;
+                }
+                if (prim->b0 < 0x30 || prim->b0 > 0xD0) {
+                    prim->b0 += 2;
+                }
+                blueOffset = (s16)((s8)prim->b0 >> 4);
+                prim->y0 += blueOffset;
+                prim->y1 += blueOffset;
+                prim->y2 += blueOffset;
+                prim->y3 += blueOffset;
+            }
+            prim = prim->next;
+        }
+        break;
+    }
+
+    if (DOPPLEGANGER.step == Dop_Kill || g_Dop.unk6A <= 0) {
+        D_pspeu_0926CCD8 = 1;
+    }
+    MarDisableAfterImage(1, 1);
+}
