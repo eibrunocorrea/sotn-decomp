@@ -16,7 +16,23 @@ void func_pspeu_0925E070(u8 step) {
     part->step = 0;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_psp_09239568);
+// twin of func_801CDC80 (src/st/giantbro_helpers.h)
+int func_psp_09239568(s16* arg0, s16 arg1, s16 arg2) {
+    if (abs(*arg0 - arg1) < arg2) {
+        *arg0 = arg1;
+        return true;
+    }
+
+    if (*arg0 > arg1) {
+        *arg0 -= arg2;
+    }
+
+    if (*arg0 < arg1) {
+        *arg0 += arg2;
+    }
+
+    return false;
+}
 
 s32 func_us_801B163C(s16* value, s16 target, s16 speed) {
     s16* velocity;
