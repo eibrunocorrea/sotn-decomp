@@ -126,7 +126,24 @@ INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DD09C, func_060DD09C);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DDD7C, func_060DDD7C);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DE0BC, func_060DE0BC);
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DE6D0, func_060DE6D0);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DED40, func_060DED40);
+s32 func_060DED40(Entity* entity) {
+    Entity* player = &g_Entities[0];
+    s16 distance;
+
+    distance = (s16)(player->posX.i.hi - entity->posX.i.hi);
+    distance = ABS(distance);
+    if (distance > 22) {
+        return 0;
+    }
+
+    distance = (s16)(player->posY.i.hi - entity->posY.i.hi);
+    distance = ABS(distance);
+    if (distance > 32) {
+        return 0;
+    }
+
+    return 1;
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DED98, func_060DED98);
 #include "set_entity_collision_tiles.h"
 
