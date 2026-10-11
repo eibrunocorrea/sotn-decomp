@@ -133,14 +133,14 @@ void func_pspeu_0925D310(Entity* self) {
         }
         tempX = self->posX.i.hi = self->ext.agunea.parent->posX.i.hi;
         tempY = self->posY.i.hi = self->ext.agunea.parent->posY.i.hi;
-        if ((self->ext.agunea.unk7C % 12) == 0) {
+        if (!(self->ext.agunea.unk7C % 12)) {
             self->posX.i.hi += (rand() & 0xF) - 8;
             self->posY.i.hi += (rand() & 0xF) - 8;
             if (g_Status.hearts >= 5) {
                 g_Status.hearts -= 5;
                 MarCreateEntFactoryFromEntity(self, BP_AGUNEA_HIT_ENEMY, 0);
                 g_api.PlaySfx(SFX_THUNDER_B);
-            } else if (self->ext.agunea.unk84 == 0) {
+            } else if (!self->ext.agunea.unk84) {
                 MarCreateEntFactoryFromEntity(self, BP_AGUNEA_HIT_ENEMY, 0);
                 g_api.PlaySfx(SFX_THUNDER_B);
                 self->ext.agunea.unk84++;
@@ -217,7 +217,7 @@ void func_pspeu_0925D980(Entity* self) {
         prim = &g_PrimBuf[self->primIndex];
         self->ext.et_801291C4.prim1 = prim;
         self->ext.et_801291C4.prim2 = prim;
-        for (i = 0; prim != NULL;) {
+        for (i = 0; prim;) {
             prim->tpage = 0x1A;
             prim->clut = PAL_UNK_194;
             prim->u0 = prim->u1 = i * 0x10 + 0x90;
@@ -250,7 +250,7 @@ void func_pspeu_0925D980(Entity* self) {
         prim->x3 = prim->x2;
         prim->y3 = prim->y2 - 0x10;
         self->ext.et_801291C4.prim2 = prim;
-        while (prim != NULL) {
+        while (prim) {
             prim->clut = PAL_UNK_194;
             prim->r0 = prim->g0 = prim->b0 = 0x80;
             LOW(prim->r1) = LOW(prim->r0);
@@ -304,7 +304,7 @@ void func_pspeu_0925D980(Entity* self) {
             }
             temp_s2 &= 0xFFF;
             temp_s3 = prim->next;
-            if (temp_s3 == NULL) {
+            if (!temp_s3) {
                 self->step++;
                 return;
             }
@@ -329,7 +329,7 @@ void func_pspeu_0925D980(Entity* self) {
     case 2:
         if (!self->step_s) {
             prim = self->ext.et_801291C4.prim1;
-            while (prim != NULL) {
+            while (prim) {
                 prim->clut = PAL_FILL_WHITE;
                 prim = prim->next;
             }
@@ -337,7 +337,7 @@ void func_pspeu_0925D980(Entity* self) {
             return;
         }
         prim = self->ext.et_801291C4.prim1;
-        while (prim != NULL) {
+        while (prim) {
             prim->clut = PAL_UNK_194;
             prim->r0 = prim->g0 = prim->b0 = 0x60;
             LOW(prim->r1) = LOW(prim->r0);
@@ -351,13 +351,13 @@ void func_pspeu_0925D980(Entity* self) {
     case 3:
         var_s8 = 1;
         prim = self->ext.et_801291C4.prim1;
-        while (prim != NULL) {
+        while (prim) {
             var_s8 &= !IncreaseBrightness(prim, 4);
             prim = prim->next;
         }
         if (var_s8) {
             prim = self->ext.et_801291C4.prim1;
-            while (prim != NULL) {
+            while (prim) {
                 prim->drawMode = DRAW_HIDE;
                 prim = prim->next;
             }
@@ -1789,7 +1789,7 @@ void func_pspeu_092649F0(Entity* self) {
         prim->y2 = prim->y3 = selfY + 12;
         prim->priority = self->zPriority;
         MarCreateEntFactoryFromEntity(self, BP_BIBLE_TRAIL, 0);
-        if (g_GameTimer % 10 == 0) {
+        if (!(g_GameTimer % 10)) {
             g_api.PlaySfx(SFX_WEAPON_SWISH_C);
         }
     }
@@ -1873,7 +1873,7 @@ void func_pspeu_09266E40(Entity* self) {
         posX = self->posX.i.hi;
         posY = self->posY.i.hi;
         prim = &g_PrimBuf[self->primIndex];
-        for (i = 0; prim != NULL; i++, prim = prim->next) {
+        for (i = 0; prim; i++, prim = prim->next) {
             if (i < 8) {
                 sp10[i].x = FAKEPRIM->posX.i.hi = FAKEPRIM->x0 = posX;
                 sp10[i].y = FAKEPRIM->posY.i.hi = FAKEPRIM->y0 = posY;
@@ -1922,7 +1922,7 @@ void func_pspeu_09266E40(Entity* self) {
             return;
         }
         prim = &g_PrimBuf[self->primIndex];
-        for (i = 0; prim != NULL; i++, prim = prim->next) {
+        for (i = 0; prim; i++, prim = prim->next) {
             if (i < 8) {
                 FAKEPRIM->posX.i.hi = FAKEPRIM->x0;
                 FAKEPRIM->posY.i.hi = FAKEPRIM->y0;
@@ -1974,7 +1974,7 @@ void func_pspeu_09267520(Entity* self) {
         self->flags |= FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
         self->facingLeft = 0;
         line = (PrimLineG2*)&g_PrimBuf[self->primIndex];
-        while (line != NULL) {
+        while (line) {
             line->r0 = 0x1F;
             line->g0 = 0x1F;
             line->b0 = 0x30;
@@ -2010,7 +2010,7 @@ void func_pspeu_09267520(Entity* self) {
         break;
     case 1:
         line = (PrimLineG2*)&g_PrimBuf[self->primIndex];
-        for (i = 0; line != NULL; i++, line = line->next) {
+        for (i = 0; line; i++, line = line->next) {
             if (line->timer == 0) {
                 line->preciseX.i.hi = line->x1;
                 line->preciseY.i.hi = line->y1;
@@ -2444,7 +2444,7 @@ void func_pspeu_09268D98(Entity* self) {
         }
         break;
     case 3:
-        if (--self->ext.crashcross.unk84 == 0) {
+        if (!--self->ext.crashcross.unk84) {
             g_api.SetFadeMode(FADE_NONE);
             left = self->posX.i.hi - self->ext.crashcross.unk7C;
             if (left < 0) {

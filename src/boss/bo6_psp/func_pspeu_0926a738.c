@@ -32,7 +32,7 @@ void func_pspeu_0926A738(Entity* self) {
         }
         self->flags |= FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
         prim = &g_PrimBuf[self->primIndex];
-        while (prim != NULL) {
+        while (prim) {
             prim->tpage = 0x1C;
             prim->drawMode = DRAW_UNK_100 | DRAW_HIDE;
             prim = prim->next;
