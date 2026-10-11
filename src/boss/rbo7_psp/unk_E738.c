@@ -189,7 +189,70 @@ void EntityHarpyKick(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo7_psp/nonmatchings/rbo7_psp/unk_E738", func_us_80195A8C);
+extern EInit D_us_80180450;
+extern u8 D_pspeu_09255350[];
+extern u8 D_pspeu_09255360[];
+extern u8 D_pspeu_09255378[];
+
+void func_us_80195A8C(Entity* self) {
+    s16 angle;
+
+    if (D_us_801805C8 & 2) {
+        DestroyEntity(self);
+        return;
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_80180450);
+        self->blendMode = BLEND_TRANSP;
+        self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_ROTATE;
+        self->hitboxWidth = self->hitboxHeight = 6;
+        self->rotate += (s16)(0x180 - Random() * 3);
+        angle = self->rotate;
+        self->posX.i.hi += (s16)((rsin(angle) * 8) >> 12);
+        self->posY.i.hi += (s16)((rcos(angle) * -28) >> 12);
+        self->velocityX = rsin(angle) * 24;
+        self->velocityY = rcos(angle) * -24;
+        self->scaleX = 0x60;
+        self->scaleY = 0x60;
+        // The animation loop counter at 0x86 is a byte in this entity.
+        *(u8*)&self->ext.harpy.unk86 = 0;
+        /* fall through */
+    case 1:
+        if (!AnimateEntity(D_pspeu_09255350, self)) {
+            SetStep(2);
+        }
+        MoveEntity();
+        self->scaleX += 12;
+        self->scaleY += 12;
+        break;
+    case 2:
+        if (!self->step_s) {
+            self->velocityX >>= 2;
+            self->velocityY >>= 2;
+            self->step_s++;
+        }
+        MoveEntity();
+        if (!AnimateEntity(D_pspeu_09255360, self)) {
+            (*(u8*)&self->ext.harpy.unk86)++;
+        }
+        if (*(u8*)&self->ext.harpy.unk86 > 0x10) {
+            self->drawFlags |= ENTITY_OPACITY;
+            self->opacity = 0x80;
+            self->hitboxState = 0;
+            SetStep(3);
+        }
+        break;
+    case 3:
+        self->opacity -= 2;
+        self->scaleX += 24;
+        self->scaleY += 24;
+        if (!AnimateEntity(D_pspeu_09255378, self)) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 extern EInit D_us_80180450;
 extern u8 D_pspeu_09255380[];
