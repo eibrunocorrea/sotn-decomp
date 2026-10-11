@@ -682,13 +682,15 @@ typedef struct {
 typedef struct {
     /* 0x78 */ Primitive* unk78;
     /* 0x7C */ s32 : 32;
-    /* 0x80 */ s32 : 32;
+    /* 0x80 */ u16 : 16;
+    /* 0x82 */ s16 unk82;
     /* 0x84 */ u8 unk84;
     /* 0x85 */ u8 : 8;
     /* 0x86 */ u16 : 16;
     /* 0x88 */ s16 unk88;
     /* 0x8A */ s16 unk8A;
-    /* 0x8C */ s32 : 32;
+    /* 0x8C */ s16 unk8C;
+    /* 0x8E */ s16 unk8E;
     /* 0x90 */ s32 : 32;
     /* 0x94 */ s32 : 32;
     /* 0x98 */ SotnFixed32 unk98;

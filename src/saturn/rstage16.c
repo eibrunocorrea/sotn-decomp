@@ -1689,7 +1689,161 @@ void func_060E7C60(Entity* self) {
         func_0600AFA8(self->unk0, DAT_060EFB84[self->animCurFrame]);
     }
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E7DB8, func_060E7DB8);
+extern SaturnSpriteImage DAT_060EFC20[];
+extern Entity DAT_060A4FF8;
+void PlaySfxPositional(s32 sfxId);
+void func_060E7DB8(Entity* self) {
+    SpriteObject* sprite;
+    Primitive* prim;
+    Entity* entity;
+    s32 primIndex;
+    s32 i;
+    s32 frame;
+    u16 palette;
+    u16* texture;
+    s16 x;
+    s16 y;
+    s32 edge;
+
+    switch (self->step) {
+    case 0:
+        self->step++;
+        sprite =
+            CreateSpriteObject(g_RStage16SpriteBank23.allocationIndex,
+                               g_RStage16SpriteBank23.flags, DAT_060EFC20, 2);
+        self->unk0 = sprite;
+        sprite->flags |= 0x40;
+        TekiInit(self, 0x7F);
+        primIndex = AllocPrimitives(2, 3);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_060E7698.unk78 = prim;
+        i = 0;
+        do {
+            u16 allocation = g_RStage16SpriteBank23.allocationIndex;
+            s32 delta = i - 0x24;
+            texture = DAT_0605aec0[allocation - delta];
+            prim->unk8 = texture[0];
+            prim->unkA = texture[1];
+            palette = g_RStage16SpriteBank23.flags + 3;
+            prim->unk6 = LookupTblNoToVram(palette);
+            prim->priority = 0xB0;
+            prim->drawMode = 2;
+            prim = prim->next;
+            i++;
+        } while (i < 3);
+        self->ext.et_060E7698.unk82 = 0x60;
+        self->ext.et_060E7698.unk8C = 0;
+        break;
+    case 1:
+        self->ext.et_060E7698.unk8E = 0x10;
+        if (self->ext.et_060E7698.unk8C <= 0x9F) {
+            self->ext.et_060E7698.unk8C += 0x10;
+        } else {
+            self->ext.et_060E7698.unk8C = 0xA0;
+            self->hitboxState = 1;
+            self->step++;
+        }
+        /* fallthrough */
+    case 2:
+        if (!(self->ext.et_060E7698.unk82 & 3)) {
+            entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+            if (entity != NULL) {
+                CreateEntityFromEntity(0x28, self, entity);
+                entity->ext.et_060E7698.unk8C = self->ext.et_060E7698.unk8C;
+                entity->facingLeft = self->facingLeft;
+            }
+        }
+        if (!(self->ext.et_060E7698.unk82 & 0xF)) {
+            PlaySfxPositional(0x61E);
+        }
+        if (self->ext.et_060E7698.unk82 <= 0xF) {
+            PlaySfxPositional(0x621);
+            self->step++;
+        }
+        /* fallthrough */
+    case 3:
+        if (Random() & 1) {
+            if (self->ext.et_060E7698.unk8C <= 0xA7) {
+                self->ext.et_060E7698.unk8C++;
+            }
+        } else if (self->ext.et_060E7698.unk8C > 0xB8) {
+            self->ext.et_060E7698.unk8C--;
+        }
+        self->hitboxWidth = self->ext.et_060E7698.unk8C / 2 + 0x10;
+        self->hitboxOffX = -self->ext.et_060E7698.unk8C / 2 - 0x10;
+        self->hitboxHeight = 8;
+        if (self[-1].entityId != 0x26) {
+            self->ext.et_060E7698.unk82 = 1;
+        }
+        if (--self->ext.et_060E7698.unk82 == 0) {
+            self->hitboxState = 0;
+            self->step++;
+        }
+        break;
+    case 4:
+        if (--self->ext.et_060E7698.unk8E == 0) {
+            entity = AllocEntity(&g_Entities[224], &DAT_060A4FF8);
+            if (entity != NULL) {
+                CreateEntityFromCurrentEntity(0x2A, entity);
+                entity->facingLeft = self->facingLeft;
+            }
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+    x = self->posX.i.hi;
+    y = self->posY.i.hi;
+    prim = self->ext.et_060E7698.unk78;
+    i = 0;
+    do {
+        prim->y0 = prim->y1 = y - self->ext.et_060E7698.unk8E;
+        prim->y3 = prim->y2 = self->ext.et_060E7698.unk8E + y;
+        if (g_Timer & 1) {
+            prim->drawMode = 2;
+        } else {
+            prim->drawMode |= DRAW_HIDE;
+        }
+        prim = prim->next;
+        i++;
+    } while (i < 3);
+    prim = self->ext.et_060E7698.unk78;
+    if (self->facingLeft) {
+        edge = x - 0x10;
+    } else {
+        edge = x + 0x10;
+    }
+    prim->x1 = prim->x2 = edge;
+    if (self->facingLeft) {
+        edge += 0x20;
+    } else {
+        edge -= 0x20;
+    }
+    prim->x0 = prim->x3 = edge;
+    prim = prim->next;
+    prim->x1 = prim->x2 = edge;
+    if (self->facingLeft) {
+        edge += self->ext.et_060E7698.unk8C;
+    } else {
+        edge -= self->ext.et_060E7698.unk8C;
+    }
+    prim->x0 = prim->x3 = edge;
+    prim = prim->next;
+    prim->x1 = prim->x2 = edge;
+    if (self->facingLeft) {
+        edge += 0x20;
+    } else {
+        edge -= 0x20;
+    }
+    prim->x0 = prim->x3 = edge;
+}
+
 void func_060E81F4(Entity* self) {
     SaturnSpriteResource* bank;
     SaturnSpriteImage* images;
