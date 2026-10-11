@@ -13,7 +13,8 @@ void func_us_801A362C(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_185B0", EntityBackgroundBlock);
+#define BG_BLOCK_NEEDS_SCALE
+#include "../../st/e_room_bg.h"
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_185B0", func_us_801B1738);
 
