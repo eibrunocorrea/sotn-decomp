@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo2/rbo2.h"
 
+extern s32 E_ID(UNK_17);
+
 typedef struct {
     u8 pad[0xAC];
     s16 unkAC;
@@ -140,7 +142,22 @@ s16 func_us_8019A98C(s16 arg0, s16 arg1, s16 arg2) {
     return arg2;
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_E860", func_pspeu_09246AE8);
+void func_pspeu_09246AE8(void) {
+    Entity* entity;
+    s32 posX;
+    s32 posY;
+
+    if (!(g_Timer & 0xF)) {
+        entity = AllocEntity(&g_Entities[160], &g_Entities[168]);
+        if (entity != NULL) {
+            CreateEntityFromCurrentEntity(E_ID(UNK_17), entity);
+            posX = rand() & 0xFF;
+            posY = (rand() & 0x3F) + 0x20;
+            entity->posX.i.hi = posX;
+            entity->posY.i.hi = posY;
+        }
+    }
+}
 
 #include "../../st/approach_s16.h"
 
