@@ -462,33 +462,13 @@ void func_pspeu_092577D8(void) {
     }
 }
 
-// SPDX-License-Identifier: AGPL-3.0-or-later
-// Unverified PSP seed adapted from ric/pl_steps.c::RicStepHit and target asm.
-// Unused fourth argument is preserved for the target frame layout.
-
-extern PlayerState g_Maria;
-extern AnimationFrame D_pspeu_0927A8D0[];
-extern AnimationFrame D_pspeu_0927A8D8[];
-extern AnimationFrame D_pspeu_0927A900[];
-extern AnimationFrame D_pspeu_0927A940[];
-
-Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 blueprint, s32 arg2);
-void MarResetPose(void);
-void MarDecelerateX(s32 speed);
-void MarSetCrouch(s32 kind, s32 velocityX);
-void RicSetDeadPrologue(void);
-void func_pspeu_0924EA50_from_rbo5(s32 velocityX);
-void func_pspeu_092577D8(void);
-void func_pspeu_09259AD8(s32 velocityX);
-void func_pspeu_09259D48(void);
-bool func_pspeu_0925B680(s32 checks);
-
+// local copy of RicStepHit (see ric/pl_steps.c)
 void func_pspeu_09257820(
     s32 damageEffect, u32 damageKind, s16 prevStep, s32 prevStepS) {
     switch (MARIA.step_s) {
     case 0:
         MarResetPose();
-        if (damageKind < 0x10U) {
+        if (damageKind < 0x10) {
             func_pspeu_092577D8();
         } else {
             MARIA.entityRoomIndex = MARIA.facingLeft;
@@ -497,7 +477,7 @@ void func_pspeu_09257820(
             MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x30, 0);
             MARIA.velocityY = FIX(-4);
             func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-            MARIA.step_s = 1U;
+            MARIA.step_s = 1;
             MARIA.anim = D_pspeu_0927A900;
             g_Maria.damagePalette = PAL_FLAG(0x220);
             MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x30, 0);
@@ -516,7 +496,7 @@ void func_pspeu_09257820(
             case 2:
                 MARIA.velocityY = 0;
                 func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-                MARIA.step_s = 6U;
+                MARIA.step_s = 6;
                 MARIA.anim = D_pspeu_0927A8D8;
                 g_api.PlaySfx(SFX_BOSS_RIC_PAIN_B);
                 MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
@@ -524,7 +504,7 @@ void func_pspeu_09257820(
             case 3:
                 MARIA.velocityY = 0;
                 func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-                MARIA.step_s = 7U;
+                MARIA.step_s = 7;
                 MARIA.anim = D_pspeu_0927A940;
                 MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 g_api.PlaySfx(SFX_BOSS_RIC_PAIN_A);
@@ -533,7 +513,7 @@ void func_pspeu_09257820(
             case 4:
                 MARIA.velocityY = FIX(-3);
                 func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-                MARIA.step_s = 1U;
+                MARIA.step_s = 1;
                 MARIA.anim = D_pspeu_0927A8D0;
                 g_api.PlaySfx(SFX_BOSS_RIC_PAIN_C);
                 break;
@@ -549,14 +529,14 @@ void func_pspeu_09257820(
             case 2:
                 MARIA.velocityY = FIX(-4);
                 func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-                MARIA.step_s = 1U;
+                MARIA.step_s = 1;
                 MARIA.anim = D_pspeu_0927A8D0;
                 g_api.PlaySfx(SFX_BOSS_RIC_PAIN_D);
                 break;
             case 3:
                 MARIA.velocityY = 0;
                 func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-                MARIA.step_s = 7U;
+                MARIA.step_s = 7;
                 MARIA.anim = D_pspeu_0927A940;
                 MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 g_api.PlaySfx(SFX_BOSS_RIC_PAIN_E);
@@ -565,7 +545,7 @@ void func_pspeu_09257820(
             case 4:
                 MARIA.velocityY = FIX(-3);
                 func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
-                MARIA.step_s = 1U;
+                MARIA.step_s = 1;
                 MARIA.anim = D_pspeu_0927A8D0;
                 g_api.PlaySfx(SFX_VO_RIC_PAIN_B);
                 g_api.PlaySfx(SFX_BOSS_RIC_PAIN_E);
@@ -1486,7 +1466,7 @@ bool func_pspeu_0925A1F0(void) {
         case PL_S_RUN:
             MARIA.step = PL_S_STAND;
             MarSetAnimation(D_pspeu_0927A7C0);
-            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
             break;
         case PL_S_CROUCH:
             MarSetAnimation(D_pspeu_0927A7E0);
@@ -1731,13 +1711,13 @@ bool func_pspeu_0925B680(s32 checks) {
                 if (g_Maria.unk44 & 8) {
                     MarSetCrouch(3, MARIA.velocityX);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
-                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                     return true;
                 }
                 if (MARIA.velocityY > FIX(6.875)) {
                     MarSetCrouch(1, 0);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
-                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 } else if (g_Maria.padPressed & (PAD_LEFT | PAD_RIGHT)) {
                     if (g_Maria.unk44 & 0x10) {
                         func_pspeu_09259B30();
@@ -1753,14 +1733,14 @@ bool func_pspeu_0925B680(s32 checks) {
                     MARIA.step = PL_S_CROUCH;
                     MARIA.anim = D_pspeu_0927A7E0;
                     g_api.PlaySfx(SFX_STOMP_HARD_B);
-                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 } else {
                     MARIA.step = PL_S_STAND;
                     MARIA.anim = D_pspeu_0927A7C0;
                     if (!(g_Maria.unk44 & 8)) {
                         MARIA.velocityX = 0;
                     } else {
-                        MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                        MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                         g_api.PlaySfx(SFX_STOMP_HARD_B);
                     }
                 }
@@ -1772,14 +1752,14 @@ bool func_pspeu_0925B680(s32 checks) {
                     MARIA.step = PL_S_CROUCH;
                     MARIA.anim = D_pspeu_0927A978;
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
-                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 } else {
                     MARIA.step = PL_S_STAND;
                     MARIA.anim = D_pspeu_0927A970;
                     if (!(g_Maria.unk44 & 8)) {
                         MARIA.velocityX = 0;
                     } else {
-                        MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                        MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                         g_api.PlaySfx(SFX_STOMP_SOFT_A);
                     }
                 }
@@ -1789,7 +1769,7 @@ bool func_pspeu_0925B680(s32 checks) {
             case 3:
                 if ((MARIA.velocityY > FIX(6.875)) || (g_Maria.unk44 & 8)) {
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
-                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                    MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
                 }
                 MARIA.velocityY = 0;
                 if (!(g_Maria.unk44 & 8)) {
@@ -1808,7 +1788,7 @@ bool func_pspeu_0925B680(s32 checks) {
                 RicSetDeadPrologue();
                 return true;
             } else {
-                MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+                MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
             }
             return true;
         }
