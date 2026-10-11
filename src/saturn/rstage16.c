@@ -573,7 +573,116 @@ void func_060E0024(
         } while (i < count);
     }
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E0104, func_060E0104);
+extern u16 DAT_06046734;
+extern u16 DAT_06046736;
+u16 func_06007CE0(u16 index);
+u16 func_0607B0D0(Entity* self, Entity* target);
+u16 func_0607B134(u16 step, u16 angle, u16 target);
+void func_0607B04C(Entity* self, u16 angle, s16 speed);
+extern u8 DAT_060E9F0C[];
+extern s16 DAT_060E9F1A[];
+extern s16 DAT_060E9F4A[];
+
+/* LookupTblNoToVram counterpart: src/saturn/game_1.c. */
+static u16 LookupTblNoToVram(u16 clut) {
+    if ((clut >> 14) & 1) {
+        return func_06007CE0(clut & 0xFFF);
+    } else {
+        return SPR_2LookupTblNoToVram(clut & 0xFFF);
+    }
+}
+
+void func_060E0104(Entity* self) {
+    u16 angle;
+    Primitive* prim;
+    s32 primIndex;
+    s16* spr;
+    u16* texture;
+    s16* destinationTpage;
+    s16* frame;
+    s32 direction;
+    Entity* player;
+
+    player = &g_Entities[0];
+    switch (self->step) {
+    case 0:
+        primIndex = AllocPrimitives(1, 1);
+        if (primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        TekiInit(self, 1);
+        self->step++;
+        prim = &g_PrimBuf[primIndex];
+        prim->drawMode = 8;
+        prim->unk6 = LookupTblNoToVram(DAT_06046736);
+        prim->priority = 0x80;
+        self->flags |= 0x800000;
+        self->primIndex = primIndex;
+        self->animSet = 0;
+        angle = func_0607B0D0(self, player);
+        direction = 0;
+        if (self->posY.i.hi > 120) {
+            direction = 1;
+        }
+        if (self->posX.i.hi < player->posX.i.hi) {
+            direction ^= 1;
+        }
+        if (direction) {
+            angle -= DAT_060E9F4A[Random() & 7];
+        } else {
+            angle += DAT_060E9F4A[Random() & 7];
+        }
+        self->ext.et_060E0104.unk78 = angle;
+        self->ext.et_060E0104.unk7C = 0x400;
+        self->ext.et_060E0104.unk7A = 0;
+        self->hitboxState = 0;
+        break;
+    case 1:
+        if (++self->ext.et_060E0104.unk7E == 16) {
+            self->hitboxState = 1;
+        }
+        if (self->hitFlags) {
+            if (!g_Player.healKind) {
+                g_Player.healKind = 1;
+                g_Player.healAmount = 8;
+            }
+            DestroyEntity(self);
+            return;
+        }
+        if (self->scaleX < 0x100) {
+            self->scaleX = self->scaleY += 0x10;
+        }
+        if (self->ext.et_060E0104.unk7A < 0x200) {
+            self->ext.et_060E0104.unk7A += 2;
+        }
+        if ((u16)self->ext.et_060E0104.unk7C < 0x800) {
+            self->ext.et_060E0104.unk7C += 4;
+        }
+        angle = func_0607B0D0(self, player);
+        self->ext.et_060E0104.unk78 = angle = func_0607B134(
+            self->ext.et_060E0104.unk7A, self->ext.et_060E0104.unk78, angle);
+        func_0607B04C(self, angle, self->ext.et_060E0104.unk7C);
+        MoveEntity(self);
+        prim = &g_PrimBuf[self->primIndex];
+        AnimateEntity(DAT_060E9F0C, self);
+        frame = &self->animCurFrame;
+        destinationTpage = &prim->unk8;
+        angle = *frame - 1;
+        texture = DAT_0605aec0[DAT_06046734 + angle];
+        *destinationTpage = texture[0];
+        prim->unkA = texture[1];
+        angle = angle << 2;
+        spr = &DAT_060E9F1A[angle];
+        prim->x0 = self->posX.i.hi + spr[0];
+        prim->y0 = self->posY.i.hi + spr[1];
+        prim->x2 = prim->x0 + spr[2];
+        prim->y2 = prim->y0 + spr[3];
+        prim->drawMode = 0;
+        break;
+    }
+}
+
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E03F0, func_060E03F0);
 #include "init_solid_prop.h"
 void func_060E09D4(void) { DestroyEntity(); }

@@ -705,6 +705,13 @@ typedef struct {
     /* 0x90 */ s16 unk90;
 } ET_060E3608;
 
+typedef struct {
+    /* 0x78 */ u16 unk78;
+    /* 0x7A */ u16 unk7A;
+    /* 0x7C */ s16 unk7C;
+    /* 0x7E */ s16 unk7E;
+} ET_060E0104;
+
 typedef union { // offset=0x78
     ET_Placeholder ILLEGAL;
     ET_AfterImage afterImage; // g_Entities[1], not entityID 1
@@ -757,6 +764,7 @@ typedef union { // offset=0x78
     ET_060E4664 et_060E4664;
     ET_060E7698 et_060E7698;
     ET_060E3608 et_060E3608;
+    ET_060E0104 et_060E0104;
 } Ext;
 
 // Flags for entity->drawFlags
