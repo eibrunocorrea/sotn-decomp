@@ -3311,7 +3311,203 @@ void func_pspeu_092577D8(void) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09257820);
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Unverified PSP seed adapted from ric/pl_steps.c::RicStepHit and target asm.
+// Unused fourth argument is preserved for the target frame layout.
+
+extern PlayerState g_Maria;
+extern AnimationFrame D_pspeu_0927A8D0[];
+extern AnimationFrame D_pspeu_0927A8D8[];
+extern AnimationFrame D_pspeu_0927A900[];
+extern AnimationFrame D_pspeu_0927A940[];
+
+Entity* MarCreateEntFactoryFromEntity(Entity* entity, u32 blueprint, s32 arg2);
+void MarResetPose(void);
+void MarDecelerateX(s32 speed);
+void MarSetCrouch(s32 kind, s32 velocityX);
+void RicSetDeadPrologue(void);
+void func_pspeu_0924EA50_from_rbo5(s32 velocityX);
+void func_pspeu_092577D8(void);
+void func_pspeu_09259AD8(s32 velocityX);
+void func_pspeu_09259D48(void);
+bool func_pspeu_0925B680(s32 checks);
+
+void func_pspeu_09257820(
+    s32 damageEffect, u32 damageKind, s16 prevStep, s32 prevStepS) {
+    switch (MARIA.step_s) {
+    case 0:
+        MarResetPose();
+        if (damageKind < 0x10U) {
+            func_pspeu_092577D8();
+        } else {
+            MARIA.entityRoomIndex = MARIA.facingLeft;
+        }
+        if (damageEffect & ELEMENT_THUNDER) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x30, 0);
+            MARIA.velocityY = FIX(-4);
+            func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+            MARIA.step_s = 1U;
+            MARIA.anim = D_pspeu_0927A900;
+            g_Maria.damagePalette = PAL_FLAG(0x220);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x30, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x460021, 0);
+            g_Maria.timers[PL_T_2] = 6;
+            g_api.PlaySfx(SFX_BOSS_RIC_PAIN_F);
+            return;
+        }
+        if (damageEffect & ELEMENT_ICE) {
+            damageKind = 3;
+        }
+        switch (damageKind) {
+        case 2:
+            switch (prevStep) {
+            case 1:
+            case 2:
+                MARIA.velocityY = 0;
+                func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+                MARIA.step_s = 6U;
+                MARIA.anim = D_pspeu_0927A8D8;
+                g_api.PlaySfx(SFX_BOSS_RIC_PAIN_B);
+                MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+                break;
+            case 3:
+                MARIA.velocityY = 0;
+                func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+                MARIA.step_s = 7U;
+                MARIA.anim = D_pspeu_0927A940;
+                MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+                g_api.PlaySfx(SFX_BOSS_RIC_PAIN_A);
+                break;
+            case 5:
+            case 4:
+                MARIA.velocityY = FIX(-3);
+                func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+                MARIA.step_s = 1U;
+                MARIA.anim = D_pspeu_0927A8D0;
+                g_api.PlaySfx(SFX_BOSS_RIC_PAIN_C);
+                break;
+            }
+            break;
+        default:
+        case 4:
+        case 16:
+        case 3:
+            switch (prevStep) {
+            default:
+            case 1:
+            case 2:
+                MARIA.velocityY = FIX(-4);
+                func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+                MARIA.step_s = 1U;
+                MARIA.anim = D_pspeu_0927A8D0;
+                g_api.PlaySfx(SFX_BOSS_RIC_PAIN_D);
+                break;
+            case 3:
+                MARIA.velocityY = 0;
+                func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+                MARIA.step_s = 7U;
+                MARIA.anim = D_pspeu_0927A940;
+                MarCreateEntFactoryFromEntity(g_CurrentEntity, 0, 0);
+                g_api.PlaySfx(SFX_BOSS_RIC_PAIN_E);
+                break;
+            case 5:
+            case 4:
+                MARIA.velocityY = FIX(-3);
+                func_pspeu_0924EA50_from_rbo5(FIX(-1.25));
+                MARIA.step_s = 1U;
+                MARIA.anim = D_pspeu_0927A8D0;
+                g_api.PlaySfx(SFX_VO_RIC_PAIN_B);
+                g_api.PlaySfx(SFX_BOSS_RIC_PAIN_E);
+                break;
+            }
+            break;
+        }
+        g_Maria.damagePalette = PAL_FLAG(PAL_CC_RED_EFFECT_A);
+        g_Maria.timers[PL_T_2] = 6;
+        if (damageEffect & ELEMENT_FIRE) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x10008, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 9, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x430021, 0);
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_FIRE_EFFECT);
+            g_Maria.timers[PL_T_2] = 0x10;
+            return;
+        }
+        if (damageEffect & ELEMENT_ICE) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x2F, 0);
+            g_Maria.timers[PL_T_2] = 0xC;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_BLUE_EFFECT_A);
+            return;
+        }
+        if (damageEffect & ELEMENT_DARK) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x46, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x560021, 0);
+            g_Maria.timers[PL_T_2] = 0x10;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_DARK_EFFECT);
+            return;
+        }
+        if (damageEffect & ELEMENT_HOLY) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x47, 0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x570021, 0);
+            g_Maria.timers[PL_T_2] = 8;
+            g_Maria.damagePalette = PAL_FLAG(PAL_CC_GREEN_EFFECT_A);
+            return;
+        }
+        if (!(damageEffect & 0xF840)) {
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0x530021, 0);
+            return;
+        }
+        break;
+    case 1:
+        if ((g_Maria.vram_flag & TOUCHING_CEILING) && (MARIA.velocityY < FIX(-1))) {
+            MARIA.velocityY = FIX(-1);
+        }
+        if (func_pspeu_0925B680(
+                CHECK_80 | CHECK_GRAVITY_HIT | CHECK_GROUND_AFTER_HIT)) {
+            return;
+        }
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        MarDecelerateX(FIX(0.125));
+        if (!(g_Maria.vram_flag & TOUCHING_GROUND)) {
+            func_pspeu_09259D48();
+        }
+        if (MARIA.poseTimer < 0) {
+            if (g_Maria.unk5C) {
+                if (g_Status.hp < 0x14) {
+                    RicSetDeadPrologue();
+                    return;
+                }
+                func_pspeu_09259AD8(MARIA.velocityX);
+                return;
+            }
+            func_pspeu_09259AD8(MARIA.velocityX);
+            return;
+        }
+        break;
+    case 7:
+        MarDecelerateX(FIX(0.125));
+        if (!(g_Maria.vram_flag & TOUCHING_GROUND)) {
+            func_pspeu_09259D48();
+        }
+        if (MARIA.poseTimer < 0) {
+            if (g_Maria.unk5C) {
+                if (g_Status.hp < 0x14) {
+                    RicSetDeadPrologue();
+                    return;
+                }
+                MarSetCrouch(0, MARIA.velocityX);
+                return;
+            }
+            MarSetCrouch(0, MARIA.velocityX);
+        }
+        break;
+    }
+}
+
 
 extern AnimationFrame D_pspeu_0927A778[];
 extern RECT D_pspeu_0927A518;
