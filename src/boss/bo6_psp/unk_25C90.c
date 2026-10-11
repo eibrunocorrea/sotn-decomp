@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+extern EInit D_pspeu_0926EBE8;
+
 extern AnimationFrame D_pspeu_0927A558[];
 
 extern u16 D_pspeu_0927AEA0[];
@@ -774,7 +776,105 @@ void func_pspeu_09266E40(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_09267520);
+void func_pspeu_09267520(Entity* self) {
+    PrimLineG2* line;
+    s16 primcount;
+    s32 i;
+    if (self->params < 24) {
+        primcount = 32;
+    } else {
+        primcount = 33 - (self->params - 32) * 2;
+    }
+    switch (self->step) {
+    case 0:
+        self->primIndex = g_api.AllocPrimitives(PRIM_LINE_G2, primcount);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->ext.subweapon.subweaponId = PL_W_HYDROSTORM;
+        InitializeEntity(D_pspeu_0926EBE8);
+        self->posX.i.hi = 0x80;
+        self->posY.i.hi = 0x70;
+        self->hitboxWidth = 0x78;
+        self->hitboxHeight = 0x78;
+        self->flags |= FLAG_UNK_10000000 | FLAG_HAS_PRIMS;
+        self->facingLeft = 0;
+        line = (PrimLineG2*)&g_PrimBuf[self->primIndex];
+        while (line != NULL) {
+            line->r0 = 0x1F;
+            line->g0 = 0x1F;
+            line->b0 = 0x30;
+            line->r1 = 0x3F;
+            line->g1 = 0x50;
+            line->b1 = 0x7F;
+            line->x0 = rand() & 0x1FF;
+            line->x1 = line->x0;
+            line->y0 = -(rand() & 0xF);
+            line->y1 = line->y0;
+            line->preciseX.i.hi = line->x1;
+            line->preciseY.i.hi = line->y1;
+            line->velocityX.val = (rcos(ROT(258.75)) * 16) * 12;
+            line->velocityY.val = -(rsin(ROT(258.75)) * 16) * 12;
+            line->timer = 0;
+            line->delay = (rand() & 0xF) + 12;
+            if (rand() & 1) {
+                line->priority = MARIA.zPriority + 2;
+            } else {
+                line->priority = MARIA.zPriority - 2;
+            }
+            line->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
+            line = line->next;
+        }
+        if (self->params == 1) {
+            g_api.SetFadeMode(FADE_BLUE_TINT);
+        }
+        self->ext.subweapon.timer = 0x160;
+        if ((self->params < 16) && !(self->params & 3)) {
+            g_api.PlaySfx(SFX_BOSS_RIC_HYDRO_STORM_RAIN);
+        }
+        self->step = 1;
+        break;
+    case 1:
+        line = (PrimLineG2*)&g_PrimBuf[self->primIndex];
+        for (i = 0; line != NULL; i++, line = line->next) {
+            if (line->timer == 0) {
+                line->preciseX.i.hi = line->x1;
+                line->preciseY.i.hi = line->y1;
+                line->preciseX.val += line->velocityX.val;
+                line->preciseY.val += line->velocityY.val;
+                line->x1 = line->preciseX.i.hi;
+                line->y1 = line->preciseY.i.hi;
+                if (line->y1 > line->delay) {
+                    line->timer++;
+                    line->xLength = line->x0 - line->x1;
+                    line->yLength = line->y0 - line->y1;
+                }
+            } else {
+                line->preciseX.i.hi = line->x1;
+                line->preciseY.i.hi = line->y1;
+                line->preciseX.val += line->velocityX.val;
+                line->preciseY.val += line->velocityY.val;
+                line->x1 = line->preciseX.i.hi;
+                line->y1 = line->preciseY.i.hi;
+                line->y0 = line->y1 + line->yLength;
+                line->x0 = line->x1 + line->xLength;
+                if (line->y0 >= 0xD8) {
+                    self->step = 2;
+                }
+            }
+        }
+        self->ext.subweapon.timer++;
+        break;
+    case 2:
+        if (self->params == 0x18) {
+            g_Maria.unk4E = 1;
+        }
+        DestroyEntity(self);
+        break;
+    }
+    g_Maria.timers[PL_T_3] = 16;
+}
 
 // local copy of RicCheckHolyWaterCollision (see us_3E79C.c)
 s32 func_pspeu_09267A60(s16 height, s16 width) {
