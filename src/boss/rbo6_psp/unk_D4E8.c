@@ -42,7 +42,39 @@ INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A399C);
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A3BE0);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A4028);
+void func_us_801A4028(Entity* self) {
+    extern EInit g_EInitInteractable;
+    extern u32 g_CutsceneFlags;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        self->animSet = ANIMSET_OVL(1);
+        self->palette = 0x200;
+        self->unk5A = 0x48;
+        self->animCurFrame = 0x35;
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+        self->scaleX = 0x100;
+        self->scaleY = 0x100;
+        self->zPriority = 0x81;
+        break;
+    case 1:
+        if (g_CutsceneFlags & 0x80) {
+            self->step++;
+            self->velocityY = FIX(0.5);
+        }
+        break;
+    case 2:
+        self->velocityY -= FIX(0.005859375);
+        MoveEntity();
+        self->scaleX--;
+        self->scaleY--;
+        if (g_CutsceneFlags & 0x100) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A9208_from_bo6);
 
