@@ -2860,5 +2860,3 @@ void func_pspeu_0926A2B8(Entity* self) {
         }
     }
 }
-
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0926A738);
