@@ -47,4 +47,30 @@ void InitEntityIds(void) {
     SET_E_ID(UNK_24);
 }
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/st_init", RBO2_Load);
+#include "../../st/pfn_entity_update.h"
+
+extern u8 D_pspeu_09253648[];
+extern u8 D_pspeu_09253418[];
+extern u8 D_pspeu_09253310[];
+extern u8 D_pspeu_09253520[];
+extern u8 D_pspeu_09253208[];
+extern u8* D_pspeu_09265C20;
+extern u8* D_pspeu_09265C18;
+extern LayoutEntity* D_8D2DE30;
+extern LayoutEntity* D_8D2DF04;
+extern AbbreviatedOverlay2 g_BossOverlay;
+
+void RBO2_Load(void) {
+    D_pspeu_09265C20 =
+        GetLangAt(0, D_pspeu_09253648, D_pspeu_09253418, D_pspeu_09253310,
+                  D_pspeu_09253520, D_pspeu_09253208);
+    D_pspeu_09265C18 =
+        GetLangAt(0, D_pspeu_09253648, D_pspeu_09253418, D_pspeu_09253310,
+                  D_pspeu_09253520, D_pspeu_09253208);
+    InitEntityIds();
+    PfnEntityUpdates = EntityUpdates;
+    g_pStObjLayoutHorizontal = &D_8D2DE30;
+    g_pStObjLayoutVertical = &D_8D2DF04;
+    func_892A018();
+    memcpy(&g_api.o, &g_BossOverlay, sizeof(Overlay));
+}
