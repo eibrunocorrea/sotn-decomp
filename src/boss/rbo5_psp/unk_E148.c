@@ -2606,6 +2606,23 @@ INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925DB68)
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_us_801BE2C8);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_092481F0_from_bo3);
+extern s16 D_pspeu_09264150[];
+extern u16 D_pspeu_09264168[];
+// local copy of func_us_801B5004 (see rbo5/doors.c)
+void func_pspeu_092481F0_from_bo3(Tilemap* map, s32 arg1) {
+    Tilemap* tmap;
+    s16 tilePos;
+    u16* tileData;
+    s32 i;
+
+    tmap = &g_Tilemap;
+    tilePos = D_pspeu_09264150[arg1 >> 1];
+    tileData = &D_pspeu_09264168[arg1 << 2];
+
+    for (i = 0; i < 4; i++) {
+        tmap->fg[tilePos] = *tileData++;
+        tilePos += tmap->hSize << 4;
+    }
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925EF30);
