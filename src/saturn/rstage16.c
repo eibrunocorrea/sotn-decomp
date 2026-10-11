@@ -121,7 +121,74 @@ void func_060DC418(Entity* self) {
         func_06079BB4(self);
     }
 }
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC4C0, func_060DC4C0);
+typedef struct {
+    SaturnSpriteResource* resource;
+    const u32* frames;
+    s16 clutOffset;
+    u16 priority;
+    u8 spriteCount;
+    u8 commandFlags;
+    u8 flipFlags;
+    u8 unk56;
+    u8 padding10;
+    u8 drawFlags;
+    u8 padding12;
+    u8 unk1C;
+    u32 flags;
+    const u8* animation;
+} RStage16AnimatedSpriteData;
+
+extern RStage16AnimatedSpriteData DAT_060E9A30[];
+
+void func_060DC4C0(Entity* self) {
+    RStage16AnimatedSpriteData* data;
+    SpriteObject* sprite;
+    u16 spriteFlags;
+
+    data = DAT_060E9A30 + self->params;
+    if (self->step == 0) {
+        TekiInit(self, 3);
+        sprite = CreateSpriteObject(
+            data->resource->allocationIndex, data->resource->flags,
+            data->resource->images, data->spriteCount);
+        self->unk0 = sprite;
+        sprite->posX = self->posX.val;
+        sprite->posY = self->posY.val;
+        self->step++;
+        sprite->zPriority = data->priority;
+        if ((u16)data->clutOffset != 0) {
+            sprite->clutBase =
+                (g_RStage16SpriteBank16.flags + data->clutOffset) | 0x8000;
+        }
+        spriteFlags =
+            (u16)((sprite->flags & 0xFFF8) | (data->commandFlags & 7)) & 0xFFCF;
+        sprite->flags = spriteFlags;
+        sprite->flags = data->flipFlags ^ spriteFlags;
+        self->unk56 = data->unk56;
+        self->drawFlags = data->drawFlags;
+        self->unk1C = data->unk1C;
+        if (self->drawFlags & 1) {
+            sprite->flags |= 0x40;
+            sprite->scaleX = (u32)self->scaleX >> 2;
+        }
+        if (self->drawFlags & 2) {
+            sprite->flags |= 0x40;
+            sprite->scaleY = (u32)self->scaleY >> 2;
+        }
+        if (data->flags != 0) {
+            self->flags = data->flags;
+        }
+    }
+    AnimateEntityWithSpriteData(self, data->animation, data->frames);
+}
+
+const u16 DAT_060DC60C[] = {
+    0x0415, 0x1010, 0x10FF, 0x0000, 0x0412, 0x1010, 0x10FF, 0x0000,
+    0x0411, 0x1010, 0x10FF, 0x0000, 0x0417, 0x1010, 0xFF00, 0x0009,
+    0x0414, 0x1010, 0xFF00, 0x0009, 0x0412, 0x1510, 0xFF00, 0x0009,
+    0x0411, 0x1010, 0xFF00, 0x0009, 0x0415, 0x10FF, 0x0000, 0x0009,
+    0x0412, 0x15FF, 0x0000, 0x0009, 0x0411, 0xFF00};
+
 void func_060DC658(u16 arg0) {
     Entity* entity;
     Entity* current;
