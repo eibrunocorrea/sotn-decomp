@@ -349,8 +349,6 @@ void func_pspeu_092540C8(void) {
         }
     }
     InitMariaAfterImage();
-    // 0x091E4584;
-    // 0x091E4596;
     posX = MARIA.posX.val;
     posY = MARIA.posY.val;
     func_pspeu_09253E08();
