@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
+extern AnimationFrame D_pspeu_0927A558[];
+
 extern u16 D_pspeu_0927AEA0[];
 extern u16 D_pspeu_0927AE88[];
 extern u16 D_pspeu_0927AED0[];
@@ -20,7 +22,46 @@ INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925D310);
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925D980);
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925E330);
+void func_pspeu_0925E330(Entity* entity) {
+    s32 angle;
+    switch (entity->step) {
+    case 0:
+        entity->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (entity->primIndex == -1) {
+            DestroyEntity(entity);
+            return;
+        }
+        entity->flags = FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+        entity->posX.val = entity->ext.vibCrashCloud.parent->ext.vibhutiCrash.x;
+        entity->posY.val = entity->ext.vibCrashCloud.parent->ext.vibhutiCrash.y;
+        entity->facingLeft =
+            entity->ext.vibCrashCloud.parent->ext.vibhutiCrash.facing;
+        entity->flags |= FLAG_UNK_20000000;
+        entity->unk5A = 0x64;
+        entity->animSet = ANIMSET_DRA(14);
+        entity->palette = PAL_FLAG(PAL_UNK_19E);
+        entity->anim = D_pspeu_0927A558;
+        entity->blendMode = BLEND_TRANSP | BLEND_ADD;
+        entity->drawFlags = ENTITY_OPACITY;
+        entity->opacity = 0x60;
+        entity->hitboxWidth = 8;
+        entity->hitboxHeight = 8;
+        angle = (rand() % 512) + 0x300;
+        entity->velocityX = rcos(angle) * 32;
+        entity->velocityY = -(rsin(angle) * 32);
+        entity->step++;
+        break;
+    case 1:
+        entity->ext.vibCrashCloud.unk7C++;
+        if (entity->ext.vibCrashCloud.unk7C >= 39) {
+            DestroyEntity(entity);
+        } else {
+            entity->posX.val += entity->velocityX;
+            entity->posY.val += entity->velocityY;
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_25C90", func_pspeu_0925E578);
 
