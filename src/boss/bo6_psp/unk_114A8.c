@@ -292,7 +292,150 @@ Entity* MarCreateEntFactoryFromEntity(
     return entity;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", MarEntityFactory);
+extern FactoryBlueprint D_pspeu_09279BD0[];
+extern u8 D_pspeu_09279D98[][2];
+void MarEntityFactory(Entity* self) {
+    Entity* newEntity;
+    s16 nPerCycle;
+    s16 i;
+    s16 startIndex;
+    s16 endIndex;
+    u8* data;
+
+    if (self->step == 0) {
+        data = (u8*)&D_pspeu_09279BD0[self->params];
+        self->ext.factory.newEntityId = *data++;
+        self->ext.factory.amount = *data++;
+        self->ext.factory.nPerCycle = *data & 0x3F;
+        self->ext.factory.isNonCritical = (s16)(*data >> 7) & 1;
+        self->ext.factory.incParamsKind = (s16)(*data++ >> 6) & 1;
+        self->ext.factory.tCycle = *data++;
+        self->ext.factory.kind = *data & 0x7;
+        self->ext.factory.origin = (s16)(*data++ >> 3) & 0x1F;
+        self->ext.factory.delay = *data;
+        self->flags |= FLAG_UNK_10000000;
+        self->step++;
+        switch (self->ext.factory.origin) {
+        case 0:
+            self->flags |= FLAG_POS_CAMERA_LOCKED;
+            break;
+        case 4:
+            self->flags |= 0;
+        case 2:
+        case 9:
+            self->flags |= FLAG_POS_CAMERA_LOCKED;
+        case 3:
+        case 7:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            break;
+        case 8:
+            if (self->ext.factory.parent) {
+                self->posX.val = self->ext.factory.parent->posX.val;
+                self->posY.val = self->ext.factory.parent->posY.val;
+            }
+            self->flags |= FLAG_POS_CAMERA_LOCKED;
+            break;
+        }
+    } else {
+        switch (self->ext.factory.origin) {
+        case 0:
+            break;
+        case 9:
+            if (g_Maria.unk4E) {
+                DestroyEntity(self);
+                return;
+            }
+        case 2:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            break;
+        case 4:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            if (MARIA.step != PL_S_RUN) {
+                self->entityId = 0;
+                return;
+            }
+            break;
+        case 3:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            if (MARIA.step == PL_S_HIT) {
+                self->entityId = 0;
+                return;
+            }
+            break;
+        case 7:
+            self->posX.val = MARIA.posX.val;
+            self->posY.val = MARIA.posY.val;
+            if (MARIA.step != PL_S_HIT) {
+                self->entityId = 0;
+                return;
+            }
+            break;
+        case 8:
+            if (self->ext.factory.parent) {
+                self->posX.val = self->ext.factory.parent->posX.val;
+                self->posY.val = self->ext.factory.parent->posY.val;
+            }
+            break;
+        }
+    }
+    if (self->ext.factory.delay) {
+        if (--self->ext.factory.delay) {
+            return;
+        }
+        self->ext.factory.delay = self->ext.factory.tCycle;
+    }
+    nPerCycle = self->ext.factory.nPerCycle;
+    for (i = 0; i < nPerCycle; i++) {
+        data = D_pspeu_09279D98[0];
+        data += self->ext.factory.kind * 2;
+        startIndex = *data++;
+        endIndex = *data;
+        if (self->ext.factory.kind == 0) {
+            newEntity = MarGetFreeEntityReverse(startIndex, endIndex + 1);
+        } else if (self->ext.factory.kind == 4) {
+            newEntity = &g_Entities[95];
+        } else if (self->ext.factory.kind == 5) {
+            newEntity = &g_Entities[112];
+        } else {
+            newEntity = MarGetFreeEntity(startIndex, endIndex + 1);
+        }
+        if (newEntity == NULL) {
+            if (self->ext.factory.isNonCritical == 1) {
+                self->entityId = 0;
+            } else {
+                self->ext.factory.delay = self->ext.factory.tCycle;
+            }
+            return;
+        }
+        DestroyEntity(newEntity);
+        newEntity->entityId =
+            self->ext.factory.newEntityId + self->ext.factory.entityIdMod;
+        newEntity->params = self->ext.factory.paramsBase;
+        // The child  (newEntity) is not an ent factory, but because the
+        // factory creates many entities, we can't pick a particular extension.
+        // But we're not allowed to use generic, so i'll just reuse entFactory.
+        newEntity->ext.factory.parent = self->ext.factory.parent;
+        newEntity->posX.val = self->posX.val;
+        newEntity->posY.val = self->posY.val;
+        newEntity->facingLeft = self->facingLeft;
+        newEntity->zPriority = self->zPriority;
+        if (self->ext.factory.incParamsKind) {
+            newEntity->params += self->ext.factory.spawnIndex;
+        } else {
+            newEntity->params += i;
+        }
+        self->ext.factory.spawnIndex++;
+        if (self->ext.factory.spawnIndex == self->ext.factory.amount) {
+            self->entityId = 0;
+            return;
+        }
+    }
+    self->ext.factory.delay = self->ext.factory.tCycle;
+}
 
 extern EInit D_pspeu_0926EB88;
 void MarEntitySlideKick(Entity* entity) {
