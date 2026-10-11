@@ -1,7 +1,71 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo0.h"
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/313A8", func_pspeu_0925DBD0);
+extern s16* D_pspeu_092723C8[];
+
+void func_pspeu_0925DBD0(Primitive* prim) {
+    s16* data;
+    s16 x;
+    s16 y;
+    s16 u;
+    s16 v;
+    s16 width;
+    s16 height;
+
+    data = D_pspeu_092723C8[g_CurrentEntity->animCurFrame];
+    data += 2;
+    u = g_CurrentEntity->unk5A & 1;
+    u = (s16)u * 0x7F;
+    v = (g_CurrentEntity->unk5A & 2) >> 1;
+    v = (s16)v * 0x7F;
+    x = g_CurrentEntity->posX.i.hi;
+    if (g_CurrentEntity->facingLeft) {
+        x -= *data++;
+    } else {
+        x += *data++;
+    }
+    y = g_CurrentEntity->posY.i.hi + *data++;
+    width = *data++;
+    height = *data++;
+    if (g_CurrentEntity->facingLeft) {
+        prim->x0 = x - width + 1;
+        prim->y0 = y;
+        prim->x1 = x + 1;
+        prim->y1 = y;
+        prim->x2 = x - width + 1;
+        prim->y2 = y + height;
+        prim->x3 = x + 1;
+        prim->y3 = y + height;
+    } else {
+        prim->x0 = x;
+        prim->y0 = y;
+        prim->x1 = x + width;
+        prim->y1 = y;
+        prim->x2 = x;
+        prim->y2 = y + height;
+        prim->x3 = x + width;
+        prim->y3 = y + height;
+    }
+    prim->clut = *data++;
+    if (*data & 1) {
+        u += 0x7F;
+    }
+    if (*data & 2) {
+        v += 0x7F;
+    }
+    data++;
+    if (g_CurrentEntity->facingLeft) {
+        prim->u1 = prim->u3 = u + *data++;
+        prim->v0 = prim->v1 = v + *data++;
+        prim->u0 = prim->u2 = u + *data++;
+        prim->v2 = prim->v3 = v + *data++;
+    } else {
+        prim->u0 = prim->u2 = u + *data++;
+        prim->v0 = prim->v1 = v + *data++;
+        prim->u1 = prim->u3 = u + *data++;
+        prim->v2 = prim->v3 = v + *data++;
+    }
+}
 
 void func_pspeu_0925E070(u8 step) {
     OlroxPrim* part;
