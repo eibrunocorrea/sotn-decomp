@@ -20,7 +20,80 @@ s16 func_pspeu_0925F0A8(OlroxPrim* prim) {
     return posY;
 }
 
-INCLUDE_ASM("boss/bo0_psp/nonmatchings/bo0_psp/unk_27A28", func_pspeu_0925F158);
+void func_pspeu_0925F158(void) {
+    OlroxPrim* part;
+    s16 angle2;
+    s16 angle1;
+    s32 midX;
+    s32 midY;
+    s32 endX;
+    s32 baseX;
+    s32 baseY;
+    s32 endY;
+    Entity* child1;
+    Entity* child2;
+
+    child1 = g_CurrentEntity + 1;
+    child2 = g_CurrentEntity + 2;
+    part = g_CurrentEntity->ext.et_801B365C.unk80;
+    part->unk1C.val = child1->posX.val;
+    part->unk20.val = child1->posY.val;
+    part = g_CurrentEntity->ext.et_801B365C.unk84;
+    part->unk1C.val = child2->posX.val;
+    part->unk20.val = child2->posY.val;
+    if (g_CurrentEntity->ext.et_801B365C.unk88 == 0) {
+        part = g_CurrentEntity->ext.et_801B365C.unk80;
+    } else {
+        part = g_CurrentEntity->ext.et_801B365C.unk84;
+    }
+    endX = part->unk1C.val;
+    endY = part->unk20.val;
+    if (g_CurrentEntity->facingLeft) {
+        angle1 = ROT(270) - part->unk10;
+    } else {
+        angle1 = part->unk10 + ROT(270);
+    }
+    midX = endX - rcos(angle1) * 42 * 16;
+    midY = endY + rsin(angle1) * 42 * 16;
+    part->unk28.val = midX;
+    part->unk2C.val = midY;
+    if (g_CurrentEntity->facingLeft) {
+        angle2 = ROT(270) - part->unk0C;
+    } else {
+        angle2 = part->unk0C + ROT(270);
+    }
+    baseX = midX - rcos(angle2) * 28 * 16;
+    baseY = midY + rsin(angle2) * 28 * 16;
+    part->unk14 = endX - baseX;
+    if (!g_CurrentEntity->facingLeft) {
+        part->unk14 = -part->unk14;
+    }
+    g_CurrentEntity->posX.val = baseX;
+    g_CurrentEntity->posY.val = baseY - FIX(4);
+    part = part->unk18;
+    if (g_CurrentEntity->facingLeft) {
+        angle2 = ROT(270) - part->unk0C;
+    } else {
+        angle2 = part->unk0C + ROT(270);
+    }
+    midX = baseX + rcos(angle2) * 28 * 16;
+    midY = baseY - rsin(angle2) * 28 * 16;
+    part->unk28.val = midX;
+    part->unk2C.val = midY;
+    if (g_CurrentEntity->facingLeft) {
+        angle1 = ROT(270) - part->unk10;
+    } else {
+        angle1 = part->unk10 + ROT(270);
+    }
+    endX = midX + rcos(angle1) * 42 * 16;
+    endY = midY - rsin(angle1) * 42 * 16;
+    part->unk1C.val = endX;
+    part->unk20.val = endY;
+    part->unk14 = baseX - endX;
+    if (g_CurrentEntity->facingLeft) {
+        part->unk14 = -part->unk14;
+    }
+}
 
 void func_pspeu_0925F530(void) {
     OlroxPrim* part;
