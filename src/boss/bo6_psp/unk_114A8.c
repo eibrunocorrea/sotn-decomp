@@ -93,7 +93,56 @@ void func_pspeu_09252480_from_rbo5(s32 arg0) {
     D_pspeu_0927C218 = D_pspeu_092797D0[arg0][3];
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_09248D20);
+extern SubweaponDef D_pspeu_092797E8[];
+s32 func_pspeu_09248D20(
+    SubweaponDef* actualSubwpn, s32 isItemCrash, s32 useHearts) {
+    SubweaponDef* subwpn;
+    SubweaponDef* wpn;
+    s32 i;
+    s32 subweaponId;
+    s32 distanceX;
+
+    distanceX = abs(MARIA.posX.i.hi - PLAYER.posX.i.hi);
+
+    if (isItemCrash == 0) {
+        if (distanceX < 0x50) {
+            subweaponId = 3;
+        } else {
+            subweaponId = 4;
+        }
+        if ((MARIA.posY.i.hi - PLAYER.posY.i.hi) > 0x18) {
+            subweaponId = 2;
+        }
+        if ((MARIA.posY.i.hi - PLAYER.posY.i.hi) < -0x18) {
+            subweaponId = 3;
+        }
+        if (g_Player.status & PLAYER_STATUS_BAT_FORM) {
+            subweaponId = 2;
+        }
+
+        *actualSubwpn = D_pspeu_092797E8[subweaponId];
+    } else {
+        subweaponId = 4;
+        if (g_Maria.padPressed & PAD_L1) {
+            subweaponId = 2;
+        } else {
+            if (g_Maria.padPressed & PAD_L2) {
+                subweaponId = 3;
+            }
+            if (g_Maria.padPressed & PAD_START) {
+                subweaponId = 9;
+            }
+            if (g_Maria.padPressed & PAD_SELECT) {
+                subweaponId = 5;
+            }
+        }
+
+        subwpn = &D_pspeu_092797E8[subweaponId];
+        *actualSubwpn = D_pspeu_092797E8[subwpn->crashId];
+    }
+    return subweaponId;
+}
+
 
 extern u8 D_pspeu_09279A40[][8];
 s32 func_8015FDB0(Primitive* prim, s16 posX, s16 posY) {
