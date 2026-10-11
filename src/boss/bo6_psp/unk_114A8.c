@@ -1190,7 +1190,88 @@ s32 func_pspeu_0925A028(void) {
     return 0;
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925A1F0);
+extern AnimationFrame D_pspeu_0927A7C0[];
+extern AnimationFrame D_pspeu_0927A7E0[];
+extern AnimationFrame D_pspeu_0927A800[];
+bool func_pspeu_0925A1F0(void) {
+    s32 i;
+    s16 poisoned;
+    s16 sfxGrunt;
+
+    sfxGrunt = rand() % 6;
+    if (func_pspeu_0925A028() == 0) {
+        if (sfxGrunt == 0) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_A);
+        }
+        if (sfxGrunt == 1) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_B);
+        }
+        if (sfxGrunt == 2) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_C);
+        }
+        if (sfxGrunt == 3) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_D);
+        }
+        return true;
+    }
+    if (g_Maria.timers[PL_T_POISON]) {
+        poisoned = true;
+    } else {
+        poisoned = false;
+    }
+    for (i = 80; i < 95; i++) {
+        DestroyEntity(&g_Entities[i]);
+    }
+    if (MarCreateEntFactoryFromEntity(
+            g_CurrentEntity, FACTORY(BP_WHIP, poisoned), 0)) {
+        if (poisoned) {
+            g_api.PlaySfx(SFX_RIC_FLAME_WHIP);
+        } else {
+            g_api.PlaySfx(SFX_BOSS_RIC_WHIP_ATTACK);
+        }
+        if (sfxGrunt == 0) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_A);
+        }
+        if (sfxGrunt == 1) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_B);
+        }
+        if (sfxGrunt == 2) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_C);
+        }
+        if (sfxGrunt == 3) {
+            g_api.PlaySfx(SFX_BOSS_RIC_ATTACK_D);
+        }
+        switch (MARIA.step) {
+        case PL_S_STAND:
+        case PL_S_WALK:
+            MARIA.step = PL_S_STAND;
+            MarSetAnimation(D_pspeu_0927A7C0);
+            g_CurrentEntity->velocityX = 0;
+            break;
+        case PL_S_RUN:
+            MARIA.step = PL_S_STAND;
+            MarSetAnimation(D_pspeu_0927A7C0);
+            MarCreateEntFactoryFromEntity(g_CurrentEntity, 0U, 0);
+            break;
+        case PL_S_CROUCH:
+            MarSetAnimation(D_pspeu_0927A7E0);
+            g_CurrentEntity->velocityX = 0;
+            break;
+        case PL_S_FALL:
+        case PL_S_JUMP:
+            MARIA.step = PL_S_JUMP;
+            MarSetAnimation(D_pspeu_0927A800);
+            break;
+        default:
+            return false;
+        }
+        g_Maria.unk46 = 1;
+        MARIA.step_s = 0x40;
+        g_Maria.timers[PL_T_ATTACK] = 4;
+        return true;
+    }
+    return false;
+}
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_0925A588);
 
