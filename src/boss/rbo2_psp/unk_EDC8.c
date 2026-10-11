@@ -162,7 +162,63 @@ void func_pspeu_09246AE8(void) {
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_EDC8", func_us_8019B52C);
 
-INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_EDC8", func_us_8019C718);
+extern EInit D_us_801804A0;
+extern u8 D_pspeu_09265000[];
+extern u8 D_pspeu_09265018[];
+
+void func_us_8019C718(Entity* self) {
+    s16 angle;
+    s32 posX;
+    s32 posY;
+    Entity* entity;
+
+    if (D_pspeu_09265CC8 & 8) {
+        self->flags |= FLAG_DEAD;
+    }
+    if ((self->flags & FLAG_DEAD) && self->step != 3) {
+        PlaySfxPositional(SFX_METAL_CLANG_C);
+        self->hitboxState = 0;
+        SetStep(3);
+    }
+    switch (self->step) {
+    case 0:
+        InitializeEntity(D_us_801804A0);
+        self->facingLeft = Random() & 1;
+        self->hitboxState = 0;
+        /* fallthrough */
+    case 1:
+        if (!AnimateEntity(D_pspeu_09265000, self)) {
+            self->hitboxState = 3;
+            self->animCurFrame = 0x4F;
+            self->drawFlags = ENTITY_ROTATE;
+            SetStep(2);
+        }
+        break;
+    case 2:
+        if (!self->step_s) {
+            entity = &PLAYER;
+            posX = entity->posX.i.hi;
+            posY = entity->posY.i.hi;
+            posX += (Random() & 0x3F) - 0x20;
+            posY += (Random() & 0x3F) - 0x20;
+            posX -= self->posX.i.hi;
+            posY -= self->posY.i.hi;
+            angle = ratan2(posY, posX);
+            self->velocityX = (rcos(angle) << 16) >> 12;
+            self->velocityY = (rsin(angle) << 16) >> 12;
+            PlaySfxPositional(SFX_WEAPON_SCRAPE_ECHO);
+            self->step_s++;
+        }
+        MoveEntity();
+        self->rotate += ROT(16.875);
+        break;
+    case 3:
+        if (!AnimateEntity(D_pspeu_09265018, self)) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo2_psp/nonmatchings/rbo2_psp/unk_EDC8", func_us_8019C924);
 
