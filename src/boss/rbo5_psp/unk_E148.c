@@ -2366,7 +2366,7 @@ void func_pspeu_09252768(Entity* entity) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09252B20);
+void func_pspeu_09252B20(Entity* self) { FntPrint("dummy set\n"); }
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09252B48);
 
