@@ -96,6 +96,8 @@ segments:
       - [0x2E528, .bss, rbo2/st_update]
       - [0x2E568, .bss, rbo2/e_collect]
       - [0x2E588, bss, 2E588]
+      - [0x2E5A8, .bss, rbo2_psp/st_init]
+      - [0x2E648, bss, 2E648]
       - [0x2EC78, .bss, rbo2/e_lock_camera]
       - [0x2EC80, bss, 2EC80]
   - [0x2EC80]
