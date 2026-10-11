@@ -4292,6 +4292,8 @@ typedef struct {
     /* 0x9C */ u32 : 32;
     /* 0xA0 */ u32 : 32;
     /* 0xA4 */ struct Entity* parent;
+    /* 0xA8 */ u16 : 16;
+    /* 0xAA */ s16 unkAA;
 } ET_801AF8C0;
 
 typedef struct {
