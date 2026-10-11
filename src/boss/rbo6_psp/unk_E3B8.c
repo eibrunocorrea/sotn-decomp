@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rbo6/rbo6.h"
 
-extern EInit g_EInitBreakable;
-extern u8* D_pspeu_09256C38[];
-extern u8 D_pspeu_09256C58[];
-extern u16 D_pspeu_09256C60[];
-extern u8 D_pspeu_0926C040[];
-extern u8 D_pspeu_09256C70[];
 extern EInit g_EInitParticle;
 extern s32 D_pspeu_0926C048;
 extern EInit g_EInitInteractable;
@@ -31,7 +25,6 @@ extern s8 D_pspeu_0926B550[];
 extern u8 D_pspeu_0926B570[];
 extern s32 E_ID(UNK_1F);
 extern u8* D_pspeu_0926B500[];
-extern Entity g_Entities[256];
 extern u8 D_pspeu_0926B4A8[];
 extern s32 E_ID(UNK_21);
 extern s32 D_pspeu_0926C078;
@@ -41,7 +34,6 @@ extern EInit D_us_80180564;
 extern u8 D_pspeu_0926B408[];
 extern s32 D_pspeu_0926C080;
 extern s32 E_ID(UNK_26);
-extern u8 D_us_80180724;
 extern u8 D_pspeu_0926B410;
 extern s32 D_pspeu_0926C098;
 extern u8 D_pspeu_0926B4F8[];
@@ -755,7 +747,7 @@ void func_us_8019F1CC(Entity* self) {
     long diffY;
     long posX;
     s32 index;
-    register long posY;
+    long posY;
     s16 angle;
     Entity* previous;
     s32 distance;
@@ -955,7 +947,7 @@ void func_us_8019FA78(Entity* self) {
         break;
     }
 
-    if (D_pspeu_0926C068 != 0) {
+    if (D_pspeu_0926C068) {
         self->animCurFrame = 0;
         self->hitboxState = 0;
     }
@@ -980,7 +972,7 @@ void func_us_8019FB04(Entity* self) {
         break;
     }
 
-    if (D_pspeu_0926C068 != 0) {
+    if (D_pspeu_0926C068) {
         self->animCurFrame = 0;
         self->hitboxState = 0;
     }
@@ -1615,7 +1607,7 @@ void func_us_801A1150(Entity* self) {
         var_v0 = 0;
     }
     self->opacity = (u8)var_v0;
-    if (var_v0 == 0) {
+    if (!var_v0) {
         DestroyEntity(self);
     }
 }

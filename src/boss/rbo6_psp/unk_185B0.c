@@ -35,7 +35,6 @@ extern s16 D_pspeu_0926C6E0;
 extern s16 D_pspeu_0926C6E8;
 extern s16 D_pspeu_0926C6F0;
 extern SVECTOR D_pspeu_0926C6F8;
-extern EInit g_EInitInteractable;
 
 void func_us_801B1738(Entity* self) {
     s16 var_s7;
@@ -474,7 +473,7 @@ void func_us_801B2864(Entity* self) {
         /* fall through */
     case 1:
         MoveEntity();
-        if (AnimateEntity(&D_pspeu_0926BB70, self) == 0) {
+        if (!AnimateEntity(&D_pspeu_0926BB70, self)) {
             DestroyEntity(self);
         }
         break;
