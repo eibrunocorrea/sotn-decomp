@@ -1498,18 +1498,23 @@ void MarDisableAfterImage(s32 resetAnims, s32 arg1) {
     Primitive* prim;
 
     if (resetAnims) {
-        g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.disableAfterImage.resetFlag = 1;
-        g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].animCurFrame = g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_2].animCurFrame =
-            g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_3].animCurFrame = 0;
+        g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
+            .ext.disableAfterImage.resetFlag = 1;
+        g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].animCurFrame =
+            g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_2].animCurFrame =
+                g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_3].animCurFrame =
+                    0;
         prim = &g_PrimBuf[g_Entities[E_AFTERIMAGE_1].primIndex];
         while (prim != NULL) {
             prim->x1 = 0;
             prim = prim->next;
         }
     }
-    g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.disableAfterImage.disableFlag = 1;
-    g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1].ext.disableAfterImage.index = MaxAfterImageIndex;
-    if (arg1 != 0) {
+    g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
+        .ext.disableAfterImage.disableFlag = 1;
+    g_Entities[STAGE_ENTITY_START + E_AFTERIMAGE_1]
+        .ext.disableAfterImage.index = MaxAfterImageIndex;
+    if (arg1) {
         if (arg1 < 4) {
             g_Dop.timers[15] = 4;
         } else {
@@ -2694,7 +2699,7 @@ void func_maria_80161C2C(Entity* self) {
             } else {
                 self->animSet = ANIMSET_DRA(5);
                 self->anim = D_pspeu_092637B0;
-                self->palette = PAL_FLAG(0x170);
+                self->palette = PAL_FLAG(PAL_UNK_170);
             }
         }
         self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
@@ -2782,8 +2787,8 @@ void MarEntityHitByLightning(Entity* self) {
             prim->r0 = prim->g0 = prim->b0 = prim->r1 = prim->g1 = prim->b1 =
                 prim->r2 = prim->g2 = prim->b2 = prim->r3 = prim->g3 =
                     prim->b3 = 0x80;
-            prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE |
-                             DRAW_UNK02 | DRAW_TRANSP;
+            prim->drawMode =
+                DRAW_TPAGE2 | DRAW_TPAGE | DRAW_UNK02 | DRAW_TRANSP;
             prim = prim->next;
         }
         if ((MARIA.velocityY != 0) && (MARIA.step != Dop_Kill)) {
@@ -3049,9 +3054,6 @@ void func_us_801BDA0C(Entity* self) {
     }
 }
 
-extern EInit D_pspeu_09266738;
-extern u8 D_pspeu_092640A8[];
-extern u8 D_pspeu_092640B0[];
 // local copy of EntityUnkId1C (see rbo5/doors.c)
 void func_pspeu_0925D968(Entity* self) {
     s32 offsetX;
@@ -3099,9 +3101,217 @@ void func_pspeu_0925D968(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_0925DB68);
-
 extern EInit g_EInitInteractable;
+extern s32 E_ID(UNK_16);
+extern s32 D_pspeu_0926CCF0;
+extern s32 D_pspeu_0926CCE8;
+extern s32 D_pspeu_0926CCE0;
+extern s32 D_pspeu_092640C8[];
+// local copy of EntityUnkId19 (see rbo5/doors.c)
+void func_pspeu_0925DB68(Entity* self) {
+    Primitive* prim;
+    Primitive* lastPrim;
+    s32 primIndex;
+    s32 i;
+    s32 angle;
+    s32 moveX;
+    s32 moveY;
+
+    s16 xOffset;
+    s16 posX;
+    s16 posY;
+
+    switch (self->step) {
+    case 0:
+        InitializeEntity(g_EInitInteractable);
+        break;
+
+    case 1:
+        if (self->ext.et_801BE2C8.unk84) {
+            self->step++;
+            self->ext.et_801BE2C8.unk84 = 0;
+        }
+        break;
+
+    case 2:
+        primIndex = g_api.func_800EDB58(PRIM_TILE_ALT, 0x30);
+        if (primIndex != -1) {
+            self->flags |= FLAG_HAS_PRIMS;
+            self->primIndex = primIndex;
+            prim = &g_PrimBuf[primIndex];
+            self->ext.et_801BE2C8.unk7C = prim;
+            while (prim != NULL) {
+                prim->r0 = prim->g0 = prim->b0 = 8;
+                prim->priority = 0xD0;
+                prim->drawMode =
+                    DRAW_TPAGE2 | DRAW_TPAGE | DRAW_UNK02 | DRAW_TRANSP;
+                lastPrim = prim;
+                prim = prim->next;
+            }
+            self->ext.et_801BE2C8.unk80 = lastPrim;
+        } else {
+            DestroyEntity(self);
+            return;
+        }
+        self->step++;
+        break;
+
+    case 3:
+
+        xOffset = (self - 1)->ext.et_801BDA0C.unk80 / FIX(1.0);
+        if (xOffset < 0) {
+            xOffset = -xOffset;
+        }
+
+        posX = self->posX.i.hi;
+        posY = self->posY.i.hi - 0x28;
+        prim = self->ext.et_801BE2C8.unk7C;
+        for (i = 0; i < 32; i++) {
+            prim->x0 = posX - xOffset - 0x20 + i;
+            prim->y0 = posY - 0x20 + i;
+            prim->u0 = xOffset * 2 + 0x40 - i * 2;
+            prim->v0 = 0x94 - i * 2;
+            prim = prim->next;
+        }
+
+        while (prim != NULL) {
+            prim->x0 = posX - xOffset;
+            prim->y0 = posY;
+            prim->u0 = xOffset * 2;
+            prim->v0 = 0x54;
+            prim = prim->next;
+        }
+
+        lastPrim = self->ext.et_801BE2C8.unk80;
+        if (self->ext.et_801BE2C8.unk84) {
+            lastPrim->x0 = 0;
+            lastPrim->y0 = 0;
+            lastPrim->u0 = 0xFF;
+            lastPrim->v0 = 0xFF;
+            if (lastPrim->r0 < 248) {
+                lastPrim->r0 += 8;
+                lastPrim->g0 = lastPrim->b0 = lastPrim->r0;
+            } else {
+                (self + 1)->ext.et_801BE2C8.unk84 = 1;
+                self->step++;
+            }
+        }
+        break;
+
+    case 4:
+        prim = self->ext.et_801BE2C8.unk7C;
+        prim->type = PRIM_TILE;
+        prim->r0 = prim->b0 = prim->g0 = 0xFF;
+        prim->priority = 0x40;
+        prim = prim->next;
+
+        while (prim != NULL) {
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+
+        prim = self->ext.et_801BE2C8.unk80;
+        prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
+        CreateEntityFromEntity(E_ID(UNK_16), self, &DOPPLEGANGER);
+        // BUG! Sets Doppleganger 10 defeat flag instead of Doppleganger 40
+        g_api.TimeAttackController(
+            TIMEATTACK_EVENT_DOPPLEGANGER_10_DEFEAT, TIMEATTACK_SET_VISITED);
+        (self + 1)->ext.et_801BE2C8.unk84 = 1;
+        self->step++;
+        break;
+
+    case 5:
+        lastPrim = self->ext.et_801BE2C8.unk80;
+
+        if (lastPrim->r0 > 8) {
+            lastPrim->r0 -= 8;
+            lastPrim->g0 = lastPrim->b0 = lastPrim->r0;
+            break;
+        }
+        g_api.FreePrimitives(self->primIndex);
+        primIndex = g_api.func_800EDB58(PRIM_GT4, 0x10);
+        if (primIndex == -1) {
+            return;
+        }
+
+        self->flags |= FLAG_HAS_PRIMS;
+        self->primIndex = primIndex;
+        prim = &g_PrimBuf[primIndex];
+        self->ext.et_801BE2C8.unk7C = prim;
+        moveY = self->posY.i.hi;
+        moveX = self->posX.i.hi;
+
+        for (i = 0; i < 16; i++) {
+            angle = i << 8;
+            prim->x0 = moveX + (((rcos(angle) >> 4) * 64) >> 8);
+            prim->y0 = moveY - (((rsin(angle) >> 4) * 64) >> 8);
+            prim->u0 = 32 + (((rcos(angle) >> 4) * 0x1E) >> 8);
+            prim->v0 = 0xE0 - (((rsin(angle) >> 4) * 0x1E) >> 8);
+
+            angle = (i + 1) << 8;
+            prim->x1 = moveX + (((rcos(angle) >> 4) * 64) >> 8);
+            prim->y1 = moveY - (((rsin(angle) >> 4) * 64) >> 8);
+            prim->u1 = 32 + (((rcos(angle) >> 4) * 0x1E) >> 8);
+            prim->v1 = 0xE0 - (((rsin(angle) >> 4) * 0x1E) >> 8);
+
+            prim->y2 = prim->y3 = moveY;
+            prim->x2 = prim->x3 = moveX;
+            prim->u2 = prim->u3 = 0x20;
+            prim->v2 = prim->v3 = 0xE0;
+
+            prim->tpage = 0x1A;
+            prim->clut = PAL_FILL_WHITE;
+            prim->priority = 0x40;
+            prim->drawMode = DRAW_DITHERING | DRAW_COLORS | DRAW_UNK02;
+            prim = prim->next;
+        }
+        D_pspeu_0926CCF0 = 0x100;
+        self->step++;
+    case 6:
+        // same as the warp room background
+        D_pspeu_0926CCE8 += 16;
+        D_pspeu_0926CCE0 = (rsin(D_pspeu_0926CCE8) >> 8) + 0xD0;
+        if (D_pspeu_0926CCE0 < 0) {
+            D_pspeu_0926CCE0 = 0;
+        }
+        if (D_pspeu_0926CCE0 > 0xFF) {
+            D_pspeu_0926CCE0 = 0xFF;
+        }
+
+        D_pspeu_0926CCF0 = (rcos(D_pspeu_0926CCE8) >> 8) + 0xD0;
+
+        prim = self->ext.et_801BE2C8.unk7C;
+
+        for (i = 0; i < 16; i++) {
+            angle = D_pspeu_092640C8[(i + 0) % 16];
+            prim->r0 =
+                ((rsin(angle) + FIX(1.0 / 16)) >> 6) * D_pspeu_0926CCF0 / 256;
+            angle = D_pspeu_092640C8[(i + 5) % 16];
+            prim->g0 =
+                ((rsin(angle) + FIX(1.0 / 16)) >> 6) * D_pspeu_0926CCF0 / 256;
+            angle = D_pspeu_092640C8[(i + 10) % 16];
+            prim->b0 =
+                ((rsin(angle) + FIX(1.0 / 16)) >> 6) * D_pspeu_0926CCF0 / 256;
+            angle = D_pspeu_092640C8[(i + 1) % 16];
+            prim->r1 =
+                ((rsin(angle) + FIX(1.0 / 16)) >> 6) * D_pspeu_0926CCF0 / 256;
+            angle = D_pspeu_092640C8[(i + 6) % 16];
+            prim->g1 =
+                ((rsin(angle) + FIX(1.0 / 16)) >> 6) * D_pspeu_0926CCF0 / 256;
+            angle = D_pspeu_092640C8[(i + 11) % 16];
+            prim->b1 =
+                ((rsin(angle) + FIX(1.0 / 16)) >> 6) * D_pspeu_0926CCF0 / 256;
+
+            prim->r2 = prim->g2 = prim->b2 = prim->r3 = prim->g3 = prim->b3 =
+                D_pspeu_0926CCE0;
+
+            D_pspeu_092640C8[i] += 32;
+            prim = prim->next;
+        }
+        break;
+    }
+}
+
 extern s16 D_pspeu_09264108[];
 extern s16 D_pspeu_09264120[];
 extern s16 D_pspeu_09264138[];
