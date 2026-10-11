@@ -195,7 +195,99 @@ void func_us_801A399C(Entity* self) {
 }
 
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A3BE0);
+void func_us_801A3BE0(Entity* self) {
+    extern EInit g_EInitInteractable;
+    extern u32 g_CutsceneFlags;
+    Primitive* prim;
+    s32 primIndex;
+
+    switch (self->step) {
+    case 0:
+        primIndex = (s16)g_api.AllocPrimitives(PRIM_G4, 1);
+        if (primIndex != -1) {
+            InitializeEntity(g_EInitInteractable);
+            self->flags |= FLAG_HAS_PRIMS;
+            self->primIndex = primIndex;
+            prim = &g_PrimBuf[primIndex];
+            prim->x0 = prim->x2 = 0x60;
+            prim->x1 = prim->x3 = 0xA0;
+            prim->y0 = prim->y1 = 0x40;
+            prim->y2 = prim->y3 = 0xC0;
+            PCOL(prim) = 0xFF;
+            prim->drawMode = DRAW_UNK_40 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            prim->priority = 0x82;
+        }
+        break;
+    case 1:
+        prim = &g_PrimBuf[self->primIndex];
+        if (g_CutsceneFlags & 4) {
+            PCOL(prim) -= 1;
+            if (prim->r0 <= 0) {
+                PCOL(prim) = 0;
+                g_CutsceneFlags |= 0x200;
+                self->step++;
+            }
+        }
+        break;
+    case 2:
+        prim = &g_PrimBuf[self->primIndex];
+        if (g_CutsceneFlags & 0x80) {
+            PCOL(prim)++;
+            if (prim->r0 > 0xC0) {
+                g_CutsceneFlags |= 0x100;
+            }
+            if (prim->r0 > 0xFD) {
+                PCOL(prim) = 0;
+                prim->drawMode = DRAW_DEFAULT;
+                SetStep(3);
+                g_api.PlaySfx(SFX_WEAPON_APPEAR);
+            }
+        }
+        break;
+    case 3:
+        prim = &g_PrimBuf[self->primIndex];
+        prim->type = PRIM_G4;
+        prim->x0 = prim->x2 = 0;
+        prim->x1 = prim->x3 = 0x100;
+        prim->y0 = prim->y1 = 0x10;
+        prim->y2 = prim->y3 = 0xF0;
+        prim->priority = 0x7F;
+        prim->drawMode = DRAW_DEFAULT;
+        if (self->poseTimer & 1) {
+            prim->r0 = 0x80;
+            prim->g0 = 0x80;
+            prim->b0 = 0x80;
+            prim->r1 = 0x80;
+            prim->g1 = 0x80;
+            prim->b1 = 0x80;
+            prim->r2 = 0x80;
+            prim->g2 = 0x80;
+            prim->b2 = 0x80;
+            prim->r3 = 0x80;
+            prim->g3 = 0x80;
+            prim->b3 = 0x80;
+        } else {
+            prim->r0 = 0;
+            prim->g0 = 0;
+            prim->b0 = 0;
+            prim->r1 = 0;
+            prim->g1 = 0;
+            prim->b1 = 0;
+            prim->r2 = 0;
+            prim->g2 = 0;
+            prim->b2 = 0;
+            prim->r3 = 0;
+            prim->g3 = 0;
+            prim->b3 = 0;
+        }
+        self->poseTimer++;
+        if (self->poseTimer > 8) {
+            DestroyEntity(self);
+            g_CutsceneFlags |= 0x20;
+        }
+        break;
+    }
+}
 
 void func_us_801A4028(Entity* self) {
     extern EInit g_EInitInteractable;
