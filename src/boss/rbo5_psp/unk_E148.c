@@ -2665,7 +2665,75 @@ void func_pspeu_092570B8(Entity* self) {
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_pspeu_09257298);
 
-INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", func_maria_80161C2C);
+extern AnimationFrame D_pspeu_09263D38[];
+extern AnimationFrame D_pspeu_09263CF8[];
+extern AnimationFrame D_pspeu_092637B0[];
+// local copy of func_maria_80161C2C (see maria/pl_blueprints.c)
+void func_maria_80161C2C(Entity* self) {
+    s16 paramsHi;
+    s16 paramsLo;
+
+    paramsLo = self->params & 0xFF;
+    paramsHi = (self->params >> 8) & 0xFF;
+    switch (self->step) {
+    case 0:
+        if (paramsHi == 1) {
+            self->scaleX = 0xC0;
+            self->scaleY = 0xC0;
+            self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY;
+            self->animSet = ANIMSET_DRA(2);
+            self->anim = D_pspeu_09263D38;
+        }
+        if (paramsHi == 0 || paramsHi == 2) {
+            if (paramsLo & 3) {
+                self->anim = D_pspeu_09263CF8;
+                self->scaleX = 0x120;
+                self->scaleY = 0x120;
+                self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY;
+                self->animSet = ANIMSET_DRA(2);
+            } else {
+                self->animSet = ANIMSET_DRA(5);
+                self->anim = D_pspeu_092637B0;
+                self->palette = PAL_FLAG(0x170);
+            }
+        }
+        self->flags = FLAG_UNK_20000000 | FLAG_POS_CAMERA_LOCKED;
+        if (rand() & 3) {
+            self->zPriority = MARIA.zPriority + 2;
+        } else {
+            self->zPriority = MARIA.zPriority - 2;
+        }
+        if (paramsHi == 2) {
+            self->posX.i.hi = MARIA.posX.i.hi + (rand() % 44) - 22;
+        } else {
+            self->posX.i.hi = MARIA.posX.i.hi + (rand() & 15) - 8;
+        }
+        self->posY.i.hi =
+            MARIA.posY.i.hi + MARIA.hitboxOffY + (rand() & 31) - 16;
+        self->velocityY = FIX(-0.5);
+        self->velocityX = MARIA.velocityX >> 2;
+        self->step++;
+        break;
+    case 1:
+        self->scaleX -= 4;
+        self->scaleY -= 4;
+        self->posY.val += self->velocityY;
+        self->posX.val += self->velocityX;
+        if ((self->pose == 8) && (self->anim != D_pspeu_092637B0)) {
+            self->blendMode = BLEND_TRANSP;
+            if (!(paramsLo & 1) && self->poseTimer == 1) {
+                MarCreateEntFactoryFromEntity(self, FACTORY(BP_4, 4), 0);
+            }
+        }
+        if (self->pose == 16 && self->anim == D_pspeu_092637B0) {
+            self->blendMode = BLEND_TRANSP;
+        }
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo5_psp/nonmatchings/rbo5_psp/unk_E148", MarEntityHitByLightning);
 
