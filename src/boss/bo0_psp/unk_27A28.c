@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "bo0.h"
 
-s16 func_pspeu_0925F0A8(Primitive* prim) {
+s16 func_pspeu_0925F0A8(OlroxPrim* prim) {
     s16 posY;
     u16 hitKind;
 
-    posY = g_Tilemap.scrollY.i.hi + prim->y2;
+    posY = g_Tilemap.scrollY.i.hi + prim->unk20.i.hi;
     if (posY >= 0x1CC) {
         posY = 0x1CC - posY;
         hitKind = 1;

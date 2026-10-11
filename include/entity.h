@@ -4241,6 +4241,60 @@ typedef struct {
 } ET_801B0930;
 
 typedef struct {
+    /* 0x7C */ Primitive* prim;
+    /* 0x80 */ OlroxPrim* unk80;
+    /* 0x84 */ OlroxPrim* unk84;
+    /* 0x88 */ u8 unk88;
+    /* 0x89 */ u8 unk89;
+    /* 0x8A */ u8 unk8A;
+    /* 0x8B */ u8 : 8;
+    /* 0x8C */ u32 : 32;
+    /* 0x90 */ s16 unk90;
+    /* 0x92 */ s16 unk92;
+} ET_801B365C;
+
+typedef struct {
+    /* 0x7C */ u32 : 32;
+    /* 0x80 */ s16 unk80;
+    /* 0x82 */ s16 unk82;
+    /* 0x84 */ s16 unk84;
+    /* 0x86 */ s16 unk86;
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ s16 unk8C;
+    /* 0x8E */ s16 unk8E;
+} ET_801B619C;
+
+typedef struct {
+    /* 0x7C */ u32 : 32;
+    /* 0x80 */ u32 : 32;
+    /* 0x84 */ u32 : 32;
+    /* 0x88 */ u32 : 32;
+    /* 0x8C */ OlroxPrim* unk8C;
+} ET_801B5470;
+
+typedef struct {
+    /* 0x7C */ u32 : 32;
+    /* 0x80 */ u32 : 32;
+    /* 0x84 */ u8 : 8;
+    /* 0x85 */ u8 unk85;
+} ET_801AD338;
+
+typedef struct {
+    /* 0x7C */ u32 : 32;
+    /* 0x80 */ u32 : 32;
+    /* 0x84 */ u32 : 32;
+    /* 0x88 */ u32 : 32;
+    /* 0x8C */ u32 : 32;
+    /* 0x90 */ u32 : 32;
+    /* 0x94 */ u32 : 32;
+    /* 0x98 */ u32 : 32;
+    /* 0x9C */ u32 : 32;
+    /* 0xA0 */ u32 : 32;
+    /* 0xA4 */ struct Entity* parent;
+} ET_801AF8C0;
+
+typedef struct {
     /* 0x7C */ struct Primitive* prim;
     /* 0x80 */ s32 velocityX;
     /* 0x84 */ s32 velocityY;
@@ -4937,6 +4991,11 @@ typedef union { // offset=0x7C
     ET_Dodo dodo;
     ET_B0_Unk b0Unk;
     ET_801B0930 et_801B0930;
+    ET_801B365C et_801B365C;
+    ET_801B619C et_801B619C;
+    ET_801B5470 et_801B5470;
+    ET_801AD338 et_801AD338;
+    ET_801AF8C0 et_801AF8C0;
     ET_801A3FD4 et_801A3FD4;
     ET_801C03E8 et_801C03E8;
     ET_Shaft shaft;

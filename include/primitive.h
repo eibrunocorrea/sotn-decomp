@@ -167,6 +167,34 @@ typedef struct PrimLineG2 {
     /* 0x32 */ u16 drawMode;
 } PrimLineG2;
 
+typedef struct OlroxPrim {
+    /* 0x00 */ struct OlroxPrim* next;
+#if defined(VERSION_PC) || defined(VERSION_PSP)
+    u_long dummy;
+#endif
+    /* 0x04 */ u8 r0;
+    /* 0x05 */ u8 g0;
+    /* 0x06 */ u8 b0;
+    /* 0x07 */ u8 type;
+    /* 0x08 */ s16 x0;
+    /* 0x0A */ s16 y0;
+    /* 0x0C */ s16 unk0C;
+    /* 0x0E */ s16 unk0E;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ struct OlroxPrim* unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ f32 unk20;
+    /* 0x24 */ u8 step;
+    /* 0x25 */ u8 unk25;
+    /* 0x26 */ u16 priority;
+    /* 0x28 */ f32 unk28;
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ u16 unk30;
+    /* 0x32 */ u16 drawMode;
+} OlroxPrim; /* size=0x34 */
+
 typedef struct AxePrim {
     struct AxePrim* next;
 #if defined(VERSION_PC) || defined(VERSION_PSP)
