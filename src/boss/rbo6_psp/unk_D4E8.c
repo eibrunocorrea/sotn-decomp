@@ -244,7 +244,55 @@ INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_8019FCB4);
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A01A4);
 
-INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0710);
+void func_us_801A0710(Entity* self) {
+    extern u16 D_us_80180540;
+    extern s32 D_pspeu_0926BFB8;
+    extern s32 D_pspeu_0926C060;
+    extern s32 D_pspeu_0926C070;
+    Entity* entity;
+    s32 scale;
+
+    if (D_pspeu_0926C060 & 1) {
+        DestroyEntity(self);
+        return;
+    }
+    entity = &g_Entities[80];
+    self->posX.i.hi = entity->posX.i.hi;
+    self->posY.i.hi = entity->posY.i.hi + 0x10;
+    switch (self->step) {
+    case 0:
+        InitializeEntity(&D_us_80180540);
+        self->animCurFrame = 0x2A;
+        self->drawFlags = ENTITY_SCALEY | ENTITY_SCALEX;
+        self->scaleX = self->scaleY = 0;
+        /* fall through */
+    case 1:
+        self->scaleX = self->scaleY += 0x10;
+        if (self->scaleX > 0x180) {
+            self->step++;
+        }
+        break;
+    case 2:
+        entity = &g_Entities[130];
+        CreateEntityFromCurrentEntity(D_pspeu_0926BFB8, entity);
+        entity->zPriority = self->zPriority + 1;
+        self->step++;
+        break;
+    case 3:
+        if (D_pspeu_0926C070 == 2) {
+            self->step++;
+        }
+        break;
+    case 4:
+        scale = self->scaleX;
+        scale -= 0x20;
+        self->scaleX = self->scaleY = scale;
+        if (scale < 0) {
+            DestroyEntity(self);
+        }
+        break;
+    }
+}
 
 INCLUDE_ASM("boss/rbo6_psp/nonmatchings/rbo6_psp/unk_D4E8", func_us_801A0860);
 
