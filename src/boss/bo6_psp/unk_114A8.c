@@ -1543,7 +1543,227 @@ void func_pspeu_09251850(Entity* self) {
     }
 }
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_114A8", func_pspeu_092522A8);
+extern EInit D_pspeu_0926EBF8;
+extern s32 D_pspeu_0927C238;
+void func_pspeu_092522A8(Entity* self) {
+    Primitive* primFirst;
+    Primitive* prim;
+    s16 angle1;
+    s16 angle2;
+    s16 angle3;
+    s16 angle4;
+    s32 mod;
+    s32 i;
+    u8 r;
+    u8 g;
+    u8 b;
+    s16 angleMod;
+    s16 x;
+    s16 y;
+    s16 angle;
+    s32 colorRef;
+    s32 pose;
+    s32 velocity;
+
+    mod = 21;
+    switch (self->step) {
+    case 0:
+        self->ext.subwpnAxe.subweaponId = 2;
+        InitializeEntity(D_pspeu_0926EBF8);
+        D_pspeu_0927C238 = self->hitboxState;
+        self->hitboxState = 0;
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 5);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
+        }
+        self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_UNK_10000000 |
+                      FLAG_HAS_PRIMS;
+        self->facingLeft = 0;
+        self->ext.subwpnAxe.unk7C = ((self->params & 0xFF) << 9) + 0xC00;
+        self->posY.i.hi -= 12;
+        prim = &g_PrimBuf[self->primIndex];
+        i = 0;
+        while (prim) {
+            prim->tpage = 0x1C;
+            prim->u0 = prim->v0 = prim->v1 = prim->u2 = 0;
+            prim->u1 = prim->u3 = 0x18;
+            prim->v2 = prim->v3 = 0x28;
+            prim->priority = MARIA.zPriority + 4;
+            if (i != 0) {
+                prim->drawMode = DRAW_UNK_100 | DRAW_TPAGE2 | DRAW_TPAGE |
+                                 DRAW_HIDE | DRAW_COLORS | DRAW_TRANSP;
+                self->ext.subwpnAxe.unk8C[i - 1] = 0;
+                self->ext.subwpnAxe.unk90[i - 1] = 0;
+                self->ext.subwpnAxe.unk94[i - 1] = 0;
+            } else {
+                prim->drawMode = DRAW_UNK_100 | DRAW_HIDE;
+            }
+            i++;
+            prim = prim->next;
+        }
+        self->hitboxWidth = 12;
+        self->hitboxHeight = 12;
+        self->ext.subwpnAxe.angle = (self->params & 0xFF) << 9;
+        self->ext.subwpnAxe.velocity = 16;
+        self->step = 1;
+        break;
+    case 1:
+        velocity = self->ext.subwpnAxe.velocity;
+        self->ext.subwpnAxe.velocity++;
+        if (self->ext.subwpnAxe.velocity > 0x28) {
+            self->ext.subwpnAxe.unkA2 = 16;
+            self->step++;
+        }
+        angle = self->ext.subwpnAxe.angle;
+        self->ext.subwpnAxe.angle += 0xC0;
+        self->ext.subwpnAxe.unk7C += 0x80;
+        self->velocityX = velocity * rcos(angle);
+        self->velocityY = velocity * -rsin(angle);
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        break;
+    case 2:
+        if (--self->ext.subwpnAxe.unkA2 == 0) {
+            self->ext.subwpnAxe.unkA2 = 8;
+            self->step++;
+        }
+        velocity = self->ext.subwpnAxe.velocity;
+        angle = self->ext.subwpnAxe.angle;
+        self->ext.subwpnAxe.angle += 0xC0;
+        self->ext.subwpnAxe.unk7C += 0x80;
+        self->velocityX = rcos(angle) * velocity;
+        self->velocityY = -rsin(angle) * velocity;
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        break;
+    case 3:
+        if (--self->ext.subwpnAxe.unkA2 == 0) {
+            self->hitboxState = D_pspeu_0927C238;
+            g_Maria.unk4E = 1;
+            self->flags &= ~(FLAG_UNK_10000000);
+        }
+        velocity = self->ext.subwpnAxe.velocity;
+        self->ext.subwpnAxe.velocity += 2;
+        angle = self->ext.subwpnAxe.angle;
+        self->ext.subwpnAxe.angle += 0x28;
+        self->ext.subwpnAxe.unk7C += 0x80;
+        self->velocityX = rcos(angle) * velocity;
+        self->velocityY = -rsin(angle) * velocity;
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        if (self->poseTimer == 0) {
+            pose = self->pose;
+            self->ext.subwpnAxe.unk8C[pose] = 0;
+            self->ext.subwpnAxe.unk90[pose] = 1;
+            self->ext.subwpnAxe.unk94[pose] = 1;
+            pose++;
+            pose &= 3;
+            self->pose = pose;
+            self->poseTimer = 2;
+        } else {
+            self->poseTimer--;
+        }
+        if (self->hitFlags == 2 || self->flags & FLAG_DEAD) {
+            self->hitboxState = 0;
+            self->velocityX = -(self->velocityX / 2);
+            self->velocityY = FIX(-3);
+            self->step = 4;
+        }
+        break;
+    case 4:
+        if (self->facingLeft) {
+            angleMod = 0xC0;
+        } else {
+            angleMod = -0xC0;
+        }
+        self->ext.subwpnAxe.unk7C += angleMod;
+        self->velocityY += FIX(18.0 / 128);
+        if (self->velocityY > FIX(8)) {
+            self->velocityY = FIX(8);
+        }
+        self->posX.val += self->velocityX;
+        self->posY.val += self->velocityY;
+        if (self->posY.i.hi > 0x100) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+    prim = &g_PrimBuf[self->primIndex];
+    primFirst = prim;
+    pose = ((g_GameTimer >> 1) & 1) + 0x1AB;
+    i = 0;
+    while (prim != NULL) {
+        prim->clut = pose;
+        if (i == 0) {
+            if (self->facingLeft) {
+                angle1 = 0x800 - 0x2A0;
+                angle2 = 0x2A0;
+                angle3 = 0x800 + 0x2A0;
+                angle4 = 0x800 + 0x800 - 0x2A0;
+            } else {
+                angle2 = 0x800 - 0x2A0;
+                angle1 = 0x2A0;
+                angle4 = 0x800 + 0x2A0;
+                angle3 = 0x800 + 0x800 - 0x2A0;
+            }
+            x = self->posX.i.hi;
+            y = self->posY.i.hi;
+            angleMod = self->ext.subwpnAxe.unk7C;
+            angle1 += angleMod;
+            angle2 += angleMod;
+            angle3 += angleMod;
+            angle4 += angleMod;
+
+            prim->x0 = x + +(((rcos(angle1) << 4) * mod) >> 0x10);
+            prim->y0 = y + -(((rsin(angle1) << 4) * mod) >> 0x10);
+            prim->x1 = x + +(((rcos(angle2) << 4) * mod) >> 0x10);
+            prim->y1 = y + -(((rsin(angle2) << 4) * mod) >> 0x10);
+            prim->x2 = x + +(((rcos(angle3) << 4) * mod) >> 0x10);
+            prim->y2 = y + -(((rsin(angle3) << 4) * mod) >> 0x10);
+            prim->x3 = x + +(((rcos(angle4) << 4) * mod) >> 0x10);
+            prim->y3 = y + -(((rsin(angle4) << 4) * mod) >> 0x10);
+            prim->drawMode &= ~DRAW_HIDE;
+        } else if (self->ext.subwpnAxe.unk90[i - 1]) {
+            if (self->ext.subwpnAxe.unk94[i - 1]) {
+                self->ext.subwpnAxe.unk94[i - 1] = 0;
+                prim->x0 = primFirst->x0;
+                prim->y0 = primFirst->y0;
+                prim->x1 = primFirst->x1;
+                prim->y1 = primFirst->y1;
+                prim->x2 = primFirst->x2;
+                prim->y2 = primFirst->y2;
+                prim->x3 = primFirst->x3;
+                prim->y3 = primFirst->y3;
+            }
+            colorRef = (self->ext.subwpnAxe.unk8C[i - 1]++);
+            if (colorRef < 10) {
+                r = D_pspeu_0927A450[colorRef * 4 + 0];
+                g = D_pspeu_0927A450[colorRef * 4 + 1];
+                b = D_pspeu_0927A450[colorRef * 4 + 2];
+                prim->r0 = r;
+                prim->g0 = g;
+                prim->b0 = b;
+                prim->r1 = r;
+                prim->g1 = g;
+                prim->b1 = b;
+                prim->r2 = r;
+                prim->g2 = g;
+                prim->b2 = b;
+                prim->r3 = r;
+                prim->g3 = g;
+                prim->b3 = b;
+                prim->drawMode &= ~DRAW_HIDE;
+            } else {
+                self->ext.subwpnAxe.unk90[i - 1] = 0;
+                prim->drawMode |= DRAW_HIDE;
+            }
+        }
+        i++;
+        prim = prim->next;
+    }
+}
 
 extern s16 D_pspeu_0927A478[];
 extern s32 D_pspeu_0927C240;
