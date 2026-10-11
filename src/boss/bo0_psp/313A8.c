@@ -15,7 +15,7 @@ void func_pspeu_0925E070(u8 step) {
 }
 
 // twin of func_801CDC80 (src/st/giantbro_helpers.h)
-int func_psp_09239568(s16* arg0, s16 arg1, s16 arg2) {
+int func_801CDC80(s16* arg0, s16 arg1, s16 arg2) {
     if (abs(*arg0 - arg1) < arg2) {
         *arg0 = arg1;
         return true;
