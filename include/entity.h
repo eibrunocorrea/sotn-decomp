@@ -899,6 +899,20 @@ typedef struct {
 
 typedef struct {
     /* 0x7C */ s32 : 32;
+    /* 0x80 */ s16 unk80;
+    /* 0x82 */ s16 unk82;
+    /* 0x84 */ s32 : 32;
+    /* 0x88 */ s32 : 32;
+    /* 0x8C */ s32 : 32;
+    /* 0x90 */ s32 : 32;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
+    /* 0x9C */ struct Entity* parent;
+    /* 0xA0 */ struct Entity* unkA0;
+} ET_8019D4CC;
+
+typedef struct {
+    /* 0x7C */ s32 : 32;
     /* 0x80 */ s32 : 32;
     /* 0x84 */ s32 : 32;
     /* 0x88 */ s32 : 32;
@@ -4845,6 +4859,7 @@ typedef union { // offset=0x7C
     ET_801D0B78 et_801D0B78;
     ET_WaterEffects waterEffects;
     ET_GurkhaHammer GH_Props;
+    ET_8019D4CC et_8019D4CC;
     ET_8019E558 et_8019E558;
     ET_8019E920 et_8019E920;
     ET_TransparentWater transparentWater;
