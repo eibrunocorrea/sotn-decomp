@@ -799,7 +799,63 @@ void func_060E23D0(Primitive* prim, s32 arg1, s32 arg2) {
     } while (i <= 0x11);
 }
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E253C, func_060E253C);
-INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E3244, func_060E3244);
+extern SaturnSpriteImage DAT_060ECC10[];
+extern u8 DAT_060EA316[];
+extern u32 DAT_060ECA7C[];
+extern s8 DAT_060EA3E4[][2];
+extern u8 DAT_060EA414[][2];
+
+void func_060E3244(Entity* self) {
+    Entity* parent;
+    Entity* entity;
+    s32 frame;
+    parent = self - 1;
+    if (parent->entityId != 0x15 || parent->step == 0x12) {
+        DestroyEntity(self);
+        return;
+    }
+    if (self->step == 0) {
+        self->unk0 =
+            CreateSpriteObject(g_RStage16SpriteBank18.allocationIndex,
+                               g_RStage16SpriteBank18.flags, DAT_060ECC10, 4);
+        TekiInit(self, 0x18D);
+        self->attack /= 3;
+        self->unk0->zPriority = parent->unk0->zPriority + 1;
+        self->step++;
+    }
+    self->posX.i.hi = parent->posX.i.hi;
+    self->posY.i.hi = parent->posY.i.hi;
+    self->facingLeft = parent->facingLeft;
+    if (!self->facingLeft) {
+        self->unk0->flags &= ~0x10;
+    } else {
+        self->unk0->flags |= 0x10;
+    }
+    if (self->params) {
+        AnimateEntityWithSpriteData(self, DAT_060EA316, DAT_060ECA7C);
+        if (!(g_Timer & 1)) {
+            entity = AllocEntity(&g_Entities[0xA0], &g_Entities[0xC0]);
+            if (entity != NULL) {
+                CreateEntityFromEntity(0x17, self, entity);
+                entity->facingLeft = self->facingLeft;
+                entity->animCurFrame = self->animCurFrame;
+                entity->zPriority = self->unk0->zPriority;
+            }
+        }
+    }
+    frame = (u8)self->animCurFrame - 0x4D;
+    if ((u8)frame <= 0x17) {
+        self->hitboxOffX = DAT_060EA3E4[frame][0];
+        self->hitboxOffY = -DAT_060EA3E4[frame][1];
+        self->hitboxWidth = DAT_060EA414[frame][0];
+        self->hitboxHeight = DAT_060EA414[frame][1];
+        self->hitboxState = parent->hitboxState;
+    } else {
+        self->hitboxState = 0;
+    }
+    self->unk0->posX = self->posX.val;
+    self->unk0->posY = self->posY.val + FIX(32);
+}
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60E3438, func_060E3438);
 void func_060E35E0(Entity* entity, s16 step) {
     entity->pose = 0;
