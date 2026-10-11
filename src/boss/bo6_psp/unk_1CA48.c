@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "player_copy.h"
 
-INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_1CA48", func_pspeu_092540C8);
-
 extern s32 D_pspeu_0927C278;
 extern s32 D_pspeu_0927C280;
 // local copy of func_us_801B5A14 (see bo6/richter.c): set the boss
@@ -11,6 +9,8 @@ void func_pspeu_09247190_from_rbo5(s32 step) {
     D_pspeu_0927C280 = step;
     D_pspeu_0927C278 = 0;
 }
+
+char D_pspeu_0927A500[] = "think_step:%02x\n";
 
 INCLUDE_ASM("boss/bo6_psp/nonmatchings/bo6_psp/unk_1CA48", func_pspeu_09254F38);
 
@@ -641,7 +641,7 @@ void func_pspeu_09257820(
 }
 
 extern AnimationFrame D_pspeu_0927A778[];
-extern RECT D_pspeu_0927A518;
+RECT D_pspeu_0927A518 = {0, 0x100, 0x20, 0x50};
 extern s32 D_pspeu_0927C768;
 extern s32 D_pspeu_0927C770;
 extern s32 D_pspeu_0927C248;

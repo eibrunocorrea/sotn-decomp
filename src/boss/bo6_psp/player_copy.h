@@ -186,10 +186,6 @@ void func_pspeu_09256C28(void);
 void func_pspeu_09256D28(void);
 void MarStepFall(void);
 void func_pspeu_09257418(void);
-void func_pspeu_09257820(
-    s32 damageEffect, u32 damageKind, s16 prevStep, s32 prevStepS);
-void func_pspeu_09258010(
-    s32 damageEffects, s32 damageKind, s32 prevStep, s32 prevStepS);
 void func_pspeu_09258830(void);
 void func_pspeu_092588E8(void);
 void func_pspeu_092589B0(void);
