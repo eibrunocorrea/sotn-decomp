@@ -443,11 +443,11 @@ s32 func_pspeu_09265CA0(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s16* value;
 
     result = 0;
-    value = &g_CurrentEntity->ext.et_801B619C.unk88;
+    value = &g_CurrentEntity->ext.et_801B6CA4.unk88;
     result += func_us_801B163C(value, arg2.i.lo, arg2.i.hi);
     value += 2;
     result += func_us_801B163C(value, arg3.i.lo, arg3.i.hi);
-    value = &g_CurrentEntity->ext.et_801B619C.unk80;
+    value = &g_CurrentEntity->ext.et_801B6CA4.unk80;
     result += func_us_801B163C(value, arg0.i.lo, arg0.i.hi);
     value += 2;
     result += func_us_801B163C(value, arg1.i.lo, arg1.i.hi);

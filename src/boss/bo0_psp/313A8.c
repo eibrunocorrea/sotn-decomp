@@ -78,23 +78,7 @@ void func_pspeu_0925E070(u8 step) {
     part->step = 0;
 }
 
-// twin of func_801CDC80 (src/st/giantbro_helpers.h)
-int func_801CDC80(s16* arg0, s16 arg1, s16 arg2) {
-    if (abs(*arg0 - arg1) < arg2) {
-        *arg0 = arg1;
-        return true;
-    }
-
-    if (*arg0 > arg1) {
-        *arg0 -= arg2;
-    }
-
-    if (*arg0 < arg1) {
-        *arg0 += arg2;
-    }
-
-    return false;
-}
+#include "../../st/approach_s16.h"
 
 s32 func_us_801B163C(s16* value, s16 target, s16 speed) {
     s16* velocity;
