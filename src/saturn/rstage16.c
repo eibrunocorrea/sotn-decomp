@@ -106,12 +106,12 @@ void func_060DC1A8(Entity* self) {
 INCLUDE_ASM("asm/saturn/rstage16/f_nonmat", f60DC318, func_060DC318);
 void func_060DC418(Entity* self) {
     SpriteObject* sprite;
-    SaturnSpriteResource* bank;
+    const SaturnSpriteResource* bank;
 
     if (self->step == 0) {
         TekiInit(self, 5);
         self->step++;
-        bank = (SaturnSpriteResource*)&g_RStage16SpriteBank16;
+        bank = &g_RStage16SpriteBank16;
         sprite = CreateSpriteObject(
             bank->allocationIndex, bank->flags, bank->images, 1);
         self->unk0 = sprite;
@@ -174,11 +174,11 @@ void func_060DC4C0(Entity* self) {
         self->unk1C = data->unk1C;
         if (self->drawFlags & 1) {
             sprite->flags |= 0x40;
-            sprite->scaleX = (u32)self->scaleX >> 2;
+            sprite->scaleX = self->scaleX >> 2;
         }
         if (self->drawFlags & 2) {
             sprite->flags |= 0x40;
-            sprite->scaleY = (u32)self->scaleY >> 2;
+            sprite->scaleY = self->scaleY >> 2;
         }
         if (data->flags != 0) {
             self->flags = data->flags;
@@ -294,13 +294,13 @@ s32 func_060DED40(Entity* entity) {
     Entity* player = &g_Entities[0];
     s16 distance;
 
-    distance = (s16)(player->posX.i.hi - entity->posX.i.hi);
+    distance = (player->posX.i.hi - entity->posX.i.hi);
     distance = ABS(distance);
     if (distance > 22) {
         return 0;
     }
 
-    distance = (s16)(player->posY.i.hi - entity->posY.i.hi);
+    distance = (player->posY.i.hi - entity->posY.i.hi);
     distance = ABS(distance);
     if (distance > 32) {
         return 0;
@@ -346,11 +346,11 @@ void func_060DF8AC(Entity* self) {
         }
         if (self->scaleX != 0) {
             sprite->flags |= 0x40;
-            sprite->scaleX = (u32)self->scaleX >> 2;
+            sprite->scaleX = self->scaleX >> 2;
         }
         if (self->scaleY != 0) {
             sprite->flags |= 0x40;
-            sprite->scaleY = (u32)self->scaleY >> 2;
+            sprite->scaleY = self->scaleY >> 2;
         }
         self->params &= 0xF;
         self->velocityY = DAT_060E9DB0[variant];
@@ -386,11 +386,11 @@ void func_060DFA14(Entity* self) {
         self->unk1C = 0x30;
         if (self->scaleX != 0) {
             sprite->flags |= 0x40;
-            sprite->scaleX = (u32)self->scaleX >> 2;
+            sprite->scaleX = self->scaleX >> 2;
         }
         if (self->scaleY != 0) {
             sprite->flags |= 0x40;
-            sprite->scaleY = (u32)self->scaleY >> 2;
+            sprite->scaleY = self->scaleY >> 2;
         }
         if (self->drawFlags & 4) {
             sprite->flags |= 0x40;
@@ -472,11 +472,11 @@ void EntityDestructAnim(Entity* self) {
         func_0600AFA8(sprite, DAT_06045E14[self->animCurFrame]);
         if (self->scaleX != 0) {
             sprite->flags |= 0x40;
-            sprite->scaleX = (u32)self->scaleX >> 2;
+            sprite->scaleX = self->scaleX >> 2;
         }
         if (self->scaleY != 0) {
             sprite->flags |= 0x40;
-            sprite->scaleY = (u32)self->scaleY >> 2;
+            sprite->scaleY = self->scaleY >> 2;
         }
         self->velocityY = DAT_060E9EA4[self->ext.destructAnim.index];
         self->flags = 0x0C002000;
@@ -564,7 +564,7 @@ void func_060E0024(
                 entity->params = i;
                 clut = &DAT_060466E8;
                 sprite = CreateSpriteObject(
-                    (u16)*clut, (u16)(s16)resource->flags, resource->images, 1);
+                    *clut, resource->flags, resource->images, 1);
                 entity->unk0 = sprite;
                 if (self->unk0 != NULL) {
                     sprite->zPriority = self->unk0->zPriority + 1;
@@ -1308,7 +1308,7 @@ void func_060E1CB4(s32 arg0, s32 arg1) {
     u8* map0;
     u8* map1;
 
-    workspace = (RStage16ModelWorkspace*)DAT_060485E0;
+    workspace = DAT_060485E0;
     translations = DAT_06092FF8;
     destinationX = &workspace->vertices[0].x;
     switch (arg0) {
@@ -1428,7 +1428,7 @@ void func_060E2300(s32 scale, s32 unused) {
     DAT_06061DF0.current->val[0][1] = DAT_06061DF0.current->val[0][1] * 5 / 4;
     DAT_06061DF0.current->val[0][2] = DAT_06061DF0.current->val[0][2] * 5 / 4;
 
-    TransformAndProjectPoints((MthXyz*)base, (XyInt*)((char*)base + 0x408), 14);
+    TransformAndProjectPoints(base, ((char*)base + 0x408), 14);
 }
 
 extern u8 DAT_060EA1C8[][4];
@@ -1446,7 +1446,7 @@ void func_060E23D0(Primitive* prim, s32 arg1, s32 arg2) {
     s32 visible;
     s32 i;
 
-    workspace = (RStage16ModelWorkspace*)DAT_060485E0;
+    workspace = DAT_060485E0;
     i = 0;
     do {
         if (arg1 == 0) {
@@ -1469,7 +1469,7 @@ void func_060E23D0(Primitive* prim, s32 arg1, s32 arg2) {
                 gouraud = &SpGourTbl[gouraudIndex];
                 second = gouraud;
                 if (arg2 & 0x80) {
-                    value = (u32)(arg2 & 0x7F) >> 3;
+                    value = (arg2 & 0x7F) >> 3;
                     SpGourTbl[gouraudIndex].entry[0] = gouraud->entry[1] =
                         RGB16_COLOR(value, value, value);
                 } else if (arg2 <= 0x10) {
@@ -1713,7 +1713,7 @@ void func_060E4804(Entity* self) {
         prim = &g_PrimBuf[primIndex];
         *primPtr = prim;
         while (prim != NULL) {
-            work = (RStage16ParticleWork*)prim->next;
+            work = prim->next;
             work->unk0 = 0x100F;
             work->drawMode = 8;
             prim->priority = 0x80;
@@ -1758,7 +1758,7 @@ void func_060E4804(Entity* self) {
         prim = self->ext.et_060E3608.unk7C;
         while (prim != NULL) {
             if (!(prim->drawMode & 8)) {
-                work = (RStage16ParticleWork*)prim->next;
+                work = prim->next;
                 deltaX = self->posX.val - work->posX.val;
                 deltaY = self->posY.val - work->posY.val;
                 if ((u32)(deltaX + 15) <= 30 && (u32)(deltaY + 15) <= 30) {
@@ -2547,7 +2547,7 @@ void func_060E5F48(Entity* self) {
                     CreateEntityFromEntity(33, self, entity);
                     entity->params = i + 41;
                     entity->ext.gargoyle.variant = self->ext.gargoyle.variant;
-                    DAT_060EDEA4 = ((u32)((Random() & 15) << 8) >> 2) << 8;
+                    DAT_060EDEA4 = (((Random() & 15) << 8) >> 2) << 8;
                     entity->velocityX = (DAT_060EDEA4 * rcos(angle)) >> 12;
                     entity->velocityY = (DAT_060EDEA8 * rsin(angle)) >> 12;
                 }
@@ -2765,7 +2765,7 @@ void func_060E7400(Entity* self) {
         func_060E7338(&rotation, &position);
         prim = self->ext.et_060E7698.unk78;
         next = prim->next;
-        source = (s16*)projected;
+        source = projected;
         TransformAndProjectPoints(DAT_060EF6F4, projected, 4);
         dest = &prim->x0;
         destNext = &next->x0;
@@ -2865,7 +2865,7 @@ void func_060E7698(Entity* self) {
         prim->unk4 |= 0x100;
         func_06079BB4(self);
         self->animCurFrame = 0;
-        func_0600B004(self->unk0, (u32)DAT_060EFB84[0]);
+        func_0600B004(self->unk0, DAT_060EFB84[0]);
         self->step++;
         break;
     case 1:
@@ -2875,17 +2875,17 @@ void func_060E7698(Entity* self) {
         break;
     case 2:
         self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
-        AnimateEntityWithSpriteData(self, DAT_060EF5F4, (u32*)DAT_060EFB84);
+        AnimateEntityWithSpriteData(self, DAT_060EF5F4, DAT_060EFB84);
         if ((s16)GetDistanceToPlayerX(self) <= 111) {
             SetStep(4);
         }
         break;
     case 3:
-        if (AnimateEntityWithSpriteData(
-                self, DAT_060EF5D4, (u32*)DAT_060EFB84) == 0) {
+        if (AnimateEntityWithSpriteData(self, DAT_060EF5D4, DAT_060EFB84) ==
+            0) {
             self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
         }
-        self->ext.et_060E7698.unk7C = (u8)self->facingLeft;
+        self->ext.et_060E7698.unk7C = self->facingLeft;
         if (self->ext.et_060E7698.unk7C) {
             self->velocityX = 0xA000;
         } else {
@@ -2912,11 +2912,11 @@ void func_060E7698(Entity* self) {
         }
         break;
     case 4:
-        if (AnimateEntityWithSpriteData(
-                self, DAT_060EF5E4, (u32*)DAT_060EFB84) == 0) {
+        if (AnimateEntityWithSpriteData(self, DAT_060EF5E4, DAT_060EFB84) ==
+            0) {
             self->facingLeft = (GetSideToPlayer(self) & 1) ^ 1;
         }
-        self->ext.et_060E7698.unk7C = (u8)self->facingLeft ^ 1;
+        self->ext.et_060E7698.unk7C = self->facingLeft ^ 1;
         if (self->ext.et_060E7698.unk7C) {
             self->velocityX = 0xA000;
         } else {
@@ -2943,8 +2943,8 @@ void func_060E7698(Entity* self) {
         }
         break;
     case 6:
-        if (AnimateEntityWithSpriteData(
-                self, DAT_060EF600, (u32*)DAT_060EFB84) == 0) {
+        if (AnimateEntityWithSpriteData(self, DAT_060EF600, DAT_060EFB84) ==
+            0) {
             self->ext.et_060E7698.unk84 = 0;
             SetStep(7);
         }
@@ -2971,8 +2971,8 @@ void func_060E7698(Entity* self) {
             break;
         }
         func_060E7400(self);
-        if (AnimateEntityWithSpriteData(
-                self, DAT_060EF644, (u32*)DAT_060EFB84) == 0) {
+        if (AnimateEntityWithSpriteData(self, DAT_060EF644, DAT_060EFB84) ==
+            0) {
             self->ext.et_060E7698.unk78->drawMode |= 8;
             index = ++self->ext.et_060E7698.unk7E & 7;
             self->ext.et_060E7698.unk7D = DAT_060EF6EC[index];
@@ -3290,9 +3290,9 @@ void func_060E8368(Entity* self) {
             prim->priority = 0x90;
             prim->y0 = prim->y1 = self->posY.i.hi + (Random() & 7) - 4;
             if (self->facingLeft) {
-                prim->x0 = self->posX.i.hi + (u8)((u8)Random() % 160);
+                prim->x0 = self->posX.i.hi + ((u8)Random() % 160);
             } else {
-                prim->x0 = self->posX.i.hi - (u8)((u8)Random() % 160);
+                prim->x0 = self->posX.i.hi - ((u8)Random() % 160);
             }
             prim->x1 = prim->x0;
             LOW(prim->x2) = ((Random() & 7) + 1) << 15;
@@ -3309,7 +3309,7 @@ void func_060E8368(Entity* self) {
         prim = self->ext.et_060E8368.unk78;
         while (prim != NULL) {
             timer = ++prim->unk8;
-            if ((u16)(timer % (timer >> 2))) {
+            if (timer % (timer >> 2)) {
                 prim->drawMode |= DRAW_HIDE;
             } else {
                 prim->drawMode = 2;
@@ -3505,31 +3505,17 @@ const SaturnSpriteFrame1 DAT_060E888C = {
         {2096, -13, -31, 19},
     },
 };
-SaturnSpriteFrameHeader* const DAT_060E8898[] = {
-    (SaturnSpriteFrameHeader*)&DAT_060E8738,
-    (SaturnSpriteFrameHeader*)&DAT_060E873C,
-    (SaturnSpriteFrameHeader*)&DAT_060E8750,
-    (SaturnSpriteFrameHeader*)&DAT_060E876C,
-    (SaturnSpriteFrameHeader*)&DAT_060E8780,
-    (SaturnSpriteFrameHeader*)&DAT_060E879C,
-    (SaturnSpriteFrameHeader*)&DAT_060E87A8,
-    (SaturnSpriteFrameHeader*)&DAT_060E87BC,
-    (SaturnSpriteFrameHeader*)&DAT_060E87D8,
-    (SaturnSpriteFrameHeader*)&DAT_060E87EC,
-    (SaturnSpriteFrameHeader*)&DAT_060E8808,
-    (SaturnSpriteFrameHeader*)&DAT_060E8814,
-    (SaturnSpriteFrameHeader*)&DAT_060E8820,
-    (SaturnSpriteFrameHeader*)&DAT_060E882C,
-    (SaturnSpriteFrameHeader*)&DAT_060E8838,
-    (SaturnSpriteFrameHeader*)&DAT_060E8844,
-    (SaturnSpriteFrameHeader*)&DAT_060E8850,
-    (SaturnSpriteFrameHeader*)&DAT_060E885C,
-    (SaturnSpriteFrameHeader*)&DAT_060E8868,
-    (SaturnSpriteFrameHeader*)&DAT_060E8874,
-    (SaturnSpriteFrameHeader*)&DAT_060E8880,
-    (SaturnSpriteFrameHeader*)&DAT_060E888C,
+const SaturnSpriteFrameHeader* const DAT_060E8898[] = {
+    &DAT_060E8738,        &DAT_060E873C.header, &DAT_060E8750.header,
+    &DAT_060E876C.header, &DAT_060E8780.header, &DAT_060E879C.header,
+    &DAT_060E87A8.header, &DAT_060E87BC.header, &DAT_060E87D8.header,
+    &DAT_060E87EC.header, &DAT_060E8808.header, &DAT_060E8814.header,
+    &DAT_060E8820.header, &DAT_060E882C.header, &DAT_060E8838.header,
+    &DAT_060E8844.header, &DAT_060E8850.header, &DAT_060E885C.header,
+    &DAT_060E8868.header, &DAT_060E8874.header, &DAT_060E8880.header,
+    &DAT_060E888C.header,
 };
 const SaturnSpriteResource g_RStage16SpriteBank16 = {
-    (SaturnSpriteImage*)DAT_060E86E4, (u16*)DAT_060E85A0, 0xFFFF, 0xFFFF};
+    DAT_060E86E4, DAT_060E85A0, 0xFFFF, 0xFFFF};
 const SaturnSpriteResource g_RStage16SpriteBank17[] = {
-    {NULL, (u16*)DAT_060E86C2, 0xFFFF, 0xFFFF}};
+    {NULL, DAT_060E86C2, 0xFFFF, 0xFFFF}};

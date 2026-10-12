@@ -106,7 +106,7 @@ extern MthMatrixTbl DAT_06061DF0;
 extern s32 DAT_060EA000[];
 extern s32 DAT_060EFCC0[];
 extern s32 DAT_060EFCD0[];
-extern SaturnSpriteFrameHeader* const DAT_060E8898[];
+extern const SaturnSpriteFrameHeader* const DAT_060E8898[];
 extern s16 DAT_060E9AE0[];
 extern s16 DAT_060E9CFC[];
 extern s16 DAT_060ED9FA[2];
