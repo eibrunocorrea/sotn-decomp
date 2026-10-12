@@ -943,10 +943,9 @@ typedef struct {
 } ET_8019C924;
 
 typedef struct {
-    /* 0x7C */ struct Primitive* prim;
-    /* 0x80 */ s16 unk80;
-    /* 0x82 */ s16 unk82;
-    /* 0x84 */ s32 unk84;
+    /* 0x7C */ s32 : 32;
+    /* 0x80 */ s32 : 32;
+    /* 0x84 */ s32 : 32;
     /* 0x88 */ u8 unk88;
     /* 0x89 */ u8 unk89;
     /* 0x8A */ u8 : 8;
@@ -954,11 +953,9 @@ typedef struct {
     /* 0x8C */ u8 unk8C;
     /* 0x8D */ u8 unk8D;
     /* 0x8E */ s16 : 16;
-    /* 0x90 */ u8 unk90;
-    /* 0x91 */ s32 : 24;
-    /* 0x94 */ s16 unk94;
-    /* 0x96 */ s16 : 16;
-    /* 0x98 */ s16 unk98;
+    /* 0x90 */ s32 : 32;
+    /* 0x94 */ s32 : 32;
+    /* 0x98 */ s32 : 32;
 } ET_8019B52C;
 
 typedef struct {
