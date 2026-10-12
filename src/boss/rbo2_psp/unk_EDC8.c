@@ -504,7 +504,7 @@ void func_us_8019C924(Entity* self) {
             break;
         case 4:
             self->rotate -= ROT(45);
-            self->rotate &= ROT(360) - 1;
+            self->rotate &= 0xFFF;
             if (!(self->rotate & 0xF00)) {
                 PlaySfxPositional(SFX_DEATH_SCYTHE_SWISH);
             }
