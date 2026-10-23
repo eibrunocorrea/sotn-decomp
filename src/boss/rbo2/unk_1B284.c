@@ -41,14 +41,14 @@ INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019C924);
 
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019D4CC);
 
-extern s32 D_us_80180B5C;
+extern s32 g_BossMgrState;
 extern EInit D_us_801804C4;
 
 void func_us_8019D950(Entity* self) {
     s32 params;
     s32 rotate;
 
-    if (D_us_80180B5C & 8) {
+    if (g_BossMgrState & 8) {
         DestroyEntity(self);
         return;
     }
@@ -82,7 +82,7 @@ void func_us_8019ECCC(Entity* self) {
     s32 params;
     s32 rotate;
 
-    if (D_us_80180B5C & 0x10) {
+    if (g_BossMgrState & 0x10) {
         DestroyEntity(self);
         return;
     }
@@ -231,7 +231,6 @@ static void func_us_8019D260_from_rcen(void) {
 INCLUDE_ASM("boss/rbo2/nonmatchings/unk_1B284", func_us_8019F260);
 
 extern EInit g_EInitInteractable;
-extern s32 g_BossMgrState;
 extern u32 g_CutsceneFlags;
 
 void EntityBossFightManager(Entity* self) {
