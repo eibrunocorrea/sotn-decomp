@@ -10,8 +10,17 @@ extern EInit g_EInitSpectralSwordAura;
 
 enum Palettes {
     PAL_NONE,
+    PAL_CASTLE_WALL_1 = 0x74,
+    PAL_CLOUDS = 0xC0,
+    PAL_BACKGROUND_SKY_LAND = 0xC5,
+    PAL_CASTLE_WALL_2 = 0xC8,
     PAL_ARCHER = 0x212,
     PAL_SPECTRAL_SWORD = 0x215,
+    PAL_SNIPER_OF_GOTH = 0x224,
+    PAL_IMP = 0x22D,
+    PAL_BREAKABLE = 0x230,
+    PAL_BREAKABLE_DEBRIS = 0x234,
+    PAL_BLACK_PANTHER = 0x238
 };
 
 enum EntityID {
@@ -40,7 +49,7 @@ enum EntityID {
     E_UNK_16,               // func_us_801B1C34
     E_CASTLE_WALL1,         // EntityCastleWall1
     E_CASTLE_WALL2,         // EntityCastleWall2
-    E_UNK_19,               // func_us_801B240C
+    E_STAIRCASE,            // EntityStaircase
     E_UNK_1A,               // func_us_801B2C28
     E_UNK_1B,               // func_us_801B3368
     E_UNK_1C,               // func_us_801BFE6C
@@ -53,21 +62,21 @@ enum EntityID {
     E_UNK_23,               // EntitySpectralSwordAura
     E_UNK_24,               // func_us_801C17E8
     E_UNK_25,               // func_us_801C1DE8
-    E_UNK_26,               // func_us_801C2418
-    E_UNK_27,               // func_us_801C3580
+    E_SNIPER_OF_GOTH,       // EntitySniperOfGoth
+    E_SNIPER_OF_GOTH_ARROW, // EntitySniperOfGothArrow
     E_IMP,                  // EntityImp
     E_IMP_SMOKE,            // EntityImpSmoke
     E_CLOUDS,               // EntityClouds
     E_BACKGROUND_SKY_LAND,  // EntityBackgroundSkyLand
-    E_UNK_2C,               // EntityRbo3Door
+    E_BOSS_DOOR,            // EntityBossRoomDoor
     E_SPIKES,               // EntitySpikes
     E_SPIKES_PARTS,         // EntitySpikesParts
     E_SPIKES_DUST,          // EntitySpikesDust
     E_SPIKES_DAMAGE,        // EntitySpikesDamage
     E_BREAKABLE_DEBRIS,     // EntityBreakableDebris
-    E_UNK_32,               // func_us_801C6040
-    E_UNK_33,               // EntityRdaiUnk33
-    E_UNK_34,               // EntityImpDeathParticle
+    E_BLACK_PANTHER,        // EntityBlackPanther
+    E_BALLOON_POD,          // EntityBalloonPod
+    E_IMP_DEATH_PARTICLE,   // EntityImpDeathParticle
     NUM_ENTITIES,
 };
 

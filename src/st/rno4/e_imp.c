@@ -34,7 +34,7 @@ extern u8 D_us_80182B6C[];
 
 #include "../e_imp_smoke.h"
 
-#define RDAI_UNK33_DEATH_PARTICLE E_IMP_DEATH_PARTICLE
-#include "../e_rdai_unk33.h"
+#define BALLOON_POD_DEATH_PARTICLE E_IMP_DEATH_PARTICLE
+#include "../e_balloon_pod.h"
 
 #include "../e_imp_death_particle.h"

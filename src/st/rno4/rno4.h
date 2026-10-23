@@ -8,6 +8,8 @@
 
 enum Palettes {
     PAL_NONE,
+    PAL_UNK_224 = 0x224,
+    PAL_UNK_225 = 0x225,
     PAL_JACK_O_BONES = 0x210,
     PAL_NOVA_SKELETON = 0x214,
     PAL_DARK_OCTOPUS = 0x220,
@@ -111,7 +113,7 @@ typedef enum EntityID {
     E_BLADE_SOLDIER_DEATH_PARTS, // EntityBladeSoldierDeathParts
     E_IMP,                       // EntityImp
     E_IMP_SMOKE,                 // EntityImpSmoke
-    E_RDAI_UNK33,                // EntityRdaiUnk33
+    E_BALLOON_POD,               // EntityBalloonPod
     E_IMP_DEATH_PARTICLE,        // EntityImpDeathParticle
     E_KILLER_FISH,               // EntityKillerFish
     E_KILLER_FISH_DEATH_PUFF,    // EntityKillerFishDeathPuff

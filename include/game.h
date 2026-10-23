@@ -3,6 +3,7 @@
 #define GAME_H
 #include "common.h"
 #include "castle_flags.h"
+#include "items.h"
 #include "player_steps.h"
 #include <psxsdk/kernel.h>
 
@@ -1143,12 +1144,12 @@ typedef enum {
 } FamiliarActiveIds;
 
 typedef struct {
-    /* 80097964 */ u8 relics[30];
+    /* 80097964 */ u8 relics[NUM_RELICS];
     /* 80097982 */ u8 spells[NUM_SPELLS];
-    /* 8009798A */ u8 equipHandCount[169];
-    /* 80097A33 */ u8 equipBodyCount[90];
-    /* 80097A8D */ u8 equipHandOrder[169];
-    /* 80097B36 */ u8 equipBodyOrder[90];
+    /* 8009798A */ u8 equipHandCount[NUM_HAND_ITEMS];
+    /* 80097A33 */ u8 equipBodyCount[NUM_BODY_ITEMS];
+    /* 80097A8D */ u8 equipHandOrder[NUM_HAND_ITEMS];
+    /* 80097B36 */ u8 equipBodyOrder[NUM_BODY_ITEMS];
     /* 80097B90 */ char saveName[12];
     /* 80097B9C */ u32 spellsLearnt;
     /* 80097BA0 */ s32 hp;
@@ -1159,7 +1160,9 @@ typedef struct {
     /* 80097BB4 */ s32 mpMax;
     /* 80097BB8 */ s32 statsBase[4];
     /* 80097BC8 */ s32 statsEquip[4];
+#ifndef STAGE_IS_TEK
     /* 80097BD8 */ s32 statsTotal[4];
+#endif
     /* 80097BE8 */ s32 level;
     /* 80097BEC */ u32 exp;
     /* 80097BF0 */ s32 gold;
@@ -1569,8 +1572,10 @@ typedef struct {
     /* 0x0C */ u8 statsBonus[4];
     /* 0x10 */ u16 weakToElements;
     /* 0x12 */ u16 resistElements;
+#ifndef STAGE_IS_TEK
     /* 0x14 */ u16 immuneElements;
     /* 0x16 */ u16 absorbElements;
+#endif
     /* 0x18 */ u16 icon;
     /* 0x1A */ u16 iconPalette;
     /* 0x1C */ u16 equipType;
@@ -1593,10 +1598,12 @@ typedef struct {
 typedef struct {
     /* 0x00 */ const char* name;
     /* 0x04 */ char* desc;
+#ifndef STAGE_IS_TEK
     /* 0x08 */ u16 icon;
     /* 0x0A */ u16 iconPalette;
 #ifndef VERSION_BETA
     /* 0x0C */ s32 unk0C;
+#endif
 #endif
 } RelicDesc; /* size=0x10 */
 
@@ -1919,6 +1926,19 @@ enum AluTimers {
 #define NUM_HORIZONTAL_SENSORS 4
 #define NUM_VERTICAL_SENSORS 7
 
+typedef enum {
+    GRAB_REACTION_NORMAL,
+    GRAB_REACTION_STONE = 2,
+} GrabReactionEffect; // these depend to the playable character
+
+typedef enum {
+    GRAB_NONE,
+    GRAB_START,   // enemy requests to grab the player
+    GRAB_HELD,    // player is held by the enemy
+    GRAB_DAMAGE,  // set to deal damage while player is grabbed
+    GRAB_RELEASE, // enemy releases the player with optional damage
+} GrabState;
+
 typedef struct {
     /* 0x0 80072BD0 */ Collider colFloor[NUM_HORIZONTAL_SENSORS];
     /* 0x90 80072C60 */ Collider colCeiling[NUM_HORIZONTAL_SENSORS];
@@ -1971,10 +1991,10 @@ typedef struct {
     /* 0x3AA 80072F7A */ u16 damageTaken;
     /* 0x3AC 80072F7C */ u16
         unk5C; // ALU: hellfire spell state, RIC: isPrologue
-    /* 0x3AE 80072F7E */ u16 unk5E; // status ailment timer
-    /* 0x3B0 80072F80 */ u16 unk60;
-    /* 0x3B2 80072F82 */ u16 unk62;
-    /* 0x3B4 80072F84 */ u16 unk64;
+    /* 0x3AE 80072F7E */ u16 unk5E;              // status ailment timer
+    /* 0x3B0 80072F80 */ u16 grabState;          // see GrabState
+    /* 0x3B2 80072F82 */ u16 grabReactionEffect; // see GrabReactionEffect
+    /* 0x3B4 80072F84 */ u16 grabDamage;
     /* 0x3B6 80072F86 */ u16 unk66;
     /* 0x3B8 80072F88 */ u16 unk68;
     /* 0x3BA 80072F8A */ u16 unk6A;
@@ -2029,8 +2049,13 @@ typedef struct {
 
 // Used in game.h
 typedef struct {
+#ifdef STAGE_IS_TEK
+    s32 unk0;
+    s32 primIndex;
+#else
     /* 0x800973F8 */ s32 primIndex;
     /* 0x800973FC */ s32 D_800973FC;
+#endif
     /* 0x80097400 */ bool pauseEnemies; // True for Stopwatch and cutscenes
     /* 0x80097404 */ s32 : 32;
     /* 0x80097408 */ s32 g_zEntityCenter;

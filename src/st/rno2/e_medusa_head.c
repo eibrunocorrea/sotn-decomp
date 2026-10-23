@@ -4,6 +4,4 @@
 #define g_EInitMedusaHeadBlue g_EInitMedusaHeadBlue
 #define g_EInitMedusaHeadYellow g_EInitMedusaHeadYellow
 
-extern EInit g_EInitSpawner;
-
 #include "../e_medusa_head.h"

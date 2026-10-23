@@ -6,7 +6,7 @@ extern s32 D_pspeu_09265CC8;
 extern u32 g_CutsceneFlags;
 extern s32 E_ID(LIFE_UP_SPAWN);
 
-void func_us_8019F4AC(Entity* self) {
+void EntityBossFightManager(Entity* self) {
     Entity* entity;
     s32 posX;
     s32 posY;

@@ -10,7 +10,8 @@ enum Palettes {
     PAL_NONE,
     PAL_LION = 0x200,
     PAL_TIN_MAN = 0x206,
-    PAL_UNK_20F = 0x20F,
+    PAL_CANDLE_TABLE = 0x20F,
+    PAL_BREAKABLE = 0x213,
     PAL_SCHMOO = 0x21B,
     PAL_SCARECROW = 0x21E,
     // puff params 0,1
@@ -44,26 +45,26 @@ typedef enum EntityID {
     E_UNK_ID13,             // EntityUnkId13
     E_EXPLOSION_VARIANTS,   // EntityExplosionVariants
     E_GREY_PUFF,            // EntityGreyPuff
-    E_UNK_16,               // func_us_801AF280_from_lib
-    E_UNK_17,               // func_us_801AF538_from_lib
-    E_UNK_18,               // func_us_801AF7B8_from_lib
-    E_UNK_19,               // func_us_801AFA80_from_lib
-    E_UNK_1A,               // func_us_801AE8E8_from_lib
-    E_UNK_1B,               // func_us_801AE7AC_from_lib
-    E_UNK_1C,               // func_us_801ADBE8
-    E_HARPY_KICK,           // EntityHarpyKick
-    E_UNK_1E,               // func_us_801AE414
-    E_UNK_1F,               // func_us_801AE534
-    E_UNK_20,               // func_us_801AED4C
-    E_UNK_21,               // func_us_801D8D44_from_no4
-    E_UNK_22,               // func_us_801AEFE0
-    E_UNK_23,               // func_us_801AF11C
-    E_UNK_24,               // func_us_801AF448
-    E_UNK_25,               // func_us_801AF9E8
+    E_BG_BOOKCASE,          // EntityBackgroundBookcase
+    E_BG_FURNITURE,         // EntityBackgroundFurniture
+    E_BG_SHADOW,            // EntityBackgroundShadow
+    E_DISTANT_SHELVES,      // EntityDistantBookshelves
+    E_THICK_BOOKCASE,       // EntityThickBookcase
+    E_METAL_LAMP,           // EntityMetalLamp
+    E_LION,                 // EntityLion
+    E_LION_ATTACK,          // EntityLionAttack
+    E_LION_DEATH_PARTS,     // EntityLionDeathParts
+    E_TINMAN,               // EntityTinMan
+    E_TINMAN_ARM,           // EntityTinManArm
+    E_TINMAN_PROJECTILE,    // EntityTinManProjectile
+    E_TINMAN_SMOKE,         // EntityTinManSmoke
+    E_TINMAN_DEATH_PARTS,   // EntityTinManDeathParts
+    E_SCARECROW,            // EntityScarecrow
+    E_SCARECROW_LIMB,       // EntityScarecrowLimb
     E_EXPLODE_PUFF_OPAQUE,  // EntityExplosionPuffOpaque
-    E_UNK_27,               // func_us_801AFC88
-    E_UNK_28,               // func_us_801AE84C_from_lib
-    E_UNK_29,               // func_us_801BAF60_from_lib
+    E_SCHMOO,               // EntitySchmoo
+    E_BREAKABLE_DEBRIS,     // EntityBreakableDebris
+    E_CANDLE_TABLE,         // EntityCandleTable
     NUM_ENTITIES,
 };
 

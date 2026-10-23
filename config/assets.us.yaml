@@ -1271,39 +1271,106 @@ files:
       - start: 0
         vram: 0x80180000
         assets:
-          - [0x2C, sprite_banks, sprite_banks]
+          - [0x2C, sprite_banks, us/sprite_banks]
           - [0x8C, paldef, palette_def]
           - [0xD4, layers, layers]
-          - [0x284, gfx_banks, graphics_banks]
+          - [0x284, gfx_banks, us/graphics_banks]
           - [0x34C, layout, entity_layouts]
           - [0x4F4, skip]
           - [0x1838, rooms, rooms]
           - [0x18D4, skip]
-          - [0x2194, cmpgfx, gfx_2194, 128, 128, 4] # guessed: unreferenced, inflates to 0x2000
-          - [0x24D8, cmpgfx, gfx_24D8, 128, 128, 4] # guessed: unreferenced, inflates to 0x2000
-          - [0x2A7C, cmpgfx, gfx_2A7C, 128, 128, 4]
-          - [0x3570, cmpgfx, gfx_3570, 128, 128, 4]
-          - [0x3F58, cmpgfx, gfx_3F58, 128, 128, 4]
-          - [0x481C, cmpgfx, gfx_481C, 128, 128, 4]
-          - [0x558C, cmpgfx, gfx_558C, 128, 128, 4]
-          - [0x5D4C, cmpgfx, gfx_5D4C, 128, 128, 4]
-          - [0x6AD8, cmpgfx, gfx_6AD8, 128, 128, 4]
-          - [0x759C, palette, pal_759C, 16] # 0x2E0
-          - [0x779C, palette, pal_779C, 16] # guessed: unused, no palette def refers to it
-          - [0x785C, palette, pal_785C, 16] # 0x200
-          - [0x78BC, palette, pal_78BC, 16] # 0x203
-          - [0x79BC, palette, pal_79BC, 16] # 0x20B
-          - [0x7A3C, palette, pal_7A3C, 16] # 0x240
-          - [0x7A9C, skip] # 0xD230 unreferenced bytes, unrecognized
-          - [0x14CCC, skip]
+          - [0x2194, cmpgfx, gfx_stage_name_jp_sm, 128, 128, 4] # unused
+          - [0x24D8, cmpgfx, gfx_stage_name_jp_lg, 128, 128, 4] # unused
+          - [0x2A7C, cmpgfx, gfx_slogra_1, 128, 128, 4, 0x785C]
+          - [0x3570, cmpgfx, gfx_slogra_2, 128, 128, 4, 0x785C]
+          - [0x3F58, cmpgfx, gfx_slogra_3, 128, 128, 4, 0x785C]
+          - [0x481C, cmpgfx, gfx_gaibon_1, 128, 128, 4, 0x78BC]
+          - [0x558C, cmpgfx, gfx_gaibon_2, 128, 128, 4, 0x78BC]
+          - [0x5D4C, cmpgfx, gfx_thornweed_corpseweed, 128, 128, 4, 0x79BC]
+          - [0x6AD8, cmpgfx, gfx_bat, 128, 128, 4, 0x7A3C]
+          - [0x759C, palette, pal_flame, 16] # 0x2E0
+          - [0x785C, palette, pal_slogra, 16] # 0x200
+          - [0x78BC, palette, pal_gaibon, 16] # 0x203
+          - [0x79BC, palette, pal_thornweed_corpseweed, 16] # 0x20B
+          - [0x7A3C, palette, pal_bat, 16] # 0x240
+          - [0x7A9C, skip]
   - target: disks/us/ST/RDAI/RDAI.BIN
     asset_path: assets/st/rdai
     src_path: src/st/rdai
     splat_config_path: config/splat.us.strdai.yaml
+    segments:
+      - start: 0
+        vram: 0x80180000
+        assets:
+          - [0x2C, sprite_banks, sprite_banks]
+          - [0x8C, palette, pal_8C, 16] # 0x200
+          - [0xAC, paldef, palette_def]
+          - [0x118, layers, layers]
+          - [0x408, gfx_banks, graphics_banks]
+          - [0x570, layout, entity_layouts]
+          - [0x718, skip] # 0x13EC unreferenced bytes, unrecognized
+          - [0x1B04, rooms, rooms]
+          - [0x1BD8, skip] # 0x138 unreferenced bytes, unrecognized
+          - [0x1D10, skip]
+          - [0x2FC0, cmpgfx, gfx_2FC0, 128, 128, 4]
+          - [0x3304, cmpgfx, gfx_3304, 128, 128, 4]
+          - [0x38A8, cmpgfx, gfx_38A8, 128, 128, 4]
+          - [0x4538, cmpgfx, gfx_4538, 128, 128, 4]
+          - [0x5130, cmpgfx, gfx_5130, 128, 128, 4]
+          - [0x5C4C, cmpgfx, gfx_5C4C, 128, 128, 4]
+          - [0x65E0, cmpgfx, gfx_65E0, 128, 128, 4]
+          - [0x7088, cmpgfx, gfx_7088, 128, 128, 4]
+          - [0x7E18, cmpgfx, gfx_7E18, 128, 128, 4]
+          - [0x8BF4, cmpgfx, gfx_8BF4, 128, 128, 4]
+          - [0x95A8, cmpgfx, gfx_95A8, 128, 128, 4]
+          - [0x9F20, palette, pal_9F20, 16] # 0x2E0
+          - [0xA120, palette, pal_unused, 16] # no palette def refers to it
+          - [0xA1E0, palette, pal_A1E0, 16] # 0x212
+          - [0xA220, palette, pal_A220, 16] # 0x214
+          - [0xA420, palette, pal_A420, 16] # 0x224
+          - [0xA4E0, palette, pal_A4E0, 16] # 0x22D
+          - [0xA540, palette, pal_A540, 16] # 0x230
+          - [0xA640, palette, pal_A640, 16] # 0x238
+          - [0xA660, palette, pal_unused_2, 16]
+          - [0xA680, skip]
+          - [0x2D8B0, skip]
   - target: disks/us/ST/RLIB/RLIB.BIN
     asset_path: assets/st/rlib
     src_path: src/st/rlib
     splat_config_path: config/splat.us.strlib.yaml
+    segments:
+      - start: 0
+        vram: 0x80180000
+        assets:
+          - [0x2C, sprite_banks, us/sprite_banks]
+          - [0x8C, paldef, palette_def]
+          - [0xEC, layers, layers]
+          - [0x264, gfx_banks, us/graphics_banks]
+          - [0x388, layout, entity_layouts]
+          - [0x530, skip]
+          - [0x19A0, rooms, rooms]
+          - [0x1A24, skip]
+          - [0x2564, cmpgfx, unused_gfx, 128, 128, 4]
+          - [0x3140, cmpgfx, D_80183140, 128, 128, 4]
+          - [0x3484, cmpgfx, D_80183484, 128, 128, 4]
+          - [0x3A28, cmpgfx, D_80183A28, 128, 128, 4]
+          - [0x45DC, cmpgfx, D_801845DC, 128, 128, 4]
+          - [0x522C, cmpgfx, D_8018522C, 128, 128, 4]
+          - [0x59AC, cmpgfx, D_801859AC, 128, 128, 4]
+          - [0x6934, cmpgfx, D_80186934, 128, 128, 4]
+          - [0x7288, cmpgfx, D_80187288, 128, 128, 4]
+          - [0x7C3C, cmpgfx, D_80187C3C, 128, 128, 4]
+          - [0x835C, cmpgfx, D_8018835C, 128, 128, 4]
+          - [0x9070, cmpgfx, D_80189070, 128, 128, 4]
+          - [0x9E80, cmpgfx, D_80189E80, 128, 128, 4]
+          - [0xA978, palette, D_8018A978, 16]
+          - [0xAC38, palette, D_8018AC38, 16]
+          - [0xACF8, palette, D_8018ACF8, 16]
+          - [0xADB8, palette, D_8018ADB8, 16]
+          - [0xAE58, palette, D_8018AE58, 16]
+          - [0xAF58, palette, D_8018AF58, 16]
+          - [0xAFD8, palette, D_8018AFD8, 16]
+          - [0xB118, skip]
   - target: disks/us/ST/RNO0/RNO0.BIN
     asset_path: assets/st/rno0
     src_path: src/st/rno0
@@ -1396,9 +1463,12 @@ files:
           - [0x2C, sprite_banks, us/sprite_banks]
           - [0x8C, paldef, palette_def]
           - [0x11C, layers, layers]
-          - [0x3F4, gfx_banks, graphics_banks]
+          - [0x3F4, gfx_banks, us/graphics_banks]
           - [0x5AC, layout, entity_layouts]
           - [0x754, skip]
+          - [0x2390, rooms, rooms]
+          - [0x245C, skip]
+          - [0x3424, cmpgfx, gfx_unused, 128, 128, 4]
           - [0x4000, cmpgfx, D_80184000, 128, 128, 4]
           - [0x4344, cmpgfx, D_80184344, 128, 128, 4]
           - [0x48E8, cmpgfx, D_801848E8, 128, 128, 4]
@@ -1780,6 +1850,41 @@ files:
     asset_path: assets/boss/bo3
     src_path: src/boss/bo3
     splat_config_path: config/splat.us.bobo3.yaml
+    segments:
+      - start: 0
+        vram: 0x80180000
+        assets:
+          - [0x2C, sprite_banks, us/sprite_banks]
+          - [0x8C, paldef, palette_def]
+          - [0xBC, layers, us/layers]
+          - [0x16C, gfx_banks, us/graphics_banks]
+          - [0x280, layout, entity_layouts]
+          - [0x428, skip]
+          - [0x1C14, rooms, rooms]
+          - [0x1C40, skip]
+          - [0x201C, cmpgfx, D_us_8018201C, 128, 128, 4]
+          - [0x23D0, cmpgfx, D_us_801823D0, 128, 128, 4]
+          - [0x29E4, cmpgfx, D_us_801829E4, 128, 128, 4, 0xEB10]
+          - [0x3C3C, cmpgfx, D_us_80183C3C, 128, 128, 4, 0xEB50]
+          - [0x4FC4, cmpgfx, D_us_80184FC4, 128, 128, 4, 0xEAF0]
+          - [0x5F90, cmpgfx, D_us_80185F90, 128, 128, 4, 0xEB70]
+          - [0x6BD8, cmpgfx, D_us_80186BD8, 128, 128, 4, 0xEB70]
+          - [0x7694, cmpgfx, D_us_80187694, 128, 128, 4, 0xEB70]
+          - [0x81D4, cmpgfx, D_us_801881D4, 128, 128, 4, 0xEB70]
+          - [0x91B4, cmpgfx, D_us_801891B4, 128, 128, 4, 0xEAF0]
+          - [0xA144, cmpgfx, D_us_8018A144, 128, 128, 4, 0xEB30]
+          - [0xADAC, cmpgfx, D_us_8018ADAC, 128, 128, 4, 0xEB10]
+          - [0xBEC8, cmpgfx, D_us_8018BEC8, 128, 128, 4, 0xE930]
+          - [0xC874, cmpgfx, D_us_8018C874, 128, 128, 4, 0xE930]
+          - [0xD76C, cmpgfx, D_us_8018D76C, 128, 128, 4, 0xE930]
+          - [0xDE5C, cmpgfx, D_us_8018DE5C, 128, 128, 4, 0xEC90]
+          - [0xE810, palette, D_us_8018E810, 16] # 0x2C0
+          - [0xEAD0, palette, D_us_8018EAD0, 16]
+          - [0xEC10, palette, D_us_8018EC10, 16]
+          - [0xED10, skip]
+          - [0x11D10, tiledef, load]
+          - [0x12120, tiledef, save]
+          - [0x16130, skip]
   - target: disks/us/BOSS/BO4/BO4.BIN
     asset_path: assets/boss/bo4
     src_path: src/boss/bo4
@@ -1811,6 +1916,45 @@ files:
     asset_path: assets/boss/bo5
     src_path: src/boss/bo5
     splat_config_path: config/splat.us.bobo5.yaml
+    segments:
+      - start: 0
+        vram: 0x80180000
+        assets:
+          - [0x2C, sprite_banks, us/sprite_banks]
+          - [0x8C, palette, pal_stained_glass, 16]
+          - [0xAC, paldef, palette_def]
+          - [0xF4, layers, layers]
+          - [0x12C, gfx_banks, us/graphics_banks]
+          - [0x1F4, layout, entity_layouts]
+          - [0x39C, skip]
+          - [0x187C, rooms, rooms]
+          - [0x1898, skip]
+          - [0x1D5C, cutscene, cutscene_script_psx]
+          - [0x1F6D, cutscene_events, cutscene_events]
+          - [0x1FA0, cmpgfx, D_us_80181FA0, 128, 128, 4]
+          - [0x2294, cmpgfx, D_us_80182294, 128, 128, 4]
+          - [0x2720, cmpgfx, D_us_80182720, 128, 128, 4]
+          - [0x3F48, cmpgfx, D_us_80183F48, 128, 128, 4]
+          - [0x57E4, cmpgfx, D_us_801857E4, 128, 128, 4]
+          - [0x6018, cmpgfx, D_us_80186018, 128, 128, 4]
+          - [0x680C, cmpgfx, D_us_8018680C, 128, 128, 4]
+          - [0x77A0, cmpgfx, D_us_801877A0, 128, 128, 4]
+          - [0x8868, cmpgfx, D_us_80188868, 128, 128, 4]
+          - [0x9AA4, cmpgfx, D_us_80189AA4, 128, 128, 4]
+          - [0xA928, rawgfx, D_us_8018A928, 48, 72, 8]
+          - [0xB6A8, rawgfx, D_us_8018B6A8, 48, 72, 8]
+          - [0xC428, cmpgfx, D_us_8018C428, 128, 128, 4]
+          - [0xD684, cmpgfx, D_us_8018D684, 128, 128, 4]
+          - [0xE704, palette, D_us_8018E704, 16]
+          - [0xE9C4, palette, D_us_8018E9C4, 16]
+          - [0xEBE4, palette, D_us_8018EBE4, 16]
+          - [0xEC24, palette, D_us_8018EC24, 16]
+          - [0xEE24, palette, D_us_8018EE24, 16]
+          - [0xF024, palette, D_us_8018F024, 16]
+          - [0xF084, skip]
+          - [0xF884, binary, D_us_8018F884]
+          - [0x13CA4, skip]
+          - [0x17CB4, skip]
   - target: disks/us/BOSS/BO6/BO6.BIN
     asset_path: assets/boss/bo6
     src_path: src/boss/bo6
@@ -1837,18 +1981,29 @@ files:
       - start: 0
         vram: 0x80180000
         assets:
-          - [0x2C, sprite_banks, sprite_banks]
+          - [0x2C, sprite_banks, us/sprite_banks]
           - [0x8C, paldef, us/palette_def] # TODO: remove namespace once unified
           - [0xBC, layers, layers]
-          - [0xE4, gfx_banks, graphics_banks]
+          - [0xE4, gfx_banks, us/graphics_banks]
           - [0x1D0, layout, entity_layouts]
           - [0x378, skip]
           - [0x194C, rooms, rooms]
           - [0x1968, skip]
-          # - [0xB02C, palette, D_8018B02C]
-          # - [0xB2EC, palette, D_8018B2EC]
-          # - [0xB30C, palette, D_8018B30C]
-          - [0xFD2C, skip]
+          - [0x1CB0, cmpgfx, D_us_80181CB0, 128, 128, 4]
+          - [0x294C, cmpgfx, D_us_8018294C, 128, 128, 4]
+          - [0x38FC, cmpgfx, D_us_801838FC, 128, 128, 4]
+          - [0x4924, cmpgfx, D_us_80184924, 128, 128, 4]
+          - [0x547C, cmpgfx, D_us_8018547C, 128, 128, 4]
+          - [0x60BC, cmpgfx, D_us_801860BC, 128, 128, 4]
+          - [0x6A88, cmpgfx, D_us_80186A88, 128, 128, 4]
+          - [0x79F0, cmpgfx, D_us_801879F0, 128, 128, 4]
+          - [0x88B0, cmpgfx, D_us_801888B0, 128, 128, 4]
+          - [0x9774, cmpgfx, D_us_80189774, 128, 128, 4]
+          - [0xA0B0, cmpgfx, D_us_8018A0B0, 128, 128, 4]
+          - [0xB02C, palette, D_us_8018B02C, 16]
+          - [0xB2EC, palette, D_us_8018B2EC, 16]
+          - [0xB30C, palette, D_us_8018B30C, 16]
+          - [0xB92C, skip]
   - target: disks/us/BOSS/RBO1/RBO1.BIN
     asset_path: assets/boss/rbo1
     src_path: src/boss/rbo1
@@ -1897,6 +2052,46 @@ files:
     asset_path: assets/boss/rbo4
     src_path: src/boss/rbo4
     splat_config_path: config/splat.us.borbo4.yaml
+    segments:
+      - start: 0
+        vram: 0x80180000
+        assets:
+          - [0x2C, sprite_banks, us/sprite_banks]
+          - [0x8C, palette, D_us_8018008C, 16]
+          - [0xAC, paldef, palette_def]
+          - [0x10C, layers, layers]
+          - [0x134, gfx_banks, us/graphics_banks]
+          - [0x248, layout, entity_layouts]
+          - [0x3F0, skip]
+          - [0x1378, rooms, rooms]
+          - [0x1394, skip]
+          - [0x1478, cmpgfx, D_us_80181478, 128, 128, 4]
+          - [0x2054, cmpgfx, D_us_80182054, 128, 128, 4]
+          - [0x2398, cmpgfx, D_us_80182398, 128, 128, 4]
+          - [0x293C, cmpgfx, D_us_8018293C, 128, 128, 4]
+          - [0x32B0, cmpgfx, D_us_801832B0, 128, 128, 4]
+          - [0x3BD4, cmpgfx, D_us_80183BD4, 128, 128, 4]
+          - [0x4438, cmpgfx, D_us_80184438, 128, 128, 4]
+          - [0x4D5C, cmpgfx, D_us_80184D5C, 128, 128, 4]
+          - [0x5554, cmpgfx, D_us_80185554, 128, 128, 4]
+          - [0x5BF8, cmpgfx, D_us_80185BF8, 128, 128, 4]
+          - [0x62D4, cmpgfx, D_us_801862D4, 128, 128, 4]
+          - [0x6848, cmpgfx, D_us_80186848, 128, 128, 4]
+          - [0x6E60, cmpgfx, D_us_80186E60, 128, 128, 4]
+          - [0x780C, cmpgfx, D_us_8018780C, 128, 128, 4]
+          - [0x8704, cmpgfx, D_us_80188704, 128, 128, 4]
+          - [0x8DF4, cmpgfx, D_us_80188DF4, 128, 128, 4]
+          - [0x9D70, palette, D_us_80189D70, 16]
+          - [0x9D90, palette, D_us_80189D90, 16]
+          - [0x9DB0, palette, D_us_80189DB0, 16]
+          - [0x9DD0, palette, D_us_80189DD0, 16]
+          - [0x9E30, palette, D_us_80189E30, 16] # 0x2E0
+          - [0xA0F0, palette, D_us_8018A0F0, 16] # 0x200
+          - [0xA2F0, skip]
+          - [0xA6F0, tiledef, rload] # 0x100 tiles per section
+          - [0xAB00, skip]
+          - [0xEB10, tiledef, rsave] # 0x1000 tiles per section
+          - [0x12B20, skip]
   - target: disks/us/BOSS/RBO5/RBO5.BIN
     asset_path: assets/boss/rbo5
     src_path: src/boss/rbo5
@@ -1913,6 +2108,8 @@ files:
           - [0x340, skip]
           - [0x1258, rooms, rooms]
           - [0x1274, skip]
+          - [0x153C, blueprintsdef, blueprints, DopBlueprints, EntityID]
+          - [0x17F0, skip]
           - [0x2BF78, cmpgfx, D_801ABF78, 128, 128, 4]
           - [0x2C258, cmpgfx, D_801AC258, 128, 128, 4]
           - [0x2C360, palette, D_us_801AC360, 16]
@@ -1925,6 +2122,37 @@ files:
     asset_path: assets/boss/rbo7
     src_path: src/boss/rbo7
     splat_config_path: config/splat.us.borbo7.yaml
+    segments:
+      - start: 0
+        vram: 0x80180000
+        assets:
+          - [0x2C, sprite_banks, us/sprite_banks]
+          - [0x8C, paldef, palette_def]
+          - [0xB0, layers, layers]
+          - [0xD8, gfx_banks, us/graphics_banks]
+          - [0x194, layout, entity_layouts]
+          - [0x33C, skip]
+          - [0x12C4, rooms, rooms]
+          - [0x12E0, skip]
+          - [0x13C4, cmpgfx, D_us_801813C4, 128, 128, 4]
+          - [0x1FA0, cmpgfx, D_us_80181FA0, 128, 128, 4]
+          - [0x22E4, cmpgfx, D_us_801822E4, 128, 128, 4]
+          - [0x2888, cmpgfx, D_us_80182888, 128, 128, 4]
+          - [0x34E0, cmpgfx, D_us_801834E0, 128, 128, 4]
+          - [0x41D8, cmpgfx, D_us_801841D8, 128, 128, 4]
+          - [0x5264, cmpgfx, D_us_80185264, 128, 128, 4]
+          - [0x5BF4, cmpgfx, D_us_80185BF4, 128, 128, 4]
+          - [0x6624, cmpgfx, D_us_80186624, 128, 128, 4]
+          - [0x7338, cmpgfx, D_us_80187338, 128, 128, 4]
+          - [0x7D04, cmpgfx, D_us_80187D04, 128, 128, 4]
+          - [0x8580, cmpgfx, D_us_80188580, 128, 128, 4]
+          - [0x94FC, palette, D_us_801894FC, 16]
+          - [0x97BC, palette, D_us_801897BC, 16]
+          - [0x987C, skip]
+          - [0xA07C, tiledef, rload]
+          - [0xA48C, skip]
+          - [0xE49C, tiledef, rsave]
+          - [0x124AC, skip]
   - target: disks/us/BOSS/RBO8/RBO8.BIN
     asset_path: assets/boss/rbo8
     src_path: src/boss/rbo8

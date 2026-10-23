@@ -20,14 +20,14 @@ s32 DMA_CpuResult();
 // func_060234F4
 void DMA_ScuInit();
 
-void InitPrimBuf();
+void InitPrimBuf(void);
 void func_06004D84(void);
 void func_06004DE8(void);
 void func_06004E50(void);
 void func_06004E94(void);
 void INT_SetScuFunc(u32 vector, void (*handler)(void));
 
-// DAT_0605C120, DAT_060645EC, DAT_060645e4, DAT_060645f8 and SpGourTbl
+// DAT_0605C120, DAT_060645EC, DAT_060645E4, DAT_060645F8 and SpGourTbl
 // are deliberately absent: zero and its dependents access them at
 // different types, and a shared declaration changes codegen.
 // Each user declares its own.
@@ -35,15 +35,17 @@ extern s32 DAT_060DC004[];
 extern s32 DAT_060DC008[];
 extern s32 DAT_060DC00C[];
 extern s32 DAT_0605D910[];
-struct ShakeState {
-    s16 id;
+typedef struct {
+    u16 id;
     s16 index;
     s16* offsets;
     s16 offset;
-};
-extern struct ShakeState DAT_06057A10;
+} ShakeState;
+extern ShakeState DAT_06057A10;
+extern s16 DAT_06057A18;
 extern s32 DAT_00252000;
 extern s32 DAT_00258000;
+extern s32 DAT_060937F8;
 
 extern SaturnSpriteResource** DAT_060645D0;
 
@@ -68,6 +70,15 @@ typedef struct {
     u16 divisorY;
 } Unk0605CD90;
 
+typedef struct {
+    char* unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkA;
+    s32 unkC;
+    s32 unk10;
+} Unk0600654C;
+
 void func_0600871C(Unk0605CD90*, UNK_0605c680*, s32);
 
 void BuildSubDispTilemap(Unk0605CD90* arg0);
@@ -91,15 +102,9 @@ extern s16 DAT_06062224[];
 extern s32 DAT_06039214;
 void ClearDebugPrintTilemap();
 
-#define SH2_REG_M_FRT_IC 0x21000000
-
 extern void* g_BatResourceDescriptorList;
 
-extern s32* DAT_060a5000;
-
 extern SaturnStageDataTables g_StageOverlayData;
-
-extern s32* DAT_06066000;
 
 void func_06006FA8(void);
 
@@ -122,12 +127,26 @@ s8 func_0600D47C(u32 device, s8 arg1);
 void InitSystem();
 void func_060040D8();
 
+s32 func_0600DCF0(Primitive* prim);
+s32 func_0600DD38(Primitive* prim);
+s32 func_0600DD84(Primitive* prim);
+s32 func_0600DDD4(Primitive* prim);
+s32 func_0600DE20(Primitive* prim);
+s32 func_0600DE2C(Primitive* prim);
+
+void func_0600DFC0(Primitive* prim, s16 x, s16 y);
+void func_0600E01C(Primitive* prim, s16 x, s16 y);
+void func_0600E050(Primitive* prim, s16 x, s16 y);
+void func_0600E070(Primitive* prim, s16 x, s16 y);
+void func_0600E0A4(Primitive* prim, s16 x, s16 y);
+void func_0600E0C4(Primitive* prim, s16 x, s16 y);
+
 /* Declarations moved here by tools/saturn/move_declarations.py */
 extern s32 DAT_0605CD5C;
 void func_0600971C(void);
 void func_06005208(s32);
 extern bool DAT_0605D7F0;
-extern s32 DAT_0605c6e4;
+extern s32 DAT_0605C6E4;
 extern s32 DAT_0605c664;
 extern s16 DAT_0605c110;
 extern u16 DAT_0605becc;
@@ -160,8 +179,10 @@ extern s32 DAT_0606459c;
 extern s32 DAT_0605c108;
 extern s32 D_8006C374;
 void func_060195F0(void);
+void func_0600FACC(void);
 void func_0600FB34(void);
 extern s32 g_CutsceneHasControl;
+extern s32 DAT_0605BEC4;
 extern s32 DAT_06061dd0;
 extern s32 DAT_0605c10c;
 extern SaturnStageFileRecord g_StageFileRecords[];
@@ -217,12 +238,11 @@ extern u32 DAT_0605DDD0[BUP_LIB_SIZE4];
 extern u32 DAT_06002000[BUP_WORK_SIZE4];
 
 void func_0600C818();
-void ResetLayerColorCalc();
+void ResetLayerColorCalc(void);
 extern u16 DAT_0605CDB8;
 void DestroySpriteObject(SpriteObject*);
 extern u32 g_randomNext;
-s32 func_0602A778(s32, s32, s32);
-extern s32 DAT_06039128[];
+extern s16* DAT_06039128[];
 void func_0600C18C();
 void func_0600BF08();
 void func_0600BEA8();
@@ -238,23 +258,25 @@ extern SaturnSpriteResource g_EntitySpriteBank08;
 extern SaturnSpriteFrameHeader* DAT_06046CD0[];
 void func_0600AFA8(SpriteObject* sprite, SaturnSpriteFrameHeader* frame);
 void SetVdp2BackgroundColor();
-void SPR_2FrameEraseData(Uint16);
-void SPR_SetEraseData(
-    Uint16 eraseData, Uint16 leftX, Uint16 topY, Uint16 rightX, Uint16 botY);
-void SPR_2CloseCommand();
-void SPR_2ClrAllChar(void);
 extern s32 g_FileLoadEnabled;
-s32 func_0601AE5C(s32, s32);
-void func_0600C298(s32);
+
+void func_0600C00C(void);
 void func_0600C0C4(s32);
+void func_0600C0FC(void);
+void func_0600C114(void);
+void func_0600C254(void);
+void func_0600C298(s32);
+void func_0601AD14(void);
 void func_0601AE2C(s32);
-s32 func_06006574(struct Unk0600654C*);
+s32 func_06006574(Unk0600654C*);
 extern s32 DAT_0605d7f8;
 extern s32 DAT_06057f34;
-void SPR_WaitDrawEnd();
-void func_06012fb4();
+void func_06012FB4(void);
 void func_0600D8BC();
 void func_06009838();
+void func_0601AC48(void);
+void SetStageOverlayAddress(void);
+void SetServantResourceList(void);
 void UpdateScrollForRoom();
 void TransferAllBgLayers();
 void func_06008264();
@@ -262,7 +284,7 @@ void CloseSpriteList();
 void func_06007d54();
 void func_0600652C();
 void func_06005310();
-void func_06004F50();
+void func_06004F50(u16);
 void ReturnToGame();
 void SetVblank(s32);
 void func_0600456c();
@@ -271,22 +293,20 @@ extern s32 SpMstCmdPos;
 void CSH_Init(Uint16 sw);
 s32 ReadFileToAddr(char* path, s32 addr);
 extern s16 d_0605AEA8;
-extern s16 d_0605AEB0;
-extern s32 DAT_060645AC;
+extern u16 d_0605AEB0;
+extern Equipment* DAT_060645AC;
 void FlushVramTransfers(void);
 void func_06008464(void);
 void func_06008488(void);
 extern s32 DAT_06050668;
 extern s32 DAT_0605AE80;
 extern s32* DAT_0605AE8C;
-extern s32 DAT_0605064C;
+extern u8 DAT_0605060C[];
 s32 func_06006170(void);
 s32 func_060062F8(s32, s32*);
 extern s32 DAT_0605C100;
 extern s32 DAT_0605CD80;
 extern s32 DAT_0605C65C;
-extern void (*DAT_0606465C)(void);
-extern void (*DAT_060645C4)(void);
 extern char* DAT_06038A14[][2];
 void func_06009F10(void);
 void func_060100DC(void);
@@ -294,7 +314,11 @@ void func_0601AEF4(void);
 void func_0601AF2C(void);
 void func_0601B184(void);
 void func_0601B19C(void);
+void BlankScreen(void);
 void CSH_AllClr(void);
+void SetSpriteEraseData(s16 arg0);
+void AllocGameSprite(s32);
+void ResetSpriteVram(void);
 void InitSpriteEngine(s32 arg0);
 void InitVdp2Display(void);
 void InitDebugPrint(void);
@@ -309,8 +333,9 @@ typedef struct {
     s16 a;
 } Unk0605C6D8;
 extern Unk0605C6D8 DAT_0605C6D8;
-extern Unk0605D770 DAT_0605D770;
+extern u16 DAT_0605D744;
 extern s32 DAT_0605D764;
+extern Unk0605D770 DAT_0605D770;
 
 extern PerGetSys* DAT_060505E0;
 extern PerGetSys* DAT_060505E4;
@@ -337,6 +362,10 @@ void func_060082C8(void);
 void func_06009D30(void);
 void func_0600B234(void);
 void func_0600DAB4(void);
+void func_06009058(u16 arg0);
+void func_06009AE8(s32, Unk0605CD90*, UNK_0605c680*);
+extern void func_06009D60(u32);
+void func_06009F84(Unk0605CD90*);
 extern void SPR_2OpenCommand(Uint16);
 extern MthMatrix DAT_060579A8;
 extern Point16 DAT_0605BEC0;
@@ -355,16 +384,18 @@ extern void ResetPadsRepeat(void);
 extern void func_06008C2C(void);
 extern void (*DAT_06064624)(s32);
 extern void (*DAT_0606461C)(s32);
+extern s32 DAT_060389E0[][2];
+extern s32 DAT_060389F8[];
 extern u8 DAT_06038C84[];
-extern s32 DAT_06038CA0[];
+extern s32 DAT_06038CA0[][6];
 extern u16 DAT_06038D30[];
 extern u16 DAT_06038D40[];
 extern u16 DAT_06038D50[];
 extern u16 DAT_06038D60[];
 extern u16 DAT_06038D70[];
 extern u16 DAT_06038DA0[];
-extern void func_06009D60(u32);
 extern u8 DAT_060577A0[];
+extern u8 DAT_060578A0[];
 void rsincos(s32 angle, s32* sinOut, s32* cosOut);
 void func_0600BF38();
 void func_0600BF8C();

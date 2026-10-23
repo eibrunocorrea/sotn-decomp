@@ -37,6 +37,14 @@ typedef enum {
     PAD_RIGHT = 0x8000,
 } PlayerPad;
 
+typedef enum {
+    WALL_NONE,
+    WALL_TOP,
+    WALL_LEFT,
+    WALL_BOTTOM,
+    WALL_RIGHT,
+} WallSide;
+
 #define STAGE_INVERTEDCASTLE_MASK 0x1F
 #define STAGE_INVERTEDCASTLE_FLAG 0x20
 #define STAGE_ST0 0x1F
@@ -803,6 +811,7 @@ void (*func_060645B0)();
 void (*func_060645B4)();
 void (*func_060645BC)();
 void (*func_060645C0)();
+void (*func_060645C4)();
 void (*func_8010E168)(s32, s32);
 void (*func_060645E0)();
 void (*func_060645E8)();
@@ -817,10 +826,12 @@ void (*func_06064628)(s32);
 void (*func_06064630)();
 void (*GetPlayerSensor)(Collider* col);
 void (*func_06064638)();
-void (*func_0606463c)();
+void (*func_0606463C)();
+void (*func_06064640)(s32);
 void (*func_06064644)();
 void (*func_0606464C)();
 void (*func_06064658)(s32);
+void (*func_0606465C)();
 void (*func_06064660)();
 void (*func_06064664)();
 void (*func_06064674)();
